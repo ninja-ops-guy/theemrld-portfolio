@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 50% 4%;
+    --foreground: 220 20% 93%;
+    --card: 220 50% 4%;
+    --card-foreground: 220 20% 93%;
+    --popover: 220 50% 4%;
+    --popover-foreground: 220 20% 93%;
+    --primary: 228 100% 64%;
+    --primary-foreground: 220 50% 4%;
+    --secondary: 210 14% 60%;
+    --secondary-foreground: 220 20% 93%;
+    --muted: 220 30% 10%;
+    --muted-foreground: 210 14% 60%;
+    --accent: 228 100% 64%;
+    --accent-foreground: 220 50% 4%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 30% 10%;
+    --input: 220 30% 10%;
+    --ring: 228 100% 64%;
+    --radius: 0rem;
+  }
+
+  body {
+    background-color: #050A14;
+    color: #E8EDF3;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  ::selection {
+    background-color: rgba(74, 109, 255, 0.3);
+    color: #E8EDF3;
+  }
+
+  button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .font-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 400;
+  }
+
+  .font-serif-accent {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+  }
+
+  .font-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #8899AA;
+  }
+
+  .decode-char {
+    display: inline-block;
+    transition: color 0.3s ease;
+    color: #4A6DFF;
+  }
+
+  .decode-char.resolved {
+    color: #E8EDF3;
+  }
+
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    background-color: #4A6DFF;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-top 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-left: -6px;
+    margin-top: -6px;
+  }
+
+  .custom-cursor.is-hovering {
+    width: 48px;
+    height: 48px;
+    margin-left: -18px;
+    margin-top: -18px;
+    mix-blend-mode: exclusion;
+  }
+}
