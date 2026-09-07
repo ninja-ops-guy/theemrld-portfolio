@@ -87,7 +87,7 @@ export default function About() {
               color: '#E8EDF3',
             }}
           >
-            I engineer systems that think, defend, and scale.
+            I operate where infrastructure, security, automation, and execution meet.
           </h2>
 
           <div style={{ marginTop: '40px' }}>
@@ -118,15 +118,17 @@ export default function About() {
 
         <div ref={rightRef} className="md:w-[50%] opacity-0">
           <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.7 }}>
-            Infrastructure engineer with deep expertise across enterprise IT, cybersecurity, and
-            emerging AI systems. Built hardened kiosk environments deployed across manufacturing
-            floors. Recovered critical production systems from boot failure. Automated infrastructure
-            inventory with SNMP tooling that eliminated manual walkdowns.
+            Systems and security engineer with a track record of taking ambiguous operational problems
+            from diagnosis through implementation. My work spans production IT, enterprise networking,
+            cybersecurity operations, automation, and applied AI — with an emphasis on reducing
+            operational friction, restoring critical services, and leaving behind repeatable systems
+            instead of one-off fixes.
           </p>
           <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.7, marginTop: '24px' }}>
-            Currently focused on embodied AI platforms, multi-agent orchestration systems, and
-            quantitative prediction market infrastructure. 125+ TryHackMe rooms completed. Passionate
-            about mentoring interns and STEM career outreach for the next generation of technologists.
+            I also build independent R&D programs that pressure-test emerging technology: embodied AI,
+            multi-agent orchestration, adversarial machine learning, and quantitative systems. The common
+            thread is systems thinking — define the risk, build the mechanism, measure the result, document
+            the tradeoffs, and improve the operating model.
           </p>
 
           <div className="flex flex-wrap gap-3" style={{ marginTop: '40px' }}>
