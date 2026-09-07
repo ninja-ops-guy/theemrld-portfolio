@@ -73,7 +73,7 @@ export default function Hero() {
             opacity: 0,
           }}
         >
-          SYSTEMS ENGINEER
+          SYSTEMS & SECURITY ENGINEER
         </h1>
 
         <p
@@ -88,9 +88,27 @@ export default function Hero() {
             opacity: 0,
           }}
         >
-          Infrastructure automation. AI/robotics engineering. Cybersecurity operations.
-          Building systems that think, defend, and scale.
+          I turn operational problems into reliable systems — spanning enterprise infrastructure,
+          security, automation, and applied AI. Focused on measurable outcomes, resilient operations,
+          and technology that scales beyond the initial fix.
         </p>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '10px 24px',
+            marginTop: '28px',
+            color: '#8899AA',
+            fontSize: '11px',
+            letterSpacing: '0.08em',
+          }}
+        >
+          <span><strong style={{ color: '#E8EDF3' }}>170+ → ~15</strong> TICKET QUEUE</span>
+          <span><strong style={{ color: '#E8EDF3' }}>500 US MSAs</strong> PERMIT PIPELINE</span>
+          <span><strong style={{ color: '#E8EDF3' }}>32</strong> ROBOTICS SKILLS</span>
+          <span><strong style={{ color: '#E8EDF3' }}>CCNA</strong> CERTIFIED</span>
+        </div>
       </div>
 
       <div
