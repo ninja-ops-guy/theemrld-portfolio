@@ -8,8 +8,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="margin:0;background:#050A14;color:#E8EDF3">
+    <div id="root">
+      <div id="boot-status" style="min-height:100vh;display:grid;place-items:center;background:#050A14;color:#8899AA;font-family:Inter,system-ui,sans-serif;letter-spacing:.08em;font-size:12px">
+        LOADING PORTFOLIO…
+      </div>
+    </div>
+    <script>
+      window.addEventListener('error', function (event) {
+        var root = document.getElementById('root');
+        if (root && document.getElementById('boot-status')) {
+          root.innerHTML = '<div style="min-height:100vh;padding:40px;background:#050A14;color:#E8EDF3;font-family:monospace"><h1 style="font-size:18px">PORTFOLIO BOOT ERROR</h1><pre style="white-space:pre-wrap;color:#8899AA">' + String(event.message || 'Unknown runtime error').replace(/[&<>]/g, '') + '</pre></div>';
+        }
+      });
+      window.addEventListener('unhandledrejection', function (event) {
+        var root = document.getElementById('root');
+        if (root && document.getElementById('boot-status')) {
+          root.innerHTML = '<div style="min-height:100vh;padding:40px;background:#050A14;color:#E8EDF3;font-family:monospace"><h1 style="font-size:18px">PORTFOLIO PROMISE ERROR</h1><pre style="white-space:pre-wrap;color:#8899AA">' + String(event.reason || 'Unknown promise rejection').replace(/[&<>]/g, '') + '</pre></div>';
+        }
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
