@@ -34,6 +34,13 @@ const projects = [
     link: null,
   },
   {
+    title: 'Ruthless Adversarial Clothing',
+    category: 'ADVERSARIAL FASHION R&D + TEXTILE GENERATION',
+    image: '/images/proj-rac.svg',
+    desc: 'Research-to-product platform for adversarial apparel. Built a high-resolution conditional textile generator, selectable motif system, POD-ready 4096px exports, garment mockups, deterministic manifests, surrogate-model evaluation, robustness simulation, and an evidence-gated RAC-D0→M2 certification architecture. Digital results are explicitly separated from physical efficacy claims pending calibrated garment trials.',
+    link: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
+  },
+  {
     title: 'Helpdesk Hero',
     category: 'POKEMON-STYLE IT TROUBLESHOOTING RPG',
     image: '/images/proj-helpdesk.jpg',
@@ -57,8 +64,8 @@ export default function SelectedWork() {
     return () => { ScrollTrigger.getAll().forEach((t) => t.kill()); };
   }, []);
 
-  const leftProjects = projects.slice(0, 3);
-  const rightProjects = projects.slice(3);
+  const leftProjects = projects.filter((_, index) => index % 2 === 0);
+  const rightProjects = projects.filter((_, index) => index % 2 === 1);
 
   return (
     <section id="work" ref={sectionRef} className="relative" style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}>
@@ -67,7 +74,7 @@ export default function SelectedWork() {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 flex flex-col" style={{ gap: '80px' }}>
             {leftProjects.map((project, index) => (
-              <div key={project.title} ref={(el) => { cardsRef.current[index] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
+              <div key={project.title} ref={(el) => { cardsRef.current[index * 2] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
                 <div className="overflow-hidden">
                   <img src={project.image} alt={project.title} className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]" style={{ aspectRatio: '4/3', objectFit: 'cover' }} loading="lazy" />
                 </div>
@@ -82,7 +89,7 @@ export default function SelectedWork() {
           </div>
           <div className="flex-1 flex flex-col" style={{ gap: '80px', paddingTop: '200px' }}>
             {rightProjects.map((project, index) => (
-              <div key={project.title} ref={(el) => { cardsRef.current[index + 3] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
+              <div key={project.title} ref={(el) => { cardsRef.current[index * 2 + 1] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
                 <div className="overflow-hidden">
                   <img src={project.image} alt={project.title} className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]" style={{ aspectRatio: '4/3', objectFit: 'cover' }} loading="lazy" />
                 </div>
