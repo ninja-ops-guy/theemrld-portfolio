@@ -6,9 +6,12 @@ import { inspectAttr } from 'kimi-plugin-inspect-react'
 // https://vite.dev/config/
 export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? '/theemrld-portfolio/' : '/',
-  plugins: [inspectAttr(), react()],
+  plugins: process.env.GITHUB_ACTIONS ? [react()] : [inspectAttr(), react()],
   server: {
     port: 3000,
+  },
+  build: {
+    sourcemap: true,
   },
   resolve: {
     alias: {
