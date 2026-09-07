@@ -1,4 +1,5 @@
 name: Deploy portfolio to GitHub Pages
+# public Pages publish trigger
 
 on:
   push:
