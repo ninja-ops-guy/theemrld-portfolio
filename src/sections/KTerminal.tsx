@@ -71,7 +71,6 @@ export default function KTerminal() {
   const [timeDisplay, setTimeDisplay] = useState('00:00 / 00:00');
   const [audioStatus, setAudioStatus] = useState('STANDBY');
   const [showClickStart, setShowClickStart] = useState(true);
-  const [audioInitialized, setAudioInitialized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const bootIndexRef = useRef(0);
@@ -244,7 +243,6 @@ export default function KTerminal() {
     setCurrentTrack(track);
     setShowClickStart(false);
     addLine(`Loading track ${track.id}: ${track.title}...`);
-    setAudioInitialized(true);
     initSoundCloud(track.url);
   }, [addLine, initSoundCloud]);
 
@@ -258,7 +256,6 @@ export default function KTerminal() {
     setCurrentTrack(t);
     setShowClickStart(false);
     addLine(`Loading SoundCloud URL...`);
-    setAudioInitialized(true);
     initSoundCloud(url);
   }, [addLine, initSoundCloud]);
 
