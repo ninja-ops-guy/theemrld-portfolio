@@ -8,6 +8,7 @@ import CustomCursor from './sections/CustomCursor';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import SelectedWork from './sections/SelectedWork';
+import ExecutiveImpact from './sections/ExecutiveImpact';
 import About from './sections/About';
 import Networking from './sections/Networking';
 import ImmersiveExperiences from './sections/ImmersiveExperiences';
@@ -47,6 +48,7 @@ function Portfolio() {
       <Navigation />
       <main className="relative">
         <Hero />
+        <ExecutiveImpact />
         <SelectedWork />
         <About />
         <Networking />
