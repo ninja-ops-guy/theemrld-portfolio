@@ -6,7 +6,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const certifications = [
   { name: 'CCNA', full: 'Cisco Certified Network Associate', status: 'CERTIFIED' },
-  { name: 'CompTIA Security+', full: 'Security Infrastructure', status: 'PURSUEING' },
+  { name: 'CompTIA Security+', full: 'Security Infrastructure', status: 'CERTIFIED' },
 ];
 
 const networkSkills = [
