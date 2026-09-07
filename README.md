@@ -20,7 +20,7 @@ https://tjsizcvhdprxa.kimi.page
 | Section | Description |
 |---------|-------------|
 | Hero | "SYSTEMS ENGINEER" headline with animated constellation |
-| Selected Work | 5 real projects (Palanroof, Kimi Claw, Kalshi, Permits, Helpdesk Hero) |
+| Selected Work | 6 real projects (Palanroof, Kimi Claw, Kalshi, Permits, Ruthless Adversarial Clothing, Helpdesk Hero) |
 | About | Bio, highlights, capability tags |
 | Networking | CCNA certification, network engineering skills |
 | Technical Domains | Scroll-anchored viewport-switch sequence |
@@ -33,6 +33,7 @@ https://tjsizcvhdprxa.kimi.page
 - **Kimi Claw x Vector** — Physical AI companion platform
 - **Kalshi AI Trading Bot** — Quantitative prediction market engine
 - **Municipal Permit Pipeline** — Multi-agent data infrastructure
+- **Ruthless Adversarial Clothing** — Adversarial-fashion R&D, conditional textile generation, evidence-gated certification pipeline
 - **Helpdesk Hero** — Pokemon-style IT troubleshooting RPG
 
 ## K Terminal
