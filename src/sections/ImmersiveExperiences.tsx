@@ -5,11 +5,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const experiences = [
-  { title: 'INFRASTRUCTURE', subtitle: 'Windows Server, AD, DNS, Citrix, PXE, MDT, SNMP Automation', image: '/images/exp-infra.jpg' },
-  { title: 'AI & ROBOTICS', subtitle: 'Embodied AI, multi-agent orchestration, local LLM inference', image: '/images/exp-ai.jpg' },
-  { title: 'CYBERSECURITY', subtitle: 'Vulnerability assessment, pentesting, incident response, TryHackMe 125+ rooms', image: '/images/exp-sec.jpg' },
-  { title: 'ENTERPRISE IT', subtitle: 'Hardened kiosk systems, production recovery, ticket queue management, imaging', image: '/images/exp-enterprise.jpg' },
-  { title: 'QUANTITATIVE SYSTEMS', subtitle: 'Prediction market algorithms, ensemble ML, Kelly criterion risk management', image: '/images/exp-quant.jpg' },
+  { title: 'INFRASTRUCTURE', subtitle: 'Windows Server, AD, DNS, Citrix, PXE, MDT, SNMP Automation', image: `${import.meta.env.BASE_URL}images/exp-infra.jpg` },
+  { title: 'AI & ROBOTICS', subtitle: 'Embodied AI, multi-agent orchestration, local LLM inference', image: `${import.meta.env.BASE_URL}images/exp-ai.jpg` },
+  { title: 'CYBERSECURITY', subtitle: 'Vulnerability assessment, pentesting, incident response, TryHackMe 125+ rooms', image: `${import.meta.env.BASE_URL}images/exp-sec.jpg` },
+  { title: 'ENTERPRISE IT', subtitle: 'Hardened kiosk systems, production recovery, ticket queue management, imaging', image: `${import.meta.env.BASE_URL}images/exp-enterprise.jpg` },
+  { title: 'QUANTITATIVE SYSTEMS', subtitle: 'Prediction market algorithms, ensemble ML, Kelly criterion risk management', image: `${import.meta.env.BASE_URL}images/exp-quant.jpg` },
 ];
 
 export default function ImmersiveExperiences() {
