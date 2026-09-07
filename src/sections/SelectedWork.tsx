@@ -70,44 +70,44 @@ export default function SelectedWork() {
     return () => { ScrollTrigger.getAll().forEach((t) => t.kill()); };
   }, []);
 
-  const leftProjects = projects.filter((_, index) => index % 2 === 0);
-  const rightProjects = projects.filter((_, index) => index % 2 === 1);
+  const flagshipProjects = projects.filter((project) =>
+    ['Palanroof / RoofBot', 'Ruthless Adversarial Clothing', 'Kimi Claw x Vector'].includes(project.title)
+  );
+  const additionalProjects = projects.filter((project) => !flagshipProjects.includes(project));
 
   return (
     <section id="work" ref={sectionRef} className="relative" style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}>
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
         <p className="font-label" style={{ marginBottom: '64px' }}>SELECTED WORK</p>
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1 flex flex-col" style={{ gap: '80px' }}>
-            {leftProjects.map((project, index) => (
-              <div key={project.title} ref={(el) => { cardsRef.current[index * 2] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
+        <div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px' }}>
+            {flagshipProjects.map((project, index) => (
+              <article key={project.title} ref={(el) => { cardsRef.current[index] = el; }} className="group opacity-0" data-cursor="expand" style={{ borderTop: '1px solid #1A2540', paddingTop: '18px' }}>
                 <div className="overflow-hidden">
-                  <img src={project.image} alt={project.title} className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]" style={{ aspectRatio: '4/3', objectFit: 'cover' }} loading="lazy" />
+                  <img src={project.image} alt={project.title} className="w-full transition-transform duration-[600ms] group-hover:scale-[1.03]" style={{ aspectRatio: '4/3', objectFit: 'cover' }} loading="lazy" />
                 </div>
-                <h3 className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2" style={{ fontSize: 'clamp(1.2rem, 2vw, 1.8rem)', color: '#E8EDF3', marginTop: '16px', letterSpacing: '-0.02em' }}>{project.title}</h3>
+                <p className="font-label" style={{ color: '#4A6DFF', marginTop: '18px' }}>FLAGSHIP CASE STUDY</p>
+                <h3 className="font-headline" style={{ fontSize: 'clamp(1.25rem, 2vw, 1.8rem)', color: '#E8EDF3', marginTop: '8px' }}>{project.title}</h3>
                 <p className="font-label" style={{ marginTop: '8px' }}>{project.category}</p>
                 <p className="font-body" style={{ fontSize: '14px', color: '#8899AA', marginTop: '12px', lineHeight: 1.6 }}>{project.desc}</p>
                 <p className="font-label" style={{ marginTop: '14px', color: '#4A6DFF' }}>WHY IT MATTERS</p>
                 <p className="font-body" style={{ fontSize: '13px', color: '#B3C0CF', marginTop: '6px', lineHeight: 1.55 }}>{project.outcome}</p>
-                {project.link && (
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="font-label inline-block mt-3 hover:text-[#4A6DFF] transition-colors duration-300" onClick={(e) => e.stopPropagation()}>VISIT SITE &rarr;</a>
-                )}
-              </div>
+                {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="font-label inline-block mt-3 hover:text-[#4A6DFF] transition-colors duration-300">VIEW PROJECT →</a>}
+              </article>
             ))}
           </div>
-          <div className="flex-1 flex flex-col" style={{ gap: '80px', paddingTop: '200px' }}>
-            {rightProjects.map((project, index) => (
-              <div key={project.title} ref={(el) => { cardsRef.current[index * 2 + 1] = el; }} className="group cursor-pointer opacity-0" data-cursor="expand">
-                <div className="overflow-hidden">
-                  <img src={project.image} alt={project.title} className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]" style={{ aspectRatio: '4/3', objectFit: 'cover' }} loading="lazy" />
-                </div>
-                <h3 className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2" style={{ fontSize: 'clamp(1.2rem, 2vw, 1.8rem)', color: '#E8EDF3', marginTop: '16px', letterSpacing: '-0.02em' }}>{project.title}</h3>
-                <p className="font-label" style={{ marginTop: '8px' }}>{project.category}</p>
-                <p className="font-body" style={{ fontSize: '14px', color: '#8899AA', marginTop: '12px', lineHeight: 1.6 }}>{project.desc}</p>
-                <p className="font-label" style={{ marginTop: '14px', color: '#4A6DFF' }}>WHY IT MATTERS</p>
-                <p className="font-body" style={{ fontSize: '13px', color: '#B3C0CF', marginTop: '6px', lineHeight: 1.55 }}>{project.outcome}</p>
-              </div>
-            ))}
+
+          <div style={{ marginTop: '96px' }}>
+            <p className="font-label" style={{ marginBottom: '28px' }}>ADDITIONAL BUILDS</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1px', background: '#1A2540' }}>
+              {additionalProjects.map((project, index) => (
+                <article key={project.title} ref={(el) => { cardsRef.current[index + flagshipProjects.length] = el; }} className="opacity-0" style={{ background: '#050A14', padding: '24px' }}>
+                  <h3 className="font-headline" style={{ fontSize: '1.1rem', color: '#E8EDF3' }}>{project.title}</h3>
+                  <p className="font-label" style={{ marginTop: '8px' }}>{project.category}</p>
+                  <p className="font-body" style={{ fontSize: '13px', color: '#8899AA', marginTop: '12px', lineHeight: 1.55 }}>{project.outcome}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </div>
