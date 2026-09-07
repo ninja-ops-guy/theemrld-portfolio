@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+<defs><pattern id="grid" width="92" height="92" patternUnits="userSpaceOnUse"><rect width="92" height="92" fill="#080d13"/><rect x="8" y="10" width="50" height="10" fill="#d9d0ba"/><rect x="61" y="8" width="22" height="7" fill="#315fff"/><rect x="16" y="39" width="67" height="8" fill="#343b43"/><rect x="7" y="63" width="29" height="18" fill="#eee52a"/><rect x="45" y="59" width="39" height="20" fill="#d1849d"/></pattern></defs>
+<rect width="1600" height="1200" fill="#050a10"/><rect x="65" y="65" width="1470" height="1070" rx="18" fill="#0b1219" stroke="#354451" stroke-width="3"/>
+<text x="110" y="145" fill="#edf1f3" font-family="Arial,sans-serif" font-size="62" font-weight="900" letter-spacing="5">RUTHLESS</text>
+<text x="110" y="195" fill="#8b9aa5" font-family="monospace" font-size="24" letter-spacing="7">ADVERSARIAL CLOTHING // RAC</text>
+<rect x="110" y="255" width="910" height="690" rx="12" fill="url(#grid)"/>
+<path d="M155 855 L390 335 L555 610 L745 300 L970 770" fill="none" stroke="#eee52a" stroke-width="72" opacity=".9"/>
+<ellipse cx="555" cy="555" rx="260" ry="132" fill="#0a0d10" stroke="#ded5c1" stroke-width="34"/><circle cx="555" cy="555" r="77" fill="#06080a" stroke="#315fff" stroke-width="26"/>
+<rect x="1070" y="255" width="420" height="690" rx="12" fill="#0e151d" stroke="#354451" stroke-width="2"/>
+<text x="1110" y="325" fill="#eee52a" font-family="monospace" font-size="22" font-weight="700">TEXTILE GENERATOR</text>
+<text x="1110" y="380" fill="#dce2e5" font-family="monospace" font-size="19">4096px POD EXPORT</text><text x="1110" y="425" fill="#dce2e5" font-family="monospace" font-size="19">MOTIF CONDITIONING</text><text x="1110" y="470" fill="#dce2e5" font-family="monospace" font-size="19">SURROGATE EVAL</text><text x="1110" y="515" fill="#dce2e5" font-family="monospace" font-size="19">ROBUSTNESS SIM</text>
+<line x1="1110" y1="565" x2="1440" y2="565" stroke="#354451"/><text x="1110" y="625" fill="#8b9aa5" font-family="monospace" font-size="18">RAC-D0 → D1 → D2</text><text x="1110" y="670" fill="#8b9aa5" font-family="monospace" font-size="18">P1 → P2 → M1 → M2</text>
+<text x="1110" y="760" fill="#d1849d" font-family="monospace" font-size="16">RESEARCH + PRODUCT</text><text x="1110" y="795" fill="#d1849d" font-family="monospace" font-size="16">ENGINEERING</text>
+<text x="110" y="1025" fill="#edf1f3" font-family="Arial,sans-serif" font-size="31" font-weight="700" letter-spacing="3">HIGH-RESOLUTION CONDITIONAL PATTERN GENERATION</text>
+<text x="110" y="1075" fill="#71808c" font-family="monospace" font-size="18" letter-spacing="3">DIGITAL EVIDENCE ≠ PHYSICAL CERTIFICATION</text></svg>
