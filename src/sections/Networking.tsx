@@ -78,7 +78,7 @@ export default function Networking() {
           </div>
           <div ref={rightRef} className="md:w-[50%] opacity-0">
             <div className="overflow-hidden" style={{ marginBottom: '40px' }}>
-              <img src="/images/exp-networking.jpg" alt="Cisco network infrastructure" className="w-full" style={{ aspectRatio: '16/9', objectFit: 'cover' }} loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}images/exp-networking.jpg`} alt="Cisco network infrastructure" className="w-full" style={{ aspectRatio: '16/9', objectFit: 'cover' }} loading="lazy" />
             </div>
             <p className="font-label" style={{ marginBottom: '16px' }}>NETWORK ENGINEERING SKILLS</p>
             <div className="flex flex-col" style={{ gap: '1px', background: '#0d1424' }}>
