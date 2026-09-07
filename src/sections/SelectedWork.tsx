@@ -37,7 +37,7 @@ const projects = [
     title: 'Ruthless Adversarial Clothing',
     category: 'ADVERSARIAL FASHION R&D + TEXTILE GENERATION',
     image: `${import.meta.env.BASE_URL}images/proj-rac.svg`,
-    desc: 'Research-to-product platform for adversarial apparel. Built a high-resolution conditional textile generator, selectable motif system, POD-ready 4096px exports, garment mockups, deterministic manifests, surrogate-model evaluation, robustness simulation, and an evidence-gated RAC-D0→M2 certification architecture. Digital results are explicitly separated from physical efficacy claims pending calibrated garment trials.',
+    desc: 'Independent research thesis in physical adversarial machine learning and privacy-preserving apparel. Investigates what makes adversarial effects survive optimized pixels → manufactured textile → garment deformation → physical camera → previously unseen vision architectures. Built surrogate/untouched-held-out evaluation, environment-adaptive optimization, EOT robustness testing, differentiable garment simulation, model-generation isolation, immutable artifact provenance, and fail-closed RAC-D0→D2→P1/P2→M1/M2 evidence gates. Current experiments study transfer predictors, worst-case/CVaR objectives, spatial-frequency survival, manufacturing calibration, coverage topology, durability, and model aging.',
     link: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
   },
   {
