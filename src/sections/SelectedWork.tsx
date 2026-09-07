@@ -9,7 +9,7 @@ const projects = [
     title: 'Adversarial Clothing Pipeline',
     category: 'ADVERSARIAL ML / COMPUTER VISION RESEARCH',
     image: '/images/proj-adversarial.jpg',
-    desc: 'Production-oriented research software for machine-optimized fashion engineered to reduce reliable visual classification across diverse computer-vision systems. Black-box NAP optimizer, neural deformation module, differentiable physics pipeline, environment-adaptive palette optimization inspired by CAPGen. Pattern Lab web UI with 8 procedural generators, full certification architecture (RAC), frozen model-set contracts, and held-out benchmark evaluation. Python research package + browser-based design studio.',
+    desc: 'A research pipeline that designs machine-optimized clothing patterns to break computer vision classifiers. Combines a black-box adversarial optimizer, neural pattern deformation, and a differentiable physics engine that simulates how fabric drapes and stretches. Includes a browser-based Pattern Lab with 8 procedural generators and a full certification benchmark for reproducible results. Python backend + React design studio.',
     link: null,
     github: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
   },
