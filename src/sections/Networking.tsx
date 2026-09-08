@@ -108,9 +108,9 @@ export default function Networking() {
               <span
                 className="font-headline"
                 style={{
-                  font-size: '14px',
+                  fontSize: '14px',
                   color: '#4A6DFF',
-                  letter-spacing: '0.1em',
+                  letterSpacing: '0.1em',
                 }}
               >
                 CISCO
@@ -124,9 +124,9 @@ export default function Networking() {
             <h2
               className="font-headline"
               style={{
-                font-size: 'clamp(1.8rem, 4vw, 3.2rem)',
-                line-height: 1.1,
-                letter-spacing: '-0.02em',
+                fontSize: 'clamp(1.8rem, 4vw, 3.2rem)',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em',
                 color: '#E8EDF3',
               }}
             >
@@ -136,10 +136,10 @@ export default function Networking() {
             <p
               className="font-body"
               style={{
-                font-size: '16px',
+                fontSize: '16px',
                 color: '#8899AA',
-                line-height: 1.7,
-                margin-top: '24px',
+                lineHeight: 1.7,
+                marginTop: '24px',
               }}
             >
               From switch port analysis to site-to-site VPN tunnels — hands-on with Cisco IOS
@@ -148,8 +148,8 @@ export default function Networking() {
             </p>
 
             {/* Certifications */}
-            <div style={{ margin-top: '40px' }}>
-              <p className="font-label" style={{ margin-bottom: '16px' }}>
+            <div style={{ marginTop: '40px' }}>
+              <p className="font-label" style={{ marginBottom: '16px' }}>
                 CERTIFICATIONS
               </p>
               {certifications.map((cert) => (
@@ -158,16 +158,16 @@ export default function Networking() {
                   className="flex items-center justify-between"
                   style={{
                     padding: '12px 0',
-                    border-bottom: '1px solid #0d1424',
+                    borderBottom: '1px solid #0d1424',
                   }}
                 >
                   <div>
                     <span
                       className="font-headline"
                       style={{
-                        font-size: '14px',
+                        fontSize: '14px',
                         color: '#E8EDF3',
-                        letter-spacing: '-0.01em',
+                        letterSpacing: '-0.01em',
                       }}
                     >
                       {cert.name}
@@ -175,9 +175,9 @@ export default function Networking() {
                     <span
                       className="font-body"
                       style={{
-                        font-size: '12px',
+                        fontSize: '12px',
                         color: '#8899AA',
-                        margin-left: '8px',
+                        marginLeft: '8px',
                       }}
                     >
                       {cert.full}
@@ -187,7 +187,7 @@ export default function Networking() {
                     className="font-label"
                     style={{
                       color: cert.status === 'CERTIFIED' ? '#4A6DFF' : '#ffaa00',
-                      font-size: '10px',
+                      fontSize: '10px',
                     }}
                   >
                     {cert.status}
@@ -200,18 +200,18 @@ export default function Networking() {
           {/* Right column - Skills grid + image */}
           <div ref={rightRef} className="network-col-right opacity-0">
             {/* Network image */}
-            <div className="overflow-hidden" style={{ margin-bottom: '40px' }}>
+            <div className="overflow-hidden" style={{ marginBottom: '40px' }}>
               <img
-                src="/images/exp-networking.jpg"
+                src="https://tjsizcvhdprxa.kimi.page/images/exp-networking.jpg"
                 alt="Cisco network infrastructure"
                 className="w-full"
-                style={{ aspect-ratio: '16/9', object-fit: 'cover' }}
+                style={{ aspectRatio: '16/9', objectFit: 'cover' }}
                 loading="lazy"
               />
             </div>
 
             {/* Skills grid */}
-            <p className="font-label" style={{ margin-bottom: '16px' }}>
+            <p className="font-label" style={{ marginBottom: '16px' }}>
               NETWORK ENGINEERING SKILLS
             </p>
             <div className="flex flex-col" style={{ gap: '1px', background: '#0d1424' }}>
@@ -234,7 +234,7 @@ export default function Networking() {
                   <div className="flex items-baseline justify-between">
                     <span
                       className="font-label"
-                      style={{ color: '#E8EDF3', font-size: '11px' }}
+                      style={{ color: '#E8EDF3', fontSize: '11px' }}
                     >
                       {skill.label}
                     </span>
@@ -242,9 +242,9 @@ export default function Networking() {
                   <span
                     className="font-body"
                     style={{
-                      font-size: '13px',
+                      fontSize: '13px',
                       color: '#8899AA',
-                      margin-top: '4px',
+                      marginTop: '4px',
                       display: 'block',
                     }}
                   >
@@ -255,12 +255,12 @@ export default function Networking() {
             </div>
 
             {/* Tools row */}
-            <div className="flex flex-wrap gap-3" style={{ margin-top: '32px' }}>
+            <div className="flex flex-wrap gap-3" style={{ marginTop: '32px' }}>
               {tools.map((tool) => (
                 <span
                   key={tool}
                   className="font-label border px-3 py-1"
-                  style={{ border-color: '#1a2540', font-size: '10px' }}
+                  style={{ borderColor: '#1a2540', fontSize: '10px' }}
                 >
                   {tool}
                 </span>
