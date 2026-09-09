@@ -4,60 +4,99 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const projects = [
+type Project = {
+  title: string;
+  category: string;
+  image: string;
+  status: string;
+  statusTone: 'live' | 'research' | 'prototype';
+  problem: string;
+  built: string;
+  evidence: string[];
+  stack: string;
+  link?: string;
+  github?: string;
+};
+
+const projects: Project[] = [
+  {
+    title: 'TechOps Hero',
+    category: 'PRODUCT ENGINEERING / AUTOMATED QA',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-helpdesk.jpg',
+    status: 'ACTIVE DEVELOPMENT · PUBLIC',
+    statusTone: 'live',
+    problem: 'Turn real infrastructure troubleshooting into an interactive game while keeping a growing campaign stable across desktop and mobile.',
+    built: 'A custom Canvas 2D RPG with diagnostic decision systems, campaign state, arcade combat, mobile controls, CI contracts, browser-based runtime testing, and a continuously exercised GitHub Pages build.',
+    evidence: ['Public playable build', 'Runtime + regression testing', 'CI-gated campaign contracts', 'Failure-driven repair loop'],
+    stack: 'JavaScript · Canvas 2D · Playwright/Puppeteer · GitHub Actions',
+    link: 'https://ninja-ops-guy.github.io/techops-hero/',
+    github: 'https://github.com/ninja-ops-guy/techops-hero',
+  },
   {
     title: 'Adversarial Clothing Pipeline',
-    category: 'ADVERSARIAL ML / COMPUTER VISION RESEARCH',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-adversarial.jpg',
-    desc: 'A research pipeline that designs machine-optimized clothing patterns to break computer vision classifiers. Combines a black-box adversarial optimizer, neural pattern deformation, and a differentiable physics engine that simulates how fabric drapes and stretches. Includes a browser-based Pattern Lab with 8 procedural generators and a full certification benchmark for reproducible results. Python backend + React design studio.',
-    link: null,
+    category: 'ADVERSARIAL ML / COMPUTER VISION R&D',
+    image: '/images/proj-rac.svg',
+    status: 'EXPERIMENTAL · PUBLIC R&D',
+    statusTone: 'research',
+    problem: 'Study whether printable textile patterns can remain adversarial under deformation, viewpoint changes, and other physical-world effects.',
+    built: 'An evidence-gated research pipeline spanning black-box optimization, pattern generation, deformation/physics modeling, benchmark orchestration, artifact export, and reproducibility controls.',
+    evidence: ['Benchmark-oriented workflow', 'Artifact + provenance tracking', 'Print/deformation research path', 'Physical validation explicitly pending'],
+    stack: 'Python · React · Computer Vision · Optimization · Experiment Automation',
     github: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
   },
   {
-    title: 'Palanroof / RoofBot',
-    category: 'AI ROOFING INTELLIGENCE PLATFORM',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-palanroof.jpg',
-    desc: 'Full-stack operational intelligence platform for roofing workflows. AI vision inference, municipal permit auto-discovery pipeline across 500 US MSAs, multi-agent scraping with Ollama LLM fallback. React, TypeScript, Cloud Run.',
-    link: 'https://palanroof.shop/',
-  },
-  {
-    title: 'InvoicePro',
-    category: 'PROFESSIONAL INVOICE GENERATOR — FULL-STACK SAAS',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-invoicepro.jpg',
-    desc: 'Full-featured invoice generator for freelancers. Split-screen form editor with live PDF preview, business and client info management, line items with auto-calculation, invoice history, client database, demo data loading, and PDF download. Clean React frontend with real-time preview updates.',
-    link: 'https://u3jyyp6jtucdg.kimi.page',
-  },
-  {
-    title: 'Kimi Claw x Vector',
-    category: 'PHYSICAL AI COMPANION PLATFORM',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kimiclaw.jpg',
-    desc: 'Embodied AI platform using Vector Robot. Go orchestration, Python motor APIs, locally hosted Qwen 2.5 VL multimodal models on RTX 4070. 32 orchestrated AI skills, UDP swarm networking for multi-robot communication.',
-    link: null,
-  },
-  {
-    title: 'Kalshi AI Trading Bot',
-    category: 'QUANTITATIVE PREDICTION MARKET ENGINE',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kalshi.jpg',
-    desc: 'Algorithmic trading infrastructure for Kalshi. Ensemble ML systems analyzing macroeconomic events and sentiment. Avellaneda-Stoikov market-making for binary contracts. Fractional Kelly Criterion risk management.',
-    link: null,
-  },
-  {
     title: 'CIC & SAT Research',
-    category: 'P VS NP RESEARCH PROGRAM — 18 STAGES, 60+ TRACKS',
+    category: 'COMPLEXITY RESEARCH / FORMAL REASONING',
     image: 'https://tjsizcvhdprxa.kimi.page/images/proj-cic-sat.jpg',
-    desc: 'Computational Information Complexity framework connecting constraint graph structure to proof and circuit complexity. ~58 theorems (8 rigorous), 6 software tools (6,800 LOC), 3 academic papers, 1 Lean 4 formalization, Red Team Security Harness with 4 modules. 25.7M formulas verified. Novel result: L≠P implies SAT not in NC^1.',
+    status: 'RESEARCH PROGRAM · PUBLIC',
+    statusTone: 'research',
+    problem: 'Explore structural relationships between constraint graphs, information complexity, proof complexity, and circuit complexity without treating conjecture as established fact.',
+    built: 'A research codebase combining computational experiments, SAT tooling, formalization work, written arguments, and machine-checkable artifacts intended to separate measured evidence from open claims.',
+    evidence: ['Public research repository', 'Computational experiments', 'Formalization artifacts', 'Claims separated from evidence'],
+    stack: 'Python · SAT/SMT · Lean 4 · Complexity Theory',
     link: 'https://kymplwsfrh776.kimi.page',
     github: 'https://github.com/ninja-ops-guy/cic-p-vs-np-research',
   },
   {
-    title: 'TechOps Hero',
-    category: 'ROGUELITE IT CAREER RPG — 65KB, ZERO DEPENDENCIES',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-helpdesk.jpg',
-    desc: 'Roguelite RPG across a 4-zone aerospace campus — factory floor, corporate offices, server room, reception lobby — each a profit center with distinct failure patterns. Every ticket follows a 5-phase diagnosis pipeline: Interview the user → Isolate root cause from 3 competing hypotheses → Select the portal → Turn-based command battle → Close and debrief. Diagnosis accuracy directly impacts battle: correct root cause = weakened enemy (-30% HP, exposed weakness), wrong one = full-strength fight plus stress penalty. Combat offers 4-6 real commands per scenario — ipconfig /all, tshark -i eth0, gpupdate /force, Restart-Service Spooler, nslookup, dsquery — each with type-effectiveness, resource cost (time/stress), and branching consequences. Flush DNS solves NXDOMAIN but wastes a turn on routing issues; reboot works on 40% of tickets but skips the root cause and hurts your solve-rate rating. 8-rank career ladder to CIO. 7 certifications unlock battle abilities. 6+ boss fights with phase-2 enrage mechanics. Custom Canvas 2D pixel-art engine, Puppeteer balance-testing harness, Web Audio chiptune SFX, SoundCloud soundtrack. Mobile-first with touch D-pad.',
-    link: 'https://rfmffik3vwxwg.kimi.page/?sharetype=link',
-    github: 'https://github.com/ninja-ops-guy/techops-hero',
+    title: 'ASI-Evolve',
+    category: 'AI SYSTEMS / EXPERIMENTAL ORCHESTRATION',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kimiclaw.jpg',
+    status: 'EXPERIMENTAL · PUBLIC',
+    statusTone: 'prototype',
+    problem: 'Explore modular AI-system evolution and orchestration as an engineering problem rather than a single-model demo.',
+    built: 'A public experimental codebase for iterating on agentic/AI system components, interfaces, and evaluation-oriented workflows.',
+    evidence: ['Public implementation', 'Iterative architecture', 'Experimental scope labeled clearly'],
+    stack: 'AI Systems · Automation · Orchestration',
+    github: 'https://github.com/ninja-ops-guy/ASI-Evolve',
+  },
+  {
+    title: 'LDD-Kit',
+    category: 'ENGINEERING TOOLING',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-palanroof.jpg',
+    status: 'PUBLIC TOOLING',
+    statusTone: 'prototype',
+    problem: 'Package reusable engineering work into a small, inspectable toolkit instead of leaving it embedded in one-off project code.',
+    built: 'A focused public repository that demonstrates reusable tooling, documentation, and maintainable project structure.',
+    evidence: ['Public source', 'Reusable-tool focus', 'Inspectable implementation'],
+    stack: 'Engineering Tools · Automation',
+    github: 'https://github.com/ninja-ops-guy/LDD-Kit',
+  },
+  {
+    title: 'Z3r0',
+    category: 'SECURITY / SYSTEMS EXPERIMENTATION',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kalshi.jpg',
+    status: 'PUBLIC EXPERIMENT',
+    statusTone: 'prototype',
+    problem: 'Build and document security-oriented systems experiments as inspectable software rather than résumé-only claims.',
+    built: 'A public implementation that serves as supporting evidence for security, automation, and systems-oriented development work.',
+    evidence: ['Public source', 'Security-oriented implementation', 'Supporting portfolio artifact'],
+    stack: 'Security Engineering · Systems · Automation',
+    github: 'https://github.com/ninja-ops-guy/Z3r0',
   },
 ];
+
+const toneColor = (tone: Project['statusTone']) =>
+  tone === 'live' ? '#7DE2A8' : tone === 'research' ? '#9AAEFF' : '#D8B26E';
 
 export default function SelectedWork() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -65,191 +104,63 @@ export default function SelectedWork() {
 
   useEffect(() => {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
-
     cards.forEach((card, index) => {
-      gsap.fromTo(
-        card,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          delay: index * 0.15,
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-        }
-      );
+      gsap.fromTo(card, { opacity: 0, y: 48 }, {
+        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: index * 0.08,
+        scrollTrigger: { trigger: card, start: 'top 86%', toggleActions: 'play none none none' },
+      });
     });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
   }, []);
 
-  const leftProjects = projects.slice(0, 4);
-  const rightProjects = projects.slice(4); // 3 projects with offset
-
   return (
-    <section
-      id="work"
-      ref={sectionRef}
-      className="relative"
-      style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}
-    >
+    <section id="work" ref={sectionRef} className="relative" style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}>
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-        <p className="font-label" style={{ marginBottom: '64px' }}>
-          SELECTED WORK
+        <p className="font-label">SELECTED ENGINEERING CASE STUDIES</p>
+        <h2 className="font-headline" style={{ color: '#E8EDF3', fontSize: 'clamp(2rem, 4vw, 4rem)', marginTop: 18, maxWidth: 900, lineHeight: 1 }}>
+          Evidence over project count.
+        </h2>
+        <p className="font-body" style={{ color: '#8899AA', maxWidth: 760, marginTop: 20, lineHeight: 1.7 }}>
+          These projects are presented at their actual maturity level. The emphasis is on the engineering problem, what I built, and the evidence available to inspect — not on pretending active R&D is a finished product.
         </p>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Left column - 4 projects */}
-          <div className="flex-1 flex flex-col" style={{ gap: '80px' }}>
-            {leftProjects.map((project, index) => (
-              <div
-                key={project.title}
-                ref={(el) => { cardsRef.current[index] = el; }}
-                className="group cursor-pointer opacity-0"
-                data-cursor="expand"
-              >
-                <div className="overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
-                    style={{ aspectRatio: '4/3', objectFit: 'cover' }}
-                    loading="lazy"
-                  />
-                </div>
-                <h3
-                  className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2"
-                  style={{
-                    fontSize: 'clamp(1.2rem, 2vw, 1.8rem)',
-                    color: '#E8EDF3',
-                    marginTop: '16px',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  {project.title}
-                </h3>
-                <p className="font-label" style={{ marginTop: '8px' }}>
-                  {project.category}
-                </p>
-                <p
-                  className="font-body"
-                  style={{
-                    fontSize: '14px',
-                    color: '#8899AA',
-                    marginTop: '12px',
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {project.desc}
-                </p>
-                <div className="flex flex-wrap gap-3 mt-4">
-                  {project.link && (
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      VIEW PROJECT &rarr;
-                    </a>
-                  )}
-                  {(project as any).github && (
-                    <a
-                      href={(project as any).github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      GITHUB &rarr;
-                    </a>
-                  )}
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginTop: 64 }}>
+          {projects.map((project, index) => (
+            <div
+              key={project.title}
+              ref={(el) => { cardsRef.current[index] = el; }}
+              className="opacity-0 border border-[#162235] p-5 md:p-7 flex flex-col"
+              style={{ background: 'rgba(8, 15, 28, 0.72)' }}
+            >
+              <img src={project.image} alt={project.title} className="w-full" style={{ aspectRatio: '16/9', objectFit: 'cover', marginBottom: 24 }} loading="lazy" />
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <p className="font-label">{project.category}</p>
+                <span className="font-label" style={{ color: toneColor(project.statusTone), fontSize: 10 }}>● {project.status}</span>
               </div>
-            ))}
-          </div>
+              <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 2.4vw, 2.2rem)', color: '#E8EDF3', marginTop: 12 }}>{project.title}</h3>
 
-          {/* Right column - 3 projects, offset */}
-          <div
-            className="flex-1 flex flex-col"
-            style={{ gap: '80px', paddingTop: '200px' }}
-          >
-            {rightProjects.map((project, index) => (
-              <div
-                key={project.title}
-                ref={(el) => { cardsRef.current[index + 3] = el; }}
-                className="group cursor-pointer opacity-0"
-                data-cursor="expand"
-              >
-                <div className="overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
-                    style={{ aspectRatio: '4/3', objectFit: 'cover' }}
-                    loading="lazy"
-                  />
-                </div>
-                <h3
-                  className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2"
-                  style={{
-                    fontSize: 'clamp(1.2rem, 2vw, 1.8rem)',
-                    color: '#E8EDF3',
-                    marginTop: '16px',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  {project.title}
-                </h3>
-                <p className="font-label" style={{ marginTop: '8px' }}>
-                  {project.category}
-                </p>
-                <p
-                  className="font-body"
-                  style={{
-                    fontSize: '14px',
-                    color: '#8899AA',
-                    marginTop: '12px',
-                    lineHeight: 1.6,
-                  }}
-                >
-                  {project.desc}
-                </p>
-                <div className="flex flex-wrap gap-3 mt-4">
-                  {project.link && (
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      VIEW PROJECT &rarr;
-                    </a>
-                  )}
-                  {(project as any).github && (
-                    <a
-                      href={(project as any).github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      GITHUB &rarr;
-                    </a>
-                  )}
+              <div style={{ marginTop: 24 }}>
+                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 8 }}>PROBLEM</p>
+                <p className="font-body" style={{ color: '#A6B3C2', fontSize: 14, lineHeight: 1.65 }}>{project.problem}</p>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 8 }}>WHAT I BUILT</p>
+                <p className="font-body" style={{ color: '#A6B3C2', fontSize: 14, lineHeight: 1.65 }}>{project.built}</p>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 10 }}>EVIDENCE</p>
+                <div className="flex flex-wrap gap-2">
+                  {project.evidence.map((item) => <span key={item} className="font-body border border-[#263750] px-3 py-1" style={{ color: '#B7C3D0', fontSize: 11 }}>{item}</span>)}
                 </div>
               </div>
-            ))}
-          </div>
+              <p className="font-body" style={{ color: '#66788C', fontSize: 12, marginTop: 22 }}>{project.stack}</p>
+
+              <div className="flex flex-wrap gap-3 mt-auto pt-7">
+                {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300">LIVE / DEMO →</a>}
+                {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300">SOURCE / EVIDENCE →</a>}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
