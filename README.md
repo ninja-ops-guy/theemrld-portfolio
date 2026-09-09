@@ -1,55 +1,65 @@
-# THEEMRLD — Systems Engineering Portfolio
+# THEEMRLD — Systems & Security Engineering Portfolio
 
-A dark, crystalline-minimalist portfolio website built with React + TypeScript + Vite. Features a luminous WebGL constellation background, GSAP scroll animations, and a retro CRT terminal SoundCloud player.
+A portfolio focused on **inspectable engineering evidence** across infrastructure, security, automation, applied AI, research software, and product engineering.
 
-## Live Site
+The projects here are not presented as equally mature products. Each case study is labeled by its actual state — live, active development, experimental, or research — and emphasizes the problem, implementation, verification, and remaining work.
 
-https://tjsizcvhdprxa.kimi.page
+## Portfolio Thesis
 
-## Tech Stack
+I build systems that operate, test, or improve other systems.
 
-- **React 19** + TypeScript + Vite
-- **Tailwind CSS** + shadcn/ui
-- **GSAP** + ScrollTrigger for animations
-- **Lenis** for smooth scrolling
-- **Canvas 2D** for constellation effect
-- **SoundCloud Widget API** for music playback
+That includes production-minded software, automated QA, security experimentation, AI orchestration, research tooling, and infrastructure-focused automation. The goal of this portfolio is to make that work easy to evaluate without relying on résumé claims alone.
 
-## Sections
+## Flagship Public Evidence
 
-| Section | Description |
-|---------|-------------|
-| Hero | "SYSTEMS ENGINEER" headline with animated constellation |
-| Selected Work | 6 real projects (Palanroof, Kimi Claw, Kalshi, Permits, Ruthless Adversarial Clothing, Helpdesk Hero) |
-| About | Bio, highlights, capability tags |
-| Networking | CCNA certification, network engineering skills |
-| Technical Domains | Scroll-anchored viewport-switch sequence |
-| Contact | Email + socials (LinkedIn, GitHub, SoundCloud, TryHackMe) |
-| K Terminal | Retro CRT SoundCloud player with 20 popular tracks |
+### TechOps Hero — Product Engineering / Automated QA
 
-## Projects Featured
+A public, playable IT troubleshooting RPG that has grown into a substantial software-validation project. The engineering work includes campaign/state systems, browser runtime testing, regression coverage, CI contracts, GitHub Pages deployment, mobile controls, and repeated failure-driven debugging.
 
-- **Palanroof / RoofBot** — AI roofing intelligence platform
-- **Kimi Claw x Vector** — Physical AI companion platform
-- **Kalshi AI Trading Bot** — Quantitative prediction market engine
-- **Municipal Permit Pipeline** — Multi-agent data infrastructure
-- **Ruthless Adversarial Clothing** — Adversarial-fashion R&D, conditional textile generation, evidence-gated certification pipeline
-- **Helpdesk Hero** — Pokemon-style IT troubleshooting RPG
+- Live: https://ninja-ops-guy.github.io/techops-hero/
+- Source: https://github.com/ninja-ops-guy/techops-hero
+- Status: **Active development / public**
 
-## K Terminal
+### Adversarial Clothing Pipeline — Adversarial ML R&D
 
-A retro terminal-style SoundCloud player accessible at `/#/terminal`:
-- 20 most popular tracks sorted by play count
-- CRT scanlines, screen flicker, glitch effects
-- Click-to-play with audio visualizer
-- Terminal commands (list, play, pause, next, prev, volume, etc.)
+An experimental platform for researching physically realizable adversarial fashion. The repository emphasizes reproducible experiments, artifact provenance, benchmark orchestration, pattern generation, deformation/physics modeling, and evidence-gated claims.
 
-## Social Links
+- Source: https://github.com/ninja-ops-guy/adversarial-clothing-pipeline
+- Status: **Experimental public R&D; physical validation pending**
 
-- [LinkedIn](https://linkedin.com/in/ma0livares)
-- [GitHub](https://github.com/ninja-ops-guy/)
-- [SoundCloud](https://soundcloud.com/raikouno/tracks)
-- [TryHackMe](https://tryhackme.com/p/n1n74)
+### CIC / SAT Research — Complexity & Formal Reasoning
+
+A public research program combining computational experiments, SAT tooling, written arguments, and formalization artifacts. It is presented as research rather than as settled mathematical proof; measured evidence, formal artifacts, and open claims should be evaluated separately.
+
+- Source: https://github.com/ninja-ops-guy/cic-p-vs-np-research
+- Status: **Active research / public**
+
+## Supporting Public Projects
+
+- **ASI-Evolve** — experimental AI systems/orchestration: https://github.com/ninja-ops-guy/ASI-Evolve
+- **LDD-Kit** — reusable engineering tooling: https://github.com/ninja-ops-guy/LDD-Kit
+- **Z3r0** — security/systems experimentation: https://github.com/ninja-ops-guy/Z3r0
+- **Streetfighter for Vector** — robotics/game experiment: https://github.com/ninja-ops-guy/streetfighter-for-vector
+
+Private and commercially oriented work is intentionally not used as the primary evidence layer when the implementation cannot be inspected publicly.
+
+## What to Evaluate
+
+When reviewing the portfolio, the strongest signals are:
+
+1. **Architecture** — how problems are decomposed into systems and interfaces.
+2. **Verification** — tests, CI, benchmarks, runtime checks, and failure handling.
+3. **Iteration** — evidence that failures lead to concrete engineering changes.
+4. **Operational thinking** — deployment, reliability, safety boundaries, observability, and maintainability.
+5. **Technical range** — infrastructure, security, automation, AI systems, research software, and interactive products.
+
+## Portfolio Site Stack
+
+- React 19 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- GSAP + ScrollTrigger
+- Canvas 2D visual effects
+- GitHub Actions / GitHub Pages
 
 ## Development
 
@@ -58,12 +68,15 @@ npm install
 npm run dev
 ```
 
+Production build:
+
 ```bash
 npm run build
 ```
 
-## Design
+## Links
 
-- **Colors**: Deep navy void `#050A14`, off-white `#E8EDF3`, electric ultramarine `#4A6DFF`
-- **Typography**: Space Grotesk (headlines), Inter (body), Instrument Serif (accents)
-- **Theme**: Crystalline minimalism — sharp, precise, luminous
+- GitHub: https://github.com/ninja-ops-guy/
+- LinkedIn: https://linkedin.com/in/ma0livares
+- TryHackMe: https://tryhackme.com/p/n1n74
+- SoundCloud: https://soundcloud.com/raikouno/tracks
