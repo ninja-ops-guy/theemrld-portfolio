@@ -1,12 +1,27 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 type Study = {
-  title: string; eyebrow: string; status: string; thesis: string; repo: string; demo?: string;
+  title: string; eyebrow: string; status: string; thesis: string; repo?: string; demo?: string;
   problem: string; architecture: { title: string; body: string }[]; evidence: string[];
   failure: { signal: string; response: string; lesson: string }; remains: string[]; stack: string;
 };
 
 const studies: Record<string, Study> = {
+  'production-systems': {
+    title: 'Production Systems Engineering', eyebrow: 'INFRASTRUCTURE / INCIDENT OWNERSHIP / AUTOMATION', status: 'PRODUCTION EXPERIENCE',
+    thesis: 'A sanitized case study of how I approach operational engineering: restore service first, identify the real failure mode, reduce recurrence, and leave behind a repeatable operating path.',
+    problem: 'Manufacturing IT creates a different engineering constraint from lab systems: downtime affects real operations, many systems are not conveniently redundant, and support volume can hide structural problems. My role has required owning ambiguous incidents across Windows endpoints, production systems, switching, DHCP/DNS behavior, kiosks, print infrastructure, and operational queues while improving the system around the incident rather than only closing the ticket.',
+    architecture: [
+      { title: 'Triage & scope', body: 'Establish blast radius, production impact, recent change history, dependencies, and the fastest safe path to restoring service before optimizing the permanent fix.' },
+      { title: 'Evidence-driven diagnosis', body: 'Use logs, boot state, packet captures, switch-port data, MAC/IP correlation, SNMP counters, endpoint state, and direct reproduction to narrow the failure domain.' },
+      { title: 'Recovery', body: 'Apply the smallest controlled change that restores service, verify the business function end to end, and avoid declaring success based only on a green device or process state.' },
+      { title: 'Operationalization', body: 'Convert repeated manual investigation into automation, documentation, monitoring, or a reusable recovery procedure so the same class of incident becomes cheaper to resolve next time.' },
+    ],
+    evidence: ['Reduced a support backlog from 170+ items to roughly 15 on average', 'Recovered a critical production Windows system from an INACCESSIBLE_BOOT_DEVICE / boot-path failure', 'Traced rogue DHCP behavior to a physical switch port by correlating network evidence', 'Built SNMP-based infrastructure tooling to reduce manual discovery and walkdowns', 'Handled kiosk, print, switching, endpoint, and production-support work across enterprise and manufacturing environments'],
+    failure: { signal: 'A recurring operational problem is being solved repeatedly at the ticket level without reducing the underlying workload or failure probability.', response: 'Treat the incident as a systems problem: restore the user or production function, capture evidence, identify the repeatable failure mechanism, and add automation, monitoring, documentation, or infrastructure controls where they provide leverage.', lesson: 'Operational maturity is not measured by how many incidents one engineer can heroically close. It is measured by whether the environment becomes easier, safer, and faster for the whole team to operate.' },
+    remains: ['Continue moving repeatable support patterns into automation and self-service', 'Increase infrastructure observability where manual discovery is still required', 'Keep recovery procedures current as endpoint and network platforms change', 'Translate additional sanitized production incidents into public engineering case studies without exposing employer-sensitive details'],
+    stack: 'Windows · Cisco networking · TCP/IP · DHCP/DNS · SNMP · Wireshark · PowerShell/Python · Enterprise IT / OT-adjacent operations',
+  },
   'techops-hero': {
     title: 'TechOps Hero', eyebrow: 'PRODUCT ENGINEERING / AUTOMATED QA', status: 'ACTIVE DEVELOPMENT · PUBLIC',
     thesis: 'A growing browser RPG used as a proving ground for state-heavy product engineering, runtime QA, regression control, and failure-driven iteration.',
@@ -71,10 +86,10 @@ export default function CaseStudy() {
         <h1 className="font-headline" style={{ fontSize: 'clamp(3rem,8vw,7rem)', lineHeight: .9, letterSpacing: '-.04em', marginTop: 18 }}>{s.title}</h1>
         <p className="font-label" style={{ color: '#7DE2A8', marginTop: 24 }}>● {s.status}</p>
         <p className="font-body" style={{ color: '#A6B3C2', fontSize: 20, lineHeight: 1.65, maxWidth: 820, marginTop: 28 }}>{s.thesis}</p>
-        <div className="flex flex-wrap gap-3" style={{ marginTop: 30 }}>
-          <a href={s.repo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#8899AA] text-[#E8EDF3]">SOURCE / EVIDENCE →</a>
+        {(s.repo || s.demo) && <div className="flex flex-wrap gap-3" style={{ marginTop: 30 }}>
+          {s.repo && <a href={s.repo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#8899AA] text-[#E8EDF3]">SOURCE / EVIDENCE →</a>}
           {s.demo && <a href={s.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#4A6DFF] text-[#4A6DFF]">LIVE / DEMO →</a>}
-        </div>
+        </div>}
       </div>
 
       <section style={{ marginTop: 100 }}><p className="font-label" style={{ color: '#4A6DFF' }}>01 / ENGINEERING PROBLEM</p><p className="font-body" style={{ fontSize: 18, color: '#B7C3D0', lineHeight: 1.8, marginTop: 18 }}>{s.problem}</p></section>
