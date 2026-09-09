@@ -1,168 +1,21 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
 gsap.registerPlugin(ScrollTrigger);
 
-type Project = {
-  title: string;
-  category: string;
-  image: string;
-  status: string;
-  statusTone: 'live' | 'research' | 'prototype';
-  problem: string;
-  built: string;
-  evidence: string[];
-  stack: string;
-  link?: string;
-  github?: string;
-};
-
+type Project = { title:string; category:string; image:string; status:string; statusTone:'live'|'research'|'prototype'; problem:string; built:string; evidence:string[]; stack:string; link?:string; github?:string; caseStudy?:string };
 const projects: Project[] = [
-  {
-    title: 'TechOps Hero',
-    category: 'PRODUCT ENGINEERING / AUTOMATED QA',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-helpdesk.jpg',
-    status: 'ACTIVE DEVELOPMENT · PUBLIC',
-    statusTone: 'live',
-    problem: 'Turn real infrastructure troubleshooting into an interactive game while keeping a growing campaign stable across desktop and mobile.',
-    built: 'A custom Canvas 2D RPG with diagnostic decision systems, campaign state, arcade combat, mobile controls, CI contracts, browser-based runtime testing, and a continuously exercised GitHub Pages build.',
-    evidence: ['Public playable build', 'Runtime + regression testing', 'CI-gated campaign contracts', 'Failure-driven repair loop'],
-    stack: 'JavaScript · Canvas 2D · Playwright/Puppeteer · GitHub Actions',
-    link: 'https://ninja-ops-guy.github.io/techops-hero/',
-    github: 'https://github.com/ninja-ops-guy/techops-hero',
-  },
-  {
-    title: 'Adversarial Clothing Pipeline',
-    category: 'ADVERSARIAL ML / COMPUTER VISION R&D',
-    image: '/images/proj-rac.svg',
-    status: 'EXPERIMENTAL · PUBLIC R&D',
-    statusTone: 'research',
-    problem: 'Study whether printable textile patterns can remain adversarial under deformation, viewpoint changes, and other physical-world effects.',
-    built: 'An evidence-gated research pipeline spanning black-box optimization, pattern generation, deformation/physics modeling, benchmark orchestration, artifact export, and reproducibility controls.',
-    evidence: ['Benchmark-oriented workflow', 'Artifact + provenance tracking', 'Print/deformation research path', 'Physical validation explicitly pending'],
-    stack: 'Python · React · Computer Vision · Optimization · Experiment Automation',
-    github: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
-  },
-  {
-    title: 'CIC & SAT Research',
-    category: 'COMPLEXITY RESEARCH / FORMAL REASONING',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-cic-sat.jpg',
-    status: 'RESEARCH PROGRAM · PUBLIC',
-    statusTone: 'research',
-    problem: 'Explore structural relationships between constraint graphs, information complexity, proof complexity, and circuit complexity without treating conjecture as established fact.',
-    built: 'A research codebase combining computational experiments, SAT tooling, formalization work, written arguments, and machine-checkable artifacts intended to separate measured evidence from open claims.',
-    evidence: ['Public research repository', 'Computational experiments', 'Formalization artifacts', 'Claims separated from evidence'],
-    stack: 'Python · SAT/SMT · Lean 4 · Complexity Theory',
-    link: 'https://kymplwsfrh776.kimi.page',
-    github: 'https://github.com/ninja-ops-guy/cic-p-vs-np-research',
-  },
-  {
-    title: 'ASI-Evolve',
-    category: 'AI SYSTEMS / EXPERIMENTAL ORCHESTRATION',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kimiclaw.jpg',
-    status: 'EXPERIMENTAL · PUBLIC',
-    statusTone: 'prototype',
-    problem: 'Explore modular AI-system evolution and orchestration as an engineering problem rather than a single-model demo.',
-    built: 'A public experimental codebase for iterating on agentic/AI system components, interfaces, and evaluation-oriented workflows.',
-    evidence: ['Public implementation', 'Iterative architecture', 'Experimental scope labeled clearly'],
-    stack: 'AI Systems · Automation · Orchestration',
-    github: 'https://github.com/ninja-ops-guy/ASI-Evolve',
-  },
-  {
-    title: 'LDD-Kit',
-    category: 'ENGINEERING TOOLING',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-palanroof.jpg',
-    status: 'PUBLIC TOOLING',
-    statusTone: 'prototype',
-    problem: 'Package reusable engineering work into a small, inspectable toolkit instead of leaving it embedded in one-off project code.',
-    built: 'A focused public repository that demonstrates reusable tooling, documentation, and maintainable project structure.',
-    evidence: ['Public source', 'Reusable-tool focus', 'Inspectable implementation'],
-    stack: 'Engineering Tools · Automation',
-    github: 'https://github.com/ninja-ops-guy/LDD-Kit',
-  },
-  {
-    title: 'Z3r0',
-    category: 'SECURITY / SYSTEMS EXPERIMENTATION',
-    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kalshi.jpg',
-    status: 'PUBLIC EXPERIMENT',
-    statusTone: 'prototype',
-    problem: 'Build and document security-oriented systems experiments as inspectable software rather than résumé-only claims.',
-    built: 'A public implementation that serves as supporting evidence for security, automation, and systems-oriented development work.',
-    evidence: ['Public source', 'Security-oriented implementation', 'Supporting portfolio artifact'],
-    stack: 'Security Engineering · Systems · Automation',
-    github: 'https://github.com/ninja-ops-guy/Z3r0',
-  },
+{ title:'TechOps Hero', category:'PRODUCT ENGINEERING / AUTOMATED QA', image:'https://tjsizcvhdprxa.kimi.page/images/proj-helpdesk.jpg', status:'ACTIVE DEVELOPMENT · PUBLIC', statusTone:'live', problem:'Turn real infrastructure troubleshooting into an interactive game while keeping a growing campaign stable across desktop and mobile.', built:'A custom Canvas 2D RPG with diagnostic decision systems, campaign state, arcade combat, mobile controls, CI contracts, browser-based runtime testing, and a continuously exercised GitHub Pages build.', evidence:['Public playable build','Runtime + regression testing','CI-gated campaign contracts','Failure-driven repair loop'], stack:'JavaScript · Canvas 2D · Playwright/Puppeteer · GitHub Actions', link:'https://ninja-ops-guy.github.io/techops-hero/', github:'https://github.com/ninja-ops-guy/techops-hero', caseStudy:'/case-study/techops-hero' },
+{ title:'Adversarial Clothing Pipeline', category:'ADVERSARIAL ML / COMPUTER VISION R&D', image:'/images/proj-rac.svg', status:'EXPERIMENTAL · PUBLIC R&D', statusTone:'research', problem:'Study whether printable textile patterns can remain adversarial under deformation, viewpoint changes, and other physical-world effects.', built:'An evidence-gated research pipeline spanning black-box optimization, pattern generation, deformation/physics modeling, benchmark orchestration, artifact export, and reproducibility controls.', evidence:['Benchmark-oriented workflow','Artifact + provenance tracking','Negative results retained','Physical validation explicitly pending'], stack:'Python · React · Computer Vision · Optimization · Experiment Automation', github:'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline', caseStudy:'/case-study/adversarial-clothing' },
+{ title:'CIC & SAT Research', category:'COMPLEXITY RESEARCH / FORMAL REASONING', image:'https://tjsizcvhdprxa.kimi.page/images/proj-cic-sat.jpg', status:'RESEARCH PROGRAM · PUBLIC', statusTone:'research', problem:'Explore structural relationships between constraint graphs, information complexity, proof complexity, and circuit complexity without treating conjecture as established fact.', built:'A research codebase combining computational experiments, SAT tooling, formalization work, written arguments, and machine-checkable artifacts intended to separate measured evidence from open claims.', evidence:['Public research repository','Computational experiments','Lean 4 artifacts','Open gap explicitly identified'], stack:'Python · SAT/SMT · Lean 4 · Complexity Theory', link:'https://kymplwsfrh776.kimi.page', github:'https://github.com/ninja-ops-guy/cic-p-vs-np-research', caseStudy:'/case-study/cic-sat' },
+{ title:'ASI-Evolve', category:'AI SYSTEMS / EXPERIMENTAL ORCHESTRATION', image:'https://tjsizcvhdprxa.kimi.page/images/proj-kimiclaw.jpg', status:'EXPERIMENTAL · PUBLIC', statusTone:'prototype', problem:'Explore modular AI-system evolution and orchestration as an engineering problem rather than a single-model demo.', built:'A public experimental codebase for iterating on agentic/AI system components, interfaces, and evaluation-oriented workflows.', evidence:['Public implementation','Iterative architecture','Experimental scope labeled clearly'], stack:'AI Systems · Automation · Orchestration', github:'https://github.com/ninja-ops-guy/ASI-Evolve' },
+{ title:'LDD-Kit', category:'ENGINEERING TOOLING', image:'https://tjsizcvhdprxa.kimi.page/images/proj-palanroof.jpg', status:'PUBLIC TOOLING', statusTone:'prototype', problem:'Package reusable engineering work into a small, inspectable toolkit instead of leaving it embedded in one-off project code.', built:'A focused public repository that demonstrates reusable tooling, documentation, and maintainable project structure.', evidence:['Public source','Reusable-tool focus','Inspectable implementation'], stack:'Engineering Tools · Automation', github:'https://github.com/ninja-ops-guy/LDD-Kit' },
+{ title:'Z3r0', category:'SECURITY / SYSTEMS EXPERIMENTATION', image:'https://tjsizcvhdprxa.kimi.page/images/proj-kalshi.jpg', status:'PUBLIC EXPERIMENT', statusTone:'prototype', problem:'Build and document security-oriented systems experiments as inspectable software rather than résumé-only claims.', built:'A public implementation that serves as supporting evidence for security, automation, and systems-oriented development work.', evidence:['Public source','Security-oriented implementation','Supporting portfolio artifact'], stack:'Security Engineering · Systems · Automation', github:'https://github.com/ninja-ops-guy/Z3r0' }
 ];
-
-const toneColor = (tone: Project['statusTone']) =>
-  tone === 'live' ? '#7DE2A8' : tone === 'research' ? '#9AAEFF' : '#D8B26E';
-
-export default function SelectedWork() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
-    cards.forEach((card, index) => {
-      gsap.fromTo(card, { opacity: 0, y: 48 }, {
-        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: index * 0.08,
-        scrollTrigger: { trigger: card, start: 'top 86%', toggleActions: 'play none none none' },
-      });
-    });
-    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
-  }, []);
-
-  return (
-    <section id="work" ref={sectionRef} className="relative" style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}>
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-        <p className="font-label">SELECTED ENGINEERING CASE STUDIES</p>
-        <h2 className="font-headline" style={{ color: '#E8EDF3', fontSize: 'clamp(2rem, 4vw, 4rem)', marginTop: 18, maxWidth: 900, lineHeight: 1 }}>
-          Evidence over project count.
-        </h2>
-        <p className="font-body" style={{ color: '#8899AA', maxWidth: 760, marginTop: 20, lineHeight: 1.7 }}>
-          These projects are presented at their actual maturity level. The emphasis is on the engineering problem, what I built, and the evidence available to inspect — not on pretending active R&D is a finished product.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginTop: 64 }}>
-          {projects.map((project, index) => (
-            <div
-              key={project.title}
-              ref={(el) => { cardsRef.current[index] = el; }}
-              className="opacity-0 border border-[#162235] p-5 md:p-7 flex flex-col"
-              style={{ background: 'rgba(8, 15, 28, 0.72)' }}
-            >
-              <img src={project.image} alt={project.title} className="w-full" style={{ aspectRatio: '16/9', objectFit: 'cover', marginBottom: 24 }} loading="lazy" />
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <p className="font-label">{project.category}</p>
-                <span className="font-label" style={{ color: toneColor(project.statusTone), fontSize: 10 }}>● {project.status}</span>
-              </div>
-              <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 2.4vw, 2.2rem)', color: '#E8EDF3', marginTop: 12 }}>{project.title}</h3>
-
-              <div style={{ marginTop: 24 }}>
-                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 8 }}>PROBLEM</p>
-                <p className="font-body" style={{ color: '#A6B3C2', fontSize: 14, lineHeight: 1.65 }}>{project.problem}</p>
-              </div>
-              <div style={{ marginTop: 20 }}>
-                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 8 }}>WHAT I BUILT</p>
-                <p className="font-body" style={{ color: '#A6B3C2', fontSize: 14, lineHeight: 1.65 }}>{project.built}</p>
-              </div>
-              <div style={{ marginTop: 20 }}>
-                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: 10 }}>EVIDENCE</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.evidence.map((item) => <span key={item} className="font-body border border-[#263750] px-3 py-1" style={{ color: '#B7C3D0', fontSize: 11 }}>{item}</span>)}
-                </div>
-              </div>
-              <p className="font-body" style={{ color: '#66788C', fontSize: 12, marginTop: 22 }}>{project.stack}</p>
-
-              <div className="flex flex-wrap gap-3 mt-auto pt-7">
-                {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300">LIVE / DEMO →</a>}
-                {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300">SOURCE / EVIDENCE →</a>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+const toneColor=(t:Project['statusTone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
+export default function SelectedWork(){
+ const sectionRef=useRef<HTMLElement>(null); const cardsRef=useRef<(HTMLDivElement|null)[]>([]);
+ useEffect(()=>{const cards=cardsRef.current.filter(Boolean) as HTMLDivElement[]; cards.forEach((card,index)=>gsap.fromTo(card,{opacity:0,y:48},{opacity:1,y:0,duration:.75,ease:'power3.out',delay:index*.08,scrollTrigger:{trigger:card,start:'top 86%',toggleActions:'play none none none'}})); return()=>ScrollTrigger.getAll().forEach(t=>t.kill())},[]);
+ return <section id="work" ref={sectionRef} className="relative" style={{background:'#050A14',padding:'120px 0',zIndex:1}}><div className="max-w-[1280px] mx-auto px-6 md:px-10"><p className="font-label">SELECTED ENGINEERING CASE STUDIES</p><h2 className="font-headline" style={{color:'#E8EDF3',fontSize:'clamp(2rem,4vw,4rem)',marginTop:18,maxWidth:900,lineHeight:1}}>Evidence over project count.</h2><p className="font-body" style={{color:'#8899AA',maxWidth:760,marginTop:20,lineHeight:1.7}}>Projects are presented at their actual maturity level. The flagship case studies expose architecture, inspectable evidence, failure-driven iteration, and what remains unfinished.</p><div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{marginTop:64}}>{projects.map((p,i)=><div key={p.title} ref={el=>{cardsRef.current[i]=el}} className="opacity-0 border border-[#162235] p-5 md:p-7 flex flex-col" style={{background:'rgba(8,15,28,.72)'}}><img src={p.image} alt={p.title} className="w-full" style={{aspectRatio:'16/9',objectFit:'cover',marginBottom:24}} loading="lazy"/><div className="flex items-center justify-between gap-4 flex-wrap"><p className="font-label">{p.category}</p><span className="font-label" style={{color:toneColor(p.statusTone),fontSize:10}}>● {p.status}</span></div><h3 className="font-headline" style={{fontSize:'clamp(1.5rem,2.4vw,2.2rem)',color:'#E8EDF3',marginTop:12}}>{p.title}</h3><div style={{marginTop:24}}><p className="font-label" style={{color:'#4A6DFF',marginBottom:8}}>PROBLEM</p><p className="font-body" style={{color:'#A6B3C2',fontSize:14,lineHeight:1.65}}>{p.problem}</p></div><div style={{marginTop:20}}><p className="font-label" style={{color:'#4A6DFF',marginBottom:8}}>WHAT I BUILT</p><p className="font-body" style={{color:'#A6B3C2',fontSize:14,lineHeight:1.65}}>{p.built}</p></div><div style={{marginTop:20}}><p className="font-label" style={{color:'#4A6DFF',marginBottom:10}}>EVIDENCE</p><div className="flex flex-wrap gap-2">{p.evidence.map(x=><span key={x} className="font-body border border-[#263750] px-3 py-1" style={{color:'#B7C3D0',fontSize:11}}>{x}</span>)}</div></div><p className="font-body" style={{color:'#66788C',fontSize:12,marginTop:22}}>{p.stack}</p><div className="flex flex-wrap gap-3 mt-auto pt-7">{p.caseStudy&&<Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#4A6DFF] text-[#050A14]">READ CASE STUDY →</Link>}{p.link&&<a href={p.link} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF]">LIVE / DEMO →</a>}{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}</div></div>)}</div></div></section>
 }
