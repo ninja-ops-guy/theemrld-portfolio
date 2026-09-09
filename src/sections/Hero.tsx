@@ -20,10 +20,10 @@ export default function Hero() {
   return (
     <section id="hero" className="relative flex flex-col items-center justify-center overflow-hidden" style={{ height: '100dvh', zIndex: 1 }}>
       <div className="relative z-10 flex flex-col items-center text-center px-6">
-        <p ref={labelRef} className="font-label" style={{ marginBottom: '24px', opacity: 0 }}>INFRASTRUCTURE // AI // SECURITY // AUTOMATION</p>
+        <p ref={labelRef} className="font-label" style={{ marginBottom: '24px', opacity: 0 }}>PRODUCTION INFRASTRUCTURE // SECURITY // AUTOMATION // AI</p>
         <h1 ref={headlineRef} className="font-headline uppercase" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)', letterSpacing: '-0.04em', lineHeight: 0.9, color: '#E8EDF3', textShadow: '0 0 60px rgba(5, 10, 20, 0.8)', opacity: 0 }}>SYSTEMS & SECURITY ENGINEER</h1>
-        <p ref={sublineRef} className="font-body" style={{ fontSize: '18px', color: '#8899AA', maxWidth: '560px', marginTop: '32px', lineHeight: 1.6, opacity: 0 }}>
-          I turn operational problems into reliable systems — spanning enterprise infrastructure, security, automation, and applied AI. Focused on measurable outcomes, resilient operations, and technology that scales beyond the initial fix.
+        <p ref={sublineRef} className="font-body" style={{ fontSize: '18px', color: '#8899AA', maxWidth: '620px', marginTop: '32px', lineHeight: 1.6, opacity: 0 }}>
+          I own ambiguous production and infrastructure problems end to end — diagnose the failure, restore service, reduce recurrence, and turn the fix into reusable operational capability. I use AI to accelerate research and implementation while keeping architecture, validation, and engineering decisions grounded in evidence.
         </p>
       </div>
       <div ref={scrollIndicatorRef} className="absolute bottom-10 left-1/2 -translate-x-1/2" style={{ opacity: 0 }}><div className="scroll-line w-[1px] h-10 bg-[#4A6DFF]" /></div>
