@@ -25,11 +25,11 @@ export default function Hero() {
         <p ref={labelRef} className="font-label" style={{ marginBottom: '22px', opacity: 0 }}>SYSTEMS // SECURITY // APPLIED R&amp;D</p>
         <h1 ref={headlineRef} className="font-headline uppercase" style={{ fontSize: 'clamp(2.7rem, 8vw, 7rem)', letterSpacing: '-0.04em', lineHeight: 0.9, color: '#E8EDF3', textShadow: '0 0 60px rgba(5, 10, 20, 0.8)', opacity: 0 }}>SYSTEMS &amp; SECURITY ENGINEER</h1>
         <p ref={sublineRef} className="font-body" style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#A8B5C4', maxWidth: '820px', marginTop: '30px', lineHeight: 1.65, opacity: 0 }}>
-          I operate production infrastructure, investigate hard security and computational problems, and turn validated research mechanisms into reusable platforms.
+          I work on hard problems where infrastructure, security, automation, AI, and research overlap. I run real systems, figure out what actually failed, test ideas, and turn the useful parts into something reusable.
         </p>
         <div className="flex flex-wrap justify-center gap-3" style={{ marginTop: '34px' }}>
-          <a href="#work" className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>VIEW ENGINEERING EVIDENCE →</a>
-          <a href="#research-thesis" className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>VIEW RESEARCH PROGRAM →</a>
+          <a href="#work" className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>SEE THE WORK →</a>
+          <a href="#research-thesis" className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>HOW I APPROACH R&amp;D →</a>
         </div>
         <div className="flex flex-wrap justify-center gap-2" style={{ marginTop: '34px', maxWidth: '980px' }}>
           {domains.map((domain) => <span key={domain} className="font-label" style={{ border: '1px solid #1A2540', padding: '8px 10px', color: '#74869A', background: 'rgba(5,10,20,.45)' }}>{domain}</span>)}
