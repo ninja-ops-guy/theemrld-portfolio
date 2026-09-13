@@ -17,6 +17,7 @@ import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 import KTerminal from './sections/KTerminal';
 import CaseStudy from './pages/CaseStudy';
+import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,6 +44,8 @@ function App() {
   return <Routes>
     <Route path="/" element={<Portfolio />} />
     <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
+    <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
   </Routes>;
 }
