@@ -22,15 +22,6 @@ const highlights = [
   'Built SNMP automation tools eliminating manual infrastructure walkdowns',
 ];
 
-const methodology = [
-  ['01', 'FRAME', 'Define the problem, constraints, risks, and what success must prove.'],
-  ['02', 'EXPLORE', 'Use AI-assisted research and generated technical papers to expand the idea space, compare approaches, surface assumptions, and challenge the preferred direction.'],
-  ['03', 'DESIGN', 'Choose the architecture, mechanisms, interfaces, acceptance criteria, and experiments before optimizing implementation details.'],
-  ['04', 'IMPLEMENT', 'Use AI heavily as an implementation accelerator. I optimize for system behavior and engineering intent rather than manually authoring syntax for its own sake.'],
-  ['05', 'VERIFY', 'Read, test, debug, benchmark, and pressure-test generated implementations against the intended behavior and failure modes.'],
-  ['06', 'ITERATE', 'Let evidence change the design. Failed tests and contradictory results feed the next research and architecture cycle.'],
-];
-
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -43,12 +34,12 @@ export default function About() {
   }, []);
 
   return (
-    <section id="about" ref={sectionRef} className="relative" style={{ background: '#0A1020', padding: '160px 0', zIndex: 1 }}>
+    <section id="about" ref={sectionRef} className="relative" style={{ background: '#0A1020', padding: '130px 0', zIndex: 1 }}>
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row gap-8 md:gap-[5%]">
         <div ref={leftRef} className="md:w-[45%] opacity-0">
-          <p className="font-label" style={{ marginBottom: '32px' }}>ABOUT</p>
+          <p className="font-label" style={{ marginBottom: '32px' }}>OPERATING BACKGROUND</p>
           <h2 className="font-headline" style={{ fontSize: 'clamp(1.8rem, 4vw, 3.2rem)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#E8EDF3' }}>
-            I operate where infrastructure, security, research, automation, and execution meet.
+            Production judgment anchors the research.
           </h2>
           <div style={{ marginTop: '40px' }}>
             <p className="font-label" style={{ marginBottom: '16px' }}>HIGHLIGHTS</p>
@@ -63,32 +54,21 @@ export default function About() {
         </div>
 
         <div ref={rightRef} className="md:w-[50%] opacity-0">
-          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.7 }}>
-            Systems and security engineer with a track record of taking ambiguous operational problems from diagnosis through implementation. My work spans production IT, enterprise networking, cybersecurity operations, automation, and applied AI — with an emphasis on reducing operational friction, restoring critical services, and leaving behind repeatable systems instead of one-off fixes.
+          <p className="font-body" style={{ fontSize: '16px', color: '#A6B3C2', lineHeight: 1.75 }}>
+            My day-to-day engineering background is in production IT and infrastructure: ambiguous incidents, networking, endpoint recovery, automation, manufacturing systems, and operational queues where downtime has real consequences. That operating experience is the credibility layer underneath the independent research.
           </p>
-          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.7, marginTop: '24px' }}>
-            My independent R&D work is deliberately AI-assisted. I begin with a concrete technical idea, build a deep model of the problem, and use AI to accelerate research, generate competing technical arguments, explore design space, and implement software. I retain ownership of problem definition, architecture, technical direction, acceptance criteria, validation, and final engineering decisions. I care more about understanding why a system behaves as it does than manually producing syntax.
+          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.75, marginTop: '24px' }}>
+            The same method carries into R&amp;D: define the claim, formalize constraints, build the smallest mechanism that can test it, instrument the system, retain failures, and platformize only what survives verification. AI is used as an accelerator for research and implementation, while architecture, acceptance criteria, validation, and final engineering decisions remain evidence-driven.
           </p>
-          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.7, marginTop: '24px' }}>
-            Generated research is treated as a reasoning artifact, not an authority: assumptions are challenged, alternatives are weighed, implementations are tested, and evidence is allowed to change the design. The objective is not maximum AI-generated code volume; it is using AI to increase the amount of engineering search, experimentation, and validation I can perform while maintaining technical ownership of the result.
+          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.75, marginTop: '24px' }}>
+            I am most interested in security engineering, AI security, red-team R&amp;D, autonomous systems, and platform/security engineering roles where production constraints and research discipline both matter.
           </p>
           <div className="flex flex-wrap gap-3" style={{ marginTop: '40px' }}>
             {capabilities.map((cap) => <span key={cap} className="font-label border px-4 py-2" style={{ borderColor: '#1a2540' }}>{cap}</span>)}
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10" style={{ marginTop: '96px' }}>
-        <div style={{ borderTop: '1px solid #1a2540', paddingTop: '40px' }}>
-          <p className="font-label" style={{ marginBottom: '16px' }}>ENGINEERING METHOD</p>
-          <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#E8EDF3', marginBottom: '40px' }}>Problem ownership over syntax ownership.</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
-            {methodology.map(([n, title, body]) => (
-              <div key={n} style={{ background: '#0A1020', padding: '28px' }}>
-                <div className="font-label" style={{ color: '#4A6DFF', marginBottom: '18px' }}>{n} / {title}</div>
-                <p className="font-body" style={{ fontSize: '14px', color: '#8899AA', lineHeight: 1.7, margin: 0 }}>{body}</p>
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-3" style={{ marginTop: '34px' }}>
+            <a href="https://github.com/ninja-ops-guy" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{border:'1px solid #4A6DFF',color:'#4A6DFF'}}>GITHUB PROFILE →</a>
+            <a href="#contact" className="font-label px-5 py-3" style={{background:'#4A6DFF',color:'#050A14'}}>CONTACT →</a>
           </div>
         </div>
       </div>
