@@ -1,51 +1,51 @@
 const principles = [
-  ['01', 'QUESTION', 'Start with a concrete technical question: what is expensive, unreliable, unverifiable, adversarial, or insufficiently understood?'],
-  ['02', 'FORMALIZE', 'Define constraints, invariants, failure states, evidence requirements, and the conditions under which the claim would be wrong.'],
-  ['03', 'HYPOTHESIZE', 'Translate the problem into claims that can fail and define measurable outcomes before treating a mechanism as an improvement.'],
-  ['04', 'BUILD', 'Prototype the smallest mechanism capable of reducing uncertainty, then instrument it so behavior can be observed rather than assumed.'],
-  ['05', 'VERIFY', 'Test, benchmark, retain negative results, challenge assumptions, and distinguish implementation completion from evidence of effectiveness.'],
-  ['06', 'PLATFORMIZE', 'Extract mechanisms that survive testing into reusable primitives, interfaces, policies, verifiers, receipts, and operational workflows.'],
+  ['01', 'QUESTION', 'Start with something concrete I actually want to understand: what is expensive, unreliable, unverifiable, adversarial, or just not making sense yet?'],
+  ['02', 'FORMALIZE', 'Write down the constraints, failure states, evidence I would need, and what would prove my idea wrong.'],
+  ['03', 'HYPOTHESIZE', 'Turn the idea into something that can fail. If I cannot say what a bad result looks like, I do not really have a test yet.'],
+  ['04', 'BUILD', 'Build the smallest thing that can answer the question, then instrument it so I can see what it is actually doing.'],
+  ['05', 'VERIFY', 'Test it, benchmark it, keep negative results, challenge the assumptions, and separate “I built it” from “it actually works.”'],
+  ['06', 'REUSE', 'If something survives testing, pull out the mechanism and turn it into something I can use again somewhere else.'],
 ];
 
 const programs = [
   {
-    title: 'VERIFIED & GOVERNED AUTONOMOUS SYSTEMS',
-    question: 'How can autonomous systems act while preserving constraints, provenance, verification, escalation, and human control?',
+    title: 'AUTONOMOUS SYSTEMS I CAN ACTUALLY TRUST',
+    question: 'How do I let an autonomous system do useful work without giving up constraints, evidence, escalation, or human control?',
     artifacts: 'RESIDUAL / Command Station · LDD-Kit · verified cyber planning · agent orchestration',
-    contribution: 'Contracts, bounded execution, evidence receipts, deterministic acceptance, planner verification, model routing, durable state, event-driven observability, and fail-closed control surfaces.',
+    contribution: 'Contracts, bounded execution, evidence receipts, verifier revisions, routing, durable state, observability, and fail-closed control surfaces.',
   },
   {
-    title: 'COMPUTATIONAL COMPLEXITY & VERIFICATION',
-    question: 'What structural properties explain when computation, proof, and search become tractable or difficult — and can those results become useful engineering mechanisms?',
+    title: 'COMPLEXITY, SEARCH & VERIFICATION',
+    question: 'What makes a problem hard, and can I turn that structure into something useful for planning, verification, or security tooling?',
     artifacts: 'CIC · CIC-SAT · P vs NP research · proof systems · formalization · CTF / red-team harness',
-    contribution: 'Graph-structured complexity measures, solver experiments, proof-system analysis, computational verification, theorem development, and direct transfer of CIC/SAT mechanisms into security tooling.',
+    contribution: 'Graph structure, solver experiments, proof-system analysis, SAT tooling, formalization, and direct reuse of research ideas inside security tooling.',
   },
   {
-    title: 'ADVERSARIAL AI & PHYSICAL ROBUSTNESS',
-    question: 'When does a digitally promising adversarial result remain valid under governed evaluation, manufacturing, deformation, and physical testing?',
+    title: 'ADVERSARIAL AI IN THE REAL WORLD',
+    question: 'If something looks promising digitally, does it still work after printing, deformation, viewpoint changes, lighting changes, and physical testing?',
     artifacts: 'RAC · adversarial clothing · physical P1 program',
-    contribution: 'Frozen experiments, surrogate/held-out separation, provenance, evidence gates, negative-result retention, physical validation, and research-to-production controls.',
+    contribution: 'Frozen experiments, held-out evaluation, provenance, evidence gates, negative-result retention, and a clean boundary between digital results and physical claims.',
   },
   {
-    title: 'AUTONOMOUS OPERATIONS & APPLIED SYSTEMS',
-    question: 'How can complex operational work be decomposed, automated, observed, and improved without losing control of system state?',
+    title: 'AUTOMATING MESSY OPERATIONAL WORK',
+    question: 'How do I break complicated operational work into pieces that can be automated without losing track of state, failure, or ownership?',
     artifacts: 'TechOps automation · runtime QA · RoofBot · robotics',
-    contribution: 'Operational agents, recovery loops, artifact analysis, data pipelines, event fabrics, monitoring, reproducible workflows, and production-facing automation.',
+    contribution: 'Recovery loops, agents, data pipelines, runtime QA, event systems, monitoring, and automation that is meant to survive real operating conditions.',
   },
 ];
 
 const cicApplications = [
   {
     name: 'CTF / RED-TEAM HARNESS',
-    text: 'CIC moved from research artifact to security substrate through pnp_lab: structural SAT encodings, necessity/backdoor analysis, treewidth-based feasibility analysis, entropy-trajectory reasoning, and a SAT/CIC solver bridge used by the red-team harness.',
+    text: 'This is the clearest direct transfer. I took ideas from CIC/SAT research and turned them into security-analysis modules: structural SAT encodings, backdoor and necessity analysis, treewidth-based feasibility checks, entropy-style reasoning, and a solver bridge used by the harness.',
   },
   {
     name: 'VERIFIED CYBER PLANNING',
-    text: 'The same research direction informed my use of SAT/SMT verification, structural planning constraints, proof-producing plan checks, counterexamples, and bounded search as engineering mechanisms for verifiable cyber planning.',
+    text: 'The same line of thinking pushed me toward SAT/SMT verification, bounded search, plan proofs, counterexamples, and explicit planning constraints instead of treating planner output as automatically correct.',
   },
   {
     name: 'RESIDUAL / COMMAND STATION',
-    text: 'CIC is a conceptual predecessor rather than a claimed direct code dependency: it reinforced the practice of decomposing difficult search, exposing structure, bounding work, and separating a generated answer from the evidence required to accept it.',
+    text: 'CIC is not a direct code dependency here. The connection is methodological: break hard search apart, expose structure, bound the work, and keep generation separate from the evidence required to accept the result.',
   },
 ];
 
@@ -58,34 +58,34 @@ const evidenceLabels = [
   'SPECULATIVE / OPEN',
 ];
 
-const loop = ['OBSERVE', 'FORMALIZE', 'HYPOTHESIZE', 'BUILD', 'INSTRUMENT', 'TEST', 'VERIFY', 'EXTRACT PRIMITIVE', 'PLATFORMIZE', 'APPLY', 'MEASURE FAILURE'];
+const loop = ['OBSERVE', 'FORMALIZE', 'HYPOTHESIZE', 'BUILD', 'INSTRUMENT', 'TEST', 'VERIFY', 'PULL OUT THE USEFUL PART', 'REUSE', 'APPLY', 'MEASURE FAILURE'];
 
 export default function ResearchThesis() {
   return (
     <section id="research-thesis" className="relative" style={{ background: '#070C18', padding: '150px 0', zIndex: 1 }}>
       <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-        <p className="font-label" style={{ marginBottom: '24px' }}>PORTFOLIO THESIS / APPLIED R&amp;D</p>
+        <p className="font-label" style={{ marginBottom: '24px' }}>HOW I APPROACH R&amp;D</p>
         <h2 className="font-headline" style={{ fontSize: 'clamp(2rem, 5vw, 4.4rem)', lineHeight: 1.02, letterSpacing: '-0.035em', color: '#E8EDF3', maxWidth: '1100px' }}>
-          I research how complex computational and autonomous systems can be made measurable, verifiable, and operationally trustworthy — then turn those ideas into platforms that enforce those properties in practice.
+          I like taking hard technical questions, building something that can actually test them, and keeping only the parts that hold up.
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16" style={{ marginTop: '64px' }}>
           <div>
             <p className="font-body" style={{ fontSize: '18px', color: '#B1BECC', lineHeight: 1.8, margin: 0 }}>
-              My work sits at the intersection of security research, AI systems, infrastructure, computational complexity, and platform engineering. I use engineering to test research ideas and research to determine what is worth engineering.
+              My projects move between security, AI systems, infrastructure, computational research, and platform engineering, but the way I work is pretty consistent. I start with a real question, build enough to test it, and let the result change the design.
             </p>
             <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.8, marginTop: '28px' }}>
-              The recurring pattern across the corpus is not a specific technology. It is the construction of governed, evidence-producing systems: define the claim, formalize the constraints, build the mechanism, instrument it, verify the outcome, preserve provenance, and extract what survives into reusable infrastructure.
+              I am not trying to collect unrelated projects. I am trying to build up a set of reusable ideas around verification, observability, bounded execution, evidence, and automation that I can apply in different places.
             </p>
           </div>
 
           <div style={{ borderLeft: '1px solid #1a2540', paddingLeft: '32px' }}>
-            <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '20px' }}>RECURRING RESEARCH QUESTION</p>
+            <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '20px' }}>THE QUESTION I KEEP COMING BACK TO</p>
             <p className="font-headline" style={{ fontSize: 'clamp(1.35rem, 2.5vw, 2rem)', color: '#E8EDF3', lineHeight: 1.35, margin: 0 }}>
-              How can increasingly autonomous and complex systems remain efficient, constrained, observable, reproducible, and verifiable under real operating conditions?
+              How do I make increasingly complex or autonomous systems useful without making them impossible to inspect, constrain, reproduce, or trust?
             </p>
             <div className="font-body" style={{ fontSize: '13px', color: '#65778A', lineHeight: 1.8, marginTop: '32px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Theory → Evidence Systems → Autonomous Platforms
+              Research → Evidence → Reusable Systems
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function ResearchThesis() {
         <div style={{ marginTop: '96px', borderTop: '1px solid #1a2540', paddingTop: '40px' }}>
           <p className="font-label" style={{ marginBottom: '16px' }}>RESEARCH PROGRAMS</p>
           <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#E8EDF3', maxWidth: '850px', marginBottom: '40px' }}>
-            Repositories are artifacts. The organizing unit is the research program.
+            The repos are outputs. These are the bigger questions behind them.
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {programs.map((program) => (
@@ -108,12 +108,12 @@ export default function ResearchThesis() {
         </div>
 
         <div style={{ marginTop: '80px', borderTop: '1px solid #1a2540', paddingTop: '40px' }}>
-          <p className="font-label" style={{ marginBottom: '16px' }}>CIC / RESEARCH TRANSFER</p>
+          <p className="font-label" style={{ marginBottom: '16px' }}>WHERE CIC ACTUALLY WENT</p>
           <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#E8EDF3', maxWidth: '900px', marginBottom: '20px' }}>
-            Computational Information Complexity became an engineering substrate, not an isolated research exercise.
+            I did not want the complexity research to stay trapped in a research repo.
           </h3>
           <p className="font-body" style={{ color: '#8899AA', fontSize: '15px', lineHeight: 1.8, maxWidth: '1000px', marginBottom: '32px' }}>
-            CIC began as research into structural complexity, SAT, graph parameters, proof systems, and the relationship between structure and computational difficulty. I then reused those ideas where they could provide concrete engineering leverage. The clearest direct application is the CTF/red-team harness, where CIC-SAT research is implemented as security-analysis modules rather than merely cited as background theory.
+            CIC started as me trying to understand structure in SAT, graph parameters, proof systems, and computational difficulty. The useful part was figuring out which ideas could transfer into actual engineering. The strongest direct example is the CTF/red-team harness, where the research shows up as working analysis modules instead of a citation in a README.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {cicApplications.map((item) => (
@@ -127,16 +127,16 @@ export default function ResearchThesis() {
 
         <div style={{ marginTop: '80px', padding: '32px', border: '1px solid #25324A', background: '#0A1020' }}>
           <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '16px' }}>LDD / LOG-DRIVEN DEVELOPMENT</p>
-          <h3 className="font-headline" style={{ fontSize: 'clamp(1.35rem, 2.7vw, 2rem)', color: '#E8EDF3', margin: 0 }}>Observability is part of the architecture, not an afterthought.</h3>
+          <h3 className="font-headline" style={{ fontSize: 'clamp(1.35rem, 2.7vw, 2rem)', color: '#E8EDF3', margin: 0 }}>I want observability designed in, not bolted on after something breaks.</h3>
           <p className="font-body" style={{ color: '#8899AA', fontSize: '15px', lineHeight: 1.8, maxWidth: '1000px', marginTop: '22px' }}>
-            I built LDD-Kit as a generic Log-Driven Development framework: define event schemas first, then generate structured logging, tracing, metrics, dashboards, alerts, CI validation, and platform-specific telemetry infrastructure from configuration. That work became directly operational inside RESIDUAL / Command Station, where LDD events participate in mission state, transactional event admission, observability, diagnostics, and evidence flow. LDD complements the verification work: CIC helps reason about computational structure; LDD makes runtime behavior legible enough to test, diagnose, and govern.
+            I built LDD-Kit around a simple idea: define the events first, then generate the logging, tracing, metrics, dashboards, alerts, CI checks, and platform telemetry around them. That became useful inside Residual, where the same events participate in mission state, admission, diagnostics, and evidence flow. CIC helps me reason about structure; LDD helps me see what the system is actually doing at runtime.
           </p>
         </div>
 
         <div style={{ marginTop: '96px', borderTop: '1px solid #1a2540', paddingTop: '40px' }}>
-          <p className="font-label" style={{ marginBottom: '16px' }}>APPLIED RESEARCH METHOD</p>
+          <p className="font-label" style={{ marginBottom: '16px' }}>MY PROCESS</p>
           <h3 className="font-headline" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.4rem)', color: '#E8EDF3', maxWidth: '800px', marginBottom: '40px' }}>
-            Build to learn. Instrument to know. Extract what survives.
+            Build enough to learn. Instrument enough to know. Keep what survives.
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {principles.map(([n, title, body]) => (
@@ -149,34 +149,54 @@ export default function ResearchThesis() {
         </div>
 
         <div style={{ marginTop: '80px' }}>
-          <p className="font-label" style={{ marginBottom: '18px' }}>RESEARCH → PLATFORM LOOP</p>
+          <p className="font-label" style={{ marginBottom: '18px' }}>THE LOOP</p>
           <div className="flex flex-wrap items-center gap-2">
             {loop.map((item, index) => (
               <div key={item} className="flex items-center gap-2">
-                <span className="font-label" style={{ border: '1px solid #1a2540', padding: '10px 12px', color: item === 'VERIFY' || item === 'PLATFORMIZE' ? '#4A6DFF' : '#8899AA', background: '#0A1020' }}>{item}</span>
+                <span className="font-label" style={{ border: '1px solid #1a2540', padding: '10px 12px', color: item === 'VERIFY' || item === 'REUSE' ? '#4A6DFF' : '#8899AA', background: '#0A1020' }}>{item}</span>
                 {index < loop.length - 1 && <span style={{ color: '#33445A' }}>→</span>}
               </div>
             ))}
             <span style={{ color: '#33445A' }}>↺</span>
           </div>
           <p className="font-body" style={{ fontSize: '14px', color: '#65778A', lineHeight: 1.7, marginTop: '20px', maxWidth: '900px' }}>
-            Formalization, instrumentation, verification, and primitive extraction are deliberate additions to the normal engineering lifecycle. Failures feed the next research cycle instead of being erased from the record.
+            I want failed tests to feed the next design, not disappear from the record. The point is to reduce uncertainty each time around.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16" style={{ marginTop: '80px' }}>
           <div>
-            <p className="font-label" style={{ marginBottom: '16px' }}>FROM MECHANISM TO PLATFORM</p>
+            <p className="font-label" style={{ marginBottom: '16px' }}>WHEN SOMETHING WORKS</p>
             <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.8 }}>
-              A successful experiment should leave behind more than a demo. I look for the reusable mechanism underneath it and engineer that mechanism into a primitive other systems can consume: planners, verifiers, execution contracts, receipts, policies, routing layers, simulation environments, safety controls, and observability systems.
+              I try to pull out the part that is actually reusable. Sometimes that becomes a verifier, a planner, a contract, a receipt system, a policy object, a routing layer, a simulation environment, or an observability primitive. I care more about that mechanism than the demo around it.
             </p>
           </div>
           <div>
-            <p className="font-label" style={{ marginBottom: '16px' }}>EVIDENCE OVER NOVELTY</p>
+            <p className="font-label" style={{ marginBottom: '16px' }}>WHEN SOMETHING DOES NOT</p>
             <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.8 }}>
-              A capability is not complete because it exists. It becomes meaningful when its effect can be measured. Cost, latency, correctness, security, reliability, resource use, reproducibility, and operational impact determine whether an idea survives and whether it deserves to become infrastructure.
+              I keep the failure. Cost, latency, correctness, security, reliability, reproducibility, and operational impact all matter. If the evidence is weak, I would rather say that clearly than pretend the project is further along than it is.
             </p>
           </div>
         </div>
 
-        <div style={{ marginTop:
+        <div style={{ marginTop: '80px', padding: '32px', border: '1px solid #1a2540', background: '#0A1020' }}>
+          <p className="font-label" style={{ marginBottom: '20px' }}>CLAIM DISCIPLINE</p>
+          <p className="font-body" style={{ color: '#B1BECC', fontSize: '15px', lineHeight: 1.75, maxWidth: '950px', margin: 0 }}>
+            I try to label the work based on what I can actually support, not what I hope it becomes. That means separating proof from observation, benchmarks from production evidence, and preregistered tests from completed ones.
+          </p>
+          <div className="flex flex-wrap gap-2" style={{ marginTop: '24px' }}>
+            {evidenceLabels.map((label) => (
+              <span key={label} className="font-label" style={{ border: '1px solid #25324A', padding: '9px 11px', color: '#8899AA' }}>{label}</span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: '72px', padding: '32px', border: '1px solid #4A6DFF', background: '#0A1020' }}>
+          <p className="font-headline" style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.8rem)', color: '#E8EDF3', lineHeight: 1.45, margin: 0 }}>
+            The goal is not to have the most projects. I want a body of work that shows I can take a hard problem, figure out how to test it, build something useful, keep the evidence honest, and reuse what I learned somewhere else.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
