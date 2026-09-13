@@ -37,9 +37,9 @@ export default function Navigation() {
 
         <div className="hidden md:flex items-center gap-8">
           <button onClick={() => scrollTo('#work')} className="font-label bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Case Studies</button>
+          <button onClick={() => scrollTo('#research-thesis')} className="font-label bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Research</button>
           <button onClick={() => scrollTo('#about')} className="font-label bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Leadership</button>
           <button onClick={() => scrollTo('#networking')} className="font-label bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Credentials</button>
-          <button onClick={() => scrollTo('#contact')} className="font-label bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Contact</button>
           <Link to="/terminal" className="font-label hover:text-[#00ff41] transition-colors duration-300 no-underline" style={{ color: '#8899AA', textDecoration: 'none' }}>Terminal</Link>
           <button onClick={() => scrollTo('#contact')} className="font-label bg-transparent px-5 py-2 hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300 cursor-pointer" style={{ color: '#4A6DFF', border: '1px solid #4A6DFF' }}>Contact</button>
         </div>
@@ -55,9 +55,9 @@ export default function Navigation() {
         style={{ background: 'rgba(5, 10, 20, 0.95)', backdropFilter: 'blur(20px)', transform: menuOpen ? 'translateX(0)' : 'translateX(100%)' }}>
         <div className="flex flex-col gap-8 p-10 pt-16">
           <button onClick={() => scrollTo('#work')} className="font-label text-left bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Case Studies</button>
+          <button onClick={() => scrollTo('#research-thesis')} className="font-label text-left bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Research</button>
           <button onClick={() => scrollTo('#about')} className="font-label text-left bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Leadership</button>
           <button onClick={() => { scrollTo('#networking'); setMenuOpen(false); }} className="font-label text-left bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Credentials</button>
-          <button onClick={() => scrollTo('#contact')} className="font-label text-left bg-transparent hover:text-[#E8EDF3] transition-colors duration-300 cursor-pointer" style={{ color: '#8899AA', border: 'none', outline: 'none' }}>Contact</button>
           <Link to="/terminal" onClick={() => setMenuOpen(false)} className="font-label text-left hover:text-[#00ff41] transition-colors duration-300 no-underline" style={{ color: '#8899AA', textDecoration: 'none' }}>Terminal</Link>
           <button onClick={() => scrollTo('#contact')} className="font-label bg-transparent px-5 py-3 text-center hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300 cursor-pointer" style={{ color: '#4A6DFF', border: '1px solid #4A6DFF' }}>Contact</button>
         </div>
