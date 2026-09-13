@@ -9,6 +9,7 @@ import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import SelectedWork from './sections/SelectedWork';
 import ExecutiveImpact from './sections/ExecutiveImpact';
+import ResearchThesis from './sections/ResearchThesis';
 import About from './sections/About';
 import Networking from './sections/Networking';
 import Contact from './sections/Contact';
@@ -29,7 +30,7 @@ function Portfolio() {
     gsap.ticker.lagSmoothing(0);
     return () => { gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
-  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><About /><Networking /><Contact /></main><Footer /></>;
+  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><About /><Networking /><Contact /></main><Footer /></>;
 }
 
 function App() {
