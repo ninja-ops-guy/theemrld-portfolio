@@ -1,27 +1,24 @@
 const rows = [
-  { program:'Production Systems', claim:'Owning the incident and improving the system around it can cut recurring operational load.', state:'EXPERIMENTALLY OBSERVED', artifact:'170+ → ~15 queue reduction · recovery cases · automation' },
-  { program:'Residual / Command Station', claim:'Agent work can be bounded with explicit contracts, verifier revisions, durable receipts, and human escalation.', state:'INTERNALLY BENCHMARKED', artifact:'Runtime · receipt DAG validation · HITL store · verifier contracts' },
-  { program:'Verified Cyber Planning', claim:'Generated cyber plans can be checked against explicit constraints and rejected with useful counterevidence.', state:'INTERNALLY BENCHMARKED', artifact:'SAT/SMT verifier · policy objects · MUS/counterexamples · CyberPlanBench' },
-  { program:'RAC / Adversarial Clothing', claim:'A digital adversarial result does not count as physical efficacy until it survives frozen evaluation and real-world testing.', state:'PREREGISTERED / PENDING TEST', artifact:'Frozen contracts · provenance · held-out evaluation · P1 protocol' },
-  { program:'CIC + LDD', claim:'Structural complexity and observability tools can help expose where search, proof, and runtime behavior actually become difficult.', state:'EXPERIMENTALLY OBSERVED', artifact:'Solver experiments · Lean artifacts · LDD Kit · open-gap documentation' },
+  { program:'CIC → RED-TEAM', question:'Can structural properties of SAT and proof search become useful security-analysis mechanisms?', mechanism:'Structural SAT encodings · width/treewidth analysis · necessity/backdoor analysis', reuse:'CTF/red-team harness pnp_lab · verified-planning direction', state:'DIRECT RESEARCH TRANSFER', evidence:'Dedicated CIC modules and test suite in the red-team harness; theoretical, empirical, and open claims kept separate.' },
+  { program:'VERIFIED CYBER PLANNING', question:'Can generated cyber plans be checked instead of trusted because a planner produced them?', mechanism:'SAT/SMT verification · plan proofs · MUS/counterexamples · policy constraints', reuse:'CTF orchestration · later governed-agent architecture', state:'ENGINEERED + TESTED', evidence:'Verifier generations, automated tests, certificate/proof machinery, explicit rejection and counterexample paths.' },
+  { program:'RESIDUAL / COMMAND STATION', question:'Can local and cloud agents do useful software work while remaining bounded, observable and recoverable?', mechanism:'Immutable goals · dependency waves · verifier revisions · quarantine · receipts · routing', reuse:'Reusable execution/control plane · LDD integration', state:'PLATFORM / ACTIVE R&D', evidence:'Deterministic checks, durable state/recovery, provider and observation regressions, browser workflow validation. Live-model cost/quality advantage remains a measurement target.' },
+  { program:'LDD-KIT', question:'What changes if observability begins with event contracts instead of being added after implementation?', mechanism:'Event-schema-first logs · traces · metrics · dashboards · alerts · CI validation', reuse:'RESIDUAL mission state · event admission · diagnostics · evidence flow', state:'REUSED PLATFORM PRIMITIVE', evidence:'Reusable multi-language framework with direct integration into a larger autonomous-systems platform.' },
+  { program:'RAC / PHYSICAL ROBUSTNESS', question:'Does a digitally promising adversarial design survive governed evaluation and physical testing?', mechanism:'Frozen contracts · held-out separation · provenance · promotion/refusal gates · EOT', reuse:'Research Workbench · physical-AI evidence platform', state:'PHYSICAL VALIDATION PENDING', evidence:'Engineering barriers closed for declared scope; negative digital results retained; P1 software prepared while physical efficacy remains explicitly unestablished.' },
 ];
 
 export default function EvidenceMatrix(){
   return <section id="evidence" className="relative" style={{background:'#08101D',padding:'110px 0',zIndex:1}}>
     <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-      <p className="font-label">WHAT I ACTUALLY KNOW</p>
-      <h2 className="font-headline" style={{fontSize:'clamp(2rem,4vw,3.8rem)',color:'#E8EDF3',lineHeight:1.05,marginTop:16,maxWidth:900}}>I try to make it obvious what is proven, what I measured, and what is still open.</h2>
-      <p className="font-body" style={{color:'#8899AA',lineHeight:1.7,maxWidth:820,marginTop:18}}>I do not want a research page where everything sounds finished. Some things are proved, some are observed, some are internally benchmarked, and some still need physical or external testing. I label them that way on purpose.</p>
-      <div className="overflow-x-auto" style={{marginTop:42,border:'1px solid #1A2540'}}>
-        <table style={{width:'100%',borderCollapse:'collapse',minWidth:820}}>
-          <thead><tr style={{background:'#0A1424'}}>{['PROGRAM','WHAT I AM CLAIMING','CURRENT STATE','WHAT BACKS IT'].map(h=><th key={h} className="font-label" style={{textAlign:'left',padding:'16px',borderBottom:'1px solid #1A2540',color:'#91A2B5'}}>{h}</th>)}</tr></thead>
-          <tbody>{rows.map(r=><tr key={r.program} style={{borderBottom:'1px solid #162235'}}>
-            <td className="font-headline" style={{padding:'18px 16px',color:'#E8EDF3',fontSize:16,verticalAlign:'top'}}>{r.program}</td>
-            <td className="font-body" style={{padding:'18px 16px',color:'#A7B4C2',fontSize:13,lineHeight:1.6,verticalAlign:'top',maxWidth:420}}>{r.claim}</td>
-            <td style={{padding:'18px 16px',verticalAlign:'top'}}><span className="font-label" style={{border:'1px solid #334766',padding:'7px 9px',color:'#9AAEFF',whiteSpace:'nowrap'}}>{r.state}</span></td>
-            <td className="font-body" style={{padding:'18px 16px',color:'#7E90A5',fontSize:13,lineHeight:1.6,verticalAlign:'top'}}>{r.artifact}</td>
-          </tr>)}</tbody>
-        </table>
+      <p className="font-label">RESEARCH IMPACT / EVIDENCE</p>
+      <h2 className="font-headline" style={{fontSize:'clamp(2rem,4vw,3.8rem)',color:'#E8EDF3',lineHeight:1.05,marginTop:16,maxWidth:900}}>Question → mechanism → reuse → evidence.</h2>
+      <p className="font-body" style={{color:'#8899AA',lineHeight:1.7,maxWidth:900,marginTop:18}}>This is the shortest version of the research portfolio: what I was trying to learn, what I built because of it, where the useful mechanism showed up again, and what evidence I can support today.</p>
+      <div style={{marginTop:42,border:'1px solid #1A2540'}}>
+        {rows.map((r,i)=><article key={r.program} className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.35fr_1.35fr_1.35fr] gap-px" style={{background:'#1A2540',borderTop:i?'1px solid #1A2540':'none'}}>
+          <div style={{background:'#08101D',padding:'22px'}}><div className="font-headline" style={{color:'#E8EDF3',fontSize:16}}>{r.program}</div><div className="font-label" style={{color:'#9AAEFF',marginTop:14,lineHeight:1.5}}>{r.state}</div></div>
+          <div style={{background:'#08101D',padding:'22px'}}><div className="font-label" style={{marginBottom:9}}>RESEARCH QUESTION</div><p className="font-body" style={{color:'#B2BECA',fontSize:13,lineHeight:1.65,margin:0}}>{r.question}</p></div>
+          <div style={{background:'#08101D',padding:'22px'}}><div className="font-label" style={{marginBottom:9}}>MECHANISM → REUSE</div><p className="font-body" style={{color:'#A0AFBE',fontSize:13,lineHeight:1.65,margin:0}}>{r.mechanism}</p><p className="font-body" style={{color:'#718399',fontSize:12,lineHeight:1.6,marginTop:10}}>Reused in: {r.reuse}</p></div>
+          <div style={{background:'#08101D',padding:'22px'}}><div className="font-label" style={{marginBottom:9}}>EVIDENCE / BOUNDARY</div><p className="font-body" style={{color:'#8FA0B2',fontSize:13,lineHeight:1.65,margin:0}}>{r.evidence}</p></div>
+        </article>)}
       </div>
       <p className="font-body" style={{color:'#607287',fontSize:12,lineHeight:1.7,marginTop:18}}>The label changes when the evidence changes, not when I get more excited about the project.</p>
     </div>
