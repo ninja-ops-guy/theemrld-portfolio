@@ -37,12 +37,12 @@ export default function About() {
     <section id="about" ref={sectionRef} className="relative" style={{ background: '#0A1020', padding: '130px 0', zIndex: 1 }}>
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row gap-8 md:gap-[5%]">
         <div ref={leftRef} className="md:w-[45%] opacity-0">
-          <p className="font-label" style={{ marginBottom: '32px' }}>OPERATING BACKGROUND</p>
+          <p className="font-label" style={{ marginBottom: '32px' }}>BACKGROUND</p>
           <h2 className="font-headline" style={{ fontSize: 'clamp(1.8rem, 4vw, 3.2rem)', lineHeight: 1.1, letterSpacing: '-0.02em', color: '#E8EDF3' }}>
-            Production judgment anchors the research.
+            The research makes more sense when you know where I came from.
           </h2>
           <div style={{ marginTop: '40px' }}>
-            <p className="font-label" style={{ marginBottom: '16px' }}>HIGHLIGHTS</p>
+            <p className="font-label" style={{ marginBottom: '16px' }}>A FEW THINGS I CAN POINT TO</p>
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {highlights.map((h) => (
                 <li key={h} className="font-body" style={{ fontSize: '14px', color: '#8899AA', lineHeight: 1.7, paddingLeft: '16px', position: 'relative', marginBottom: '8px' }}>
@@ -55,13 +55,16 @@ export default function About() {
 
         <div ref={rightRef} className="md:w-[50%] opacity-0">
           <p className="font-body" style={{ fontSize: '16px', color: '#A6B3C2', lineHeight: 1.75 }}>
-            My day-to-day engineering background is in production IT and infrastructure: ambiguous incidents, networking, endpoint recovery, automation, manufacturing systems, and operational queues where downtime has real consequences. That operating experience is the credibility layer underneath the independent research.
+            Most of my day-to-day background is production IT and infrastructure. That means weird incidents, networking problems, endpoint recovery, manufacturing systems, automation, and queues where people are waiting on you to get something working again.
           </p>
           <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.75, marginTop: '24px' }}>
-            The same method carries into R&amp;D: define the claim, formalize constraints, build the smallest mechanism that can test it, instrument the system, retain failures, and platformize only what survives verification. AI is used as an accelerator for research and implementation, while architecture, acceptance criteria, validation, and final engineering decisions remain evidence-driven.
+            I tend to approach research the same way. Start with a real question, break it down until I can test it, build something, instrument it, and see what survives. If it fails, I keep the failure. If it works, I try to understand why and turn the useful mechanism into something I can reuse elsewhere.
           </p>
           <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.75, marginTop: '24px' }}>
-            I am most interested in security engineering, AI security, red-team R&amp;D, autonomous systems, and platform/security engineering roles where production constraints and research discipline both matter.
+            I use AI heavily because it lets me explore more ideas, compare approaches, implement faster, and test a wider design space. I do not treat model output as evidence. Architecture, constraints, acceptance criteria, validation, and the final engineering calls still have to hold up on their own.
+          </p>
+          <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', lineHeight: 1.75, marginTop: '24px' }}>
+            The work I want more of is security engineering, security research, AI security, red-team R&amp;D, autonomous systems, and platform engineering where production reality and research discipline both matter.
           </p>
           <div className="flex flex-wrap gap-3" style={{ marginTop: '40px' }}>
             {capabilities.map((cap) => <span key={cap} className="font-label border px-4 py-2" style={{ borderColor: '#1a2540' }}>{cap}</span>)}
