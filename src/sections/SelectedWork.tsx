@@ -13,10 +13,10 @@ const flagships: Project[] = [
     primitive:'Recovery playbooks · automation · observability · operating procedures', caseStudy:'/case-study/production-systems'
   },
   {
-    title:'Residual / Command Station', category:'AUTONOMOUS SYSTEMS / PLATFORM ENGINEERING', status:'ACTIVE R&D · PRIVATE', tone:'private',
-    thesis:'I built Residual because agent systems get messy fast when routing, retries, approvals, evidence, and verification are all implicit. The goal is to make those boundaries explicit and enforceable.',
-    claimState:'ENGINEERING-COMPLETE / BENCHMARKED', evidence:['Bounded execution contracts','Verifier receipts + graph validation','Durable HITL state','Tiered model routing and continuity fallbacks'],
-    primitive:'Contracts · receipts · verifiers · routing layers · durable state', caseStudy:'/case-study/residual'
+    title:'RESIDUAL', category:'AI RELIABILITY / PLATFORM ENGINEERING / APPLIED R&D', status:'PUBLIC R&D · ACTIVE', tone:'research',
+    thesis:'I am testing a systems-level hypothesis: reliable AI does not necessarily require reliable individual models. RESIDUAL treats every worker as untrusted computation, then moves authority into contracts, evidence, independent verification, and deterministic integration.',
+    claimState:'IMPLEMENTED / ACTIVE EVALUATION', evidence:['Frozen worker contracts + bounded execution','Evidence bus, receipts + verifier revisions','Deterministic acceptance / integration boundary','Adaptive assurance, routing + orchestration-tax controls'],
+    primitive:'Constrain → observe → verify → deterministically integrate', caseStudy:'/case-study/residual', github:'https://github.com/ninja-ops-guy/residual-agent-harness'
   },
   {
     title:'Verified Cyber Planning', category:'SECURITY RESEARCH / FORMAL VERIFICATION', status:'RESEARCH PROGRAM · PRIVATE', tone:'research',
