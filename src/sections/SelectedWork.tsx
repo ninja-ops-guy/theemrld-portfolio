@@ -1,68 +1,265 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-type Project = {
-  title:string; category:string; status:string; tone:'live'|'research'|'private';
-  thesis:string; claimState:string; evidence:string[]; primitive:string; caseStudy:string; github?:string; demo?:string;
-};
+gsap.registerPlugin(ScrollTrigger);
 
-const flagships: Project[] = [
+const projects = [
   {
-    title:'Production Systems Engineering', category:'INFRASTRUCTURE / INCIDENT OWNERSHIP / AUTOMATION', status:'PRODUCTION EXPERIENCE', tone:'live',
-    thesis:'This is the work that keeps me grounded. Production breaks, people are waiting on it, and I have to figure out what actually failed, get it back, and leave the environment better than I found it.',
-    claimState:'OBSERVED IN PRODUCTION', evidence:['170+ → ~15 support backlog','Critical production recovery','Rogue DHCP traced to switch port','SNMP infrastructure automation'],
-    primitive:'Recovery playbooks · automation · observability · operating procedures', caseStudy:'/case-study/production-systems'
+    title: 'Adversarial Clothing Pipeline',
+    category: 'ADVERSARIAL ML / COMPUTER VISION RESEARCH',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-adversarial.jpg',
+    desc: 'A research pipeline that designs machine-optimized clothing patterns to break computer vision classifiers. Combines a black-box adversarial optimizer, neural pattern deformation, and a differentiable physics engine that simulates how fabric drapes and stretches. Includes a browser-based Pattern Lab with 8 procedural generators and a full certification benchmark for reproducible results. Python backend + React design studio.',
+    link: null,
+    github: 'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',
   },
   {
-    title:'RESIDUAL', category:'AI RELIABILITY / PLATFORM ENGINEERING / APPLIED R&D', status:'PUBLIC R&D · ACTIVE', tone:'research',
-    thesis:'I am testing a systems-level hypothesis: reliable AI does not necessarily require reliable individual models. RESIDUAL treats every worker as untrusted computation, then moves authority into contracts, evidence, independent verification, and deterministic integration.',
-    claimState:'IMPLEMENTED / ACTIVE EVALUATION', evidence:['Frozen worker contracts + bounded execution','Evidence bus, receipts + verifier revisions','Deterministic acceptance / integration boundary','Adaptive assurance, routing + orchestration-tax controls'],
-    primitive:'Constrain → observe → verify → deterministically integrate', caseStudy:'/case-study/residual', github:'https://github.com/ninja-ops-guy/residual-agent-harness'
+    title: 'RESIDUAL Agent Harness',
+    category: 'AI SECURITY RESEARCH / VERIFICATION HARNESS',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-residual.png',
+    desc: 'A research harness for bounding the authority of untrusted AI workers through evidence-first verification. Every candidate output passes through mechanical, structural, and judge checks in strict order — fail-closed by design. Worker/verifier separation, obligation DAGs with dependency lineage, quarantined tool calls with policy evaluation before execution, deterministic sandboxing with timing-side-channel resistance, and tamper-evident attestation chains. Includes red-team test suites for gateway bypass, sandbox containment, control-integrity subversion, and adversarial timing attacks. ~90 test modules, preregistered experiment protocol, honest accounting (PASS/FAIL/UNKNOWN/BLOCKED). Python backend, SQLite persistence, Docker sandboxing with seccomp.',
+    link: null,
+    github: 'https://github.com/ninja-ops-guy/residual-agent-harness',
   },
   {
-    title:'Verified Cyber Planning', category:'SECURITY RESEARCH / FORMAL VERIFICATION', status:'RESEARCH PROGRAM · PRIVATE', tone:'research',
-    thesis:'I wanted to know whether a generated cyber plan could be checked like an engineering artifact instead of trusted because a planner produced it. This project is my attempt to make that practical.',
-    claimState:'INTERNALLY BENCHMARKED', evidence:['SAT/SMT plan verification','Counterexample / MUS generation','Policy-aware planning','CyberPlanBench + proof artifacts'],
-    primitive:'Verified planners · policy objects · plan proofs · counterexamples', caseStudy:'/case-study/verified-cyber-planning'
+    title: 'Palanroof / RoofBot',
+    category: 'AI ROOFING INTELLIGENCE PLATFORM',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-palanroof.jpg',
+    desc: 'Full-stack operational intelligence platform for roofing workflows. AI vision inference, municipal permit auto-discovery pipeline across 500 US MSAs, multi-agent scraping with Ollama LLM fallback. React, TypeScript, Cloud Run.',
+    link: 'https://palanroof.shop/',
   },
   {
-    title:'RAC / Adversarial Clothing', category:'ADVERSARIAL ML / PHYSICAL ROBUSTNESS', status:'PUBLIC R&D · PHYSICAL P1 PENDING', tone:'research',
-    thesis:'Digital results are easy to overstate. RAC is built around the harder question: does the result still hold when you print it, wear it, deform it, change the scene, and test it properly?',
-    claimState:'PREREGISTERED / PENDING PHYSICAL TEST', evidence:['Frozen experiment contracts','Held-out evaluation boundaries','Artifact + provenance tracking','Negative results retained'],
-    primitive:'Evidence gates · frozen protocols · provenance · reproducible trials', caseStudy:'/case-study/adversarial-clothing', github:'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline'
+    title: 'InvoicePro',
+    category: 'PROFESSIONAL INVOICE GENERATOR — FULL-STACK SAAS',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-invoicepro.jpg',
+    desc: 'Full-featured invoice generator for freelancers. Split-screen form editor with live PDF preview, business and client info management, line items with auto-calculation, invoice history, client database, demo data loading, and PDF download. Clean React frontend with real-time preview updates.',
+    link: 'https://u3jyyp6jtucdg.kimi.page',
+  },
+  {
+    title: 'Kimi Claw x Vector',
+    category: 'PHYSICAL AI COMPANION PLATFORM',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kimiclaw.jpg',
+    desc: 'Embodied AI platform using Vector Robot. Go orchestration, Python motor APIs, locally hosted Qwen 2.5 VL multimodal models on RTX 4070. 32 orchestrated AI skills, UDP swarm networking for multi-robot communication.',
+    link: null,
+  },
+  {
+    title: 'Kalshi AI Trading Bot',
+    category: 'QUANTITATIVE PREDICTION MARKET ENGINE',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-kalshi.jpg',
+    desc: 'Algorithmic trading infrastructure for Kalshi. Ensemble ML systems analyzing macroeconomic events and sentiment. Avellaneda-Stoikov market-making for binary contracts. Fractional Kelly Criterion risk management.',
+    link: null,
+  },
+  {
+    title: 'CIC & SAT Research',
+    category: 'P VS NP RESEARCH PROGRAM — 18 STAGES, 60+ TRACKS',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-cic-sat.jpg',
+    desc: 'Computational Information Complexity framework connecting constraint graph structure to proof and circuit complexity. ~58 theorems (8 rigorous), 6 software tools (6,800 LOC), 3 academic papers, 1 Lean 4 formalization, Red Team Security Harness with 4 modules. 25.7M formulas verified. Novel result: L≠P implies SAT not in NC^1.',
+    link: 'https://kymplwsfrh776.kimi.page',
+    github: 'https://github.com/ninja-ops-guy/cic-p-vs-np-research',
+  },
+  {
+    title: 'TechOps Hero',
+    category: 'ROGUELITE IT CAREER RPG — 65KB, ZERO DEPENDENCIES',
+    image: 'https://tjsizcvhdprxa.kimi.page/images/proj-helpdesk.jpg',
+    desc: "Roguelite RPG across a 4-zone aerospace campus — factory floor, corporate offices, server room, reception lobby — each a profit center with distinct failure patterns. Every ticket follows a 5-phase diagnosis pipeline: Interview the user → Isolate root cause from 3 competing hypotheses → Select the portal → Turn-based command battle → Close and debrief. Diagnosis accuracy directly impacts battle: correct root cause = weakened enemy (-30% HP, exposed weakness), wrong one = full-strength fight plus stress penalty. Combat offers 4-6 real commands per scenario — ipconfig /all, tshark -i eth0, gpupdate /force, Restart-Service Spooler, nslookup, dsquery — each with type-effectiveness, resource cost (time/stress), and branching consequences. Flush DNS solves NXDOMAIN but wastes a turn on routing issues; reboot works on 40% of tickets but skips the root cause and hurts your solve-rate rating. 8-rank career ladder to CIO. 7 certifications unlock battle abilities. 6+ boss fights with phase-2 enrage mechanics. Custom Canvas 2D pixel-art engine, Puppeteer balance-testing harness, Web Audio chiptune SFX, SoundCloud soundtrack. Mobile-first with touch D-pad.",
+    link: 'https://rfmffik3vwxwg.kimi.page/?sharetype=link',
+    github: 'https://github.com/ninja-ops-guy/techops-hero',
   },
 ];
 
-const secondary = [
-  ['TechOps Hero','I use the game as a real product-engineering testbed: runtime QA, state management, campaign regressions, mobile controls, deployment, and constant iteration.','https://github.com/ninja-ops-guy/techops-hero','https://ninja-ops-guy.github.io/techops-hero/'],
-  ['CIC + LDD','This is where I explore structural complexity, SAT, proof ideas, formalization, and observability. Some of that research later feeds directly into security and autonomous-systems tooling.','https://github.com/ninja-ops-guy/cic-p-vs-np-research','https://github.com/ninja-ops-guy/LDD-Kit'],
-  ['Robotics / Autonomous Operations','A place to work through event-driven robotics, persistent control, safety checks, mapping, and multi-agent coordination in a physical system.','https://github.com/ninja-ops-guy/streetfighter-for-vector',''],
-];
+export default function SelectedWork() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-const toneColor=(t:Project['tone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
+  useEffect(() => {
+    const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
 
-export default function SelectedWork(){
-  return <section id="work" className="relative" style={{background:'#050A14',padding:'120px 0',zIndex:1}}>
-    <div className="max-w-[1280px] mx-auto px-6 md:px-10">
-      <p className="font-label">FLAGSHIP WORK</p>
-      <h2 className="font-headline" style={{color:'#E8EDF3',fontSize:'clamp(2rem,4vw,4rem)',marginTop:18,maxWidth:950,lineHeight:1}}>Run the system. Find the problem. Test the idea. Keep what survives.</h2>
-      <p className="font-body" style={{color:'#8899AA',maxWidth:840,marginTop:20,lineHeight:1.7}}>The projects look different on the surface, but I approach them the same way. I start with a real problem or question, build enough to test it, keep the evidence, and pull out the parts that are worth reusing.</p>
+    cards.forEach((card, index) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: index * 0.15,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
+    });
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{marginTop:58}}>
-        {flagships.map((p,i)=><article key={p.title} className="border border-[#162235] p-6 md:p-7 flex flex-col" style={{background:'rgba(8,15,28,.78)'}}>
-          <div className="font-label" style={{color:'#4A6DFF'}}>0{i+1} / {p.category}</div>
-          <div className="flex items-center justify-between gap-4 flex-wrap" style={{marginTop:14}}><span className="font-label" style={{color:toneColor(p.tone),fontSize:10}}>● {p.status}</span><span className="font-label" style={{border:'1px solid #263750',padding:'6px 8px',color:'#A9B6C5'}}>{p.claimState}</span></div>
-          <h3 className="font-headline" style={{fontSize:'clamp(1.7rem,2.8vw,2.5rem)',color:'#E8EDF3',marginTop:18}}>{p.title}</h3>
-          <p className="font-body" style={{color:'#A6B3C2',fontSize:15,lineHeight:1.7,marginTop:16}}>{p.thesis}</p>
-          <div style={{marginTop:24}}><p className="font-label" style={{color:'#4A6DFF',marginBottom:10}}>WHAT I CAN POINT TO</p>{p.evidence.map(x=><p key={x} className="font-body" style={{color:'#B7C3D0',fontSize:13,lineHeight:1.65,margin:'6px 0'}}>→ {x}</p>)}</div>
-          <div style={{marginTop:22,paddingTop:18,borderTop:'1px solid #162235'}}><p className="font-label" style={{color:'#4A6DFF'}}>WHAT CAME OUT OF IT</p><p className="font-body" style={{color:'#8899AA',fontSize:13,lineHeight:1.65,marginTop:8}}>{p.primitive}</p></div>
-          <div className="flex flex-wrap gap-3 mt-auto pt-7"><Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#4A6DFF] text-[#050A14]">OPEN CASE STUDY →</Link>{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}{p.demo&&<a href={p.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF]">DEMO →</a>}</div>
-        </article>)}
+    return () => {
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, []);
+
+  const leftProjects = projects.slice(0, 4);
+  const rightProjects = projects.slice(4); // 4 projects with offset
+
+  return (
+    <section
+      id="work"
+      ref={sectionRef}
+      className="relative"
+      style={{ background: '#050A14', padding: '120px 0', zIndex: 1 }}
+    >
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10">
+        <p className="font-label" style={{ marginBottom: '64px' }}>
+          SELECTED WORK
+        </p>
+
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left column - 4 projects */}
+          <div className="flex-1 flex flex-col" style={{ gap: '80px' }}>
+            {leftProjects.map((project, index) => (
+              <div
+                key={project.title}
+                ref={(el) => { cardsRef.current[index] = el; }}
+                className="group cursor-pointer opacity-0"
+                data-cursor="expand"
+              >
+                <div className="overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                    style={{ aspectRatio: '4/3', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
+                </div>
+                <h3
+                  className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2"
+                  style={{
+                    fontSize: 'clamp(1.2rem, 2vw, 1.8rem)',
+                    color: '#E8EDF3',
+                    marginTop: '16px',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {project.title}
+                </h3>
+                <p className="font-label" style={{ marginTop: '8px' }}>
+                  {project.category}
+                </p>
+                <p
+                  className="font-body"
+                  style={{
+                    fontSize: '14px',
+                    color: '#8899AA',
+                    marginTop: '12px',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {project.desc}
+                </p>
+                <div className="flex flex-wrap gap-3 mt-4">
+                  {project.link && (
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      VIEW PROJECT &rarr;
+                    </a>
+                  )}
+                  {(project as any).github && (
+                    <a
+                      href={(project as any).github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      GITHUB &rarr;
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Right column - 4 projects, offset */}
+          <div
+            className="flex-1 flex flex-col"
+            style={{ gap: '80px', paddingTop: '200px' }}
+          >
+            {rightProjects.map((project, index) => (
+              <div
+                key={project.title}
+                ref={(el) => { cardsRef.current[index + 4] = el; }}
+                className="group cursor-pointer opacity-0"
+                data-cursor="expand"
+              >
+                <div className="overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                    style={{ aspectRatio: '4/3', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
+                </div>
+                <h3
+                  className="font-headline transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2"
+                  style={{
+                    fontSize: 'clamp(1.2rem, 2vw, 1.8rem)',
+                    color: '#E8EDF3',
+                    marginTop: '16px',
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {project.title}
+                </h3>
+                <p className="font-label" style={{ marginTop: '8px' }}>
+                  {project.category}
+                </p>
+                <p
+                  className="font-body"
+                  style={{
+                    fontSize: '14px',
+                    color: '#8899AA',
+                    marginTop: '12px',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {project.desc}
+                </p>
+                <div className="flex flex-wrap gap-3 mt-4">
+                  {project.link && (
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF] hover:bg-[#4A6DFF] hover:text-[#050A14] transition-all duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      VIEW PROJECT &rarr;
+                    </a>
+                  )}
+                  {(project as any).github && (
+                    <a
+                      href={(project as any).github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block font-label px-5 py-2 border border-[#8899AA] text-[#8899AA] hover:bg-[#8899AA] hover:text-[#050A14] transition-all duration-300"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      GITHUB &rarr;
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-
-      <div style={{marginTop:96,borderTop:'1px solid #1A2540',paddingTop:38}}>
-        <p className="font-label">OTHER WORK</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{marginTop:26}}>{secondary.map(([title,body,link1,link2])=><div key={title} className="p-6 border border-[#162235]" style={{background:'#07101E'}}><h3 className="font-headline" style={{color:'#E8EDF3',fontSize:22}}>{title}</h3><p className="font-body" style={{color:'#8899AA',lineHeight:1.7,fontSize:14,marginTop:12}}>{body}</p><div className="flex flex-wrap gap-3" style={{marginTop:20}}>{link1&&<a className="font-label" style={{color:'#4A6DFF'}} href={link1} target="_blank" rel="noreferrer">OPEN ↗</a>}{link2&&<a className="font-label" style={{color:'#8899AA'}} href={link2} target="_blank" rel="noreferrer">RELATED ↗</a>}</div></div>)}</div>
-      </div>
-    </div>
-  </section>
+    </section>
+  );
 }
