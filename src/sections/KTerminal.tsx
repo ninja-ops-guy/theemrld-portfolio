@@ -483,10 +483,15 @@ function renderTesseractFrame(tick: number, intensity: number): string {
   return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
 }
 
-export default function KTerminal() {
+type KTerminalProps = {
+  embedded?: boolean;
+  onExitToCity?: () => void;
+};
+
+export default function KTerminal({ embedded = false, onExitToCity }: KTerminalProps = {}) {
   const navigate = useNavigate();
   const [terminalParams] = useSearchParams();
-  const fromGallery = terminalParams.get('from') === 'gallery';
+  const fromGallery = embedded || terminalParams.get('from') === 'gallery';
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1057,8 +1062,9 @@ Playlist: ${tracks.length} track(s)`);
 
       case 'city':
       case 'gallery': {
-        addLine('<span class="tc-cyan">[CITY]</span> Opening K//CITY at the gallery apse...');
-        navigate('/gallery');
+        addLine('<span class="tc-cyan">[CITY]</span> Returning to K//CITY at the gallery apse...');
+        if (embedded && onExitToCity) onExitToCity();
+        else navigate('/gallery?spawn=console');
         break;
       }
 
@@ -1082,7 +1088,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -1204,10 +1210,10 @@ Playlist: ${tracks.length} track(s)`);
               <button
                 type="button"
                 className="kt-gallery-exit"
-                onClick={() => navigate('/gallery?spawn=console')}
-                title="Exit K Terminal and return to the gallery apse computer"
+                onClick={() => { if (embedded && onExitToCity) onExitToCity(); else navigate('/gallery?spawn=console'); }}
+                title="Exit K Terminal and return to K//CITY at the apse computer"
               >
-                [EXIT → GALLERY]
+                [EXIT → CITY]
               </button>
             )}
             <Link
