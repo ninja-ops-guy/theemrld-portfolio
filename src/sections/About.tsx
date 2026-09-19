@@ -46,7 +46,7 @@ export default function About() {
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {highlights.map((h) => (
                 <li key={h} className="font-body" style={{ fontSize: '14px', color: '#8899AA', lineHeight: 1.7, paddingLeft: '16px', position: 'relative', marginBottom: '8px' }}>
-                  <span style={{ position: 'absolute', left: 0, color: '#4A6DFF' }}>&gt;</span>{h}
+                  <span style={{ position: 'absolute', left: 0, color: '#5A78FF' }}>&gt;</span>{h}
                 </li>
               ))}
             </ul>
@@ -70,8 +70,8 @@ export default function About() {
             {capabilities.map((cap) => <span key={cap} className="font-label border px-4 py-2" style={{ borderColor: '#1a2540' }}>{cap}</span>)}
           </div>
           <div className="flex flex-wrap gap-3" style={{ marginTop: '34px' }}>
-            <a href="https://github.com/ninja-ops-guy" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{border:'1px solid #4A6DFF',color:'#4A6DFF'}}>GITHUB PROFILE →</a>
-            <a href="#contact" className="font-label px-5 py-3" style={{background:'#4A6DFF',color:'#050A14'}}>CONTACT →</a>
+            <a href="https://github.com/ninja-ops-guy" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{border:'1px solid #5A78FF',color:'#5A78FF'}}>GITHUB PROFILE →</a>
+            <a href="#contact" className="font-label px-5 py-3" style={{background:'#5A78FF',color:'#050A14'}}>CONTACT →</a>
           </div>
         </div>
       </div>
