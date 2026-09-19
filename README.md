@@ -26,12 +26,6 @@ An evidence-gated research platform for physically realizable adversarial fashio
 - Source: https://github.com/ninja-ops-guy/adversarial-clothing-pipeline
 - Status: **Public R&D; physical P1 pending**
 
-### Vector / WirePod — Embodied AI / Verified Robot Control
-
-A private embodied-agent research platform built around typed LLM control, reusable robot skills, event-driven coordination, and a developing RESIDUAL qualification layer for generated behavior.
-
-- Status: **Active R&D / private; public release planned**
-
 ### Production Systems Engineering — Operational Foundation
 
 The research portfolio is grounded in production operations: incident ownership, infrastructure recovery, networking, automation, observability, and reducing recurring operational work. Sanitized case studies connect that experience to the verification and reliability concerns that appear throughout the research projects.
@@ -43,6 +37,14 @@ The research portfolio is grounded in production operations: incident ownership,
 - **CIC / SAT Research** — complexity and formal-reasoning exploration: https://github.com/ninja-ops-guy/cic-p-vs-np-research
 - **LDD-Kit** — reusable engineering tooling: https://github.com/ninja-ops-guy/LDD-Kit
 - **Streetfighter for Vector** — robotics/game experiment: https://github.com/ninja-ops-guy/streetfighter-for-vector
+
+## Private / Pre-Release Work
+
+### Vector / WirePod — Embodied AI / Verified Robot Control
+
+A private embodied-agent research platform built around typed LLM control, reusable robot skills, event-driven coordination, and a developing RESIDUAL qualification layer for generated behavior.
+
+- Status: **Active R&D / private; public release planned**
 
 Private and commercially oriented work is intentionally not used as the primary evidence layer when the implementation cannot be inspected publicly.
 
