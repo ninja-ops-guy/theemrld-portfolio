@@ -1418,45 +1418,45 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
 
         {/* Living ASCII sigils / world portals */}
         <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated world portals">
-          <button type="button" className="kt-ascii-card kt-taino-card" onClick={() => enterWorldScene('spring')} title="Enter Spring: Vernal Royal Gothic Court">
+          <button type="button" className="kt-ascii-card kt-taino-card" onClick={() => enterWorldScene('spring')} title="Enter SOL//TROPICAL: sunlit jungle coast and temple ruins">
             <span className="kt-ascii-label">☉ TAINO://PETROGLYPH·SOL · RELIEF.EXE</span>
-            <span className="kt-scene-tag">SPRING // VERNAL COURT</span>
+            <span className="kt-scene-tag">SOL // TROPICAL TEMPLE</span>
             <div className="kt-taino-stage">
               {!isPlaying && <pre className="kt-taino-noise">{renderIdleHashFrame(asciiTick)}</pre>}
               <pre className="kt-taino-symbol">{renderTainoFrame(asciiTick)}</pre>
             </div>
           </button>
-          <button type="button" className="kt-ascii-card kt-globe-card" onClick={() => enterWorldScene('summer')} title="Enter Summer: Solar Cloister">
+          <button type="button" className="kt-ascii-card kt-globe-card" onClick={() => enterWorldScene('summer')} title="Enter EMERALD HALO: circular bio-cyber garden and ring habitat">
             <span className="kt-ascii-label">☿ TORUS://ORBIT·RING · MUNDUS.EXE</span>
-            <span className="kt-scene-tag">SUMMER // SOLAR CLOISTER</span>
+            <span className="kt-scene-tag">TORUS // EMERALD HALO</span>
             <div className="kt-globe-stage">
               <pre className="kt-globe">{renderTorusFrame(asciiTick)}</pre>
             </div>
           </button>
-          <button type="button" className="kt-ascii-card kt-diamond-card" onClick={() => enterWorldScene('autumn')} title="Enter Autumn: Rust Processional">
+          <button type="button" className="kt-ascii-card kt-diamond-card" onClick={() => enterWorldScene('autumn')} title="Enter PRISM CAVERNS: crystalline data quarry and cyan cathedral">
             <span className="kt-ascii-label">◇ DIAMOND://CARBON·PRISM · LAPIS.EXE</span>
-            <span className="kt-scene-tag">AUTUMN // RUST PROCESSIONAL</span>
+            <span className="kt-scene-tag">DIAMOND // PRISM CAVERNS</span>
             <div className="kt-diamond-stage">
               <pre className="kt-diamond">{renderDiamondFrame(asciiTick)}</pre>
             </div>
           </button>
-          <button type="button" className="kt-ascii-card kt-tesseract-card" onClick={() => enterWorldScene('winter')} title="Enter Winter: Whiteout Grid">
+          <button type="button" className="kt-ascii-card kt-tesseract-card" onClick={() => enterWorldScene('winter')} title="Enter CRIMSON HYPERCUBE: impossible 4D reactor labyrinth">
             <span className="kt-ascii-label">🜔 TESSERACT://4D·HYPERCUBE · SEAL.EXE</span>
-            <span className="kt-scene-tag">WINTER // WHITEOUT GRID</span>
+            <span className="kt-scene-tag">TESSERACT // RED LABYRINTH</span>
             <div className="kt-tesseract-stage">
               <pre className="kt-tesseract-face">{renderTesseractFrame(asciiTick, isPlaying ? ritualIntensity : 24)}</pre>
             </div>
           </button>
-          <button type="button" className="kt-ascii-card kt-moon-card" onClick={() => enterWorldScene('dark')} title="Enter Dark: Blackout Wasteland">
+          <button type="button" className="kt-ascii-card kt-moon-card" onClick={() => enterWorldScene('dark')} title="Enter LUNAR OUTPOST: moon surface, craters, lander and Earth horizon">
             <span className="kt-ascii-label">☽ MOON://CRATER·ORBIT · SELENE.EXE</span>
-            <span className="kt-scene-tag">DARK // BLACKOUT WASTELAND</span>
+            <span className="kt-scene-tag">MOON // LUNAR OUTPOST</span>
             <div className="kt-moon-stage">
               <pre className="kt-moon">{renderMoonFrame(asciiTick)}</pre>
             </div>
           </button>
-          <button type="button" className="kt-ascii-card kt-rocket-card" onClick={() => enterWorldScene('light')} title="Enter Light: Lumen Arcology">
+          <button type="button" className="kt-ascii-card kt-rocket-card" onClick={() => enterWorldScene('light')} title="Enter K-01 ORBITAL: walkable space station with docking ring and observation deck">
             <span className="kt-ascii-label">△ ROCKET://ASCENT·VECTOR · APOLLO.EXE</span>
-            <span className="kt-scene-tag">LIGHT // LUMEN ARCOLOGY</span>
+            <span className="kt-scene-tag">ROCKET // K-01 STATION</span>
             <div className="kt-rocket-stage">
               <pre className="kt-rocket">{renderRocketFrame(asciiTick)}</pre>
             </div>
@@ -1751,6 +1751,13 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
         .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; max-width:72%; }
         .kt-scene-tag { position:absolute; right:6px; bottom:13px; z-index:5; padding:2px 4px; border:1px solid rgba(0,255,255,.24); background:rgba(3,5,9,.82); color:#00ffff; font-size:7px; letter-spacing:.08em; text-shadow:0 0 6px rgba(0,255,255,.45); }
+        .kt-taino-card .kt-ascii-label,.kt-taino-card .kt-scene-tag{color:#ffb000;border-color:rgba(255,176,0,.5);text-shadow:0 0 7px rgba(255,176,0,.72)}
+        .kt-globe-card .kt-ascii-label,.kt-globe-card .kt-scene-tag{color:#00ff91;border-color:rgba(0,255,145,.5);text-shadow:0 0 7px rgba(0,255,145,.72)}
+        .kt-diamond-card .kt-ascii-label,.kt-diamond-card .kt-scene-tag{color:#00ffff;border-color:rgba(0,255,255,.5);text-shadow:0 0 7px rgba(0,255,255,.72)}
+        .kt-tesseract-card .kt-ascii-label,.kt-tesseract-card .kt-scene-tag{color:#ff3b3b;border-color:rgba(255,59,59,.55);text-shadow:0 0 8px rgba(255,59,59,.8)}
+        .kt-moon-card .kt-ascii-label,.kt-moon-card .kt-scene-tag{color:#d8e6ff;border-color:rgba(216,230,255,.48);text-shadow:0 0 7px rgba(216,230,255,.72)}
+        .kt-rocket-card .kt-ascii-label,.kt-rocket-card .kt-scene-tag{color:#ffb000;border-color:rgba(255,176,0,.55);text-shadow:0 0 8px rgba(255,176,0,.78)}
+
         .kt-taino-stage,.kt-tesseract-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
         .kt-tesseract-card { background:radial-gradient(circle at 50% 50%,rgba(255,45,65,.18),rgba(255,0,120,.055) 42%,rgba(13,2,8,.97) 72%); border-color:rgba(255,72,72,.68); box-shadow:inset 0 0 22px rgba(255,55,75,.11),0 0 12px rgba(255,35,80,.16); }
         .kt-taino-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.12),rgba(0,255,65,.035) 48%,rgba(13,2,8,.97) 75%); }
