@@ -80,11 +80,11 @@ export default function ResearchThesis() {
           </div>
 
           <div style={{ borderLeft: '1px solid #1a2540', paddingLeft: '32px' }}>
-            <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '20px' }}>THE QUESTION I KEEP COMING BACK TO</p>
+            <p className="font-label" style={{ color: '#5A78FF', marginBottom: '20px' }}>THE QUESTION I KEEP COMING BACK TO</p>
             <p className="font-headline" style={{ fontSize: 'clamp(1.35rem, 2.5vw, 2rem)', color: '#E8EDF3', lineHeight: 1.35, margin: 0 }}>
               How do I make increasingly complex or autonomous systems useful without making them impossible to inspect, constrain, reproduce, or trust?
             </p>
-            <div className="font-body" style={{ fontSize: '13px', color: '#65778A', lineHeight: 1.8, marginTop: '32px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <div className="font-body" style={{ fontSize: '13px', color: '#74869A', lineHeight: 1.8, marginTop: '32px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Research → Evidence → Reusable Systems
             </div>
           </div>
@@ -98,9 +98,9 @@ export default function ResearchThesis() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {programs.map((program) => (
               <div key={program.title} style={{ background: '#070C18', padding: '32px' }}>
-                <div className="font-label" style={{ color: '#4A6DFF', marginBottom: '16px' }}>{program.title}</div>
+                <div className="font-label" style={{ color: '#5A78FF', marginBottom: '16px' }}>{program.title}</div>
                 <p className="font-headline" style={{ color: '#E8EDF3', fontSize: '18px', lineHeight: 1.45, margin: 0 }}>{program.question}</p>
-                <p className="font-body" style={{ color: '#65778A', fontSize: '12px', lineHeight: 1.7, marginTop: '18px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{program.artifacts}</p>
+                <p className="font-body" style={{ color: '#74869A', fontSize: '12px', lineHeight: 1.7, marginTop: '18px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{program.artifacts}</p>
                 <p className="font-body" style={{ color: '#8899AA', fontSize: '14px', lineHeight: 1.7, marginTop: '16px' }}>{program.contribution}</p>
               </div>
             ))}
@@ -118,7 +118,7 @@ export default function ResearchThesis() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {cicApplications.map((item) => (
               <div key={item.name} style={{ background: '#070C18', padding: '28px' }}>
-                <div className="font-label" style={{ color: '#4A6DFF', marginBottom: '16px' }}>{item.name}</div>
+                <div className="font-label" style={{ color: '#5A78FF', marginBottom: '16px' }}>{item.name}</div>
                 <p className="font-body" style={{ color: '#8899AA', fontSize: '14px', lineHeight: 1.75, margin: 0 }}>{item.text}</p>
               </div>
             ))}
@@ -126,7 +126,7 @@ export default function ResearchThesis() {
         </div>
 
         <div style={{ marginTop: '80px', padding: '32px', border: '1px solid #25324A', background: '#0A1020' }}>
-          <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '16px' }}>LDD / LOG-DRIVEN DEVELOPMENT</p>
+          <p className="font-label" style={{ color: '#5A78FF', marginBottom: '16px' }}>LDD / LOG-DRIVEN DEVELOPMENT</p>
           <h3 className="font-headline" style={{ fontSize: 'clamp(1.35rem, 2.7vw, 2rem)', color: '#E8EDF3', margin: 0 }}>I want observability designed in, not bolted on after something breaks.</h3>
           <p className="font-body" style={{ color: '#8899AA', fontSize: '15px', lineHeight: 1.8, maxWidth: '1000px', marginTop: '22px' }}>
             I built LDD-Kit around a simple idea: define the events first, then generate the logging, tracing, metrics, dashboards, alerts, CI checks, and platform telemetry around them. That became useful inside Residual, where the same events participate in mission state, admission, diagnostics, and evidence flow. CIC helps me reason about structure; LDD helps me see what the system is actually doing at runtime.
@@ -141,7 +141,7 @@ export default function ResearchThesis() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px" style={{ background: '#1a2540', border: '1px solid #1a2540' }}>
             {principles.map(([n, title, body]) => (
               <div key={n} style={{ background: '#070C18', padding: '28px' }}>
-                <div className="font-label" style={{ color: '#4A6DFF', marginBottom: '18px' }}>{n} / {title}</div>
+                <div className="font-label" style={{ color: '#5A78FF', marginBottom: '18px' }}>{n} / {title}</div>
                 <p className="font-body" style={{ fontSize: '14px', color: '#8899AA', lineHeight: 1.7, margin: 0 }}>{body}</p>
               </div>
             ))}
@@ -153,13 +153,13 @@ export default function ResearchThesis() {
           <div className="flex flex-wrap items-center gap-2">
             {loop.map((item, index) => (
               <div key={item} className="flex items-center gap-2">
-                <span className="font-label" style={{ border: '1px solid #1a2540', padding: '10px 12px', color: item === 'VERIFY' || item === 'REUSE' ? '#4A6DFF' : '#8899AA', background: '#0A1020' }}>{item}</span>
+                <span className="font-label" style={{ border: '1px solid #1a2540', padding: '10px 12px', color: item === 'VERIFY' || item === 'REUSE' ? '#5A78FF' : '#8899AA', background: '#0A1020' }}>{item}</span>
                 {index < loop.length - 1 && <span style={{ color: '#33445A' }}>→</span>}
               </div>
             ))}
             <span style={{ color: '#33445A' }}>↺</span>
           </div>
-          <p className="font-body" style={{ fontSize: '14px', color: '#65778A', lineHeight: 1.7, marginTop: '20px', maxWidth: '900px' }}>
+          <p className="font-body" style={{ fontSize: '14px', color: '#74869A', lineHeight: 1.7, marginTop: '20px', maxWidth: '900px' }}>
             I want failed tests to feed the next design, not disappear from the record. The point is to reduce uncertainty each time around.
           </p>
         </div>
@@ -191,7 +191,7 @@ export default function ResearchThesis() {
           </div>
         </div>
 
-        <div style={{ marginTop: '72px', padding: '32px', border: '1px solid #4A6DFF', background: '#0A1020' }}>
+        <div style={{ marginTop: '72px', padding: '32px', border: '1px solid #5A78FF', background: '#0A1020' }}>
           <p className="font-headline" style={{ fontSize: 'clamp(1.25rem, 2.4vw, 1.8rem)', color: '#E8EDF3', lineHeight: 1.45, margin: 0 }}>
             The goal is not to have the most projects. I want a body of work that shows I can take a hard problem, figure out how to test it, build something useful, keep the evidence honest, and reuse what I learned somewhere else.
           </p>

@@ -40,7 +40,7 @@ export default function Contact() {
         <h2 ref={headlineRef} className="font-headline" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', letterSpacing: '-0.03em', lineHeight: 0.95, color: '#E8EDF3', opacity: 0 }}>Connect on LinkedIn</h2>
         <p className="font-body" style={{ fontSize: '16px', color: '#8899AA', margin: '28px auto 0', lineHeight: 1.7, maxWidth: 560 }}>For professional conversations, opportunities, and collaboration, please reach out through LinkedIn.</p>
         <div ref={contactRef} className="flex justify-center gap-3 flex-wrap" style={{ marginTop: '40px', opacity: 0 }}>
-          <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="inline-block font-label border border-[#4A6DFF] text-[#4A6DFF] px-7 py-4 hover:bg-[#4A6DFF] hover:text-[#050A14] transition-colors duration-300" style={{ textDecoration: 'none' }}>CONNECT ON LINKEDIN →</a>
+          <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="inline-block font-label border border-[#5A78FF] text-[#5A78FF] px-7 py-4 hover:bg-[#5A78FF] hover:text-[#050A14] transition-colors duration-300" style={{ textDecoration: 'none' }}>CONNECT ON LINKEDIN →</a>
           <a href={tryHackMeUrl} target="_blank" rel="noopener noreferrer" className="inline-block font-label border border-[#263750] text-[#8899AA] px-7 py-4 hover:border-[#E8EDF3] hover:text-[#E8EDF3] transition-colors duration-300" style={{ textDecoration: 'none' }}>TRYHACKME →</a>
           <Link to="/terminal" className="inline-block font-label border border-[#263750] text-[#8899AA] px-7 py-4 hover:border-[#E8EDF3] hover:text-[#E8EDF3] transition-colors duration-300" style={{ textDecoration: 'none' }}>K TERMINAL →</Link>
         </div>

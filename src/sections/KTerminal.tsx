@@ -852,7 +852,7 @@ Playlist: ${tracks.length} track(s)`);
      \\▓▒░▒▓/
       \\▒▓▒/
        \\░/
-        \/`,
+        \\/`,
 `       . /\\ .
       / /▒\\ \\
      /_/▓▓\\_\\
@@ -877,7 +877,7 @@ Playlist: ${tracks.length} track(s)`);
      \\▓/\\▒/
       \\/░\\/
        \\▒/
-        \/`
+        \\/`
 ][Math.floor(asciiTick/2)%4]}</pre>
             </div>
           </div>

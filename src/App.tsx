@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -9,15 +9,16 @@ import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import SelectedWork from './sections/SelectedWork';
 import ExecutiveImpact from './sections/ExecutiveImpact';
+import EngineeringTrajectory from './sections/EngineeringTrajectory';
 import ResearchThesis from './sections/ResearchThesis';
 import EvidenceMatrix from './sections/EvidenceMatrix';
 import About from './sections/About';
 import Networking from './sections/Networking';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
-import KTerminal from './sections/KTerminal';
-import CaseStudy from './pages/CaseStudy';
-import ProgramCaseStudy from './pages/ProgramCaseStudy';
+const KTerminal = lazy(() => import('./sections/KTerminal'));
+const CaseStudy = lazy(() => import('./pages/CaseStudy'));
+const ProgramCaseStudy = lazy(() => import('./pages/ProgramCaseStudy'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,7 +39,7 @@ function Portfolio() {
     gsap.ticker.lagSmoothing(0);
     return () => { window.removeEventListener('portfolio-scroll', onPortfolioScroll); gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
-  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><About /><Networking /><Contact /></main><Footer /></>;
+  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><EngineeringTrajectory /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><About /><Networking /><Contact /></main><Footer /></>;
 }
 
 function App() {
@@ -47,13 +48,14 @@ function App() {
     window.scrollTo(0, 0);
     if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' }));
   }, [location.pathname, location.hash]);
-  return <Routes>
+  const routeFallback = <main style={{minHeight:'100vh',background:'#050A14',color:'#E8EDF3',display:'grid',placeItems:'center'}}><p className="font-label" role="status">LOADING INTERFACE…</p></main>;
+  return <Suspense fallback={routeFallback}><Routes>
     <Route path="/" element={<Portfolio />} />
     <Route path="/terminal" element={<KTerminal />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
-  </Routes>;
+  </Routes></Suspense>;
 }
 
 export default App;

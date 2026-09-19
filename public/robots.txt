@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ninja-ops-guy.github.io/theemrld-portfolio/sitemap.xml
