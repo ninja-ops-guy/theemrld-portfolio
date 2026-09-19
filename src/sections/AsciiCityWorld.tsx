@@ -389,12 +389,17 @@ export default function AsciiCityWorld(){
             colors[y][x]=earth?'#5fa8ff':weather?'#a7bad1':cfg.sky;
           }
         }else{
-          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),tower=y>=hor-towerH&&y<hor;
-          if(tower){
-            const edge=x%5===0||x%5===4,lit=((x+y+block)%7===0);
-            chars[y][x]=edge?'│':lit?'▫':'▓';
-            colors[y][x]=lit?dim(CITY_CONFIG.neon,syncPulse):dim(CITY_CONFIG.wall,.42);
-          }else{chars[y][x]=weather?'│':star?'·':' ';colors[y][x]=weather?'#184a66':CITY_CONFIG.sky;}
+          const bx=Math.floor(x/7),towerH=7+((bx*5+3)%9),tower=y>=hor-towerH&&y<hor;
+          const avenue=Math.abs(x-cols*.5)<Math.max(5,(hor-y)*.7);
+          if(tower&&!avenue){
+            const edge=x%7===0||x%7===6,window=((x+2*y+bx)%6===0),escape=(x%14===2&&y%3===0);
+            chars[y][x]=escape?'╫':edge?'│':window?'▣':'▓';
+            colors[y][x]=window?(x%3?'#00ffff':'#ff3bd4'):escape?'#77808d':dim(CITY_CONFIG.wall,.48);
+          }else{
+            const lamp=(x%23===4&&y===hor-3);
+            chars[y][x]=lamp?'●':weather?'│':star?'·':' ';
+            colors[y][x]=lamp?'#ffb000':weather?'#184a66':CITY_CONFIG.sky;
+          }
         }
       }else{
         const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;
@@ -411,9 +416,11 @@ export default function AsciiCityWorld(){
           else if(scene==='light'){chars[y][x]=(x%12===0)?'║':(y%5===0?'═':chk?'□':'·');colors[y][x]=chars[y][x]==='□'?'#ffb000':chk?'#111b28':'#07101c';}
           else{const crater=((x*3+y*5)%23)<3;chars[y][x]=crater?'○':chk?'░':'·';colors[y][x]=crater?'#69727e':chk?'#3a3f48':'#252a31';}
         }else{
-          const puddle=((x*5+y*3+syncStep)%19)<3;
-          chars[y][x]=puddle?'≈':chk?'·':'░';
-          colors[y][x]=puddle?dim(CITY_CONFIG.neon,.52):(chk?CITY_CONFIG.floorA:CITY_CONFIG.floorB);
+          const center=Math.abs(x-cols*.5),road=center<cols*.22,curb=Math.abs(center-cols*.22)<1.2;
+          const lane=road&&Math.abs(center-cols*.06)<.7&&((y+syncStep)%7<4);
+          const puddle=road&&((x*5+y*3+syncStep)%23)<3;
+          chars[y][x]=curb?'║':lane?'│':puddle?'≈':road?'·':chk?'▒':'░';
+          colors[y][x]=curb?'#8a9099':lane?'#ffb000':puddle?dim(CITY_CONFIG.neon,.55):road?'#111720':chk?'#252c36':'#1b222c';
         }
       }
     }
