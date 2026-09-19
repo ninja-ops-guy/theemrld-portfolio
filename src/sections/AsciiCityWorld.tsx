@@ -348,17 +348,39 @@ export default function AsciiCityWorld(){
           const pendant=((x+3)%23===0&&y===Math.max(2,hor-3));
           chars[y][x]=arch?(x%2?'╲':'╱'):mullion?'│':balcony?'═':pendant?'▼':star?'·':' ';
           colors[y][x]=pendant?'#ff76df':balcony?'#8c4fc7':arch||mullion?'#76579e':'#100817';
+        }else if(inRealm){
+          if(scene==='spring'){
+            const canopy=y>=hor-(3+((Math.floor(x/6)*7)%6))&&y<hor;
+            chars[y][x]=canopy?(x%6===0?'│':x%3===0?'❧':'▓'):weather?'✦':star?'·':' ';
+            colors[y][x]=canopy?(x%3===0?'#ffb000':'#145a38'):weather?'#ffd36a':cfg.sky;
+          }else if(scene==='summer'){
+            const ring=Math.abs(Math.hypot((x-cols*.5)/1.8,(y-hor*.58)*1.2)-cols*.18)<1.2;
+            chars[y][x]=ring?'◎':weather?'·':star?'·':' ';
+            colors[y][x]=ring?'#00ff91':weather?'#65ffbd':cfg.sky;
+          }else if(scene==='autumn'){
+            const shard=y>=hor-(2+((x*7)%12))&&y<hor&&x%5<2;
+            chars[y][x]=shard?(x%2?'╱':'╲'):weather?'✦':star?'◇':' ';
+            colors[y][x]=shard?'#00ffff':weather?'#8ffcff':cfg.sky;
+          }else if(scene==='winter'){
+            const grid=(x%9===0)||(y%5===0&&y>hor-14);
+            chars[y][x]=grid?(x%9===0?'│':'─'):weather?'+':star?'·':' ';
+            colors[y][x]=grid?'#ff3b3b':weather?'#ff687b':cfg.sky;
+          }else if(scene==='light'){
+            const bright=((x*31+y*17+syncStep)%83===0);
+            chars[y][x]=bright?'✦':((x+y)%113===0?'·':' ');
+            colors[y][x]=bright?'#d8efff':cfg.sky;
+          }else{
+            const earth=Math.hypot(x-cols*.72,y-hor*.30)<3.2;
+            chars[y][x]=earth?'◉':weather?'·':star?'·':' ';
+            colors[y][x]=earth?'#5fa8ff':weather?'#a7bad1':cfg.sky;
+          }
         }else{
-          // Distant modern high-rise skyline behind the raycast city canyon.
-          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),inTower=y>=hor-towerH&&y<hor;
-          if(inTower){
+          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),tower=y>=hor-towerH&&y<hor;
+          if(tower){
             const edge=x%5===0||x%5===4,lit=((x+y+block)%7===0);
             chars[y][x]=edge?'│':lit?'▫':'▓';
-            colors[y][x]=lit?dim(cfg.neon,syncPulse):dim(cfg.wall,.42);
-          }else{
-            chars[y][x]=weather?cfg.weather:star?'·':' ';
-            colors[y][x]=weather?cfg.weatherColor:cfg.sky;
-          }
+            colors[y][x]=lit?dim(CITY_CONFIG.neon,syncPulse):dim(CITY_CONFIG.wall,.42);
+          }else{chars[y][x]=weather?'│':star?'·':' ';colors[y][x]=weather?'#184a66':CITY_CONFIG.sky;}
         }
       }else{
         const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;
@@ -367,10 +389,17 @@ export default function AsciiCityWorld(){
           const grout=(y-hor)%5===0||x%17===0;
           chars[y][x]=reflection?'≈':grout?'─':chk?'◇':'·';
           colors[y][x]=reflection?(x%2?'#00bfcf':'#c126ff'):grout?'#4d315f':chk?'#2d1d38':'#130f18';
+        }else if(inRealm){
+          if(scene==='spring'){chars[y][x]=((x+y+syncStep)%13<3)?'~':chk?'·':'░';colors[y][x]=chars[y][x]==='~'?'#087f85':chk?'#123b2a':'#08271e';}
+          else if(scene==='summer'){chars[y][x]=(x%11===0||y%6===0)?'◎':chk?'·':'░';colors[y][x]=chars[y][x]==='◎'?'#00ff91':chk?'#0c3428':'#061f18';}
+          else if(scene==='autumn'){chars[y][x]=(x+y)%9===0?'◇':chk?'╱':'╲';colors[y][x]=chars[y][x]==='◇'?'#00ffff':chk?'#082f3b':'#041b27';}
+          else if(scene==='winter'){chars[y][x]=(x%7===0||y%4===0)?(x%7===0?'│':'─'):chk?'╳':'·';colors[y][x]=chars[y][x]==='╳'?'#ff3b3b':chk?'#351018':'#1d080d';}
+          else if(scene==='light'){chars[y][x]=(x%12===0)?'║':(y%5===0?'═':chk?'□':'·');colors[y][x]=chars[y][x]==='□'?'#ffb000':chk?'#111b28':'#07101c';}
+          else{const crater=((x*3+y*5)%23)<3;chars[y][x]=crater?'○':chk?'░':'·';colors[y][x]=crater?'#69727e':chk?'#3a3f48':'#252a31';}
         }else{
           const puddle=((x*5+y*3+syncStep)%19)<3;
-          chars[y][x]=puddle?(scene==='dark'?'░':'≈'):scene==='autumn'?(chk?',':'·'):scene==='winter'?(chk?'·':'_'):scene==='light'?(chk?'·':'+'):(chk?'·':'░');
-          colors[y][x]=puddle?dim(cfg.neon,.52):(chk?cfg.floorA:cfg.floorB);
+          chars[y][x]=puddle?'≈':chk?'·':'░';
+          colors[y][x]=puddle?dim(CITY_CONFIG.neon,.52):(chk?CITY_CONFIG.floorA:CITY_CONFIG.floorB);
         }
       }
     }
