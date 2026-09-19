@@ -79,6 +79,7 @@ export default function KTerminal() {
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
   const [visualizerBars, setVisualizerBars] = useState(50);
   const [visualizerFps, setVisualizerFps] = useState(20);
+  const [asciiTick, setAsciiTick] = useState(0);
 
   const bootIndexRef = useRef(0);
   const STORAGE_KEY = 'k-terminal:tracks:v3';
@@ -108,6 +109,12 @@ export default function KTerminal() {
   useEffect(() => {
     const mobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     setIsMobile(mobile);
+  }, []);
+
+  // Low-FPS terminal art clock: intentionally stepped to preserve the retro CRT feel.
+  useEffect(() => {
+    const timer = window.setInterval(() => setAsciiTick((n) => (n + 1) % 240), 120);
+    return () => window.clearInterval(timer);
   }, []);
 
   // Boot sequence
@@ -725,6 +732,23 @@ Playlist: ${tracks.length} track(s)`);
           </div>
         </div>
 
+        {/* Living ASCII sigils */}
+        <div className="kt-ascii-deck" aria-label="animated terminal sigils">
+          <div className="kt-ascii-card kt-ouroboros">
+            <span className="kt-ascii-label">OUROBOROS://RECURSION</span>
+            <div className="kt-ouro-stage">
+              <div className="kt-ouro-ring"><span className="kt-ouro-snake">▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░</span><span className="kt-ouro-head">◆</span></div>
+              <pre className="kt-eye">{asciiTick % 32 < 3 ? '   ───────\n  ╱       ╲\n <    ─    >\n  ╲       ╱\n   ───────' : '   ───────\n  ╱       ╲\n <   ◉ ◉   >\n  ╲   ▴   ╱\n   ───────'}</pre>
+            </div>
+          </div>
+          <div className="kt-ascii-card kt-cube-card">
+            <span className="kt-ascii-label">VECTOR://Z-AXIS</span>
+            <div className="kt-cube-stage">
+              <pre className="kt-cube-face">{['    +------+\n   /      /|\n  +------+ |\n  |      | +\n  |      |/\n  +------+','      +----+\n    /    / \\\n   +    +   |\n   |    |   +\n    \\    \\ /\n      +----+','   +------+\n   |\\      \\\n   | +------+\n   + |      |\n    \\|      |\n     +------+','      +----+\n     / \\    \\\n    +   +    +\n    |   |    |\n     \\ /    /\n      +----+'][Math.floor(asciiTick/2)%4]}</pre>
+            </div>
+          </div>
+        </div>
+
         {/* Visualizer */}
         <div className="kt-visualizer-container" style={{ display: visualizerEnabled ? 'block' : 'none' }}>
           <canvas ref={canvasRef} className="kt-canvas" />
@@ -925,6 +949,22 @@ Playlist: ${tracks.length} track(s)`);
           40% { transform: skew(2deg); } 60% { transform: skew(0deg); }
           80% { transform: skew(1deg); } 100% { transform: skew(0deg); }
         }
+
+        .kt-ascii-deck { display:grid; grid-template-columns:1.45fr 1fr; gap:10px; margin-bottom:10px; min-height:128px; }
+        .kt-ascii-card { position:relative; overflow:hidden; border:1px solid #008f11; background:radial-gradient(circle at 50% 50%,rgba(0,255,65,.08),rgba(13,2,8,.94) 68%); min-height:128px; }
+        .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
+        .kt-ouro-stage,.kt-cube-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-ouro-ring { position:absolute; width:105px; height:105px; border:7px dotted #00ff41; border-radius:50%; box-shadow:0 0 12px rgba(0,255,65,.35),inset 0 0 12px rgba(0,255,65,.2); animation:kt-ouro-spin 5.5s steps(32) infinite; transform:rotateX(64deg) rotateZ(0deg); }
+        .kt-ouro-snake { position:absolute; inset:-18px; color:#00ff41; font-size:8px; word-break:break-all; opacity:.7; filter:contrast(1.4); }
+        .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
+        .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
+        .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
+        @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
+        @keyframes kt-eye-float { 50% { transform:translateY(2px); opacity:.82; } }
+        @keyframes kt-cube-z { to { transform:rotateZ(360deg); } }
+        .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-ouro-ring{width:82px;height:82px}.kt-eye{font-size:11px}.kt-cube-face{font-size:10px} }
+        @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face{animation:none} }
 
         .kt-visualizer-container {
           height: 100px;
