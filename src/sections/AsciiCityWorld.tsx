@@ -43,17 +43,17 @@ const DOOR_COLOR:Record<string,string>={'1':'#ffb000','2':'#00ff91','3':'#00ffff
 type Billboard={x:number;y:number;t:string[];c:string};
 
 const GALLERY_MOTIFS:Billboard[]=[
-  {x:24,y:10.4,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','    ╲  ╱  │  ╲  ╱','     ╲___K___╱','  ROSE WINDOW // K'],c:'#b86bff'},
-  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D','TEN YEARS // HANDS ON'],c:'#d892ff'},
-  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL','SYSTEMS','REMEMBER'],c:'#caa7ff'},
+  {x:15.2,y:5.1,t:['╔══ JACHIN ══╗','║     ║      ║','║  ◉──╫──◉   ║','║     ║      ║','╚═════╩══════╝'],c:'#d5a85a'},
+  {x:32.8,y:5.1,t:['╔══ BOAZ ════╗','║     ║      ║','║  ◉──╫──◉   ║','║     ║      ║','╚═════╩══════╝'],c:'#d5a85a'},
+  {x:24,y:10.4,t:['       ╭────╮','    ╭──┤ ✦  ├──╮','  ╭─┤  ╰─┬──╯  ├─╮','  │ │ ╲  │  ╱ │ │','  │ │  ╲ ◎ ╱  │ │','╭─┴─┴───╲│╱───┴─┴─╮','│ CEDAR / GOLD NAVE │','╰────────┬──────────╯'],c:'#d5a85a'},
+  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D','HOUSE OF ART / MEMORY'],c:'#d892ff'},
+  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL','POMEGRANATE','PALM / CEDAR'],c:'#caa7ff'},
   {x:24,y:12.2,t:['╔════════════════════╗','║      THE EMRLD     ║','║ BUILD WHAT YOU NEED║','║ VERIFY WHAT YOU SHIP║','║ LEAVE RECEIPTS     ║','╚════════════════════╝'],c:'#a87cff'},
   {x:30.5,y:13.5,t:['┌─────────────┐','│ > ART       │','│ > SYSTEMS   │','│ > SURVIVES  │','│ > STILL     │','│ > _         │','└─────────────┘'],c:'#00ff91'},
   {x:17.0,y:13.7,t:['[ ART ]','[ MEMORY ]','[ RESEARCH ]','[ OPERATIONS ]','[ STILL HERE ]'],c:'#ff5ee1'},
   {x:24,y:8.2,t:['       ╭─╮','    ╭──┤●├──╮','  ╭─┤  ╰┬╯  ├─╮','  │ ╰───┼───╯ │','╭─┴─────┼─────┴─╮','│ RESIDUAL ORRERY│','│ AGENTS / EVIDENCE│','╰────────────────╯'],c:'#c686ff'},
-  {x:17.0,y:10.6,t:['╔═ CERT WALL ═╗','║ CCNA        ║','║ SECURITY+   ║','║ LINUX+      ║','║ NETWORK+    ║','╚═════════════╝'],c:'#00d9ff'},
-  {x:31.0,y:10.6,t:['╔═ WORK WALL ═╗','║ FACTORY IT  ║','║ NETWORKING  ║','║ SECURITY    ║','║ AI / R&D    ║','╚═════════════╝'],c:'#00ff91'},
-  {x:20.2,y:6.8,t:['┌─ COMMANDMENT ─┐','│ NO CLAIM      │','│ WITHOUT       │','│ EVIDENCE      │','└───────────────┘'],c:'#ff3bd4'},
-  {x:27.8,y:6.8,t:['┌─ OPERATOR ────┐','│ HUMAN GATE    │','│ FAIL CLOSED   │','│ REPLAY FIRST  │','└───────────────┘'],c:'#ffb000'}
+  {x:18.0,y:10.8,t:['❦  ◉  ❦  ◉  ❦','PALM / POMEGRANATE','CEDAR PANEL'],c:'#d5a85a'},
+  {x:30.0,y:10.8,t:['╲       ╱',' ╲  ✦  ╱','  ╲___╱','WINGED GUARDIANS'],c:'#d5a85a'}
 ];
 const LANDMARKS:Record<SceneId,Billboard[]>={
   spring:[
