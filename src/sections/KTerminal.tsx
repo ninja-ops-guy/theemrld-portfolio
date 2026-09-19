@@ -216,8 +216,8 @@ export default function KTerminal() {
         setCurrentTrack((prev) => (prev ? { ...prev, duration } : prev));
       });
       widget.setVolume(volume);
-      // Explicit play() is REQUIRED for mobile -- autoplay is blocked
-      widget.play();
+      // Do not auto-play the initial profile catalogue. Track loads below use
+      // auto_play plus their load callback, both originating from the user's gesture.
     });
 
     widget.bind(SC.Widget.Events.PLAY, () => {
@@ -260,10 +260,6 @@ export default function KTerminal() {
       const widget = scWidgetRef.current || SC.Widget(widgetRef.current);
       scWidgetRef.current = widget;
       bindWidgetEvents(widget);
-
-      // Start playback synchronously from the user's click/Enter gesture. This is
-      // especially important on iOS, where a later READY callback may lose gesture authority.
-      try { widget.play(); } catch (e) {}
 
       widget.load(url, {
         auto_play: true,
