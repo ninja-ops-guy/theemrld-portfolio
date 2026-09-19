@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { Link } from 'react-router-dom';
 
-const domains = ['SECURITY RESEARCH','AUTONOMOUS SYSTEMS','FORMAL VERIFICATION','ADVERSARIAL ML','INFRASTRUCTURE','PLATFORM ENGINEERING'];
+const domains = ['TRUSTWORTHY AGENTS','SECURITY RESEARCH','FORMAL VERIFICATION','ADVERSARIAL ML','INFRASTRUCTURE','PLATFORM ENGINEERING'];
 
 export default function Hero() {
   const headlineRef = useRef<HTMLHeadingElement>(null);
@@ -33,14 +34,14 @@ export default function Hero() {
   return (
     <section id="hero" className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: '100dvh', zIndex: 1 }}>
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-[1180px]">
-        <p ref={labelRef} className="font-label" style={{ marginBottom: '22px', opacity: 0 }}>SYSTEMS // SECURITY // APPLIED R&amp;D</p>
+        <p ref={labelRef} className="font-label" style={{ marginBottom: '22px', opacity: 0 }}>SYSTEMS // SECURITY // AUTONOMOUS SYSTEMS</p>
         <h1 ref={headlineRef} className="font-headline uppercase" style={{ fontSize: 'clamp(2.7rem, 8vw, 7rem)', letterSpacing: '-0.04em', lineHeight: 0.9, color: '#E8EDF3', textShadow: '0 0 60px rgba(5, 10, 20, 0.8)', opacity: 0 }}>SYSTEMS &amp; SECURITY ENGINEER</h1>
         <p ref={sublineRef} className="font-body" style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#A8B5C4', maxWidth: '820px', marginTop: '30px', lineHeight: 1.65, opacity: 0 }}>
-          I work on hard problems where infrastructure, security, automation, AI, and research overlap. I run real systems, figure out what actually failed, test ideas, and turn the useful parts into something reusable.
+          I build systems that operate, test, and improve other systems. My current focus is trustworthy autonomous software: constraining what agents can do, preserving evidence, verifying results, and making failure inspectable.
         </p>
         <div className="flex flex-wrap justify-center gap-3" style={{ marginTop: '34px' }}>
-          <button type="button" onClick={() => scrollToSection('#work')} className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>SEE THE WORK →</button>
-          <button type="button" onClick={() => scrollToSection('#research-thesis')} className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>HOW I APPROACH R&amp;D →</button>
+          <Link to="/case-study/residual" className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>EXPLORE RESIDUAL →</Link>
+          <button type="button" onClick={() => scrollToSection('#evidence')} className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>VIEW ENGINEERING EVIDENCE →</button>
           <a href="https://ninja-ops-guy.github.io/developer-portfolio/" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{ border: '1px solid #8899AA', color: '#B7C3D0' }}>DEVELOPER VIEW ↗</a>
         </div>
         <div className="flex flex-wrap justify-center gap-2" style={{ marginTop: '34px', maxWidth: '980px' }}>
