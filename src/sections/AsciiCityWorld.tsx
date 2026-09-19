@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import KTerminal, { type KWorldScene } from './KTerminal';
 import { type KAudioZone } from '../data/kAudioZones';
-import { K_GALLERY_ART, K_GALLERY_ASSET } from '../data/kGalleryArt';
+import { K_GALLERY_ART, K_GALLERY_ATLAS } from '../data/kGalleryArt';
 
 type Phase = 'explore' | 'sitting' | 'seated' | 'standing';
 type Cam = { x:number; y:number; ang:number; pitch:number; height:number };
@@ -235,13 +235,11 @@ export default function AsciiCityWorld(){
   const resize=useCallback(()=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const d=Math.min(2,window.devicePixelRatio||1),ww=w.clientWidth,hh=w.clientHeight;c.width=Math.floor(ww*d);c.height=Math.floor(hh*d);c.style.width=ww+'px';c.style.height=hh+'px';c.getContext('2d')?.setTransform(d,0,0,d,0,0);},[]);
   useEffect(()=>{resize();window.addEventListener('resize',resize);const t=window.setTimeout(()=>setNotice(''),4200);return()=>{window.removeEventListener('resize',resize);window.clearTimeout(t);};},[resize]);
   useEffect(()=>{
+    const img=new Image();
+    img.decoding='async';
+    img.src=K_GALLERY_ATLAS;
     const images=new Map<string,HTMLImageElement>();
-    K_GALLERY_ART.forEach((piece)=>{
-      const img=new Image();
-      img.decoding='async';
-      img.src=K_GALLERY_ASSET(piece.file);
-      images.set(piece.id,img);
-    });
+    K_GALLERY_ART.forEach((piece)=>images.set(piece.id,img));
     artImagesRef.current=images;
     return()=>{artImagesRef.current.clear();};
   },[]);
@@ -364,7 +362,7 @@ export default function AsciiCityWorld(){
         ctx.fillStyle='#0b0710';ctx.fillRect(px-pad,py-pad,pw+pad*2,ph+pad*2);
         ctx.strokeStyle='#9b7a55';ctx.lineWidth=Math.max(1,2*scale);ctx.strokeRect(px-pad,py-pad,pw+pad*2,ph+pad*2);
         ctx.shadowBlur=0;
-        ctx.drawImage(img,px,py,pw,ph);
+        ctx.drawImage(img,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
         ctx.fillStyle='rgba(2,2,5,.86)';ctx.fillRect(px,py+ph-13*scale,pw,13*scale);
         ctx.font=`${Math.max(7,9*scale)}px ${FONT}`;
         ctx.fillStyle=piece.accent;ctx.fillText(piece.label+' // '+piece.title,px+4*scale,py+ph-11*scale);
