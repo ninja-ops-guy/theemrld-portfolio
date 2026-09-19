@@ -115,22 +115,22 @@ export default function CaseStudy() {
     <div className="max-w-[1080px] mx-auto px-6 md:px-10" style={{ paddingTop: 72, paddingBottom: 120 }}>
       <Link to="/#work" className="font-label" style={{ color: '#8899AA' }}>← PORTFOLIO</Link>
       <div style={{ marginTop: 72 }}>
-        <p className="font-label" style={{ color: '#4A6DFF' }}>{s.eyebrow}</p>
+        <p className="font-label" style={{ color: '#5A78FF' }}>{s.eyebrow}</p>
         <h1 className="font-headline" style={{ fontSize: 'clamp(3rem,8vw,7rem)', lineHeight: .9, letterSpacing: '-.04em', marginTop: 18 }}>{s.title}</h1>
         <p className="font-label" style={{ color: '#7DE2A8', marginTop: 24 }}>● {s.status}</p>
         <p className="font-body" style={{ color: '#A6B3C2', fontSize: 20, lineHeight: 1.65, maxWidth: 820, marginTop: 28 }}>{s.thesis}</p>
         {(s.repo || s.demo) && <div className="flex flex-wrap gap-3" style={{ marginTop: 30 }}>
           {s.repo && <a href={s.repo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#8899AA] text-[#E8EDF3]">SOURCE / EVIDENCE →</a>}
-          {s.demo && <a href={s.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#4A6DFF] text-[#4A6DFF]">LIVE / DEMO →</a>}
+          {s.demo && <a href={s.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-3 border border-[#5A78FF] text-[#5A78FF]">LIVE / DEMO →</a>}
         </div>}
       </div>
 
-      <section style={{ marginTop: 100 }}><p className="font-label" style={{ color: '#4A6DFF' }}>01 / ENGINEERING PROBLEM</p><p className="font-body" style={{ fontSize: 18, color: '#B7C3D0', lineHeight: 1.8, marginTop: 18 }}>{s.problem}</p></section>
-      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#4A6DFF' }}>02 / ARCHITECTURE</p><div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginTop: 24 }}>{s.architecture.map(x => <div key={x.title} className="p-6" style={box}><h3 className="font-headline" style={{ fontSize: 22 }}>{x.title}</h3><p className="font-body" style={{ color: '#9EADBD', lineHeight: 1.7, marginTop: 12 }}>{x.body}</p></div>)}</div></section>
-      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#4A6DFF' }}>03 / INSPECTABLE EVIDENCE</p><div style={{ ...box, marginTop: 24, padding: 28 }}>{s.evidence.map((x,i) => <p key={x} className="font-body" style={{ color: '#B7C3D0', lineHeight: 1.8, borderBottom: i < s.evidence.length-1 ? '1px solid #162235' : undefined, padding: '12px 0' }}>0{i+1} — {x}</p>)}</div></section>
-      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#4A6DFF' }}>04 / FAILURE → FIX → LESSON</p><div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ marginTop: 24 }}>{[['SIGNAL',s.failure.signal],['RESPONSE',s.failure.response],['LESSON',s.failure.lesson]].map(([a,b]) => <div key={a} className="p-6" style={box}><p className="font-label" style={{ color: '#8899AA' }}>{a}</p><p className="font-body" style={{ color: '#B7C3D0', lineHeight: 1.7, marginTop: 14 }}>{b}</p></div>)}</div></section>
-      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#4A6DFF' }}>05 / WHAT REMAINS</p><div style={{ marginTop: 22 }}>{s.remains.map(x => <p key={x} className="font-body" style={{ color: '#A6B3C2', padding: '12px 0', borderBottom: '1px solid #162235' }}>→ {x}</p>)}</div></section>
-      <p className="font-body" style={{ color: '#66788C', marginTop: 70 }}>{s.stack}</p>
+      <section style={{ marginTop: 100 }}><p className="font-label" style={{ color: '#5A78FF' }}>01 / ENGINEERING PROBLEM</p><p className="font-body" style={{ fontSize: 18, color: '#B7C3D0', lineHeight: 1.8, marginTop: 18 }}>{s.problem}</p></section>
+      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#5A78FF' }}>02 / ARCHITECTURE</p><div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ marginTop: 24 }}>{s.architecture.map(x => <div key={x.title} className="p-6" style={box}><h3 className="font-headline" style={{ fontSize: 22 }}>{x.title}</h3><p className="font-body" style={{ color: '#9EADBD', lineHeight: 1.7, marginTop: 12 }}>{x.body}</p></div>)}</div></section>
+      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#5A78FF' }}>03 / INSPECTABLE EVIDENCE</p><div style={{ ...box, marginTop: 24, padding: 28 }}>{s.evidence.map((x,i) => <p key={x} className="font-body" style={{ color: '#B7C3D0', lineHeight: 1.8, borderBottom: i < s.evidence.length-1 ? '1px solid #162235' : undefined, padding: '12px 0' }}>0{i+1} — {x}</p>)}</div></section>
+      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#5A78FF' }}>04 / FAILURE → FIX → LESSON</p><div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ marginTop: 24 }}>{[['SIGNAL',s.failure.signal],['RESPONSE',s.failure.response],['LESSON',s.failure.lesson]].map(([a,b]) => <div key={a} className="p-6" style={box}><p className="font-label" style={{ color: '#8899AA' }}>{a}</p><p className="font-body" style={{ color: '#B7C3D0', lineHeight: 1.7, marginTop: 14 }}>{b}</p></div>)}</div></section>
+      <section style={{ marginTop: 90 }}><p className="font-label" style={{ color: '#5A78FF' }}>05 / WHAT REMAINS</p><div style={{ marginTop: 22 }}>{s.remains.map(x => <p key={x} className="font-body" style={{ color: '#A6B3C2', padding: '12px 0', borderBottom: '1px solid #162235' }}>→ {x}</p>)}</div></section>
+      <p className="font-body" style={{ color: '#74869A', marginTop: 70 }}>{s.stack}</p>
     </div>
   </main>;
 }
