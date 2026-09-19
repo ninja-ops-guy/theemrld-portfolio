@@ -199,15 +199,13 @@ export default function Networking() {
 
           {/* Right column - Skills grid + image */}
           <div ref={rightRef} className="network-col-right opacity-0">
-            {/* Network image */}
-            <div className="overflow-hidden" style={{ marginBottom: '40px' }}>
-              <img
-                src="https://tjsizcvhdprxa.kimi.page/images/exp-networking.jpg"
-                alt="Cisco network infrastructure"
-                className="w-full"
-                style={{ aspectRatio: '16/9', objectFit: 'cover' }}
-                loading="lazy"
-              />
+            {/* Network evidence panel — local, durable, no external asset dependency */}
+            <div style={{ marginBottom: '40px', aspectRatio: '16/9', border: '1px solid #162235', background: 'linear-gradient(135deg,#08101D,#0A1425)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px' }}>
+              <div>
+                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '12px' }}>PRODUCTION NETWORKING</p>
+                <p className="font-headline" style={{ color: '#E8EDF3', fontSize: 'clamp(1.4rem,3vw,2.3rem)', lineHeight: 1.15 }}>Switching · DHCP/DNS · SNMP · Packet Analysis</p>
+                <p className="font-body" style={{ color: '#718399', fontSize: '13px', lineHeight: 1.7, marginTop: '14px' }}>Operational experience is described through sanitized incidents and verifiable methods rather than stock imagery.</p>
+              </div>
             </div>
 
             {/* Skills grid */}
