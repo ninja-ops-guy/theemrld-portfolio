@@ -31,13 +31,17 @@ const DOOR_COLOR:Record<string,string>={'1':'#a7ff9b','2':'#ffd166','3':'#ff9b42
 type Billboard={x:number;y:number;t:string[];c:string};
 
 const GALLERY_MOTIFS:Billboard[]=[
-  {x:24,y:10.4,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','    ╲  ╱  │  ╲  ╱','     ╲___♛___╱','      ROSE WINDOW'],c:'#b86bff'},
-  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D'],c:'#d892ff'},
-  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL'],c:'#caa7ff'},
-  {x:24,y:12.2,t:['╔══════════════════╗','║     THE EMRLD    ║','║ SOME THINGS DECAY║','║ SOME THINGS REMAIN','║ SOME THINGS TRANSCEND','╚══════════════════╝'],c:'#a87cff'},
-  {x:30.5,y:13.5,t:['┌───────────┐','│ > ART     │','│ > SURVIVES│','│ > STILL   │','│ > _       │','└───────────┘'],c:'#00ff91'},
-  {x:17.0,y:13.7,t:['[ ART ]','[ MEMORY ]','[ RESISTANCE ]','[ STILL HERE ]'],c:'#ff5ee1'},
-  {x:24,y:8.2,t:['      ╭─╮','   ╭──┤●├──╮','   │  ╰┬╯  │',' ╭─┴───┼───┴─╮',' │  ARMILLARY │',' ╰────────────╯'],c:'#c686ff'}
+  {x:24,y:10.4,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','    ╲  ╱  │  ╲  ╱','     ╲___K___╱','  ROSE WINDOW // K'],c:'#b86bff'},
+  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D','TEN YEARS // HANDS ON'],c:'#d892ff'},
+  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL','SYSTEMS','REMEMBER'],c:'#caa7ff'},
+  {x:24,y:12.2,t:['╔════════════════════╗','║      THE EMRLD     ║','║ BUILD WHAT YOU NEED║','║ VERIFY WHAT YOU SHIP║','║ LEAVE RECEIPTS     ║','╚════════════════════╝'],c:'#a87cff'},
+  {x:30.5,y:13.5,t:['┌─────────────┐','│ > ART       │','│ > SYSTEMS   │','│ > SURVIVES  │','│ > STILL     │','│ > _         │','└─────────────┘'],c:'#00ff91'},
+  {x:17.0,y:13.7,t:['[ ART ]','[ MEMORY ]','[ RESEARCH ]','[ OPERATIONS ]','[ STILL HERE ]'],c:'#ff5ee1'},
+  {x:24,y:8.2,t:['       ╭─╮','    ╭──┤●├──╮','  ╭─┤  ╰┬╯  ├─╮','  │ ╰───┼───╯ │','╭─┴─────┼─────┴─╮','│ RESIDUAL ORRERY│','│ AGENTS / EVIDENCE│','╰────────────────╯'],c:'#c686ff'},
+  {x:17.0,y:10.6,t:['╔═ CERT WALL ═╗','║ CCNA        ║','║ SECURITY+   ║','║ LINUX+      ║','║ NETWORK+    ║','╚═════════════╝'],c:'#00d9ff'},
+  {x:31.0,y:10.6,t:['╔═ WORK WALL ═╗','║ FACTORY IT  ║','║ NETWORKING  ║','║ SECURITY    ║','║ AI / R&D    ║','╚═════════════╝'],c:'#00ff91'},
+  {x:20.2,y:6.8,t:['┌─ COMMANDMENT ─┐','│ NO CLAIM      │','│ WITHOUT       │','│ EVIDENCE      │','└───────────────┘'],c:'#ff3bd4'},
+  {x:27.8,y:6.8,t:['┌─ OPERATOR ────┐','│ HUMAN GATE    │','│ FAIL CLOSED   │','│ REPLAY FIRST  │','└───────────────┘'],c:'#ffb000'}
 ];
 const LANDMARKS:Record<SceneId,Billboard[]>={
   spring:[
@@ -130,13 +134,17 @@ function makeMap(){
 const MAP=makeMap();
 const COLORS:Record<string,string>={'#':'#31394c',N:'#d73cff',S:'#8e8aa3',W:'#b86bff',G:'#69517e',A:'#d9a83e',C:'#00ff66',P:'#75529f',V:'#00d9ff',...DOOR_COLOR};
 const SIGNS=[
-  {x:15.8,y:15.4,t:['╔══════════════╗','║ K//THE EMRLD ║','╚══════════════╝'],c:'#b86bff'},
-  {x:24,y:17.8,t:['┌─────────────┐','│ TECHOPS//L3 │','│ QUEUE:015   │','└─────────────┘'],c:'#00ff66'},
-  {x:8.6,y:21,t:['┌─────────────┐','│ DHCP//TRACE │','│ PORT → HOST │','└─────────────┘'],c:'#00d9ff'},
-  {x:31.4,y:21,t:['┌──────────────┐','│ RESIDUAL//RT │','│ EVIDENCE>AI  │','└──────────────┘'],c:'#ff3bd4'},
-  {x:12,y:27,t:['[ P2 RECOVERY ]','PRODUCTION NEVER SLEEPS'],c:'#ffb000'},
-  {x:28,y:27,t:['[ NIGHT SHIFT ]','FACTORY NET // ACTIVE'],c:'#00ff91'},
-  {x:20,y:3.55,t:['╔════════════════╗','║ K TERMINAL 01  ║','║ APSE CONSOLE   ║','╚════════════════╝'],c:'#00ff66'}
+  {x:15.8,y:15.4,t:['╔══════════════════╗','║ K//THE EMRLD     ║','║ BUILD · VERIFY   ║','╚══════════════════╝'],c:'#b86bff'},
+  {x:24,y:17.8,t:['┌────────────────┐','│ TECHOPS//OPS   │','│ QUEUE 170 → 15 │','│ EVIDENCE > EGO │','└────────────────┘'],c:'#00ff66'},
+  {x:8.6,y:21,t:['┌────────────────┐','│ NETWORK FORENSIC│','│ MAC → PORT → HOST│','│ DHCP//TRACE     │','└────────────────┘'],c:'#00d9ff'},
+  {x:31.4,y:21,t:['┌────────────────┐','│ RESIDUAL//RT    │','│ RECEIPTS > CLAIMS│','│ VERIFY · REPLAY │','└────────────────┘'],c:'#ff3bd4'},
+  {x:10.5,y:26.2,t:['╔═ PRODUCTION ═╗','║ P2 RECOVERY  ║','║ PLATING//UP  ║','║ NEVER SLEEPS ║','╚══════════════╝'],c:'#ffb000'},
+  {x:37,y:26.2,t:['╔═ FACTORY NET ═╗','║ CLOSET REFRESH║','║ WIRELESS MAP  ║','║ NIGHT SHIFT   ║','╚═══════════════╝'],c:'#00ff91'},
+  {x:9,y:31.5,t:['┌─ ROOFBOT ─────┐','│ PERMITS → LEADS│','│ MAP / POSTGIS │','│ PALANROOF     │','└───────────────┘'],c:'#f5b342'},
+  {x:38,y:31.5,t:['┌─ VECTOR LAB ──┐','│ ANGEL^3       │','│ VISION → SKILL│','│ SAFETY / MESH │','└───────────────┘'],c:'#00e5ff'},
+  {x:13,y:35.0,t:['[ TECHOPS HERO ]','EVERY TICKET','IS A DUNGEON','NEW HAVEN//NIGHT'],c:'#7dff68'},
+  {x:35,y:35.0,t:['[ RESEARCH BENCH ]','AX // M6 // RAC','CHALLENGE CLAIMS','PRESERVE EVIDENCE'],c:'#ff4ad8'},
+  {x:24,y:3.55,t:['╔══════════════════╗','║ K TERMINAL // 01 ║','║ APSE COMMAND     ║','║ HUMAN GATE: ARMED║','╚══════════════════╝'],c:'#00ff66'}
 ];
 const DOOR_SIGNS=[
   {x:13.7,y:6.5,t:['[1] SPRING','VERNAL COURT'],c:DOOR_COLOR['1']},
@@ -146,6 +154,15 @@ const DOOR_SIGNS=[
   {x:13.7,y:12.5,t:['[5] LIGHT','LUMEN ARCOLOGY'],c:DOOR_COLOR['5']},
   {x:34.3,y:12.5,t:['[6] DARK','BLACKOUT WASTE'],c:DOOR_COLOR['6']}
 ]
+const PROJECT_STRUCTURES:Billboard[]=[
+  {x:16,y:18.8,t:['       ╱╲','      ╱  ╲','  ╔══╧════╧══╗','  ║ RESIDUAL ║','╔═╩══════════╩═╗','║ RECEIPT HALL ║','║ OBSERVE      ║','║ VERIFY       ║','║ REPLAY       ║','╚══════╤═══════╝','       │'],c:'#ff3bd4'},
+  {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
+  {x:8,y:25.5,t:['   ╱╲  ╱╲',' _╱__╲╱__╲_','│ ROOFSCAN  │','│ ▦ ▦ ▦ ▦   │','│ PERMIT MAP│','└────┬──────┘',' PALANROOF'],c:'#f5b342'},
+  {x:40,y:25.5,t:['╔═══════════╗','║ TECHOPS   ║','║   HERO    ║','║ O I H E V ║','║ TICKET//XP║','╚════╤══════╝',' RPG ARCADE'],c:'#7dff68'},
+  {x:16,y:31.0,t:['╔═ RESEARCH ═╗','║ AX-21      ║','║ M6 BENCH   ║','║ RAC / CTM  ║','║ PREREG     ║','╚════╤═══════╝',' EVIDENCE LAB'],c:'#b86bff'},
+  {x:32,y:31.0,t:['┌─ SWARM DOCK ─┐','│ KIMI / MOON  │','│ LOCAL MODELS │','│ API DELEGATE │','│ AGENT MESH   │','└──────┬───────┘'],c:'#00ff91'},
+  {x:24,y:34.2,t:['        ╱╲','       ╱  ╲','   ╔═══╧══╧═══╗','   ║ FACTORY  ║','╔══╩══════════╩══╗','║ INFRA / SEC / AI║','║ PRINT · WIFI    ║','║ CLOCKS · CLOSETS║','╚═══════╤════════╝','        │'],c:'#a7a0ff'}
+];
 const CAR_SIGN:Billboard={x:31,y:35,t:['   ______',' _/|_||_\\`.__','(   _    _ _\\','=`-(_)--(_)-\'',' K//DRIVE · ⚑',' [E] ENTER'],c:'#00d9ff'};
 
 function sceneWallGlyph(scene:SceneId,ix:number,iy:number,sx:number,sy:number,top:number,bot:number,time:number,fallback:string){
@@ -201,7 +218,7 @@ function cast(px:number,py:number,dx:number,dy:number,max=40):Hit{
 }
 function norm(a:number){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a;}
 function dim(hex:string,k:number){const h=hex.slice(1);const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return 'rgb('+Math.round(r*k)+','+Math.round(g*k)+','+Math.round(b*k)+')';}
-function area(x:number,y:number,scene:SceneId){if(y<6.2&&x>12&&x<36)return'THE APSE // TERMINAL ALCOVE';if(y<=15.8&&x>12&&x<36)return'K//GALLERY // ROYAL GOTHIC CATHEDRAL';const cfg=SCENES[scene];if(y<24)return'CATHEDRAL APPROACH // '+cfg.label;if(y<29)return'SECTOR 7 // BUSTLING CYBERPUNK CROSSING';return'LOWER CITY // '+cfg.label;}
+function area(x:number,y:number,scene:SceneId){if(y<6.2&&x>12&&x<36)return'APSE COMMAND // K TERMINAL';if(y<=15.8&&x>12&&x<36)return'K//GALLERY // ART + MEMORY NAVE';const cfg=SCENES[scene];if(y<24)return'RESIDUAL QUARTER // '+cfg.label;if(y<29)return'TECHOPS CROSSING // FACTORY SYSTEMS';if(x<20)return'PALANROOF / RESEARCH DISTRICT';if(x>29)return'VECTOR / HERO DISTRICT';return'LOWER CITY // SWARM + R&D';}
 function mini(x:number,y:number,a:number){
   const w=19,h=9,px=Math.floor(x),py=Math.floor(y),dirs=['→','↘','↓','↙','←','↖','↑','↗'];const di=((Math.round(a/(Math.PI*2)*8)%8)+8)%8;const out:string[]=[];
   for(let j=0;j<h;j++){let row='';for(let i=0;i<w;i++){if(i===(w>>1)&&j===(h>>1)){row+=dirs[di];continue;}const mx=px-(w>>1)+i,my=py-(h>>1)+j;if(mx<0||my<0||mx>=W||my>=H){row+=' ';continue;}const t=MAP[my][mx];row+=t==='#'?'▓':t==='N'?'▒':t==='S'?'╬':t==='W'?'◆':t==='G'?'╫':t==='C'?'▣':t==='A'?'■':t==='P'?'●':t==='V'?'▰':DOOR_SCENE[t]?'□':'·';}out.push(row);}return out.join('\n');
@@ -315,9 +332,15 @@ export default function AsciiCityWorld(){
       for(let y=top;y<=bot;y++){
         const band=Math.floor((y-top)/Math.max(1,bot-top)*3);
         let glyph=generic[Math.min(2,band)];
-        if(hit.tile==='S') glyph=((y-top)%5===0)?'═':((x+hit.ix)%9===0?'║':'▓');
-        else if(hit.tile==='W') glyph=((x+y)%5===0)?'◆':((x+y)%3===0?'╬':'░');
-        else if(hit.tile==='P') glyph=((y-top)%4===0)?'╬':'║';
+        if(hit.tile==='S'){
+          const relY=(y-top)/Math.max(1,bot-top),bay=(x+hit.ix)%12;
+          glyph=relY<.18?(bay===0?'╱':bay===11?'╲':'═'):relY<.52?(bay===0?'║':bay===5||bay===6?'│':((y-top)%5===0?'─':'▓')):((y-top)%5===0?'═':(bay===0?'║':'▓'));
+        }
+        else if(hit.tile==='W'){
+          const q=(x+y+hit.ix)%11;
+          glyph=q===0?'◆':q===3?'╬':q===6?'◇':((y-top)%4===0?'─':'░');
+        }
+        else if(hit.tile==='P') glyph=((y-top)%4===0)?'╬':((x+hit.iy)%3===0?'║':'│');
         else if(hit.tile==='C') glyph=((x+y)%7===0)?'▣':'▓';
         else if(DOOR_SCENE[hit.tile]) glyph=(y===Math.round((top+bot)/2))?hit.tile:((x+y)%3===0?'◇':'▓');
         else if(hit.tile==='N') glyph=((y-top)%4===1)?(((x+hit.ix)%4===0)?'▣':'▫'):'▓';
@@ -329,7 +352,7 @@ export default function AsciiCityWorld(){
       }
     }
     const sceneSign={x:24.5,y:18.3,t:['['+scene.toUpperCase()+'] '+cfg.label,cfg.era],c:cfg.accent};
-    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...LANDMARKS[scene],CAR_SIGN,sceneSign];
+    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...PROJECT_STRUCTURES,...LANDMARKS[scene],CAR_SIGN,sceneSign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(!royal){
       const movers=[
@@ -434,7 +457,7 @@ export default function AsciiCityWorld(){
 
   return <div className="kcity">
     <div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/><div className="kc-gallery-glow"/>
-    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v4.1</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>MOTIFS {sceneCfg.motifs}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'LUMEN FLIGHT · [SPACE] CLIMB · [C/CTRL] DESCEND':'CATHEDRAL PORTALS CHANGE WORLD + SOUNDTRACK'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
+    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>MOTIFS {sceneCfg.motifs}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'LUMEN FLIGHT · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
     {vehicle&&!terminal&&<div className="kc-drive-dashboard"><pre>{'┌───────────┐\n│ ⚑ K//FLAG │\n│ ▓▒░▓▒░▓▒░ │\n└─────┬─────┘\n      │'}</pre><div className="kc-drive-center"><b>K//DRIVE // NIGHT DASH</b>FLAG SIGNAL LOCKED<br/>♫ {nowPlaying||'FLAG'}</div><div className="kc-drive-gauge">SPD // {keys.current.w?'88':'00'}<br/>NET // ONLINE<br/>[E] EXIT</div></div>}
     {flight&&!terminal&&<div className="kc-flight-hud"><b>LUMEN FLIGHT</b><br/>ALT // {cam.current.height.toFixed(1)}<br/>MIRROR PLANE // SYNC<br/>SPACE ↑ · C/CTRL ↓</div>}
     {notice&&!terminal&&<div className="kc-note">{notice}</div>}
