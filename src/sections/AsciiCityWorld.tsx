@@ -349,7 +349,6 @@ export default function AsciiCityWorld(){
     const high=playing?(Math.sin(syncTime*11.7+2.4)+1)*.5:0;
     const audioEnergy=playing?Math.min(1,.48*kick+.32*mid+.20*high):0;
     audioEnergyRef.current=audioEnergy;
-    const syncPulse=.64+.36*audioEnergy;
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
       if(y<hor){
         const weather=(x*17+y*7+syncStep)%Math.max(23,67-Math.floor(audioEnergy*28))===0,star=(x*41+y*13+Math.floor(syncTime))%Math.max(97,257-Math.floor(audioEnergy*100))===0;
