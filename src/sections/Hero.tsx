@@ -40,15 +40,15 @@ export default function Hero() {
           I build systems that operate, test, and improve other systems. My current focus is trustworthy autonomous software: constraining what agents can do, preserving evidence, verifying results, and making failure inspectable.
         </p>
         <div className="flex flex-wrap justify-center gap-3" style={{ marginTop: '34px' }}>
-          <Link to="/case-study/residual" className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>EXPLORE RESIDUAL →</Link>
-          <button type="button" onClick={() => scrollToSection('#evidence')} className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>VIEW ENGINEERING EVIDENCE →</button>
+          <Link to="/case-study/residual" className="font-label px-5 py-3" style={{ background: '#5A78FF', color: '#050A14' }}>EXPLORE RESIDUAL →</Link>
+          <button type="button" onClick={() => scrollToSection('#evidence')} className="font-label px-5 py-3" style={{ border: '1px solid #5A78FF', color: '#5A78FF' }}>VIEW ENGINEERING EVIDENCE →</button>
           <a href="https://ninja-ops-guy.github.io/developer-portfolio/" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{ border: '1px solid #8899AA', color: '#B7C3D0' }}>DEVELOPER VIEW ↗</a>
         </div>
         <div className="flex flex-wrap justify-center gap-2" style={{ marginTop: '34px', maxWidth: '980px' }}>
           {domains.map((domain) => <span key={domain} className="font-label" style={{ border: '1px solid #1A2540', padding: '8px 10px', color: '#74869A', background: 'rgba(5,10,20,.45)' }}>{domain}</span>)}
         </div>
       </div>
-      <div ref={scrollIndicatorRef} className="absolute bottom-8 left-1/2 -translate-x-1/2" style={{ opacity: 0 }}><div className="scroll-line w-[1px] h-8 bg-[#4A6DFF]" /></div>
+      <div ref={scrollIndicatorRef} className="absolute bottom-8 left-1/2 -translate-x-1/2" style={{ opacity: 0 }}><div className="scroll-line w-[1px] h-8 bg-[#5A78FF]" /></div>
     </section>
   );
 }
