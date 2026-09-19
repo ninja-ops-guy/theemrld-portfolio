@@ -29,7 +29,7 @@ const foundation: Project = {
 
 const secondary = [
   ['TechOps Hero','A public product-engineering testbed for runtime QA, state management, campaign regressions, mobile controls, deployment, and failure-driven iteration.','https://github.com/ninja-ops-guy/techops-hero','https://ninja-ops-guy.github.io/techops-hero/','/case-study/techops-hero','PUBLIC · PLAYABLE'],
-  ['Red-Team CTF Harness','A bounded environment for comparing scripted and LLM-driven security operators while retaining execution evidence, replayable reasoning, and defensive telemetry.','https://github.com/ninja-ops-guy/ctf-redteam-harness','','/case-study/ctf-redteam-harness','PUBLIC · ACTIVE'],
+  ['Red-Team CTF Harness','A private security R&D testbed for comparing scripted and LLM-driven operators while retaining execution evidence, replayable reasoning, and defensive telemetry. Included as a case study, not as inspectable public source.','','','/case-study/ctf-redteam-harness','PRIVATE R&D'],
   ['CIC + LDD','Research into structural complexity, SAT, proof ideas, formalization, and observability. Kept as research exploration, with open claims separated from measured or formal evidence.','https://github.com/ninja-ops-guy/cic-p-vs-np-research','https://github.com/ninja-ops-guy/LDD-Kit','/case-study/cic-sat','PUBLIC RESEARCH'],
   ['Vector / WirePod Embodied AI','A private embodied-agent research platform for typed LLM control, reusable robot skills, event-driven coordination, and a developing RESIDUAL qualification layer. Included as work in progress rather than public evidence.','','','/case-study/vector-wirepod','PRIVATE · PUBLIC RELEASE PLANNED'],
 ];
