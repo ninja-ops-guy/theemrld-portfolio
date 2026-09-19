@@ -385,6 +385,104 @@ function renderDiamondFrame(tick: number): string {
   return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
 }
 
+
+function renderTesseractFrame(tick: number, intensity: number): string {
+  const width = 33, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const power = Math.max(0, Math.min(1, intensity / 100));
+  const cycle = (tick % 96) / 96;
+  const morph = 0.08 + 0.92 * (0.5 - 0.5 * Math.cos(cycle * Math.PI * 2));
+
+  type V4 = [number, number, number, number];
+  const raw: V4[] = [];
+  for (let i = 0; i < 16; i++) {
+    raw.push([
+      (i & 1) ? 1 : -1,
+      (i & 2) ? 1 : -1,
+      (i & 4) ? 1 : -1,
+      (i & 8) ? 1 : -1,
+    ]);
+  }
+
+  const a = tick * 0.045;
+  const b = tick * 0.031;
+  const c = tick * 0.023;
+
+  const projected = raw.map(([x, y, z, w]) => {
+    // 4D rotations: XW + YZ + XZ. The W axis expands/contracts through
+    // the morph value so the object visibly folds from a cube into a tesseract.
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const cb = Math.cos(b), sb = Math.sin(b);
+    const cc = Math.cos(c), sc = Math.sin(c);
+
+    const x1 = x * ca - w * sa;
+    const w1 = x * sa + w * ca;
+    const y1 = y * cb - z * sb;
+    const z1 = y * sb + z * cb;
+    const x2 = x1 * cc - z1 * sc;
+    const z2 = x1 * sc + z1 * cc;
+
+    const wEff = w1 * morph * (0.72 + power * 0.52);
+    const scale4 = 1.40 / Math.max(1.55, 3.05 - wEff);
+    const p3 = rotate3(
+      [x2 * scale4, y1 * scale4, z2 * scale4],
+      -0.24 + Math.sin(tick * 0.021) * 0.10,
+      tick * 0.018,
+      Math.sin(tick * 0.016) * 0.13
+    );
+
+    const camera = 4.15 - p3[2];
+    const scale2 = 1 / Math.max(0.8, camera);
+    return {
+      x: width / 2 + p3[0] * 31 * scale2,
+      y: height / 2 + p3[1] * 15 * scale2,
+      z: p3[2],
+      w: wEff,
+    };
+  });
+
+  const put = (x: number, y: number, z: number, ch: string) => {
+    const sx = Math.round(x), sy = Math.round(y);
+    if (sx < 0 || sx >= width || sy < 0 || sy >= height || z < depth[sy][sx]) return;
+    depth[sy][sx] = z;
+    chars[sy][sx] = ch;
+  };
+
+  for (let i = 0; i < 16; i++) {
+    for (let dim = 0; dim < 4; dim++) {
+      const j = i ^ (1 << dim);
+      if (i >= j) continue;
+      const p0 = projected[i], p1 = projected[j];
+      const dx = p1.x - p0.x, dy = p1.y - p0.y;
+      const steps = Math.max(2, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) * 1.35));
+      const ch = dim === 3
+        ? '·'
+        : Math.abs(dx) > Math.abs(dy) * 1.8
+          ? '─'
+          : Math.abs(dy) > Math.abs(dx) * 1.8
+            ? '│'
+            : dx * dy >= 0 ? '╲' : '╱';
+      for (let k = 0; k <= steps; k++) {
+        const t = k / steps;
+        put(
+          p0.x + dx * t,
+          p0.y + dy * t,
+          p0.z + (p1.z - p0.z) * t + (dim === 3 ? 0.015 : 0.03),
+          ch
+        );
+      }
+    }
+  }
+
+  projected.forEach((p, i) => put(p.x, p.y, p.z + 0.05, (i & 8) ? '◆' : '+'));
+
+  const pulseEvery = Math.max(2, 7 - Math.round(power * 4));
+  const cy = Math.floor(height / 2), cx = Math.floor(width / 2);
+  chars[cy][cx] = tick % pulseEvery === 0 && power > 0.45 ? '✦' : '◇';
+
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
 export default function KTerminal() {
   const navigate = useNavigate();
   const [terminalParams] = useSearchParams();
@@ -702,6 +800,7 @@ export default function KTerminal() {
   <span class="tc-command">clearplaylist</span>     - Remove all tracks
   <span class="tc-command">artist</span>            - Open @raikouno profile
   <span class="tc-command">techopshero</span>       - Launch TechOps Hero inside K Terminal
+  <span class="tc-command">city</span>              - Enter K//CITY / gallery world
   <span class="tc-command">pause</span>             - Pause current track
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
@@ -956,6 +1055,13 @@ Playlist: ${tracks.length} track(s)`);
         break;
       }
 
+      case 'city':
+      case 'gallery': {
+        addLine('<span class="tc-cyan">[CITY]</span> Opening K//CITY at the gallery apse...');
+        navigate('/gallery');
+        break;
+      }
+
       case 'techopshero': {
         setGameOpen(true);
         addLine('<span class="tc-cyan">[GAME]</span> Mounting TechOps Hero in CRT viewport...');
@@ -976,7 +1082,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -1138,10 +1244,10 @@ Playlist: ${tracks.length} track(s)`);
               <pre className="kt-diamond">{renderDiamondFrame(asciiTick)}</pre>
             </div>
           </div>
-          <div className="kt-ascii-card kt-cube-card">
-            <span className="kt-ascii-label">🜔 VECTOR://Z-AXIS · CUBIC SEAL</span>
-            <div className="kt-cube-stage">
-              <pre className="kt-cube-face">{['    +------+\n   /      /|\n  +------+ |\n  |      | +\n  |      |/\n  +------+','      +----+\n    /    / \\\n   +    +   |\n   |    |   +\n    \\    \\ /\n      +----+','   +------+\n   |\\      \\\n   | +------+\n   + |      |\n    \\|      |\n     +------+','      +----+\n     / \\    \\\n    +   +    +\n    |   |    |\n     \\ /    /\n      +----+'][Math.floor(asciiTick/2)%4]}</pre>
+          <div className="kt-ascii-card kt-tesseract-card">
+            <span className="kt-ascii-label">🜔 TESSERACT://4D·HYPERCUBE · SEAL.EXE</span>
+            <div className="kt-tesseract-stage">
+              <pre className="kt-tesseract-face">{renderTesseractFrame(asciiTick, isPlaying ? ritualIntensity : 24)}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-moon-card">
@@ -1439,8 +1545,8 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ascii-card { box-shadow:inset 0 0 22px rgba(0,255,65,.08),0 0 9px rgba(255,0,255,.08); }
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
         .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
-        .kt-taino-stage,.kt-cube-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
-        .kt-cube-card { background:radial-gradient(circle at 50% 50%,rgba(255,45,65,.13),rgba(13,2,8,.96) 70%); border-color:rgba(255,72,72,.58); }
+        .kt-taino-stage,.kt-tesseract-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-tesseract-card { background:radial-gradient(circle at 50% 50%,rgba(255,45,65,.18),rgba(255,0,120,.055) 42%,rgba(13,2,8,.97) 72%); border-color:rgba(255,72,72,.68); box-shadow:inset 0 0 22px rgba(255,55,75,.11),0 0 12px rgba(255,35,80,.16); }
         .kt-taino-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.12),rgba(0,255,65,.035) 48%,rgba(13,2,8,.97) 75%); }
         .kt-taino-symbol { position:relative; z-index:2; margin:0; white-space:pre; text-align:center; color:#ffb000; font:8px/.84 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(255,176,0,.85),0 0 14px rgba(0,255,65,.24); animation:kt-taino-glow 1.7s steps(6) infinite; }
         .kt-taino-noise { position:absolute; inset:6px 4px 0; z-index:1; margin:0; overflow:hidden; color:#00ff41; font:7px/.9 'Share Tech Mono',monospace; white-space:pre; text-align:center; opacity:.24; text-shadow:0 0 6px rgba(0,255,65,.9); animation:kt-binary-flash .72s steps(2,end) infinite; }
@@ -1461,22 +1567,22 @@ Playlist: ${tracks.length} track(s)`);
         @keyframes kt-rocket-glow { 0%,100%{filter:brightness(.9) contrast(1.08)} 50%{filter:brightness(1.26) contrast(1.22)} }
         @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }
         @keyframes kt-gem-glow { 0%,100% { filter:brightness(.9) contrast(1.08); } 50% { filter:brightness(1.22) contrast(1.2); } }
-        .kt-cube-face { margin:0; color:#ff3b3b; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 6px rgba(255,59,59,.95),0 0 14px rgba(255,0,70,.45); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
+        .kt-tesseract-face { margin:0; color:#ff3b3b; font:11px/.94 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 6px rgba(255,59,59,.98),0 0 14px rgba(255,0,70,.5),0 0 22px rgba(255,90,90,.2); transform-origin:center; animation:kt-tesseract-pulse 1.9s steps(8) infinite; will-change:transform,filter; }
         @keyframes kt-sigil-stream { 0%,100%{transform:translateX(-3px);opacity:.22} 50%{transform:translateX(3px);opacity:.5} }
         @keyframes kt-taino-glow { 0%,100%{filter:brightness(.88) contrast(1.08)} 50%{filter:brightness(1.24) contrast(1.22)} }
         @keyframes kt-binary-flash { 0%,45%{opacity:.12} 46%,100%{opacity:.42} }
-        @keyframes kt-cube-z { to { transform:rotateZ(360deg); } }
+        @keyframes kt-tesseract-pulse { 0%,100%{transform:scale(.96);filter:brightness(.92) contrast(1.08)} 50%{transform:scale(1.045);filter:brightness(1.35) contrast(1.22)} }
         .kt-ritual-off .kt-ascii-card * { animation-play-state:paused !important; }
         .kt-ritual-idle .kt-ascii-card { opacity:.58; filter:saturate(.55) brightness(.72); }
         .kt-ritual-playing .kt-taino-symbol { animation-duration:calc(2s - (var(--ritual-power) * .9s)); text-shadow:0 0 calc(7px + var(--ritual-power) * 16px) rgba(255,176,0,.92),0 0 15px rgba(0,255,65,.3); }
         .kt-ritual-playing .kt-globe { animation-duration:calc(6.5s - (var(--ritual-power) * 2.8s)); }\n        .kt-ritual-playing .kt-diamond { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
-        .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
+        .kt-ritual-playing .kt-tesseract-face { animation-duration:calc(2.2s - (var(--ritual-power) * 1.0s)); text-shadow:0 0 calc(7px + var(--ritual-power) * 16px) rgba(255,59,59,.98),0 0 calc(12px + var(--ritual-power) * 20px) rgba(255,0,90,.48); }
         .kt-ritual-playing .kt-moon { animation-duration:calc(2.8s - (var(--ritual-power) * 1.0s)); }
         .kt-ritual-playing .kt-rocket { animation-duration:calc(2.0s - (var(--ritual-power) * .8s)); }
         .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
-        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;grid-auto-rows:188px;min-height:0;flex:none}.kt-ascii-card{min-height:188px;height:188px;flex:none}.kt-ascii-label{font-size:9px;line-height:1.25;max-width:92%}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-cube-face{font-size:10px} }
-        @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-cube-face,.kt-globe,.kt-diamond,.kt-moon,.kt-rocket,.kt-ascii-card::before{animation:none} }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;grid-auto-rows:188px;min-height:0;flex:none}.kt-ascii-card{min-height:188px;height:188px;flex:none}.kt-ascii-label{font-size:9px;line-height:1.25;max-width:92%}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-tesseract-face{font-size:8px;line-height:.9} }
+        @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-tesseract-face,.kt-globe,.kt-diamond,.kt-moon,.kt-rocket,.kt-ascii-card::before{animation:none} }
 
         .kt-cli-console {
           flex: 0 0 auto;
