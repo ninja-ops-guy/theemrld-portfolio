@@ -170,6 +170,122 @@ function renderTainoFrame(tick: number): string {
   return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
 }
 
+
+function renderMoonFrame(tick: number): string {
+  const width = 31, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const ay = tick * (Math.PI * 2 / 112);
+  const ax = -0.12;
+  const light: V3 = [-0.55, -0.34, 0.76];
+
+  const craters = [
+    { lon: -0.9, lat: -0.28, r: 0.28 },
+    { lon: 0.45, lat: 0.18, r: 0.22 },
+    { lon: 1.35, lat: -0.10, r: 0.18 },
+    { lon: -2.05, lat: 0.36, r: 0.17 },
+    { lon: 2.55, lat: -0.42, r: 0.14 },
+  ];
+
+  for (let lat = -Math.PI / 2; lat <= Math.PI / 2; lat += 0.065) {
+    for (let lon = 0; lon < Math.PI * 2; lon += 0.07) {
+      const cl = Math.cos(lat);
+      const base: V3 = [cl * Math.cos(lon), Math.sin(lat), cl * Math.sin(lon)];
+      const p = rotate3(base, ax, ay, 0);
+      const n = rotate3(base, ax, ay, 0);
+      const camera = 4.5 - p[2];
+      if (camera <= 0.2) continue;
+      const k = 1 / camera;
+      const sx = Math.round(width / 2 + p[0] * 31 * k);
+      const sy = Math.round(height / 2 + p[1] * 17 * k);
+      if (sx < 0 || sx >= width || sy < 0 || sy >= height || p[2] <= depth[sy][sx]) continue;
+
+      let crater = 0;
+      for (const cc of craters) {
+        let dl = Math.abs(lon - cc.lon);
+        dl = Math.min(dl, Math.PI * 2 - dl);
+        const d = Math.hypot(dl * Math.cos(lat), lat - cc.lat);
+        if (d < cc.r) crater = Math.max(crater, 1 - d / cc.r);
+      }
+
+      const lum = n[0] * light[0] + n[1] * light[1] + n[2] * light[2] - crater * 0.58;
+      const idx = Math.max(1, Math.min(ASCII_LIGHT.length - 1, Math.round(((lum + 1) / 2) * (ASCII_LIGHT.length - 1))));
+      depth[sy][sx] = p[2];
+      chars[sy][sx] = crater > 0.58 ? '·' : ASCII_LIGHT[idx];
+    }
+  }
+
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
+function renderRocketFrame(tick: number): string {
+  const width = 31, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const ay = tick * (Math.PI * 2 / 80);
+  const ax = -0.32 + Math.sin(tick * 0.035) * 0.12;
+  const az = 0.12 + Math.sin(tick * 0.04) * 0.08;
+  const light: V3 = [-0.22, -0.40, 0.89];
+
+  const project = (p0: V3, n0: V3, force?: string) => {
+    const p = rotate3(p0, ax, ay, az);
+    const n = rotate3(n0, ax, ay, az);
+    const camera = 5.0 - p[2];
+    if (camera <= 0.2) return;
+    const k = 1 / camera;
+    const sx = Math.round(width / 2 + p[0] * 30 * k);
+    const sy = Math.round(height / 2 + p[1] * 16 * k);
+    if (sx < 0 || sx >= width || sy < 0 || sy >= height || p[2] <= depth[sy][sx]) return;
+    const lum = n[0] * light[0] + n[1] * light[1] + n[2] * light[2];
+    const idx = Math.max(2, Math.min(ASCII_LIGHT.length - 1, Math.round(((lum + 1) / 2) * (ASCII_LIGHT.length - 1))));
+    depth[sy][sx] = p[2];
+    chars[sy][sx] = force || ASCII_LIGHT[idx];
+  };
+
+  // Cylindrical fuselage.
+  for (let y = -0.82; y <= 0.92; y += 0.08) {
+    for (let a = 0; a < Math.PI * 2; a += 0.10) {
+      const r = 0.40;
+      project([r * Math.cos(a), y, r * Math.sin(a)], [Math.cos(a), 0, Math.sin(a)]);
+    }
+  }
+
+  // Conical nose.
+  for (let y = -1.52; y < -0.82; y += 0.07) {
+    const t = (y + 1.52) / 0.70;
+    const r = 0.40 * t;
+    for (let a = 0; a < Math.PI * 2; a += 0.12) {
+      project([r * Math.cos(a), y, r * Math.sin(a)], [Math.cos(a), -0.35, Math.sin(a)], y < -1.40 ? '▲' : undefined);
+    }
+  }
+
+  // Engine bell.
+  for (let y = 0.92; y <= 1.25; y += 0.07) {
+    const t = (y - 0.92) / 0.33;
+    const r = 0.30 + t * 0.22;
+    for (let a = 0; a < Math.PI * 2; a += 0.11) {
+      project([r * Math.cos(a), y, r * Math.sin(a)], [Math.cos(a), 0.18, Math.sin(a)], y > 1.18 ? '▓' : undefined);
+    }
+  }
+
+  // Four fins.
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2;
+    const ux = Math.cos(a), uz = Math.sin(a);
+    for (let y = 0.48; y <= 1.12; y += 0.08) {
+      const t = (y - 0.48) / 0.64;
+      for (let r = 0.42; r <= 0.42 + t * 0.65; r += 0.07) {
+        project([ux * r, y, uz * r], [ux, 0, uz], '◆');
+      }
+    }
+  }
+
+  // Rotating porthole marker.
+  for (let a = -0.20; a <= 0.20; a += 0.05) {
+    project([0.405 * Math.cos(a), -0.20 + a * 0.7, 0.405 * Math.sin(a)], [Math.cos(a), 0, Math.sin(a)], '◉');
+  }
+
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
 function renderTorusFrame(tick: number): string {
   const width = 35, height = 15;
   const { chars, depth } = asciiBuffer(width, height);
@@ -748,7 +864,7 @@ export default function KTerminal() {
         if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setRitualEnabled(enabled); addLine(`Celestial ritual ${enabled ? 'engaged' : 'silenced'}.`); break; }
         if (sub === 'intensity') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 0 || n > 100) { addLine('Error: ritual intensity must be 0-100', 'error'); break; } setRitualIntensity(n); addLine(`Ritual intensity set to ${n}.`); break; }
         if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 2 || n > 20) { addLine('Error: ritual fps must be 2-20', 'error'); break; } setRitualFps(n); addLine(`Ritual clock set to ${n} fps.`); break; }
-        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → TAINO sun-relief pulse\nMID → GLOBE meridian rotation\nTRANSIENT → DIAMOND prism flare\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
+        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → TAINO sun-relief pulse\nMID → GLOBE meridian rotation\nTRANSIENT → DIAMOND prism flare\nBEAT/CLOCK → CUBE Z-step\nORBIT → MOON crater rotation\nASCENT → ROCKET 3D vector spin\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
         addLine('Usage: ritual on|off | ritual intensity [0-100] | ritual fps [2-20] | ritual map', 'error');
         break;
       }
@@ -996,6 +1112,18 @@ Playlist: ${tracks.length} track(s)`);
               <pre className="kt-cube-face">{['    +------+\n   /      /|\n  +------+ |\n  |      | +\n  |      |/\n  +------+','      +----+\n    /    / \\\n   +    +   |\n   |    |   +\n    \\    \\ /\n      +----+','   +------+\n   |\\      \\\n   | +------+\n   + |      |\n    \\|      |\n     +------+','      +----+\n     / \\    \\\n    +   +    +\n    |   |    |\n     \\ /    /\n      +----+'][Math.floor(asciiTick/2)%4]}</pre>
             </div>
           </div>
+          <div className="kt-ascii-card kt-moon-card">
+            <span className="kt-ascii-label">☽ MOON://CRATER·ORBIT · SELENE.EXE</span>
+            <div className="kt-moon-stage">
+              <pre className="kt-moon">{renderMoonFrame(asciiTick)}</pre>
+            </div>
+          </div>
+          <div className="kt-ascii-card kt-rocket-card">
+            <span className="kt-ascii-label">△ ROCKET://ASCENT·VECTOR · APOLLO.EXE</span>
+            <div className="kt-rocket-stage">
+              <pre className="kt-rocket">{renderRocketFrame(asciiTick)}</pre>
+            </div>
+          </div>
         </div>
 
         {/* Visualizer */}
@@ -1199,12 +1327,12 @@ Playlist: ${tracks.length} track(s)`);
           80% { transform: skew(1deg); } 100% { transform: skew(0deg); }
         }
 
-        .kt-ascii-deck { display:grid; grid-template-columns:1.15fr 1fr 1.2fr 1fr; gap:10px; margin-bottom:10px; min-height:128px; }
+        .kt-ascii-deck { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:10px; min-height:128px; }
         .kt-ascii-card { position:relative; overflow:hidden; border:1px solid #008f11; background:radial-gradient(circle at 50% 50%,rgba(0,255,65,.08),rgba(13,2,8,.94) 68%); min-height:128px; }
         .kt-ascii-card { box-shadow:inset 0 0 22px rgba(0,255,65,.08),0 0 9px rgba(255,0,255,.08); }
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
         .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
-        .kt-taino-stage,.kt-cube-stage,.kt-globe-stage,.kt-diamond-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-taino-stage,.kt-cube-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
         .kt-taino-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.12),rgba(0,255,65,.035) 48%,rgba(13,2,8,.97) 75%); }
         .kt-taino-symbol { position:relative; z-index:2; margin:0; white-space:pre; text-align:center; color:#ffb000; font:8px/.84 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(255,176,0,.85),0 0 14px rgba(0,255,65,.24); animation:kt-taino-glow 1.7s steps(6) infinite; }
         .kt-taino-noise { position:absolute; inset:6px 4px 0; z-index:1; margin:0; overflow:hidden; color:#00ff41; font:7px/.9 'Share Tech Mono',monospace; white-space:pre; text-align:center; opacity:.24; text-shadow:0 0 6px rgba(0,255,65,.9); animation:kt-binary-flash .72s steps(2,end) infinite; }
@@ -1217,6 +1345,12 @@ Playlist: ${tracks.length} track(s)`);
         .kt-diamond { color:#00ffff; font:9px/.82 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.9),0 0 15px rgba(255,0,255,.34); animation:kt-gem-glow 1.6s steps(6) infinite; will-change:filter; }
         .kt-dodeca-card { background:radial-gradient(circle at 50% 50%,rgba(255,176,0,.10),rgba(13,2,8,.96) 68%); }
         .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.13),rgba(255,0,255,.035) 46%,rgba(13,2,8,.97) 74%); }
+        .kt-moon { margin:0; white-space:pre; text-align:center; color:#d8e6ff; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(216,230,255,.8),0 0 13px rgba(0,255,255,.24); animation:kt-moon-glow 2.4s steps(8) infinite; }
+        .kt-moon-card { background:radial-gradient(circle at 50% 48%,rgba(180,205,255,.12),rgba(0,255,255,.025) 44%,rgba(13,2,8,.97) 75%); }
+        .kt-rocket { margin:0; white-space:pre; text-align:center; color:#ffb000; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(255,176,0,.84),0 0 14px rgba(255,0,255,.24); animation:kt-rocket-glow 1.7s steps(8) infinite; }
+        .kt-rocket-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.11),rgba(255,0,255,.025) 46%,rgba(13,2,8,.97) 75%); }
+        @keyframes kt-moon-glow { 0%,100%{filter:brightness(.88) contrast(1.08)} 50%{filter:brightness(1.15) contrast(1.18)} }
+        @keyframes kt-rocket-glow { 0%,100%{filter:brightness(.9) contrast(1.08)} 50%{filter:brightness(1.26) contrast(1.22)} }
         @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }
         @keyframes kt-gem-glow { 0%,100% { filter:brightness(.9) contrast(1.08); } 50% { filter:brightness(1.22) contrast(1.2); } }
         .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
@@ -1229,10 +1363,12 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ritual-playing .kt-taino-symbol { animation-duration:calc(2s - (var(--ritual-power) * .9s)); text-shadow:0 0 calc(7px + var(--ritual-power) * 16px) rgba(255,176,0,.92),0 0 15px rgba(0,255,65,.3); }
         .kt-ritual-playing .kt-globe { animation-duration:calc(6.5s - (var(--ritual-power) * 2.8s)); }\n        .kt-ritual-playing .kt-diamond { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
         .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
+        .kt-ritual-playing .kt-moon { animation-duration:calc(2.8s - (var(--ritual-power) * 1.0s)); }
+        .kt-ritual-playing .kt-rocket { animation-duration:calc(2.0s - (var(--ritual-power) * .8s)); }
         .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
-        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-cube-face{font-size:10px} }
-        @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-cube-face,.kt-globe,.kt-diamond,.kt-ascii-card::before{animation:none} }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-cube-face{font-size:10px} }
+        @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-cube-face,.kt-globe,.kt-diamond,.kt-moon,.kt-rocket,.kt-ascii-card::before{animation:none} }
 
         .kt-visualizer-container {
           height: 100px;
