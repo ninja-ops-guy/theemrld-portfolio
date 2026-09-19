@@ -36,9 +36,7 @@ A public research program combining computational experiments, SAT tooling, writ
 
 ## Supporting Public Projects
 
-- **ASI-Evolve** — experimental AI systems/orchestration: https://github.com/ninja-ops-guy/ASI-Evolve
 - **LDD-Kit** — reusable engineering tooling: https://github.com/ninja-ops-guy/LDD-Kit
-- **Z3r0** — security/systems experimentation: https://github.com/ninja-ops-guy/Z3r0
 - **Streetfighter for Vector** — robotics/game experiment: https://github.com/ninja-ops-guy/streetfighter-for-vector
 
 Private and commercially oriented work is intentionally not used as the primary evidence layer when the implementation cannot be inspected publicly.
