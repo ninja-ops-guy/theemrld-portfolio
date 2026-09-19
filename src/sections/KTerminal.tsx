@@ -498,14 +498,16 @@ Playlist: ${tracks.length} track(s)`);
   // Canvas resize
   useEffect(() => {
     const resizeCanvas = () => {
-      if (canvasRef.current) {
-        canvasRef.current.width = canvasRef.current.offsetWidth;
-        canvasRef.current.height = canvasRef.current.offsetHeight;
-      }
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const width = Math.max(1, Math.round(canvas.getBoundingClientRect().width || canvas.offsetWidth || 1));
+      const height = Math.max(1, Math.round(canvas.getBoundingClientRect().height || canvas.offsetHeight || 1));
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
     };
-    resizeCanvas();
+    const frame = requestAnimationFrame(resizeCanvas);
     window.addEventListener('resize', resizeCanvas);
-    return () => window.removeEventListener('resize', resizeCanvas);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resizeCanvas); };
   }, []);
 
   // Load SoundCloud API script
