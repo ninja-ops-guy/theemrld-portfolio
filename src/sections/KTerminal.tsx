@@ -58,6 +58,7 @@ export default function KTerminal() {
   const widgetRef = useRef<HTMLIFrameElement>(null);
   const scWidgetRef = useRef<any>(null);
   const widgetBoundRef = useRef(false);
+  const catalogHydratedRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -74,14 +75,53 @@ export default function KTerminal() {
   const [showClickStart, setShowClickStart] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [visualizerEnabled, setVisualizerEnabled] = useState(true);
+  const [visualizerBars, setVisualizerBars] = useState(50);
+  const [visualizerFps, setVisualizerFps] = useState(20);
+  const [asciiTick, setAsciiTick] = useState(0);
+  const [ritualEnabled, setRitualEnabled] = useState(true);
+  const [ritualIntensity, setRitualIntensity] = useState(72);
+  const [ritualFps, setRitualFps] = useState(8);
 
   const bootIndexRef = useRef(0);
+  const STORAGE_KEY = 'k-terminal:tracks:v3';
+  const SETTINGS_KEY = 'k-terminal:audio-settings:v1';
+
+  // Restore persistent library/settings. New bundled tracks merge with saved tracks.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as Track[];
+      if (Array.isArray(saved) && saved.length) {
+        const byUrl = new Map<string, Track>();
+        [...defaultTracks, ...saved].forEach((t) => byUrl.set(t.url, t));
+        setTracks(Array.from(byUrl.values()));
+      }
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      if (typeof settings.volume === 'number') setVolume(settings.volume);
+      if (typeof settings.visualizerEnabled === 'boolean') setVisualizerEnabled(settings.visualizerEnabled);
+      if (typeof settings.visualizerBars === 'number') setVisualizerBars(settings.visualizerBars);
+      if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
+      if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
+      if (typeof settings.ritualEnabled === 'boolean') setRitualEnabled(settings.ritualEnabled);
+      if (typeof settings.ritualIntensity === 'number') setRitualIntensity(settings.ritualIntensity);
+      if (typeof settings.ritualFps === 'number') setRitualFps(settings.ritualFps);
+    } catch (_) {}
+  }, []);
+  useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
+  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps]);
 
   // Detect mobile on mount
   useEffect(() => {
     const mobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     setIsMobile(mobile);
   }, []);
+
+  // Low-FPS terminal art clock: intentionally stepped to preserve the retro CRT feel.
+  useEffect(() => {
+    const timer = window.setInterval(() => setAsciiTick((n) => (n + 1) % 240), Math.max(50, Math.round(1000 / ritualFps)));
+    return () => window.clearInterval(timer);
+  }, [ritualFps]);
 
   // Boot sequence
   useEffect(() => {
@@ -160,12 +200,37 @@ export default function KTerminal() {
     widgetBoundRef.current = true;
 
     widget.bind(SC.Widget.Events.READY, () => {
+      // The initial widget is the artist profile. SoundCloud resolves it to the
+      // current public catalogue, so getSounds() gives us recent uploads without
+      // hard-coding a stale list. Only hydrate once; later READY events are tracks.
+      if (!catalogHydratedRef.current && typeof widget.getSounds === 'function') {
+        widget.getSounds((sounds: any[]) => {
+          if (Array.isArray(sounds) && sounds.length > 1) {
+            catalogHydratedRef.current = true;
+            const liveTracks: Track[] = sounds.map((sound: any, index: number) => ({
+              id: index + 1,
+              url: sound.permalink_url || sound.uri || '',
+              title: sound.title || `Track ${index + 1}`,
+              duration: sound.duration || 0,
+              plays: sound.playback_count || 0,
+            })).filter((track: Track) => track.url);
+            if (liveTracks.length) {
+              setTracks((saved) => {
+                const byUrl = new Map<string, Track>();
+                [...liveTracks, ...saved].forEach((t) => { if (!byUrl.has(t.url)) byUrl.set(t.url, t); });
+                return Array.from(byUrl.values()).map((t, i) => ({ ...t, id: i + 1 }));
+              });
+              addLine(`<span class="tc-success">[SYNC]</span> Loaded ${liveTracks.length} current SoundCloud tracks.`);
+            }
+          }
+        });
+      }
       widget.getDuration((duration: number) => {
         setCurrentTrack((prev) => (prev ? { ...prev, duration } : prev));
       });
       widget.setVolume(volume);
-      // Explicit play() is REQUIRED for mobile -- autoplay is blocked
-      widget.play();
+      // Do not auto-play the initial profile catalogue. Track loads below use
+      // auto_play plus their load callback, both originating from the user's gesture.
     });
 
     widget.bind(SC.Widget.Events.PLAY, () => {
@@ -209,10 +274,6 @@ export default function KTerminal() {
       scWidgetRef.current = widget;
       bindWidgetEvents(widget);
 
-      // Start playback synchronously from the user's click/Enter gesture. This is
-      // especially important on iOS, where a later READY callback may lose gesture authority.
-      try { widget.play(); } catch (e) {}
-
       widget.load(url, {
         auto_play: true,
         hide_related: true,
@@ -240,7 +301,8 @@ export default function KTerminal() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const bars = 50;
+    if (!visualizerEnabled) return;
+    const bars = visualizerBars;
     const draw = () => {
       if (!isPlaying) return;
       ctx.fillStyle = 'rgba(13, 2, 8, 0.2)';
@@ -253,8 +315,8 @@ export default function KTerminal() {
         ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
       }
     };
-    visualizerIntervalRef.current = setInterval(draw, 50);
-  }, [isPlaying]);
+    visualizerIntervalRef.current = setInterval(draw, Math.max(16, Math.round(1000 / visualizerFps)));
+  }, [isPlaying, visualizerEnabled, visualizerBars, visualizerFps]);
 
   const stopVisualizer = useCallback(() => {
     if (visualizerIntervalRef.current) {
@@ -306,6 +368,14 @@ export default function KTerminal() {
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
   <span class="tc-command">volume [0-100]</span>    - Set volume level
+  <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
+  <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
+  <span class="tc-command">visualizer bars [8-128]</span> - Set density
+  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate
+  <span class="tc-command">ritual on|off</span>      - Toggle celestial ASCII audio-reactive mode
+  <span class="tc-command">ritual intensity [0-100]</span> - Set reaction strength
+  <span class="tc-command">ritual fps [2-20]</span>  - Set stepped animation clock
+  <span class="tc-command">ritual map</span>         - Show animation/audio mapping
   <span class="tc-command">next</span>              - Play next track
   <span class="tc-command">prev</span>              - Play previous track
   <span class="tc-command">status</span>            - Show playback status
@@ -442,6 +512,41 @@ export default function KTerminal() {
         break;
       }
 
+      case 'speed': {
+        if (!args[0]) { addLine(`Playback speed: ${playbackRate}x`); break; }
+        const rate = Number(args[0]);
+        if (!Number.isFinite(rate) || rate < 0.5 || rate > 2) { addLine('Error: Speed must be between 0.5 and 2.0', 'error'); break; }
+        setPlaybackRate(rate);
+        const widget: any = scWidgetRef.current;
+        if (widget && typeof widget.setPlaybackRate === 'function') {
+          try { widget.setPlaybackRate(rate); addLine(`Playback speed set to ${rate}x`); } catch (_) { addLine('Provider rejected playback-rate control.', 'error'); }
+        } else {
+          addLine('Speed preference saved, but SoundCloud embedded playback does not expose playback-rate control in this browser.', 'warning');
+        }
+        break;
+      }
+
+      case 'ritual': {
+        const sub = (args[0] || '').toLowerCase();
+        if (!sub) { addLine(`Ritual: ${ritualEnabled ? 'ON' : 'OFF'} | intensity=${ritualIntensity} | fps=${ritualFps}`); break; }
+        if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setRitualEnabled(enabled); addLine(`Celestial ritual ${enabled ? 'engaged' : 'silenced'}.`); break; }
+        if (sub === 'intensity') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 0 || n > 100) { addLine('Error: ritual intensity must be 0-100', 'error'); break; } setRitualIntensity(n); addLine(`Ritual intensity set to ${n}.`); break; }
+        if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 2 || n > 20) { addLine('Error: ritual fps must be 2-20', 'error'); break; } setRitualFps(n); addLine(`Ritual clock set to ${n} fps.`); break; }
+        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → OUROBOROS pulse\nMID → APOLLO solar aura\nTRANSIENT → ANGEL/TRUMPET herald\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
+        addLine('Usage: ritual on|off | ritual intensity [0-100] | ritual fps [2-20] | ritual map', 'error');
+        break;
+      }
+
+      case 'visualizer': {
+        const sub = (args[0] || '').toLowerCase();
+        if (!sub) { addLine(`Visualizer: ${visualizerEnabled ? 'ON' : 'OFF'} | bars=${visualizerBars} | fps=${visualizerFps}`); break; }
+        if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setVisualizerEnabled(enabled); if (!enabled) stopVisualizer(); addLine(`Visualizer ${enabled ? 'enabled' : 'disabled'}.`); break; }
+        if (sub === 'bars') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 8 || n > 128) { addLine('Error: visualizer bars must be 8-128', 'error'); break; } setVisualizerBars(n); addLine(`Visualizer bars set to ${n}.`); break; }
+        if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 5 || n > 60) { addLine('Error: visualizer fps must be 5-60', 'error'); break; } setVisualizerFps(n); addLine(`Visualizer refresh set to ${n} fps.`); break; }
+        addLine('Usage: visualizer on|off | visualizer bars [8-128] | visualizer fps [5-60]', 'error');
+        break;
+      }
+
       case 'volume': {
         if (!args[0]) {
           addLine(`Current volume: ${volume}%`);
@@ -520,7 +625,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, addLine, playTrack, playUrl, stopVisualizer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -602,7 +707,7 @@ Playlist: ${tracks.length} track(s)`);
         scrolling="no"
         frameBorder="no"
         allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno/real&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
         style={{ position: 'absolute', bottom: '0', left: '0', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
       />
 
@@ -648,8 +753,68 @@ Playlist: ${tracks.length} track(s)`);
           </div>
         </div>
 
+        {/* Living ASCII sigils */}
+        <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated terminal sigils">
+          <div className="kt-ascii-card kt-ouroboros">
+            <span className="kt-ascii-label">OUROBOROS://RECURSION</span>
+            <div className="kt-ouro-stage">
+              <div className="kt-ouro-ring"><span className="kt-ouro-snake">▓▒░▓▒░▓▒░▓▒░▓▒░▓▒░</span><span className="kt-ouro-head">◆</span></div>
+              <pre className="kt-eye">{asciiTick % 32 < 3 ? '   ───────\n  ╱       ╲\n <    ─    >\n  ╲       ╱\n   ───────' : '   ───────\n  ╱       ╲\n <   ◉ ◉   >\n  ╲   ▴   ╱\n   ───────'}</pre>
+            </div>
+          </div>
+          <div className="kt-ascii-card kt-apollo-card">\n            <span className="kt-ascii-label">APOLLO://MUSIC·LIGHT·PROPHECY</span>\n            <div className="kt-apollo-stage">\n              <pre className="kt-apollo">{asciiTick % 40 < 3 ? `       \\ | /\n     --  ☼  --\n       / | \\\n        .---.\n       / - - \\\n      |   ▴   |\n      |  ___  |\n     .\\_____/ .\n    /| /|♩|\\ |\\\n   /_|/_|_|_\\|_\\\n     / / ║ \\ \\\n    /_/  ║  \\_\\\n       __║__\n      /_/_\\_\\` : `       \\ | /\n     --  ☼  --\n       / | \\\n        .---.\n       / ◉ ◉ \\\n      |   ▴   |\n      |  ___  |\n     .\\_____/ .\n    /| /|♫|\\ |\\\n   /_|/_|_|_\\|_\\\n     / / ║ \\ \\\n    /_/  ║  \\_\\\n       __║__\n      /_/_\\_\\`}</pre>\n            </div>\n          </div>\n          <div className="kt-ascii-card kt-angel-card">
+            <span className="kt-ascii-label">CHOIR://RENAISSANCE·CELESTIAL</span>
+            <div className="kt-angel-stage">
+              <pre className="kt-angels">{asciiTick % 28 < 3 ? `   .      *       .
+      \\  |  /
+   .---\\ O /---.
+  /  .--\\|/--.  \\
+ <  /   ( )   \\  >
+  \\|   /|\\   |/
+   '  /_|_\\  '
+     / /♩\\ \\
+    /_/ )_( \\_
+       /___\\
+
+  .--.       .--.
+ /_\\ \\     / /_\\
+(  o  )   (  o  )====>
+ \\_=_/     \\_=_/   /
+ /| |\\     /| |\\==/
+<_|_|_>   <_|_|_>
+  / \\       / \\
+ /___\\     /___\\` : `   .      +       .
+      \\  |  /
+   .---\\☼/---.
+  /  .--\\|/--.  \\
+ <  /   ◉ ◉   \\  >
+  \\|    ▴    |/
+   '  \\___/  '
+     /_|♫|_\\
+    / /╲╱\\ \\
+   /_/  ║  \\_\\
+       /___\\
+
+  .--.       .--.
+ /_\\ \\     / /_\\
+(  ◉  )   (  ◉  )====>
+ \\_▽_/     \\_▽_/  /
+ /| |\\     /| |\\==/
+<_|_|_>   <_|_|_>
+  / \\       / \\
+ /___\\     /___\\`}</pre>
+            </div>
+          </div>
+          <div className="kt-ascii-card kt-cube-card">
+            <span className="kt-ascii-label">VECTOR://Z-AXIS</span>
+            <div className="kt-cube-stage">
+              <pre className="kt-cube-face">{['    +------+\n   /      /|\n  +------+ |\n  |      | +\n  |      |/\n  +------+','      +----+\n    /    / \\\n   +    +   |\n   |    |   +\n    \\    \\ /\n      +----+','   +------+\n   |\\      \\\n   | +------+\n   + |      |\n    \\|      |\n     +------+','      +----+\n     / \\    \\\n    +   +    +\n    |   |    |\n     \\ /    /\n      +----+'][Math.floor(asciiTick/2)%4]}</pre>
+            </div>
+          </div>
+        </div>
+
         {/* Visualizer */}
-        <div className="kt-visualizer-container">
+        <div className="kt-visualizer-container" style={{ display: visualizerEnabled ? 'block' : 'none' }}>
           <canvas ref={canvasRef} className="kt-canvas" />
         </div>
 
@@ -663,10 +828,9 @@ Playlist: ${tracks.length} track(s)`);
         </div>
 
         {/* Click-to-play track list */}
-        {showClickStart && (
-          <div className="kt-click-play">
+        <div className="kt-click-play">
             <div className="kt-click-header">
-              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno
+              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · persistent library
             </div>
             {isMobile && (
               <div
@@ -703,7 +867,6 @@ Playlist: ${tracks.length} track(s)`);
               ))}
             </ul>
           </div>
-        )}
 
         {/* Terminal */}
         <div className="kt-terminal" ref={terminalRef}>
@@ -850,6 +1013,34 @@ Playlist: ${tracks.length} track(s)`);
           40% { transform: skew(2deg); } 60% { transform: skew(0deg); }
           80% { transform: skew(1deg); } 100% { transform: skew(0deg); }
         }
+
+        .kt-ascii-deck { display:grid; grid-template-columns:1.15fr 1fr 1.2fr 1fr; gap:10px; margin-bottom:10px; min-height:128px; }
+        .kt-ascii-card { position:relative; overflow:hidden; border:1px solid #008f11; background:radial-gradient(circle at 50% 50%,rgba(0,255,65,.08),rgba(13,2,8,.94) 68%); min-height:128px; }
+        .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
+        .kt-ouro-stage,.kt-cube-stage,.kt-apollo-stage,.kt-angel-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-ouro-ring { position:absolute; width:105px; height:105px; border:7px dotted #00ff41; border-radius:50%; box-shadow:0 0 12px rgba(0,255,65,.35),inset 0 0 12px rgba(0,255,65,.2); animation:kt-ouro-spin 5.5s steps(32) infinite; transform:rotateX(64deg) rotateZ(0deg); }
+        .kt-ouro-snake { position:absolute; inset:-18px; color:#00ff41; font-size:8px; word-break:break-all; opacity:.7; filter:contrast(1.4); }
+        .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
+        .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
+        .kt-apollo { margin:0; color:#ffb000; font:10px/1 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(255,176,0,.7),0 0 12px rgba(255,0,255,.2); animation:kt-apollo-aura 1.8s steps(8) infinite; }\n        .kt-apollo-card { background:radial-gradient(circle at 50% 42%,rgba(255,176,0,.11),rgba(13,2,8,.96) 64%); }\n        @keyframes kt-apollo-aura { 50% { filter:brightness(1.3); transform:translateY(-1px); } }\n        .kt-angel-card { background:radial-gradient(ellipse at 50% 45%,rgba(255,176,0,.09),rgba(255,0,255,.025) 44%,rgba(13,2,8,.97) 74%); }
+        .kt-angels { margin:0; color:#f0c96a; font:8px/1 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(240,201,106,.72),0 0 11px rgba(0,255,255,.15); animation:kt-choir-breathe 2.6s steps(10) infinite; }
+        .kt-angel-card::before { content:'✦  ·  ✧  ·  ✦'; position:absolute; left:0; right:0; bottom:4px; text-align:center; color:#ff00ff; opacity:.55; font-size:8px; letter-spacing:.3em; animation:kt-stars 1.4s steps(4) infinite; }
+        @keyframes kt-choir-breathe { 50% { transform:translateY(-1px); filter:brightness(1.22); } }
+        @keyframes kt-stars { 50% { opacity:.2; } }
+        .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
+        @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
+        @keyframes kt-eye-float { 50% { transform:translateY(2px); opacity:.82; } }
+        @keyframes kt-cube-z { to { transform:rotateZ(360deg); } }
+        .kt-ritual-off .kt-ascii-card * { animation-play-state:paused !important; }
+        .kt-ritual-idle .kt-ascii-card { opacity:.58; filter:saturate(.55) brightness(.72); }
+        .kt-ritual-playing .kt-ouro-ring { animation-duration:calc(6s - (var(--ritual-power) * 3s)); box-shadow:0 0 calc(10px + var(--ritual-power) * 20px) rgba(0,255,65,.6),inset 0 0 12px rgba(0,255,65,.25); }
+        .kt-ritual-playing .kt-apollo { animation-duration:calc(2.2s - (var(--ritual-power) * .9s)); }
+        .kt-ritual-playing .kt-angels { animation-duration:calc(3s - (var(--ritual-power) * 1.4s)); }
+        .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
+        .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
+        .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-ouro-ring{width:82px;height:82px}.kt-eye{font-size:11px}.kt-cube-face{font-size:10px} }
+        @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face,.kt-apollo,.kt-angels,.kt-angel-card::before{animation:none} }
 
         .kt-visualizer-container {
           height: 100px;
