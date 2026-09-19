@@ -140,3 +140,29 @@
   .network-col-right { width: 50%; }
   .network-gap { gap: 5%; }
 }
+
+
+/* Accessibility and motion safety */
+:focus-visible {
+  outline: 2px solid #9AAEFF;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .custom-cursor {
+    display: none !important;
+  }
+}
