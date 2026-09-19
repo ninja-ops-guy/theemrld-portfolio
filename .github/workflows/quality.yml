@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: portfolio-quality-${{ github.ref }}
+  group: portfolio-quality-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
