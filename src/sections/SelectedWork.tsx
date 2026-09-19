@@ -41,7 +41,7 @@ const flagships: Project[] = [
 const secondary = [
   ['TechOps Hero','I use the game as a real product-engineering testbed: runtime QA, state management, campaign regressions, mobile controls, deployment, and constant iteration.','https://github.com/ninja-ops-guy/techops-hero','https://ninja-ops-guy.github.io/techops-hero/'],
   ['CIC + LDD','This is where I explore structural complexity, SAT, proof ideas, formalization, and observability. Some of that research later feeds directly into security and autonomous-systems tooling.','https://github.com/ninja-ops-guy/cic-p-vs-np-research','https://github.com/ninja-ops-guy/LDD-Kit'],
-  ['Vector / wire-pod Robotics','Physical-agent experiments using wire-pod and the Vector SDK: typed LLM control, behavior calls, event-driven coordination, and even a Fightcade-to-Vector display pipeline. Current work is extending this toward governed dynamic behavior generation through RESIDUAL.','https://github.com/ninja-ops-guy/streetfighter-for-vector',''],
+  ['Vector / wire-pod Embodied AI','I am using Vector as a physical agent platform: local LLMs call typed MCP tools through wire-pod, a persistent runtime handles robot state and behavior, and the next stage uses RESIDUAL to qualify dynamically generated SDK behaviors before they are trusted on-device.','https://github.com/ninja-ops-guy/vector-swarm-ai','','/case-study/vector-wirepod','PRIVATE REPO · PUBLIC RELEASE PLANNED'],
 ];
 
 const toneColor=(t:Project['tone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
@@ -67,7 +67,7 @@ export default function SelectedWork(){
 
       <div style={{marginTop:96,borderTop:'1px solid #1A2540',paddingTop:38}}>
         <p className="font-label">OTHER WORK</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{marginTop:26}}>{secondary.map(([title,body,link1,link2])=><div key={title} className="p-6 border border-[#162235]" style={{background:'#07101E'}}><h3 className="font-headline" style={{color:'#E8EDF3',fontSize:22}}>{title}</h3><p className="font-body" style={{color:'#8899AA',lineHeight:1.7,fontSize:14,marginTop:12}}>{body}</p><div className="flex flex-wrap gap-3" style={{marginTop:20}}>{link1&&<a className="font-label" style={{color:'#4A6DFF'}} href={link1} target="_blank" rel="noreferrer">OPEN ↗</a>}{link2&&<a className="font-label" style={{color:'#8899AA'}} href={link2} target="_blank" rel="noreferrer">RELATED ↗</a>}</div></div>)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{marginTop:26}}>{secondary.map(([title,body,link1,link2,caseStudy,note])=><div key={title} className="p-6 border border-[#162235]" style={{background:'#07101E'}}><h3 className="font-headline" style={{color:'#E8EDF3',fontSize:22}}>{title}</h3>{note&&<p className="font-label" style={{color:'#D8B26E',fontSize:10,marginTop:10}}>● {note}</p>}<p className="font-body" style={{color:'#8899AA',lineHeight:1.7,fontSize:14,marginTop:12}}>{body}</p><div className="flex flex-wrap gap-3" style={{marginTop:20}}>{caseStudy&&<Link className="font-label" style={{color:'#4A6DFF'}} to={caseStudy}>CASE STUDY →</Link>}{link1&&<a className="font-label" style={{color:'#8899AA'}} href={link1} target="_blank" rel="noreferrer">REPO ↗</a>}{link2&&<a className="font-label" style={{color:'#8899AA'}} href={link2} target="_blank" rel="noreferrer">RELATED ↗</a>}</div></div>)}</div>
       </div>
     </div>
   </section>
