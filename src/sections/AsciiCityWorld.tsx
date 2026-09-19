@@ -182,11 +182,11 @@ const PROJECT_STRUCTURES:Billboard[]=[
   {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
   {x:8,y:25.5,t:['   ╱╲  ╱╲',' _╱__╲╱__╲_','│ ROOFSCAN  │','│ ▦ ▦ ▦ ▦   │','│ PERMIT MAP│','└────┬──────┘',' PALANROOF'],c:'#f5b342'},
   {x:40,y:25.5,t:['╔═══════════╗','║ TECHOPS   ║','║   HERO    ║','║ O I H E V ║','║ TICKET//XP║','╚════╤══════╝',' RPG ARCADE'],c:'#7dff68'},
-  {x:16,y:31.0,t:['╔═ RESEARCH ═╗','║ AX-21      ║','║ M6 BENCH   ║','║ RAC / CTM  ║','║ PREREG     ║','╚════╤═══════╝',' EVIDENCE LAB'],c:'#b86bff'},
-  {x:32,y:31.0,t:['┌─ SWARM DOCK ─┐','│ KIMI / MOON  │','│ LOCAL MODELS │','│ API DELEGATE │','│ AGENT MESH   │','└──────┬───────┘'],c:'#00ff91'},
-  {x:24,y:34.2,t:['        ╱╲','       ╱  ╲','   ╔═══╧══╧═══╗','   ║ FACTORY  ║','╔══╩══════════╩══╗','║ INFRA / SEC / AI║','║ PRINT · WIFI    ║','║ CLOCKS · CLOSETS║','╚═══════╤════════╝','        │'],c:'#a7a0ff'}
+  {x:16,y:27.2,t:['╔═ RESEARCH ═╗','║ AX-21      ║','║ M6 BENCH   ║','║ RAC / CTM  ║','║ PREREG     ║','╚════╤═══════╝',' EVIDENCE LAB'],c:'#b86bff'},
+  {x:32,y:27.2,t:['┌─ SWARM DOCK ─┐','│ KIMI / MOON  │','│ LOCAL MODELS │','│ API DELEGATE │','│ AGENT MESH   │','└──────┬───────┘'],c:'#00ff91'},
+  {x:24,y:22.6,t:['        ╱╲','       ╱  ╲','   ╔═══╧══╧═══╗','   ║ FACTORY  ║','╔══╩══════════╩══╗','║ INFRA / SEC / AI║','║ PRINT · WIFI    ║','║ CLOCKS · CLOSETS║','╚═══════╤════════╝','        │'],c:'#a7a0ff'}
 ];
-const CAR_SIGN:Billboard={x:31,y:35,t:['   ______',' _/|_||_\\`.__','(   _    _ _\\','=`-(_)--(_)-\'',' K//DRIVE · ⚑',' [E] ENTER'],c:'#00d9ff'};
+const CAR_SIGN:Billboard={x:38,y:26,t:['   ______',' _/|_||_\\`.__','(   _    _ _\\','=`-(_)--(_)-\'',' K//DRIVE · ⚑',' [E] ENTER'],c:'#00d9ff'};
 
 function sceneWallGlyph(scene:SceneId,ix:number,iy:number,sx:number,sy:number,top:number,bot:number,time:number,fallback:string){
   const h=Math.max(1,bot-top),v=(sy-top)/h,p=(ix*7+iy*11+sx)%19;
