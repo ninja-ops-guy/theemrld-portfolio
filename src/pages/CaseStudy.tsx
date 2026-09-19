@@ -72,9 +72,9 @@ const studies: Record<string, Study> = {
     stack: 'Python · LLM agents · Ollama/vLLM/OpenAI-compatible APIs · Firecracker/bwrap · HMAC audit · Sigma-style detection · SAT tooling',
   },
   'vector-wirepod': {
-    title: 'Vector / WirePod Robotics', eyebrow: 'EMBODIED AI / ROBOTICS / VERIFIED AGENT CONTROL', status: 'ACTIVE R&D · PARTIALLY IMPLEMENTED',
+    title: 'Vector / WirePod Robotics', eyebrow: 'EMBODIED AI / ROBOTICS / VERIFIED AGENT CONTROL', status: 'ACTIVE R&D · PRIVATE REPO · PUBLIC RELEASE PLANNED',
     thesis: 'An embodied-agent research platform for giving LLMs useful control over an Anki Vector without treating model output as trusted robot behavior. The core idea is to separate intent, capability, verification, execution, and learning so new behaviors can be proposed dynamically but only promoted after evidence says they are safe and functional.',
-    repo: 'https://github.com/ninja-ops-guy/streetfighter-for-vector',
+    repo: 'https://github.com/ninja-ops-guy/vector-swarm-ai',
     problem: 'LLM-to-robot demos are easy when the model only maps text to a small fixed command set. The harder problem is what happens when the requested behavior does not exist yet. My Vector work starts from a working WirePod / SDK control surface and asks a more ambitious question: can an LLM inspect the robot\'s available capabilities, compose or write a new Python behavior, verify that behavior against explicit constraints, run it in a controlled environment, observe the result, and retain only what actually worked? That turns the robot from a collection of hard-coded tricks into a governed embodied-agent testbed.',
     architecture: [
       { title: 'WirePod + MCP control plane', body: 'WirePod provides the local robot bridge while MCP-style tools expose typed robot actions and reusable skills to an LLM. Existing typed-command control proves the model can already invoke robot capabilities through a structured interface instead of free-form shell access.' },
