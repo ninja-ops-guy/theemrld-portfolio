@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import KBandStage from './KBandStage';
+import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioTrack, type KAudioZone } from '../data/kAudioZones';
 
 interface Track {
   id: number;
@@ -488,10 +489,22 @@ export type KWorldScene = 'spring' | 'summer' | 'autumn' | 'winter' | 'light' | 
 type KTerminalProps = {
   embedded?: boolean;
   onExitToCity?: () => void;
+  onExitToGallery?: () => void;
   onEnterScene?: (scene: KWorldScene) => void;
+  worldAudioZone?: KAudioZone;
+  worldAudioArmed?: boolean;
+  onAudioState?: (state: { playing: boolean; positionMs: number; durationMs: number; title: string; zone?: KAudioZone; autoDj: boolean }) => void;
 };
 
-export default function KTerminal({ embedded = false, onExitToCity, onEnterScene }: KTerminalProps = {}) {
+export default function KTerminal({
+  embedded = false,
+  onExitToCity,
+  onExitToGallery,
+  onEnterScene,
+  worldAudioZone,
+  worldAudioArmed = false,
+  onAudioState,
+}: KTerminalProps = {}) {
   const navigate = useNavigate();
   const [terminalParams] = useSearchParams();
   const fromGallery = embedded || terminalParams.get('from') === 'gallery';
@@ -511,6 +524,12 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   const catalogHydratedRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playbackPositionRef = useRef(0);
+  const pausedByUserRef = useRef(false);
+  const autoDjRef = useRef(true);
+  const zoneRef = useRef<KAudioZone | undefined>(worldAudioZone);
+  const lastAutoZoneRef = useRef<KAudioZone | undefined>(undefined);
+  const zoneIndexRef = useRef(0);
+  const autoAdvanceRef = useRef<(() => void) | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [bootPhase, setBootPhase] = useState<'booting' | 'done'>('booting');
@@ -531,10 +550,14 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   const [visualizerBars, setVisualizerBars] = useState(50);
   const [visualizerFps, setVisualizerFps] = useState(20);
   const [bandEnabled, setBandEnabled] = useState(true);
+  const [autoDj, setAutoDj] = useState(true);
   const [asciiTick, setAsciiTick] = useState(0);
   const [ritualEnabled, setRitualEnabled] = useState(true);
   const [ritualIntensity, setRitualIntensity] = useState(72);
   const [ritualFps, setRitualFps] = useState(8);
+
+  useEffect(() => { autoDjRef.current = autoDj; }, [autoDj]);
+  useEffect(() => { zoneRef.current = worldAudioZone; }, [worldAudioZone]);
 
   const bootIndexRef = useRef(0);
   const STORAGE_KEY = 'k-terminal:tracks:v3';
@@ -556,13 +579,14 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
       if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
       if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
       if (typeof settings.bandEnabled === 'boolean') setBandEnabled(settings.bandEnabled);
+      if (typeof settings.autoDj === 'boolean') setAutoDj(settings.autoDj);
       if (typeof settings.ritualEnabled === 'boolean') setRitualEnabled(settings.ritualEnabled);
       if (typeof settings.ritualIntensity === 'number') setRitualIntensity(settings.ritualIntensity);
       if (typeof settings.ritualFps === 'number') setRitualFps(settings.ritualFps);
     } catch (_) {}
   }, []);
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
-  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled]);
+  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, autoDj })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, autoDj]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -704,7 +728,11 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
       setIsPlaying(false);
       setAudioStatus('STOPPED');
       stopVisualizer();
-      addLine('Track finished. Type "next" to continue or "list" to choose another.', 'warning');
+      if (autoDjRef.current && zoneRef.current && autoAdvanceRef.current) {
+        autoAdvanceRef.current();
+      } else {
+        addLine('Track finished. Type "next" to continue or "list" to choose another.', 'warning');
+      }
     });
 
     widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e: any) => {
@@ -714,7 +742,7 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
 
   // SoundCloud Widget init. load() keeps playback attached to the existing
   // iframe/widget instance so a user's click remains the playback gesture.
-  const initSoundCloud = useCallback((url: string) => {
+  const initSoundCloud = useCallback((url: string, shouldAutoPlay = true) => {
     if (!widgetRef.current) return;
 
     const SC = (window as any).SC;
@@ -730,7 +758,7 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
       bindWidgetEvents(widget);
 
       widget.load(url, {
-        auto_play: true,
+        auto_play: shouldAutoPlay,
         hide_related: true,
         show_comments: false,
         show_user: false,
@@ -738,7 +766,8 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
         visual: false,
         callback: () => {
           widget.setVolume(volume);
-          widget.play();
+          if (shouldAutoPlay) widget.play();
+          else widget.pause();
         },
       });
     } catch (err) {
@@ -791,6 +820,8 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
 
   // Play track by click
   const playTrack = useCallback((track: Track) => {
+    setAutoDj(false);
+    pausedByUserRef.current = false;
     setCurrentTrack(track);
     addLine(`Loading track ${track.id}: ${track.title}...`);
     addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
@@ -799,6 +830,8 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
 
   // Play any SoundCloud URL
   const playUrl = useCallback((url: string) => {
+    setAutoDj(false);
+    pausedByUserRef.current = false;
     if (!url.includes('soundcloud.com')) {
       addLine('<span class="tc-error">Error: URL must be from SoundCloud</span>');
       return;
@@ -831,6 +864,57 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
     return () => window.clearInterval(id);
   }, [currentTrack, startVisualizer, updateProgressUI]);
 
+  const playWorldTrack = useCallback((track: KAudioTrack, index: number, shouldAutoPlay: boolean) => {
+    const t: Track = { id: 7000 + index, url: track.url, title: track.title, duration: 0, plays: 0 };
+    setCurrentTrack(t);
+    setProgress(0);
+    setPlaybackPositionMs(0);
+    setTimeDisplay('00:00 / 00:00');
+    setAudioStatus(shouldAutoPlay ? 'LOADING' : 'PAUSED');
+    initSoundCloud(track.url, shouldAutoPlay);
+  }, [initSoundCloud]);
+
+  const playZone = useCallback((zone: KAudioZone, index = 0, forcePlay = false) => {
+    const playlist = K_ZONE_PLAYLISTS[zone] || [];
+    if (!playlist.length) return;
+    const nextIndex = ((index % playlist.length) + playlist.length) % playlist.length;
+    zoneIndexRef.current = nextIndex;
+    const shouldAutoPlay = forcePlay || !pausedByUserRef.current;
+    playWorldTrack(playlist[nextIndex], nextIndex, shouldAutoPlay);
+    addLine(`<span class="tc-cyan">[AUTO DJ]</span> ${K_ZONE_LABELS[zone]} → ${playlist[nextIndex].title}`);
+  }, [addLine, playWorldTrack]);
+
+  useEffect(() => {
+    autoAdvanceRef.current = () => {
+      const zone = zoneRef.current;
+      if (!zone || !autoDjRef.current) return;
+      const playlist = K_ZONE_PLAYLISTS[zone] || [];
+      if (!playlist.length) return;
+      const next = (zoneIndexRef.current + 1) % playlist.length;
+      playZone(zone, next, true);
+    };
+  }, [playZone]);
+
+  useEffect(() => {
+    if (!worldAudioArmed || !worldAudioZone || !autoDj) return;
+    if (lastAutoZoneRef.current === worldAudioZone) return;
+    lastAutoZoneRef.current = worldAudioZone;
+    zoneRef.current = worldAudioZone;
+    zoneIndexRef.current = 0;
+    playZone(worldAudioZone, 0, false);
+  }, [worldAudioArmed, worldAudioZone, autoDj, playZone]);
+
+  useEffect(() => {
+    onAudioState?.({
+      playing: isPlaying,
+      positionMs: playbackPositionMs,
+      durationMs: currentTrack?.duration || 0,
+      title: currentTrack?.title || '',
+      zone: worldAudioZone,
+      autoDj,
+    });
+  }, [isPlaying, playbackPositionMs, currentTrack?.duration, currentTrack?.title, worldAudioZone, autoDj, onAudioState]);
+
   // Terminal commands
   const executeCommand = useCallback((cmd: string, args: string[]) => {
     switch (cmd) {
@@ -844,7 +928,12 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   <span class="tc-command">clearplaylist</span>     - Remove all tracks
   <span class="tc-command">artist</span>            - Open @raikouno profile
   <span class="tc-command">techopshero</span>       - Launch TechOps Hero inside K Terminal
-  <span class="tc-command">city</span>              - Enter K//CITY / gallery world
+  <span class="tc-command">city</span>              - Exit terminal back to current city position
+  <span class="tc-command">gallery</span>           - Return to gallery apse
+  <span class="tc-command">auto on|off</span>       - Scene-synced K Terminal Auto DJ
+  <span class="tc-command">zone</span>              - Show current world audio zone
+  <span class="tc-command">songs</span>             - Show Auto DJ songs for current zone
+  <span class="tc-command">nowplaying</span>        - Show K Terminal audio authority state
   <span class="tc-command">pause</span>             - Pause current track
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
@@ -956,11 +1045,58 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
         break;
       }
 
+      case 'auto': {
+        const mode = (args[0] || '').toLowerCase();
+        if (mode !== 'on' && mode !== 'off') {
+          addLine(`AUTO DJ: ${autoDj ? 'ON' : 'OFF'} · usage: auto on|off`);
+          break;
+        }
+        const enabled = mode === 'on';
+        setAutoDj(enabled);
+        autoDjRef.current = enabled;
+        if (enabled) {
+          pausedByUserRef.current = false;
+          const zone = worldAudioZone || zoneRef.current;
+          if (zone) {
+            lastAutoZoneRef.current = undefined;
+            playZone(zone, 0, true);
+          }
+          addLine('<span class="tc-success">AUTO DJ ON</span> — world zones control K Terminal audio.');
+        } else {
+          addLine('<span class="tc-warning">AUTO DJ OFF</span> — current/manual track remains under terminal control.');
+        }
+        break;
+      }
+
+      case 'zone': {
+        const zone = worldAudioZone || zoneRef.current;
+        addLine(zone ? `ZONE: ${K_ZONE_LABELS[zone]} · AUTO DJ ${autoDj ? 'ON' : 'OFF'}` : 'ZONE: standalone terminal');
+        break;
+      }
+
+      case 'songs': {
+        const zone = worldAudioZone || zoneRef.current;
+        if (!zone) { addLine('No world zone active.'); break; }
+        addLine(`${K_ZONE_LABELS[zone]} PLAYLIST:`);
+        (K_ZONE_PLAYLISTS[zone] || []).forEach((track, i) => addLine(`  [${i + 1}] ${track.title}`));
+        break;
+      }
+
+      case 'nowplaying': {
+        addLine(`AUDIO AUTHORITY: K TERMINAL
+MODE: ${autoDj ? 'AUTO DJ / SCENE SYNC' : 'MANUAL'}
+ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}
+TRACK: ${currentTrack?.title || 'NONE'}
+STATUS: ${audioStatus}`);
+        break;
+      }
+
       case 'pause': {
         if (!scWidgetRef.current) {
           addLine('Error: No track loaded', 'error');
           break;
         }
+        pausedByUserRef.current = true;
         try { scWidgetRef.current.pause(); } catch (e) {}
         addLine('Playback paused.');
         break;
@@ -971,6 +1107,7 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
           addLine('Error: No track loaded', 'error');
           break;
         }
+        pausedByUserRef.current = false;
         try { scWidgetRef.current.play(); } catch (e) {}
         addLine('Resuming playback...');
         break;
@@ -982,7 +1119,8 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
           break;
         }
         try {
-          scWidgetRef.current.pause();
+          pausedByUserRef.current = true;
+        scWidgetRef.current.pause();
           scWidgetRef.current.seekTo(0);
         } catch (e) {}
         setIsPlaying(false);
@@ -1095,14 +1233,24 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
         addLine(`Current Track: ${currentTrack.title}
 Status: ${isPlaying ? 'PLAYING' : 'PAUSED/STOPPED'}
 Volume: ${volume}%
-Playlist: ${tracks.length} track(s)`);
+Playlist: ${tracks.length} track(s)
+Audio Authority: K Terminal
+Mode: ${autoDj ? 'AUTO DJ' : 'MANUAL'}
+Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
         break;
       }
 
-      case 'city':
-      case 'gallery': {
-        addLine('<span class="tc-cyan">[CITY]</span> Returning to K//CITY at the gallery apse...');
+      case 'city': {
+        addLine('<span class="tc-cyan">[CITY]</span> Returning to K//CITY...');
         if (embedded && onExitToCity) onExitToCity();
+        else navigate('/gallery?spawn=console');
+        break;
+      }
+
+      case 'gallery': {
+        addLine('<span class="tc-cyan">[GALLERY]</span> Returning to the royal-gothic apse...');
+        if (embedded && onExitToGallery) onExitToGallery();
+        else if (embedded && onExitToCity) onExitToCity();
         else navigate('/gallery?spawn=console');
         break;
       }
@@ -1127,7 +1275,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, playZone]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -1261,7 +1409,7 @@ Playlist: ${tracks.length} track(s)`);
               [&larr; PORTFOLIO]
             </Link>
             <div className="kt-status">
-              [SYSTEM: ONLINE] [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
+              [SYSTEM: ONLINE] [AUTO DJ: ${autoDj ? 'ON' : 'OFF'}] [ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}] [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
             </div>
           </div>
         </div>
