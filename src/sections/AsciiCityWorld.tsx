@@ -323,7 +323,7 @@ export default function AsciiCityWorld(){
       if(!hit){zb[x]=999;continue;}
       const d=Math.max(.08,hit.dist*Math.cos(ra-cc.ang));zb[x]=d;
       const gothic='SWGACP123456'.includes(hit.tile);
-      const heightScale=hit.tile==='V'?.44:gothic?1.16:(hit.tile==='N'?2.05:1.72);
+      const heightScale=hit.tile==='V' ? .44 : gothic ? 1.16 : (hit.tile==='N' ? 2.05 : 1.72);
       const altitudeScale=Math.max(.58,1-(cc.height-1.55)*.16);
       const wh=Math.min(rows*1.9,(rows*heightScale*altitudeScale)/d),top=Math.max(0,Math.floor(hor-wh*.58)),bot=Math.min(rows-1,Math.ceil(hor+wh*.42));
       const base=DOOR_COLOR[hit.tile]||COLORS[hit.tile]||(hit.tile==='N'?cfg.neon:cfg.wall);
