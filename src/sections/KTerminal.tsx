@@ -106,6 +106,16 @@ export default function KTerminal() {
     }
   }, [bootPhase]);
 
+  // Deep-link commands from the developer portfolio.
+  useEffect(() => {
+    if (bootPhase !== 'done') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('cmd') === 'techopshero') {
+      setGameOpen(true);
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+    }
+  }, [bootPhase]);
+
   const addLine = useCallback((text: string, className?: string) => {
     setLines((prev) => [...prev, { text, className }]);
   }, []);
