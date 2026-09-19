@@ -286,9 +286,11 @@ export default function AsciiCityWorld(){
 
   const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch);
     const cfg=SCENES[scene],royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
+    const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
+    const syncPulse=.72+.28*Math.abs(Math.sin(syncTime*3.15));
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
       if(y<hor){
-        const weather=(x*17+y*7+Math.floor(time*(scene==='winter'?18:34)))%67===0,star=(x*41+y*13)%257===0;
+        const weather=(x*17+y*7+syncStep)%67===0,star=(x*41+y*13+Math.floor(syncTime))%257===0;
         if(royal){
           const rib=((x+y*2)%17===0)||(Math.abs((x%28)-14)-Math.floor((hor-y)*.18)===0);
           chars[y][x]=rib?(x%2?'╲':'╱'):weather?'│':star?'·':' ';
@@ -299,7 +301,7 @@ export default function AsciiCityWorld(){
           if(inTower){
             const edge=x%5===0||x%5===4,lit=((x+y+block)%7===0);
             chars[y][x]=edge?'│':lit?'▫':'▓';
-            colors[y][x]=lit?cfg.neon:dim(cfg.wall,.42);
+            colors[y][x]=lit?dim(cfg.neon,syncPulse):dim(cfg.wall,.42);
           }else{
             chars[y][x]=weather?cfg.weather:star?'·':' ';
             colors[y][x]=weather?cfg.weatherColor:cfg.sky;
@@ -310,7 +312,7 @@ export default function AsciiCityWorld(){
         if(royal){
           chars[y][x]=chk?'◇':'·'; colors[y][x]=chk?'#31243d':'#1a1421';
         }else{
-          const puddle=((x*5+y*3+Math.floor(time*2))%19)<3;
+          const puddle=((x*5+y*3+syncStep)%19)<3;
           chars[y][x]=puddle?(scene==='dark'?'░':'≈'):scene==='autumn'?(chk?',':'·'):scene==='winter'?(chk?'·':'_'):scene==='light'?(chk?'·':'+'):(chk?'·':'░');
           colors[y][x]=puddle?dim(cfg.neon,.52):(chk?cfg.floorA:cfg.floorB);
         }
@@ -334,7 +336,9 @@ export default function AsciiCityWorld(){
         else if(hit.tile==='C') glyph=((x+y)%7===0)?'▣':'▓';
         else if(DOOR_SCENE[hit.tile]) glyph=(y===Math.round((top+bot)/2))?hit.tile:((x+y)%3===0?'◇':'▓');
         else if(hit.tile==='N') glyph=((y-top)%4===1)?(((x+hit.ix)%4===0)?'▣':'▫'):'▓';
+        else if(hit.tile==='V') glyph=(y===Math.round((top+bot)/2))?'⚑':((x+y)%4===0?'▰':'▓');
         else if(hit.tile==='#') glyph=((y-top)%5===1&&((x+hit.ix+hit.iy)%5===0))?'▪':((y-top)%7===0?'─':glyph);
+        if(!gothic&&hit.tile!=='V') glyph=sceneWallGlyph(scene,hit.ix,hit.iy,x,y,top,bot,syncTime,glyph);
         chars[y][x]=glyph;
         colors[y][x]=hit.side?dim(base,.70):base;
       }
@@ -344,14 +348,14 @@ export default function AsciiCityWorld(){
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(!royal){
       const movers=[
-        {x:Math.floor(((time*9)% (cols+24))-12),y:Math.max(1,hor-8),txt:'<DRONE-07>',c:'#00ffff'},
-        {x:Math.floor(cols-((time*6)% (cols+20))+10),y:Math.max(2,hor-4),txt:'==AIR.TAXI==>',c:'#ff3bd4'},
-        {x:Math.floor(((time*4)% (cols+30))-15),y:Math.min(rows-2,hor+5),txt:'[NIGHT BUS]',c:cfg.accent}
+        {x:Math.floor(((syncTime*9)% (cols+24))-12),y:Math.max(1,hor-8),txt:'<DRONE-07>',c:'#00ffff'},
+        {x:Math.floor(cols-((syncTime*6)% (cols+20))+10),y:Math.max(2,hor-4),txt:'==AIR.TAXI==>',c:'#ff3bd4'},
+        {x:Math.floor(((syncTime*4)% (cols+30))-15),y:Math.min(rows-2,hor+5),txt:'[NIGHT BUS]',c:cfg.accent}
       ];
       for(const m of movers)for(let q=0;q<m.txt.length;q++){const xx=m.x+q,yy=m.y;if(xx>=0&&xx<cols&&yy>=0&&yy<rows&&zb[Math.max(0,Math.min(cols-1,xx))]>5){chars[yy][xx]=m.txt[q];colors[yy][xx]=m.c;}}
     }
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
-    const hit=phase.current==='explore'?cast(cc.x,cc.y,Math.cos(cc.ang),Math.sin(cc.ang),3.2):null;const door=hit?DOOR_SCENE[hit.tile]:undefined;target.current=hit&&hit.dist<2.65&&hit.tile==='C'?{kind:'console'}:hit&&hit.dist<2.4&&hit.tile==='A'?{kind:'relic'}:hit&&hit.dist<2.8&&door?{kind:'door',scene:door}:null;if(time-lastHud.current>.12){lastHud.current=time;const prompt=target.current?.kind==='console'?'[E] SIT AT K TERMINAL':target.current?.kind==='relic'?'[E] INSPECT SIGNAL RELIC':target.current?.kind==='door'&&target.current.scene?'[E] ENTER '+target.current.scene.toUpperCase()+' // '+SCENES[target.current.scene].label:null;setHud({area:area(cc.x,cc.y,scene),prompt,fps,x:cc.x,y:cc.y,ang:cc.ang});}},[scene]);
+    const hit=phase.current==='explore'?cast(cc.x,cc.y,Math.cos(cc.ang),Math.sin(cc.ang),3.2):null;const door=hit?DOOR_SCENE[hit.tile]:undefined;target.current=hit&&hit.dist<2.65&&hit.tile==='C'?{kind:'console'}:hit&&hit.dist<2.4&&hit.tile==='A'?{kind:'relic'}:hit&&hit.dist<2.8&&door?{kind:'door',scene:door}:hit&&hit.dist<2.8&&hit.tile==='V'?{kind:'car'}:null;if(time-lastHud.current>.12){lastHud.current=time;const prompt=vehicleRef.current?'[E] EXIT K//DRIVE':target.current?.kind==='console'?'[E] SIT AT K TERMINAL':target.current?.kind==='relic'?'[E] INSPECT SIGNAL RELIC':target.current?.kind==='car'?'[E] ENTER K//DRIVE · ⚑ FLAG':target.current?.kind==='door'&&target.current.scene?'[E] ENTER '+target.current.scene.toUpperCase()+' // '+SCENES[target.current.scene].label:null;setHud({area:area(cc.x,cc.y,scene),prompt,fps,x:cc.x,y:cc.y,ang:cc.ang});}},[scene]);
 
   useEffect(()=>{let raf=0,last=performance.now(),ff=0,clock=0,fps=0;const frame=(now:number)=>{raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;ff++;clock+=dt;if(clock>=.5){fps=Math.round(ff/clock);ff=0;clock=0;}const c=cam.current;if(phase.current==='explore'&&booted){const k=keys.current;let fw=0,st=0;if(k.w||k.arrowup)fw++;if(k.s||k.arrowdown)fw--;if(k.a)st--;if(k.d)st++;if(touchMove.current.id!==-1){fw-=touchMove.current.dy;st+=touchMove.current.dx;}if(k.arrowleft)c.ang-=1.8*dt;if(k.arrowright)c.ang+=1.8*dt;const sp=(k.shift?3.7:2.55)*dt,dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=.24;if(!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x+=mx;if(!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y+=my;}if(phase.current==='sitting'||phase.current==='standing'){anim.current=Math.min(1,anim.current+dt/.72);const e=anim.current,sm=e*e*(3-2*e),from=seatFrom.current,to={x:SEAT.x,y:SEAT.y,ang:SEAT.a,h:1.2},aa=phase.current==='sitting'?from:to,bb=phase.current==='sitting'?to:from,da=norm(bb.ang-aa.ang);c.x=aa.x+(bb.x-aa.x)*sm;c.y=aa.y+(bb.y-aa.y)*sm;c.ang=aa.ang+da*sm;c.height=aa.h+(bb.h-aa.h)*sm;c.pitch*=1-sm;if(e>=1){if(phase.current==='sitting'){phase.current='seated';setTerminal(true);termRef.current=true;}else phase.current='explore';}}if(now-lastPaint.current>32){lastPaint.current=now;draw(now/1000,fps);}};raf=requestAnimationFrame(frame);return()=>cancelAnimationFrame(raf);},[booted,draw]);
   const map=useMemo(()=>mini(hud.x,hud.y,hud.ang),[hud.x,hud.y,hud.ang]);
