@@ -33,12 +33,17 @@ The research portfolio is grounded in production operations: incident ownership,
 ## Supporting Public Projects
 
 - **TechOps Hero** — public product-engineering and runtime-QA testbed: https://github.com/ninja-ops-guy/techops-hero
-- **Red-Team CTF Harness** — bounded agent-security experimentation: https://github.com/ninja-ops-guy/ctf-redteam-harness
 - **CIC / SAT Research** — complexity and formal-reasoning exploration: https://github.com/ninja-ops-guy/cic-p-vs-np-research
 - **LDD-Kit** — reusable engineering tooling: https://github.com/ninja-ops-guy/LDD-Kit
 - **Streetfighter for Vector** — robotics/game experiment: https://github.com/ninja-ops-guy/streetfighter-for-vector
 
 ## Private / Pre-Release Work
+
+### Red-Team CTF Harness
+
+A private security R&D testbed for bounded agent execution, replayable reasoning, benchmarkable solvers, and defensive telemetry. The public portfolio exposes a sanitized case study without presenting the private repository as public evidence.
+
+- Status: **Active R&D / private**
 
 ### Vector / WirePod — Embodied AI / Verified Robot Control
 
