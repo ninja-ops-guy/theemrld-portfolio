@@ -530,6 +530,10 @@ export default function KTerminal({
   const lastAutoZoneRef = useRef<KAudioZone | undefined>(undefined);
   const zoneIndexRef = useRef(0);
   const autoAdvanceRef = useRef<(() => void) | null>(null);
+  const pendingZoneRef = useRef<KAudioZone | null>(null);
+  const activeZoneRef = useRef<KAudioZone | undefined>(worldAudioZone);
+  const currentTrackUrlRef = useRef('');
+  const loadGenerationRef = useRef(0);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [bootPhase, setBootPhase] = useState<'booting' | 'done'>('booting');
@@ -551,6 +555,7 @@ export default function KTerminal({
   const [visualizerFps, setVisualizerFps] = useState(20);
   const [bandEnabled, setBandEnabled] = useState(true);
   const [autoDj, setAutoDj] = useState(true);
+  const [pendingZone, setPendingZone] = useState<KAudioZone | null>(null);
   const [asciiTick, setAsciiTick] = useState(0);
   const [ritualEnabled, setRitualEnabled] = useState(true);
   const [ritualIntensity, setRitualIntensity] = useState(72);
@@ -558,6 +563,7 @@ export default function KTerminal({
 
   useEffect(() => { autoDjRef.current = autoDj; }, [autoDj]);
   useEffect(() => { zoneRef.current = worldAudioZone; }, [worldAudioZone]);
+  useEffect(() => { currentTrackUrlRef.current = currentTrack?.url || ''; }, [currentTrack?.url]);
 
   const bootIndexRef = useRef(0);
   const STORAGE_KEY = 'k-terminal:tracks:v3';
@@ -726,9 +732,12 @@ export default function KTerminal({
 
     widget.bind(SC.Widget.Events.FINISH, () => {
       setIsPlaying(false);
-      setAudioStatus('STOPPED');
+      setAudioStatus('FINISHED');
       stopVisualizer();
-      if (autoDjRef.current && zoneRef.current && autoAdvanceRef.current) {
+      // Sequential audio invariant: a world/room change is queued while a song
+      // is playing and may only take effect after FINISH. There is one widget,
+      // one active track, and no crossfade/overlap path.
+      if (autoDjRef.current && autoAdvanceRef.current) {
         autoAdvanceRef.current();
       } else {
         addLine('Track finished. Type "next" to continue or "list" to choose another.', 'warning');
@@ -744,11 +753,12 @@ export default function KTerminal({
   // iframe/widget instance so a user's click remains the playback gesture.
   const initSoundCloud = useCallback((url: string, shouldAutoPlay = true) => {
     if (!widgetRef.current) return;
+    const generation = ++loadGenerationRef.current;
 
     const SC = (window as any).SC;
     if (!SC || !SC.Widget) {
       addLine('<span class="tc-warning">[WARN]</span> SoundCloud API loading... retrying...');
-      window.setTimeout(() => initSoundCloud(url), 500);
+      window.setTimeout(() => { if (generation === loadGenerationRef.current) initSoundCloud(url, shouldAutoPlay); }, 500);
       return;
     }
 
@@ -765,6 +775,7 @@ export default function KTerminal({
         show_reposts: false,
         visual: false,
         callback: () => {
+          if (generation !== loadGenerationRef.current) return;
           widget.setVolume(volume);
           if (shouldAutoPlay) widget.play();
           else widget.pause();
@@ -865,20 +876,25 @@ export default function KTerminal({
   }, [currentTrack, startVisualizer, updateProgressUI]);
 
   const playWorldTrack = useCallback((track: KAudioTrack, index: number, shouldAutoPlay: boolean) => {
+    if (currentTrackUrlRef.current === track.url && (isPlaying || playbackPositionRef.current > 0)) return;
     const t: Track = { id: 7000 + index, url: track.url, title: track.title, duration: 0, plays: 0 };
+    currentTrackUrlRef.current = track.url;
     setCurrentTrack(t);
     setProgress(0);
     setPlaybackPositionMs(0);
     setTimeDisplay('00:00 / 00:00');
     setAudioStatus(shouldAutoPlay ? 'LOADING' : 'PAUSED');
     initSoundCloud(track.url, shouldAutoPlay);
-  }, [initSoundCloud]);
+  }, [initSoundCloud, isPlaying]);
 
   const playZone = useCallback((zone: KAudioZone, index = 0, forcePlay = false) => {
     const playlist = K_ZONE_PLAYLISTS[zone] || [];
     if (!playlist.length) return;
     const nextIndex = ((index % playlist.length) + playlist.length) % playlist.length;
     zoneIndexRef.current = nextIndex;
+    activeZoneRef.current = zone;
+    pendingZoneRef.current = null;
+    setPendingZone(null);
     const shouldAutoPlay = forcePlay || !pausedByUserRef.current;
     playWorldTrack(playlist[nextIndex], nextIndex, shouldAutoPlay);
     addLine(`<span class="tc-cyan">[AUTO DJ]</span> ${K_ZONE_LABELS[zone]} → ${playlist[nextIndex].title}`);
@@ -886,8 +902,14 @@ export default function KTerminal({
 
   useEffect(() => {
     autoAdvanceRef.current = () => {
-      const zone = zoneRef.current;
-      if (!zone || !autoDjRef.current) return;
+      if (!autoDjRef.current) return;
+      const queued = pendingZoneRef.current;
+      if (queued) {
+        playZone(queued, 0, true);
+        return;
+      }
+      const zone = activeZoneRef.current || zoneRef.current;
+      if (!zone) return;
       const playlist = K_ZONE_PLAYLISTS[zone] || [];
       if (!playlist.length) return;
       const next = (zoneIndexRef.current + 1) % playlist.length;
@@ -900,9 +922,21 @@ export default function KTerminal({
     if (lastAutoZoneRef.current === worldAudioZone) return;
     lastAutoZoneRef.current = worldAudioZone;
     zoneRef.current = worldAudioZone;
+
+    const hasActiveTrack = Boolean(currentTrackUrlRef.current);
+    const trackInProgress = hasActiveTrack && audioStatus !== 'FINISHED' && audioStatus !== 'STOPPED' && progress < 99.5;
+    if (trackInProgress) {
+      // Last destination wins. Moving through several rooms while one song plays
+      // never stacks players or interrupts playback.
+      pendingZoneRef.current = worldAudioZone;
+      setPendingZone(worldAudioZone);
+      setAudioStatus((status) => status === 'PLAYING' ? 'PLAYING' : status);
+      return;
+    }
+
     zoneIndexRef.current = 0;
     playZone(worldAudioZone, 0, false);
-  }, [worldAudioArmed, worldAudioZone, autoDj, playZone]);
+  }, [worldAudioArmed, worldAudioZone, autoDj, playZone, audioStatus, progress]);
 
   useEffect(() => {
     onAudioState?.({
@@ -933,7 +967,8 @@ export default function KTerminal({
   <span class="tc-command">auto on|off</span>       - Scene-synced K Terminal Auto DJ
   <span class="tc-command">zone</span>              - Show current world audio zone
   <span class="tc-command">songs</span>             - Show Auto DJ songs for current zone
-  <span class="tc-command">nowplaying</span>        - Show K Terminal audio authority state
+  <span class="tc-command">nowplaying</span>        - Show active song + queued room
+  <span class="tc-command">skip</span>              - End current song now and play queued room
   <span class="tc-command">pause</span>             - Pause current track
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
@@ -1087,7 +1122,19 @@ export default function KTerminal({
 MODE: ${autoDj ? 'AUTO DJ / SCENE SYNC' : 'MANUAL'}
 ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}
 TRACK: ${currentTrack?.title || 'NONE'}
-STATUS: ${audioStatus}`);
+STATUS: ${audioStatus}
+NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG PLAYS TO END'}`);
+        break;
+      }
+
+      case 'skip': {
+        if (!scWidgetRef.current) { addLine('Error: No track loaded', 'error'); break; }
+        try { scWidgetRef.current.pause(); scWidgetRef.current.seekTo(0); } catch (_) {}
+        setIsPlaying(false);
+        setAudioStatus('FINISHED');
+        stopVisualizer();
+        if (autoDjRef.current && autoAdvanceRef.current) autoAdvanceRef.current();
+        addLine('<span class="tc-cyan">[SKIP]</span> Advanced to the queued room/next song.');
         break;
       }
 
@@ -1236,7 +1283,9 @@ Volume: ${volume}%
 Playlist: ${tracks.length} track(s)
 Audio Authority: K Terminal
 Mode: ${autoDj ? 'AUTO DJ' : 'MANUAL'}
-Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
+Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}
+Queued Room: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'none'}
+Sequential Playback: ON (no overlap)`);
         break;
       }
 
@@ -1275,7 +1324,7 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, playZone]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, playZone, pendingZone]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -1411,7 +1460,7 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
               [&larr; PORTFOLIO]
             </Link>
             <div className="kt-status">
-              [SYSTEM: ONLINE] [AUTO DJ: ${autoDj ? 'ON' : 'OFF'}] [ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}] [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
+              [SYSTEM: ONLINE] [AUTO DJ: ${autoDj ? 'ON' : 'OFF'}] [ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}]${pendingZone ? ` [NEXT: ${K_ZONE_LABELS[pendingZone]}]` : ''} [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
             </div>
           </div>
         </div>
@@ -1519,7 +1568,7 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
           <div className="kt-progress-bar" style={{ width: `${progress}%` }} />
         </div>
         <div className="kt-track-info">
-          <span id="current-track">{currentTrack ? currentTrack.title.toUpperCase() : 'NO TRACK LOADED'}</span>
+          <span id="current-track">{currentTrack ? currentTrack.title.toUpperCase() : 'NO TRACK LOADED'}{pendingZone ? ` · NEXT: ${K_ZONE_LABELS[pendingZone]}` : ''}</span>
           <span id="time-display">{timeDisplay}</span>
         </div>
 
