@@ -14,7 +14,7 @@ const flagships: Project[] = [
   },
   {
     title:'RESIDUAL', category:'AI SECURITY RESEARCH / VERIFICATION HARNESS', status:'PUBLIC R&D · ACTIVE', tone:'research',
-    thesis:'I am testing a systems-level hypothesis: reliable AI does not necessarily require reliable individual models. RESIDUAL treats every worker as untrusted computation, then moves authority into contracts, evidence, independent verification, and deterministic integration.',
+    thesis:'I started RESIDUAL because I did not want to trust an agent just because it sounded confident or said its work passed. The project assumes workers will sometimes be wrong, then puts contracts, evidence, verification, and deterministic integration around them.',
     claimState:'IMPLEMENTED / ACTIVE EVALUATION', evidence:['Core harness + Command Station + Mission Control / WebVM + Factory M2/M3/M4','Obligation DAGs, bounded workers, evidence receipts, independent verification, deterministic integration','Framework-agnostic residual-sdk with hash-chained SQLite attestations','LangChain + CrewAI adapters bound to a shared conformance suite','Local/cloud heterogeneous DAG experiments retain both PASS and FAIL evidence','PASS / FAIL / UNKNOWN / BLOCKED honest accounting, no score-washing'],
     primitive:'Constrain → observe → verify → deterministically integrate', caseStudy:'/case-study/residual', github:'https://github.com/ninja-ops-guy/residual-agent-harness'
   },
