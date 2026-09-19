@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import KTerminal, { type KWorldScene } from './KTerminal';
+import KWorldAudio, { type KSoundtrackTrack } from './KWorldAudio';
 
 type Phase = 'explore' | 'sitting' | 'seated' | 'standing';
 type Cam = { x:number; y:number; ang:number; pitch:number; height:number };
@@ -14,17 +15,105 @@ const OUTSIDE={x:24.5,y:17.45,a:Math.PI/2};
 const FONT='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 
 type SceneId=KWorldScene;
-type SceneConfig={label:string;era:string;accent:string;sky:string;haze:string;floorA:string;floorB:string;wall:string;neon:string;weather:string;weatherColor:string;wallChars:[string,string,string]};
+type SceneConfig={label:string;era:string;motifs:string;accent:string;sky:string;haze:string;floorA:string;floorB:string;wall:string;neon:string;weather:string;weatherColor:string;wallChars:[string,string,string]};
 const SCENES:Record<SceneId,SceneConfig>={
-  spring:{label:'VERNAL COURT',era:'ROYAL GOTHIC → CYBER SPRING',accent:'#a7ff9b',sky:'#160d25',haze:'#7d4cff',floorA:'#193124',floorB:'#10251d',wall:'#4e566c',neon:'#9effbe',weather:'·',weatherColor:'#8dffad',wallChars:['▓','▒','░']},
-  summer:{label:'SOLAR CLOISTER',era:'ROYAL GOTHIC → SOLAR CITY',accent:'#ffd166',sky:'#120c21',haze:'#ff3bd4',floorA:'#263329',floorB:'#121f1b',wall:'#42536a',neon:'#00ffff',weather:'|',weatherColor:'#ffca58',wallChars:['█','▓','▒']},
-  autumn:{label:'RUST PROCESSIONAL',era:'ROYAL GOTHIC → BRUTALIST DECAY',accent:'#ff9b42',sky:'#1b0d0a',haze:'#7a281b',floorA:'#3a2419',floorB:'#241711',wall:'#604334',neon:'#ff7a33',weather:',',weatherColor:'#d98845',wallChars:['▓','▒','░']},
-  winter:{label:'WHITEOUT GRID',era:'ROYAL GOTHIC → POSTMODERN COLLAPSE',accent:'#d8ecff',sky:'#07111c',haze:'#8bb9df',floorA:'#253445',floorB:'#152330',wall:'#667587',neon:'#a9e7ff',weather:'*',weatherColor:'#d8ecff',wallChars:['□','▒','·']},
-  light:{label:'LUMEN ARCOLOGY',era:'ROYAL GOTHIC → POSTMODERN LIGHT',accent:'#fff0a8',sky:'#07161b',haze:'#d9fff6',floorA:'#284143',floorB:'#173034',wall:'#71878a',neon:'#fff0a8',weather:'+',weatherColor:'#effff9',wallChars:['□','▫','·']},
-  dark:{label:'BLACKOUT WASTELAND',era:'ROYAL GOTHIC → POST-APOCALYPTIC DARK',accent:'#ff3b59',sky:'#050208',haze:'#53102b',floorA:'#1f1118',floorB:'#11090e',wall:'#332532',neon:'#ff315f',weather:'/',weatherColor:'#7b203b',wallChars:['█','▓','·']}
+  spring:{label:'VERNAL COURT',era:'ROYAL GOTHIC → CYBER SPRING',motifs:'POINTED ARCHES · ROSE WINDOWS · IVY · HERALDRY',accent:'#a7ff9b',sky:'#160d25',haze:'#7d4cff',floorA:'#193124',floorB:'#10251d',wall:'#4e566c',neon:'#9effbe',weather:'·',weatherColor:'#8dffad',wallChars:['▓','▒','░']},
+  summer:{label:'SOLAR CLOISTER',era:'ROYAL GOTHIC → SOLAR CITY',motifs:'SUNBURSTS · ARCADES · FOUNTAINS · STAINED GLASS',accent:'#ffd166',sky:'#120c21',haze:'#ff3bd4',floorA:'#263329',floorB:'#121f1b',wall:'#42536a',neon:'#00ffff',weather:'|',weatherColor:'#ffca58',wallChars:['█','▓','▒']},
+  autumn:{label:'RUST PROCESSIONAL',era:'ROYAL GOTHIC → BRUTALIST DECAY',motifs:'BRUTALIST SLABS · EXPOSED REBAR · OXIDE · LEAF DRIFT',accent:'#ff9b42',sky:'#1b0d0a',haze:'#7a281b',floorA:'#3a2419',floorB:'#241711',wall:'#604334',neon:'#ff7a33',weather:',',weatherColor:'#d98845',wallChars:['▓','▒','░']},
+  winter:{label:'WHITEOUT GRID',era:'ROYAL GOTHIC → POSTMODERN COLLAPSE',motifs:'FRACTURED GLASS · ICICLES · SNOW FENCES · BARE LATTICE',accent:'#d8ecff',sky:'#07111c',haze:'#8bb9df',floorA:'#253445',floorB:'#152330',wall:'#667587',neon:'#a9e7ff',weather:'*',weatherColor:'#d8ecff',wallChars:['□','▒','·']},
+  light:{label:'LUMEN ARCOLOGY',era:'ROYAL GOTHIC → POSTMODERN LIGHT',motifs:'SOLAR FINS · WHITE GRID · SKY GARDENS · CIVIC ATRIA',accent:'#fff0a8',sky:'#07161b',haze:'#d9fff6',floorA:'#284143',floorB:'#173034',wall:'#71878a',neon:'#fff0a8',weather:'+',weatherColor:'#effff9',wallChars:['□','▫','·']},
+  dark:{label:'BLACKOUT WASTELAND',era:'ROYAL GOTHIC → POST-APOCALYPTIC DARK',motifs:'COLLAPSED GANTRIES · ASH · DEAD NEON · FIRE BARRELS',accent:'#ff3b59',sky:'#050208',haze:'#53102b',floorA:'#1f1118',floorB:'#11090e',wall:'#332532',neon:'#ff315f',weather:'/',weatherColor:'#7b203b',wallChars:['█','▓','·']}
 };
 const DOOR_SCENE:Record<string,SceneId>={'1':'spring','2':'summer','3':'autumn','4':'winter','5':'light','6':'dark'};
 const DOOR_COLOR:Record<string,string>={'1':'#a7ff9b','2':'#ffd166','3':'#ff9b42','4':'#d8ecff','5':'#fff0a8','6':'#ff3b59'};
+
+type Billboard={x:number;y:number;t:string[];c:string};
+
+const TRACKS={
+  galleryReturn:{title:'My Song 4DADNM Aggressive',url:'https://soundcloud.com/raikouno/my-song-4dadnm-aggressive'},
+  city:{title:'Maybe',url:'https://soundcloud.com/raikouno/maybe-mp3'},
+  spring:{title:'Ponderthought',url:'https://soundcloud.com/raikouno/ponderthought'},
+  winter1:{title:'Winter',url:'https://soundcloud.com/raikouno/winter-mp3'},
+  winter2:{title:'Winter 2',url:'https://soundcloud.com/raikouno/winter-2-mp3'},
+  dreamer:{title:'I Was A Dreamer Once Too',url:'https://soundcloud.com/raikouno/i-was-a-dreamer-once-too-mp3'},
+  summer1:{title:"When It's All Done (Minor Dream Mix)",url:'https://soundcloud.com/raikouno/when-its-all-done-minor-1'},
+  summer2:{title:'Star Struck Blue',url:'https://soundcloud.com/raikouno/star-struck-blue'},
+  summer3:{title:'Lovesick',url:'https://soundcloud.com/raikouno/lovesick-1-wav'},
+  autumn1:{title:'Hot Sauce',url:'https://soundcloud.com/raikouno/hot-sauce-mp3'},
+  autumn2:{title:'Gandala 3',url:'https://soundcloud.com/raikouno/gandala-3'},
+  galleryDeep:{title:'God Hands',url:'https://soundcloud.com/raikouno/god-hands-mp3'},
+  car:{title:'Flag',url:'https://soundcloud.com/raikouno/flag-mp3'},
+  dark:{title:'I See The Dead',url:'https://soundcloud.com/raikouno/i-see-the-dead-mp3'},
+  ambient1:{title:'Alien Superstar',url:'https://soundcloud.com/raikouno/alien-superstar-mp3'},
+  ambient2:{title:'G-13',url:'https://soundcloud.com/raikouno/g-13'},
+  flight:{title:'Mirror Plane (Autotuned Rage)',url:'https://soundcloud.com/raikouno/mirror-plane-autotuned-rage'}
+} satisfies Record<string,KSoundtrackTrack>;
+
+const SCENE_PLAYLISTS:Record<SceneId,KSoundtrackTrack[]>={
+  spring:[TRACKS.spring],
+  summer:[TRACKS.summer1,TRACKS.summer2,TRACKS.summer3],
+  autumn:[TRACKS.autumn1,TRACKS.autumn2],
+  winter:[TRACKS.winter1,TRACKS.winter2,TRACKS.dreamer],
+  light:[TRACKS.ambient1,TRACKS.ambient2],
+  dark:[TRACKS.dark]
+};
+const AMBIENT_PLAYLIST=[TRACKS.ambient1,TRACKS.ambient2];
+const cuePlaylist=(cue:string,scene:SceneId):KSoundtrackTrack[]=>{
+  if(cue==='gallery-return')return[TRACKS.galleryReturn];
+  if(cue==='city')return[TRACKS.city];
+  if(cue==='gallery-deep')return[TRACKS.galleryDeep];
+  if(cue==='car')return[TRACKS.car];
+  if(cue==='flight')return[TRACKS.flight];
+  if(cue==='ambient')return AMBIENT_PLAYLIST;
+  return SCENE_PLAYLISTS[scene];
+};
+
+const GALLERY_MOTIFS:Billboard[]=[
+  {x:24,y:10.4,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','    ╲  ╱  │  ╲  ╱','     ╲___♛___╱','      ROSE WINDOW'],c:'#b86bff'},
+  {x:16.5,y:8.2,t:['    ╱╲','   ╱  ╲','  ╱ ♜  ╲',' ╱______╲',' │  ║║  │',' ╰──╨╨──╯','POINTED ARCH'],c:'#d892ff'},
+  {x:31.5,y:8.2,t:['╔═══♛═══╗','║  K//  ║','║ EMRLD ║','╚═══╤═══╝',' HERALDRY'],c:'#a87cff'},
+  {x:17,y:13.5,t:['╔══════════╗','║ ART WALL ║','║ SLOT // A║','║ COVER ART║','║  PENDING ║','╚══════════╝'],c:'#00ffff'},
+  {x:31,y:13.5,t:['╔══════════╗','║ ART WALL ║','║ SLOT // B║','║ COVER ART║','║  PENDING ║','╚══════════╝'],c:'#ff3bd4'}
+];
+
+const LANDMARKS:Record<SceneId,Billboard[]>={
+  spring:[
+    {x:18,y:19.2,t:['     ❧   ❧','   ╭───────╮','  ╱  ╲ ✥ ╱  ╲',' ╱____╲│╱____╲',' │ ♛   ◎   ♛ │',' ╰─╨───┴───╨─╯','VERNAL GATE'],c:'#a7ff9b'},
+    {x:31,y:22.0,t:['   ╭─❀─╮',' ╭─╯ ║ ╰─╮',' │  ≈╬≈  │',' │ ≈╬╬╬≈ │',' ╰──╥╥╥──╯','FOUNTAIN'],c:'#78ffd1'},
+    {x:14.5,y:27.5,t:['❧❧ IVY WALK ❧❧','│╲│╱│╲│╱│╲│','│ ❧ │ ❀ │ ❧│','╰───╧───╧──╯'],c:'#6dff78'},
+    {x:34,y:31.5,t:['╔══ HOUSE K ══╗','║ ♜ ♛ ✥ ♜    ║','╚════╤════════╝','HERALDIC COURT'],c:'#c4a0ff'}
+  ],
+  summer:[
+    {x:24,y:19.2,t:['      ╲ │ ╱','    ─── ☼ ───','      ╱ │ ╲','  ╭──────────╮','  │SOLAR NAVE│','  ╰──────────╯'],c:'#ffd166'},
+    {x:14,y:24.5,t:['╭─╮ ╭─╮ ╭─╮','│ │ │ │ │ │','╰─╯ ╰─╯ ╰─╯','ARCADE WALK'],c:'#ffe68a'},
+    {x:34,y:25.2,t:['  ╭────╮','╭─╯ ☼☼ ╰─╮','│ ≈≈╬≈≈ │','╰──╥╥───╯','SUN FOUNTAIN'],c:'#00ffff'},
+    {x:22,y:32.0,t:['╱╲╱╲╱╲╱╲╱╲','╲╱╲╱╲╱╲╱╲╱','STAINED GLASS'],c:'#ff76df'}
+  ],
+  autumn:[
+    {x:17,y:20.2,t:['████████████','██  ██  ████','██  ██  ████','████████████','╫╫  ╫╫  ╫╫','BRUTAL BLOCK'],c:'#c96b35'},
+    {x:33,y:23.4,t:['╫  ╫   ╫  ╫','╫╲ ╫ ╱ ╫╲ ╫','╫ ╲╫╱  ╫ ╲╫','╫  ╳   ╫  ╫','EXPOSED REBAR'],c:'#a9552b'},
+    {x:14,y:30,t:['>>> WARNING >>>','OXIDE ZONE 04','/////\\\\','LEAF DRIFT ,,,'],c:'#ff9b42'},
+    {x:34,y:32,t:['┌───────────┐','│ K//WORKS  │','│   CLOSED  │','└─────╥─────┘',' , ,  ║ , ,'],c:'#e7823f'}
+  ],
+  winter:[
+    {x:17,y:19.7,t:['      ✧','    ╱╲╱╲','  ╱╲╱◇╲╱╲',' ╲╱╲╱╲╱╲╱',' ICE SPIRE'],c:'#d8ecff'},
+    {x:33,y:23.5,t:['╲   │   ╱',' ╲  │  ╱','──╲─◇─╱──',' ╱  │  ╲','FRACTURED GLASS'],c:'#a9e7ff'},
+    {x:14,y:30.2,t:['||||||||||||','|*|*|*|*|*|','||||||||||||','SNOW FENCE'],c:'#c5d8e8'},
+    {x:34,y:32,t:['╭─────────╮','│ FROZEN  │','│ TRANSIT │','╰─┬─┬─┬───╯','  * * *'],c:'#8bb9df'}
+  ],
+  light:[
+    {x:17,y:19.5,t:['    ╱│╲','   ╱ │ ╲','  ╱  ◇  ╲',' ╱___│___╲',' │ □ □ □ │','LUMEN TOWER'],c:'#fff0a8'},
+    {x:33,y:23.0,t:['╭──────────╮','│SKY GARDEN│','│ ❀  ❧  ❀ │','╰────┬─────╯','     │'],c:'#b8ffd8'},
+    {x:14,y:30,t:['╱╲ ╱╲ ╱╲ ╱╲','☼  ☼  ☼  ☼','╲╱ ╲╱ ╲╱ ╲╱','SOLAR FINS'],c:'#ffe16a'},
+    {x:34,y:32,t:['╔══════════╗','║ CIVIC    ║','║ ATRIUM   ║','║ □ ◇ □ ◇  ║','╚══════════╝'],c:'#effff9'}
+  ],
+  dark:[
+    {x:17,y:19.5,t:['____/╲________','   /  ╲__','__/      ╲____',' COLLAPSED','  GANTRY'],c:'#7c3547'},
+    {x:33,y:23.2,t:['   (^^)','  (####)','   ╲__/','    │','   ╱_╲','FIRE BARREL'],c:'#ff5a32'},
+    {x:14,y:30,t:['┌──────────┐','│ N E O N  │','│  D E A D │','└────╲─────┘','      ╲'],c:'#ff315f'},
+    {x:34,y:32,t:['    ╳','   ╱│╲','  ╱ │ ╲',' ╱__│__╲','  ASH MAST'],c:'#6e2639'}
+  ]
+};
 
 function makeMap(){
   const rep=(c:string,n:number)=>c.repeat(n);
@@ -70,10 +159,13 @@ function makeMap(){
     rep('#',48),
     rep('#',48)
   ];
+  // Parked car in lower city plaza. Interact to enter K//DRIVE.
+  const carX=31,carY=35;
+  rows[carY]=rows[carY].slice(0,carX)+'V'+rows[carY].slice(carX+1);
   return rows;
 }
 const MAP=makeMap();
-const COLORS:Record<string,string>={'#':'#31394c',N:'#d73cff',S:'#8e8aa3',W:'#b86bff',G:'#69517e',A:'#d9a83e',C:'#00ff66',P:'#75529f',...DOOR_COLOR};
+const COLORS:Record<string,string>={'#':'#31394c',N:'#d73cff',S:'#8e8aa3',W:'#b86bff',G:'#69517e',A:'#d9a83e',C:'#00ff66',P:'#75529f',V:'#00d9ff',...DOOR_COLOR};
 const SIGNS=[
   {x:15.8,y:15.4,t:['╔══════════════╗','║ K//THE EMRLD ║','╚══════════════╝'],c:'#b86bff'},
   {x:24,y:17.8,t:['┌─────────────┐','│ TECHOPS//L3 │','│ QUEUE:015   │','└─────────────┘'],c:'#00ff66'},
@@ -129,7 +221,7 @@ function sceneWallGlyph(scene:SceneId,ix:number,iy:number,sx:number,sy:number,to
   }
 }
 function tile(x:number,y:number){const ix=Math.floor(x),iy=Math.floor(y);return ix<0||iy<0||ix>=W||iy>=H?'#':MAP[iy][ix];}
-function solid(x:number,y:number){return '#NSWGACP123456'.includes(tile(x,y));}
+function solid(x:number,y:number){return '#NSWGACPV123456'.includes(tile(x,y));}
 function cast(px:number,py:number,dx:number,dy:number,max=40):Hit{
   let mx=Math.floor(px),my=Math.floor(py),side=0;
   const ddx=Math.abs(1/(dx||1e-9)),ddy=Math.abs(1/(dy||1e-9));
@@ -148,7 +240,7 @@ function dim(hex:string,k:number){const h=hex.slice(1);const r=parseInt(h.slice(
 function area(x:number,y:number,scene:SceneId){if(y<6.2&&x>12&&x<36)return'THE APSE // TERMINAL ALCOVE';if(y<=15.8&&x>12&&x<36)return'K//GALLERY // ROYAL GOTHIC CATHEDRAL';const cfg=SCENES[scene];if(y<24)return'CATHEDRAL APPROACH // '+cfg.label;if(y<29)return'SECTOR 7 // BUSTLING CYBERPUNK CROSSING';return'LOWER CITY // '+cfg.label;}
 function mini(x:number,y:number,a:number){
   const w=19,h=9,px=Math.floor(x),py=Math.floor(y),dirs=['→','↘','↓','↙','←','↖','↑','↗'];const di=((Math.round(a/(Math.PI*2)*8)%8)+8)%8;const out:string[]=[];
-  for(let j=0;j<h;j++){let row='';for(let i=0;i<w;i++){if(i===(w>>1)&&j===(h>>1)){row+=dirs[di];continue;}const mx=px-(w>>1)+i,my=py-(h>>1)+j;if(mx<0||my<0||mx>=W||my>=H){row+=' ';continue;}const t=MAP[my][mx];row+=t==='#'?'▓':t==='N'?'▒':t==='S'?'╬':t==='W'?'◆':t==='G'?'╫':t==='C'?'▣':t==='A'?'■':t==='P'?'●':DOOR_SCENE[t]?'□':'·';}out.push(row);}return out.join('\n');
+  for(let j=0;j<h;j++){let row='';for(let i=0;i<w;i++){if(i===(w>>1)&&j===(h>>1)){row+=dirs[di];continue;}const mx=px-(w>>1)+i,my=py-(h>>1)+j;if(mx<0||my<0||mx>=W||my>=H){row+=' ';continue;}const t=MAP[my][mx];row+=t==='#'?'▓':t==='N'?'▒':t==='S'?'╬':t==='W'?'◆':t==='G'?'╫':t==='C'?'▣':t==='A'?'■':t==='P'?'●':t==='V'?'▰':DOOR_SCENE[t]?'□':'·';}out.push(row);}return out.join('\n');
 }
 
 const CSS='.kcity{position:fixed;inset:0;background:#04060c;color:#00ff66;font-family:'+FONT+';overflow:hidden}.kc-wrap{position:absolute;inset:0}.kc-wrap canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;image-rendering:pixelated}.kc-scan,.kc-vig{position:absolute;inset:0;pointer-events:none;z-index:8}.kc-scan{background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.28) 2px 4px);mix-blend-mode:multiply}.kc-vig{background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.62) 100%),radial-gradient(ellipse at 50% 110%,rgba(176,0,255,.09),transparent 55%)}.kc-hud{position:absolute;z-index:12;left:12px;top:12px;border:1px solid #00ff6644;background:#000b;padding:8px 10px;font-size:10px;line-height:1.45;max-width:min(440px,62vw)}.kc-hud b,.kc-hud span,.kc-hud small{display:block}.kc-hud b{color:#00ff91}.kc-hud span{color:#00d9ff}.kc-hud small{color:#46705c}.kc-map{position:absolute;z-index:12;right:12px;top:12px;margin:0;border:1px solid #00ff6633;background:#000c;padding:7px;color:#59736a;font:8px/.95 monospace}.kc-cross{position:absolute;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);color:#00ff6699;text-shadow:0 0 8px #00ff66}.kc-ctl{position:absolute;z-index:12;left:12px;bottom:12px;border:1px solid #00ff6633;background:#000b;padding:7px 9px;color:#4c8268;font-size:9px;line-height:1.45}.kc-ctl b{color:#00ff91}.kc-prompt,.kc-lock{position:absolute;z-index:13;left:50%;transform:translateX(-50%);background:#000d;font:10px monospace;letter-spacing:.14em;padding:8px 12px;cursor:pointer}.kc-prompt{bottom:82px;border:1px solid #00ff66;color:#bfffd8;box-shadow:0 0 20px #00ff6633}.kc-lock{bottom:31%;border:1px solid #00d9ff88;color:#00d9ff}.kc-note{position:absolute;z-index:14;left:50%;top:13%;transform:translateX(-50%);border:1px solid #00ff66;background:#020805ed;padding:8px 12px;color:#00ff91;font-size:9px;letter-spacing:.09em;text-align:center}.kc-boot{position:absolute;z-index:30;inset:0;background:#04060cf5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px}.kc-logo{font-size:clamp(34px,8vw,88px);letter-spacing:.12em;color:#b86bff;text-shadow:0 0 24px #8f4dff}.kc-boot pre{color:#00ff91;line-height:1.7;font-size:11px}.kc-boot button{background:#06030b;border:1px solid #00ff66;color:#00ff91;padding:11px 22px;font:11px monospace;letter-spacing:.22em;cursor:pointer;box-shadow:0 0 18px #00ff6633}.kc-terminal{position:absolute;inset:0;z-index:40;background:#000}.kc-terminal .kt-body{height:100dvh}@media(max-width:700px){.kc-hud{font-size:8px;left:6px;top:6px;padding:6px}.kc-map{right:6px;top:6px;font-size:6px}.kc-ctl{left:6px;bottom:6px;font-size:7px;max-width:72%}.kc-prompt{bottom:68px;font-size:8px}.kc-lock{bottom:26%;font-size:8px}.kc-note{top:18%;width:82%;font-size:8px}.kc-logo{font-size:34px}.kc-boot pre{font-size:9px}}';
