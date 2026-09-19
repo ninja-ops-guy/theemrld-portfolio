@@ -500,6 +500,12 @@ Playlist: ${tracks.length} track(s)`);
         break;
       }
 
+      case 'residual': {
+        window.open('https://ninja-ops-guy.github.io/residual-agent-harness/', '_blank', 'noopener,noreferrer');
+        addLine('<span class="tc-cyan">[RESIDUAL]</span> Opening interactive demo...');
+        break;
+      }
+
       case 'clear': {
         setLines([]);
         break;
