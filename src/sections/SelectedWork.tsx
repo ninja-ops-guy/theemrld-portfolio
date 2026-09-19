@@ -15,7 +15,7 @@ const flagships: Project[] = [
   {
     title:'RESIDUAL', category:'AI SECURITY RESEARCH / VERIFICATION HARNESS', status:'PUBLIC R&D · ACTIVE', tone:'research',
     thesis:'I am testing a systems-level hypothesis: reliable AI does not necessarily require reliable individual models. RESIDUAL treats every worker as untrusted computation, then moves authority into contracts, evidence, independent verification, and deterministic integration.',
-    claimState:'IMPLEMENTED / ACTIVE EVALUATION', evidence:['~90 red-team test modules: gateway bypass, sandbox escape, control-integrity subversion, timing-side-channel attacks','Obligation DAGs with dependency lineage + tamper-evident attestation chains','Quarantined tool calls: policy evaluation before execution, fail-closed','Deterministic sandboxing: seccomp, unprivileged, no-new-privileges, timing-side-channel resistant','Frozen worker contracts + bounded execution + evidence receipts','PASS / FAIL / UNKNOWN / BLOCKED honest accounting, no score-washing'],
+    claimState:'IMPLEMENTED / ACTIVE EVALUATION', evidence:['Core harness + Command Station + Mission Control / WebVM + Factory M2/M3/M4','Obligation DAGs, bounded workers, evidence receipts, independent verification, deterministic integration','Framework-agnostic residual-sdk with hash-chained SQLite attestations','LangChain + CrewAI adapters bound to a shared conformance suite','Local/cloud heterogeneous DAG experiments retain both PASS and FAIL evidence','PASS / FAIL / UNKNOWN / BLOCKED honest accounting, no score-washing'],
     primitive:'Constrain → observe → verify → deterministically integrate', caseStudy:'/case-study/residual', github:'https://github.com/ninja-ops-guy/residual-agent-harness'
   },
   {
@@ -23,6 +23,12 @@ const flagships: Project[] = [
     thesis:'I wanted to know whether a generated cyber plan could be checked like an engineering artifact instead of trusted because a planner produced it. This project is my attempt to make that practical.',
     claimState:'INTERNALLY BENCHMARKED', evidence:['SAT/SMT plan verification','Counterexample / MUS generation','Policy-aware planning','CyberPlanBench + proof artifacts'],
     primitive:'Verified planners · policy objects · plan proofs · counterexamples', caseStudy:'/case-study/verified-cyber-planning'
+  },
+  {
+    title:'Red-Team CTF Harness', category:'OFFENSIVE SECURITY / AGENT BENCHMARKING / DEFENSIVE TELEMETRY', status:'PUBLIC · ACTIVE', tone:'research',
+    thesis:'I built a bounded environment for testing how scripted and LLM-driven agents solve security challenges, then instrumented the same actions for detection, replay, audit integrity, and comparative benchmarking.',
+    claimState:'IMPLEMENTED / TESTABLE', evidence:['20 challenges across 12 security domains','Scripted + OpenAI-compatible / local-model solver abstraction','Bounded execution with namespace isolation, rlimits, environment scrubbing, and optional Firecracker path','HMAC-chained tamper-evident command audit','Reasoning replay, evidence graph, specialist routing, and solver benchmarking','Defensive rules, IOC extraction, log forensics, and host-baseline checks'],
+    primitive:'Bounded execution · replayable reasoning · evidence graphs · benchmarkable agents · defensive telemetry', caseStudy:'/case-study/ctf-redteam-harness', github:'https://github.com/ninja-ops-guy/ctf-redteam-harness'
   },
   {
     title:'RAC / Adversarial Clothing', category:'ADVERSARIAL ML / PHYSICAL ROBUSTNESS', status:'PUBLIC R&D · PHYSICAL P1 PENDING', tone:'research',
@@ -35,7 +41,7 @@ const flagships: Project[] = [
 const secondary = [
   ['TechOps Hero','I use the game as a real product-engineering testbed: runtime QA, state management, campaign regressions, mobile controls, deployment, and constant iteration.','https://github.com/ninja-ops-guy/techops-hero','https://ninja-ops-guy.github.io/techops-hero/'],
   ['CIC + LDD','This is where I explore structural complexity, SAT, proof ideas, formalization, and observability. Some of that research later feeds directly into security and autonomous-systems tooling.','https://github.com/ninja-ops-guy/cic-p-vs-np-research','https://github.com/ninja-ops-guy/LDD-Kit'],
-  ['Robotics / Autonomous Operations','A place to work through event-driven robotics, persistent control, safety checks, mapping, and multi-agent coordination in a physical system.','https://github.com/ninja-ops-guy/streetfighter-for-vector',''],
+  ['Vector / wire-pod Robotics','Physical-agent experiments using wire-pod and the Vector SDK: typed LLM control, behavior calls, event-driven coordination, and even a Fightcade-to-Vector display pipeline. Current work is extending this toward governed dynamic behavior generation through RESIDUAL.','https://github.com/ninja-ops-guy/streetfighter-for-vector',''],
 ];
 
 const toneColor=(t:Project['tone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
