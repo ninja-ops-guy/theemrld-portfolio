@@ -65,7 +65,7 @@ export default function ExecutiveImpact() {
           {impacts.map((item, index) => (
             <div key={item.label} ref={(el) => { cardsRef.current[index] = el; }} style={{ background: '#050A14', padding: '30px', opacity: 0 }}>
               <div className="flex items-center justify-between gap-4">
-                <span className="font-label" style={{ color: '#4A6DFF' }}>{item.label}</span>
+                <span className="font-label" style={{ color: '#5A78FF' }}>{item.label}</span>
                 <span className="font-headline" style={{ color: '#E8EDF3', fontSize: '13px', letterSpacing: '0.06em' }}>{item.metric}</span>
               </div>
               <h3 className="font-headline" style={{ color: '#E8EDF3', fontSize: 'clamp(1.1rem, 2vw, 1.55rem)', lineHeight: 1.2, marginTop: '22px' }}>{item.title}</h3>
