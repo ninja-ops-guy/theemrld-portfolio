@@ -8,72 +8,46 @@ import CustomCursor from './sections/CustomCursor';
 import Navigation from './sections/Navigation';
 import Hero from './sections/Hero';
 import SelectedWork from './sections/SelectedWork';
+import ExecutiveImpact from './sections/ExecutiveImpact';
+import ResearchThesis from './sections/ResearchThesis';
+import EvidenceMatrix from './sections/EvidenceMatrix';
 import About from './sections/About';
 import Networking from './sections/Networking';
-import Tools from './sections/Tools';
-import ImmersiveExperiences from './sections/ImmersiveExperiences';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 import KTerminal from './sections/KTerminal';
+import CaseStudy from './pages/CaseStudy';
+import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Portfolio() {
   const lenisRef = useRef<Lenis | null>(null);
-
   useEffect(() => {
-    const lenis = new Lenis({
-      lerp: 0.08,
-      duration: 1.2,
-    });
+    const lenis = new Lenis({ lerp: 0.08, duration: 1.2 });
     lenisRef.current = lenis;
-
     lenis.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
-
-    return () => {
-      lenis.destroy();
-    };
+    return () => { gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
-
-  return (
-    <>
-      <ConstellationCanvas />
-      <CustomCursor />
-      <Navigation />
-      <main className="relative">
-        <Hero />
-        <SelectedWork />
-        <About />
-        <Networking />
-        <Tools />
-        <ImmersiveExperiences />
-        <Contact />
-      </main>
-      <Footer />
-    </>
-  );
+  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><About /><Networking /><Contact /></main><Footer /></>;
 }
 
 function App() {
   const location = useLocation();
-
-  // Reset scroll on route change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname]);
-
-  return (
-    <Routes>
-      <Route path="/" element={<Portfolio />} />
-      <Route path="/terminal" element={<KTerminal />} />
-    </Routes>
-  );
+    if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' }));
+  }, [location.pathname, location.hash]);
+  return <Routes>
+    <Route path="/" element={<Portfolio />} />
+    <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
+    <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
+    <Route path="/case-study/:slug" element={<CaseStudy />} />
+  </Routes>;
 }
 
 export default App;
