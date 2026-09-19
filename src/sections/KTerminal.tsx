@@ -483,15 +483,25 @@ function renderTesseractFrame(tick: number, intensity: number): string {
   return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
 }
 
+export type KWorldScene = 'spring' | 'summer' | 'autumn' | 'winter' | 'light' | 'dark';
+
 type KTerminalProps = {
   embedded?: boolean;
   onExitToCity?: () => void;
+  onEnterScene?: (scene: KWorldScene) => void;
 };
 
-export default function KTerminal({ embedded = false, onExitToCity }: KTerminalProps = {}) {
+export default function KTerminal({ embedded = false, onExitToCity, onEnterScene }: KTerminalProps = {}) {
   const navigate = useNavigate();
   const [terminalParams] = useSearchParams();
   const fromGallery = embedded || terminalParams.get('from') === 'gallery';
+  const enterWorldScene = useCallback((scene: KWorldScene) => {
+    if (embedded && onEnterScene) {
+      onEnterScene(scene);
+      return;
+    }
+    navigate(`/gallery?scene=${scene}&spawn=portal`);
+  }, [embedded, onEnterScene, navigate]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1229,45 +1239,51 @@ Playlist: ${tracks.length} track(s)`);
           </div>
         </div>
 
-        {/* Living ASCII sigils */}
-        <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated terminal sigils">
-          <div className="kt-ascii-card kt-taino-card">
+        {/* Living ASCII sigils / world portals */}
+        <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated world portals">
+          <button type="button" className="kt-ascii-card kt-taino-card" onClick={() => enterWorldScene('spring')} title="Enter Spring: Vernal Royal Gothic Court">
             <span className="kt-ascii-label">☉ TAINO://PETROGLYPH·SOL · RELIEF.EXE</span>
+            <span className="kt-scene-tag">SPRING // VERNAL COURT</span>
             <div className="kt-taino-stage">
               {!isPlaying && <pre className="kt-taino-noise">{renderIdleHashFrame(asciiTick)}</pre>}
               <pre className="kt-taino-symbol">{renderTainoFrame(asciiTick)}</pre>
             </div>
-          </div>
-          <div className="kt-ascii-card kt-globe-card">
+          </button>
+          <button type="button" className="kt-ascii-card kt-globe-card" onClick={() => enterWorldScene('summer')} title="Enter Summer: Solar Cloister">
             <span className="kt-ascii-label">☿ TORUS://ORBIT·RING · MUNDUS.EXE</span>
+            <span className="kt-scene-tag">SUMMER // SOLAR CLOISTER</span>
             <div className="kt-globe-stage">
               <pre className="kt-globe">{renderTorusFrame(asciiTick)}</pre>
             </div>
-          </div>
-          <div className="kt-ascii-card kt-diamond-card">
+          </button>
+          <button type="button" className="kt-ascii-card kt-diamond-card" onClick={() => enterWorldScene('autumn')} title="Enter Autumn: Rust Processional">
             <span className="kt-ascii-label">◇ DIAMOND://CARBON·PRISM · LAPIS.EXE</span>
+            <span className="kt-scene-tag">AUTUMN // RUST PROCESSIONAL</span>
             <div className="kt-diamond-stage">
               <pre className="kt-diamond">{renderDiamondFrame(asciiTick)}</pre>
             </div>
-          </div>
-          <div className="kt-ascii-card kt-tesseract-card">
+          </button>
+          <button type="button" className="kt-ascii-card kt-tesseract-card" onClick={() => enterWorldScene('winter')} title="Enter Winter: Whiteout Grid">
             <span className="kt-ascii-label">🜔 TESSERACT://4D·HYPERCUBE · SEAL.EXE</span>
+            <span className="kt-scene-tag">WINTER // WHITEOUT GRID</span>
             <div className="kt-tesseract-stage">
               <pre className="kt-tesseract-face">{renderTesseractFrame(asciiTick, isPlaying ? ritualIntensity : 24)}</pre>
             </div>
-          </div>
-          <div className="kt-ascii-card kt-moon-card">
+          </button>
+          <button type="button" className="kt-ascii-card kt-moon-card" onClick={() => enterWorldScene('dark')} title="Enter Dark: Blackout Wasteland">
             <span className="kt-ascii-label">☽ MOON://CRATER·ORBIT · SELENE.EXE</span>
+            <span className="kt-scene-tag">DARK // BLACKOUT WASTELAND</span>
             <div className="kt-moon-stage">
               <pre className="kt-moon">{renderMoonFrame(asciiTick)}</pre>
             </div>
-          </div>
-          <div className="kt-ascii-card kt-rocket-card">
+          </button>
+          <button type="button" className="kt-ascii-card kt-rocket-card" onClick={() => enterWorldScene('light')} title="Enter Light: Lumen Arcology">
             <span className="kt-ascii-label">△ ROCKET://ASCENT·VECTOR · APOLLO.EXE</span>
+            <span className="kt-scene-tag">LIGHT // LUMEN ARCOLOGY</span>
             <div className="kt-rocket-stage">
               <pre className="kt-rocket">{renderRocketFrame(asciiTick)}</pre>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* CLI console — intentionally directly beneath the projection deck */}
@@ -1547,10 +1563,13 @@ Playlist: ${tracks.length} track(s)`);
         }
 
         .kt-ascii-deck { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:10px; min-height:128px; flex:0 0 auto; }
-        .kt-ascii-card { position:relative; overflow:hidden; border:1px solid #008f11; background:radial-gradient(circle at 50% 50%,rgba(0,255,65,.08),rgba(13,2,8,.94) 68%); min-height:128px; }
+        .kt-ascii-card { appearance:none; width:100%; padding:0; margin:0; color:inherit; font:inherit; text-align:left; cursor:pointer; position:relative; overflow:hidden; border:1px solid #008f11; background:radial-gradient(circle at 50% 50%,rgba(0,255,65,.08),rgba(13,2,8,.94) 68%); min-height:128px; transition:transform .14s ease,border-color .14s ease,filter .14s ease,box-shadow .14s ease; }
+        .kt-ascii-card:hover,.kt-ascii-card:focus-visible { transform:translateY(-2px); filter:brightness(1.16); border-color:#00ffff; outline:none; box-shadow:inset 0 0 22px rgba(0,255,65,.12),0 0 14px rgba(0,255,255,.22); }
+        .kt-ascii-card:active { transform:translateY(0) scale(.99); }
         .kt-ascii-card { box-shadow:inset 0 0 22px rgba(0,255,65,.08),0 0 9px rgba(255,0,255,.08); }
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
-        .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
+        .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; max-width:72%; }
+        .kt-scene-tag { position:absolute; right:6px; bottom:13px; z-index:5; padding:2px 4px; border:1px solid rgba(0,255,255,.24); background:rgba(3,5,9,.82); color:#00ffff; font-size:7px; letter-spacing:.08em; text-shadow:0 0 6px rgba(0,255,255,.45); }
         .kt-taino-stage,.kt-tesseract-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
         .kt-tesseract-card { background:radial-gradient(circle at 50% 50%,rgba(255,45,65,.18),rgba(255,0,120,.055) 42%,rgba(13,2,8,.97) 72%); border-color:rgba(255,72,72,.68); box-shadow:inset 0 0 22px rgba(255,55,75,.11),0 0 12px rgba(255,35,80,.16); }
         .kt-taino-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.12),rgba(0,255,65,.035) 48%,rgba(13,2,8,.97) 75%); }
@@ -1587,7 +1606,7 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ritual-playing .kt-rocket { animation-duration:calc(2.0s - (var(--ritual-power) * .8s)); }
         .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
-        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;grid-auto-rows:188px;min-height:0;flex:none}.kt-ascii-card{min-height:188px;height:188px;flex:none}.kt-ascii-label{font-size:9px;line-height:1.25;max-width:92%}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-tesseract-face{font-size:8px;line-height:.9} }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;grid-auto-rows:188px;min-height:0;flex:none}.kt-ascii-card{min-height:188px;height:188px;flex:none}.kt-ascii-label{font-size:9px;line-height:1.25;max-width:68%}.kt-scene-tag{font-size:6px;bottom:12px}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-tesseract-face{font-size:8px;line-height:.9} }
         @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-tesseract-face,.kt-globe,.kt-diamond,.kt-moon,.kt-rocket,.kt-ascii-card::before{animation:none} }
 
         .kt-cli-console {
