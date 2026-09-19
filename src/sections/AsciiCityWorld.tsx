@@ -250,12 +250,24 @@ export default function AsciiCityWorld(){
   const queryScene=params.get('scene') as SceneId|null;
   const initialScene:SceneId=queryScene&&SCENES[queryScene]?queryScene:'spring';
   const wrap=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),keys=useRef<Record<string,boolean>>({});
-  const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
+  const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door'|'car';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
   const touchMove=useRef({id:-1,x0:0,y0:0,dx:0,dy:0}),touchLook=useRef({id:-1,x:0,y:0});
+  const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),cueRef=useRef(back?'gallery-return':portal?'scene':'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
   const start=back?RETURN:portal?OUTSIDE:SPAWN,cam=useRef<Cam>({x:start.x,y:start.y,ang:start.a,pitch:0,height:1.55}),seatFrom=useRef({x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55});
   const [scene,setScene]=useState<SceneId>(initialScene);
+  const [audioCue,setAudioCueState]=useState(back?'gallery-return':portal?'scene':'city');
+  const [nowPlaying,setNowPlaying]=useState('');
+  const [worldAudioPlaying,setWorldAudioPlaying]=useState(false);
+  const [vehicle,setVehicle]=useState(false),[flight,setFlight]=useState(false);
   const [booted,setBooted]=useState(back||portal),[terminal,setTerminal]=useState(false),[locked,setLocked]=useState(false),[notice,setNotice]=useState(back?'SESSION CLOSED // APSE CONSOLE // TURN AROUND TO EXPLORE K//CITY':portal?'PORTAL LINK // '+SCENES[initialScene].label+' // '+SCENES[initialScene].era:'');
-  const [hud,setHud]=useState({area:area(start.x,start.y,initialScene),prompt:null as string|null,fps:0,x:start.x,y:start.y,ang:start.a});termRef.current=terminal;
+  const [hud,setHud]=useState({area:area(start.x,start.y,initialScene),prompt:null as string|null,fps:0,x:start.x,y:start.y,ang:start.a});termRef.current=terminal;vehicleRef.current=vehicle;flightRef.current=flight;
+
+  const setAudioCue=useCallback((cue:string)=>{
+    if(cueRef.current===cue)return;
+    cueRef.current=cue;
+    setAudioCueState(cue);
+  },[]);
+  const soundtrack=useMemo(()=>cuePlaylist(audioCue,scene),[audioCue,scene]);
 
   const resize=useCallback(()=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const d=Math.min(2,window.devicePixelRatio||1),ww=w.clientWidth,hh=w.clientHeight;c.width=Math.floor(ww*d);c.height=Math.floor(hh*d);c.style.width=ww+'px';c.style.height=hh+'px';c.getContext('2d')?.setTransform(d,0,0,d,0,0);},[]);
   useEffect(()=>{resize();window.addEventListener('resize',resize);const t=window.setTimeout(()=>setNotice(''),4200);return()=>{window.removeEventListener('resize',resize);window.clearTimeout(t);};},[resize]);
