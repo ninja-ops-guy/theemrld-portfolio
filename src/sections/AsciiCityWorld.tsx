@@ -284,7 +284,7 @@ export default function AsciiCityWorld(){
   const tm=useCallback((e:React.TouchEvent)=>{for(const t of Array.from(e.changedTouches)){if(t.identifier===touchMove.current.id){touchMove.current.dx=Math.max(-1,Math.min(1,(t.clientX-touchMove.current.x0)/65));touchMove.current.dy=Math.max(-1,Math.min(1,(t.clientY-touchMove.current.y0)/65));}else if(t.identifier===touchLook.current.id&&phase.current==='explore'){cam.current.ang+=(t.clientX-touchLook.current.x)*.0065;cam.current.pitch=Math.max(-13,Math.min(13,cam.current.pitch-(t.clientY-touchLook.current.y)*.13));touchLook.current.x=t.clientX;touchLook.current.y=t.clientY;}}},[]);
   const te=useCallback((e:React.TouchEvent)=>{for(const t of Array.from(e.changedTouches)){if(t.identifier===touchMove.current.id)touchMove.current={id:-1,x0:0,y0:0,dx:0,dy:0};if(t.identifier===touchLook.current.id)touchLook.current={id:-1,x:0,y:0};}},[]);
 
-  const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch);
+  const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch-(cc.height-1.55)*1.8);
     const cfg=SCENES[scene],royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
     const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
     const syncPulse=.72+.28*Math.abs(Math.sin(syncTime*3.15));
@@ -323,8 +323,9 @@ export default function AsciiCityWorld(){
       if(!hit){zb[x]=999;continue;}
       const d=Math.max(.08,hit.dist*Math.cos(ra-cc.ang));zb[x]=d;
       const gothic='SWGACP123456'.includes(hit.tile);
-      const heightScale=gothic?1.16:(hit.tile==='N'?2.05:1.72);
-      const wh=Math.min(rows*1.9,(rows*heightScale)/d),top=Math.max(0,Math.floor(hor-wh*.58)),bot=Math.min(rows-1,Math.ceil(hor+wh*.42));
+      const heightScale=hit.tile==='V'?.44:gothic?1.16:(hit.tile==='N'?2.05:1.72);
+      const altitudeScale=Math.max(.58,1-(cc.height-1.55)*.16);
+      const wh=Math.min(rows*1.9,(rows*heightScale*altitudeScale)/d),top=Math.max(0,Math.floor(hor-wh*.58)),bot=Math.min(rows-1,Math.ceil(hor+wh*.42));
       const base=DOOR_COLOR[hit.tile]||COLORS[hit.tile]||(hit.tile==='N'?cfg.neon:cfg.wall);
       const generic=gothic?(d<3?['█','▓','▒']:d<7?['▓','▒','░']:['▒','░','·']):cfg.wallChars;
       for(let y=top;y<=bot;y++){
@@ -386,8 +387,9 @@ export default function AsciiCityWorld(){
         }
         const sp=(vehicleRef.current?6.4:flightRef.current?5.2:(k.shift?3.7:2.55))*dt;
         const dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=vehicleRef.current ? .18 : .24;
-        if(!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x+=mx;
-        if(!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y+=my;
+        const flyingOver=flightRef.current&&c.height>3.05;
+        if(flyingOver||!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x=Math.max(1.1,Math.min(W-1.1,c.x+mx));
+        if(flyingOver||!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y=Math.max(1.1,Math.min(H-1.1,c.y+my));
 
         // Zone soundtrack routing. A terminal exit gets a protected 12-second
         // turnaround cue before the nave/deeper-gallery music can take over.
