@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import EvidenceExplorer, { type EvidenceItem } from '../components/EvidenceExplorer';
 
 type Packet = {
   title:string; eyebrow:string; status:string; state:string; thesis:string; problem:string; constraints:string[];
@@ -71,6 +72,15 @@ const packets:Record<string,Packet> = {
   }
 };
 
+const residualAudit:EvidenceItem[]=[
+  {label:'Source repository',state:'IMPLEMENTED',summary:'Public implementation and revision history for the harness.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'SOURCE'},
+  {label:'Core architecture',state:'IMPLEMENTED',summary:'Harness, Command Station, Mission Control/WebVM and Factory M2/M3/M4 are represented as implementation claims, not production-qualification claims.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'INSPECT CODE'},
+  {label:'Verification boundary',state:'TESTED',summary:'Contracts, receipts, verifier identity, routing boundaries, HITL and integration paths are exercised by automated and adversarial tests.'},
+  {label:'Research outcomes',state:'OBSERVED',summary:'Positive and negative experiment outcomes are retained by revision; a later pass does not erase an earlier failure.'},
+  {label:'M6 / recursive improvement',state:'OPEN',summary:'Repeated frozen-budget failures remain negative evidence. Recursive self-improvement is explicitly not claimed as solved.'},
+  {label:'Production qualification',state:'PENDING',summary:'Blank-environment install, recovery/host-loss, soak, live-provider and device/browser evidence remain release work.'}
+];
+
 const box={border:'1px solid #162235',background:'rgba(8,15,28,.78)'};
 
 export default function ProgramCaseStudy({slug}:{slug:string}){
@@ -78,7 +88,7 @@ export default function ProgramCaseStudy({slug}:{slug:string}){
   if(!p) return null;
   return <main style={{minHeight:'100vh',background:'#050A14',color:'#E8EDF3'}}><div className="max-w-[1080px] mx-auto px-6 md:px-10" style={{paddingTop:72,paddingBottom:120}}>
     <Link to="/#work" className="font-label" style={{color:'#8899AA'}}>← PORTFOLIO</Link>
-    <header style={{marginTop:70}}><p className="font-label" style={{color:'#5A78FF'}}>{p.eyebrow}</p><h1 className="font-headline" style={{fontSize:'clamp(3rem,8vw,6.4rem)',lineHeight:.92,letterSpacing:'-.04em',marginTop:18}}>{p.title}</h1><div className="flex flex-wrap gap-2" style={{marginTop:24}}><span className="font-label" style={{color:'#9AAEFF'}}>● {p.status}</span><span className="font-label" style={{border:'1px solid #334766',padding:'7px 9px',color:'#9AAEFF'}}>{p.state}</span></div><p className="font-body" style={{color:'#A6B3C2',fontSize:20,lineHeight:1.65,maxWidth:850,marginTop:28}}>{p.thesis}</p></header>
+    <header style={{marginTop:70}}><p className="font-label" style={{color:'#5A78FF'}}>{p.eyebrow}</p><h1 className="font-headline" style={{fontSize:'clamp(3rem,8vw,6.4rem)',lineHeight:.92,letterSpacing:'-.04em',marginTop:18}}>{p.title}</h1><div className="flex flex-wrap gap-2" style={{marginTop:24}}><span className="font-label" style={{color:'#9AAEFF'}}>● {p.status}</span><span className="font-label" style={{border:'1px solid #334766',padding:'7px 9px',color:'#9AAEFF'}}>{p.state}</span></div><p className="font-body" style={{color:'#A6B3C2',fontSize:20,lineHeight:1.65,maxWidth:850,marginTop:28}}>{p.thesis}</p>{slug==='residual'&&<div className="flex flex-wrap gap-3" style={{marginTop:26}}><EvidenceExplorer title="RESIDUAL / EVIDENCE" items={residualAudit}/><a href="https://github.com/ninja-ops-guy/residual-agent-harness" target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#B7C3D0]">SOURCE →</a></div>}</header>
     <section style={{marginTop:88}}><p className="font-label" style={{color:'#5A78FF'}}>01 / WHAT I WAS TRYING TO SOLVE</p><p className="font-body" style={{fontSize:17,color:'#B7C3D0',lineHeight:1.8,marginTop:18}}>{p.problem}</p></section>
     <section style={{marginTop:78}}><p className="font-label" style={{color:'#5A78FF'}}>02 / RULES I WOULD NOT BREAK</p><div style={{...box,marginTop:22,padding:24}}>{p.constraints.map(x=><p key={x} className="font-body" style={{color:'#A9B6C5',lineHeight:1.7,margin:'8px 0'}}>→ {x}</p>)}</div></section>
     <section style={{marginTop:78}}><p className="font-label" style={{color:'#5A78FF'}}>03 / HOW I BUILT IT</p><div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{marginTop:22}}>{p.architecture.map(x=><div key={x.title} className="p-6" style={box}><h3 className="font-headline" style={{fontSize:22}}>{x.title}</h3><p className="font-body" style={{color:'#9EADBD',lineHeight:1.7,marginTop:12}}>{x.body}</p></div>)}</div></section>
