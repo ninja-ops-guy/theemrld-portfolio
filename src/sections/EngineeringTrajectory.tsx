@@ -18,7 +18,7 @@ export default function EngineeringTrajectory() {
           <p className="font-body" style={{color:'#8FA0B2',fontSize:13,lineHeight:1.75,marginTop:14}}>{s.body}</p>
         </article>)}
       </div>
-      <p className="font-body" style={{color:'#607287',fontSize:12,lineHeight:1.7,marginTop:18}}>This is a technical progression, not a claim to have invented agentic development. The evidence is in the systems, artifacts, tests, and failure records linked throughout the portfolio.</p>
+      <p className="font-body" style={{color:'#74869A',fontSize:12,lineHeight:1.7,marginTop:18}}>This is a technical progression, not a claim to have invented agentic development. The evidence is in the systems, artifacts, tests, and failure records linked throughout the portfolio.</p>
     </div>
   </section>
 }
