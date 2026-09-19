@@ -10,19 +10,19 @@
     --card-foreground: 220 20% 93%;
     --popover: 220 50% 4%;
     --popover-foreground: 220 20% 93%;
-    --primary: 228 100% 64%;
+    --primary: 228 100% 67%;
     --primary-foreground: 220 50% 4%;
     --secondary: 210 14% 60%;
     --secondary-foreground: 220 20% 93%;
     --muted: 220 30% 10%;
     --muted-foreground: 210 14% 60%;
-    --accent: 228 100% 64%;
+    --accent: 228 100% 67%;
     --accent-foreground: 220 50% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 30% 10%;
     --input: 220 30% 10%;
-    --ring: 228 100% 64%;
+    --ring: 228 100% 67%;
     --radius: 0rem;
   }
 
@@ -88,7 +88,7 @@
   .decode-char {
     display: inline-block;
     transition: color 0.3s ease;
-    color: #4A6DFF;
+    color: #5A78FF;
   }
 
   .decode-char.resolved {
@@ -101,7 +101,7 @@
     left: 0;
     width: 12px;
     height: 12px;
-    background-color: #4A6DFF;
+    background-color: #5A78FF;
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
