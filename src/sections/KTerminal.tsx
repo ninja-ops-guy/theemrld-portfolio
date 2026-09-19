@@ -56,6 +56,7 @@ export default function KTerminal() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const widgetRef = useRef<HTMLIFrameElement>(null);
+  const discoveryWidgetRef = useRef<HTMLIFrameElement>(null);
   const scWidgetRef = useRef<any>(null);
   const widgetBoundRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -74,8 +75,26 @@ export default function KTerminal() {
   const [showClickStart, setShowClickStart] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
+  const [visualizerEnabled, setVisualizerEnabled] = useState(true);
+  const [visualizerMode, setVisualizerMode] = useState<'bars' | 'pulse' | 'scope'>('bars');
+  const [playbackRate, setPlaybackRate] = useState(1);
 
   const bootIndexRef = useRef(0);
+
+  // Persist the user's rolling song list across visits. Defaults remain as an offline fallback.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('k-terminal-tracks-v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length) setTracks(parsed);
+      }
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem('k-terminal-tracks-v2', JSON.stringify(tracks)); } catch (e) {}
+  }, [tracks]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -171,7 +190,7 @@ export default function KTerminal() {
     widget.bind(SC.Widget.Events.PLAY, () => {
       setIsPlaying(true);
       setAudioStatus('PLAYING');
-      startVisualizer();
+      if (visualizerEnabled) startVisualizer();
     });
 
     widget.bind(SC.Widget.Events.PAUSE, () => {
@@ -190,7 +209,37 @@ export default function KTerminal() {
     widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e: any) => {
       updateProgressUI(e.currentPosition, currentTrack?.duration || 0);
     });
-  }, [volume, updateProgressUI, addLine, currentTrack?.duration]);
+  }, [volume, updateProgressUI, addLine, currentTrack?.duration, visualizerEnabled]);
+
+  // Refresh the visible playlist from the artist profile using a second SoundCloud
+  // widget. getSounds() is part of the public Widget API and avoids hard-coding a
+  // stale catalogue or requiring a client secret in the browser.
+  const refreshRecentTracks = useCallback(() => {
+    const SC = (window as any).SC;
+    if (!SC?.Widget || !discoveryWidgetRef.current) return;
+    try {
+      const discovery = SC.Widget(discoveryWidgetRef.current);
+      discovery.bind(SC.Widget.Events.READY, () => {
+        discovery.getSounds((sounds: any[]) => {
+          if (!Array.isArray(sounds) || !sounds.length) return;
+          const recent: Track[] = sounds
+            .filter((s: any) => s && (s.permalink_url || s.uri) && s.title)
+            .slice(0, 30)
+            .map((s: any, index: number) => ({
+              id: index + 1,
+              url: s.permalink_url || s.uri,
+              title: s.title,
+              duration: Number(s.duration || 0),
+              plays: Number(s.playback_count || 0),
+            }));
+          if (recent.length) {
+            setTracks(recent);
+            addLine(`<span class="tc-success">[SYNC]</span> Loaded ${recent.length} recent @raikouno tracks.`);
+          }
+        });
+      });
+    } catch (e) {}
+  }, [addLine]);
 
   // SoundCloud Widget init. load() keeps playback attached to the existing
   // iframe/widget instance so a user's click remains the playback gesture.
@@ -254,7 +303,7 @@ export default function KTerminal() {
       }
     };
     visualizerIntervalRef.current = setInterval(draw, 50);
-  }, [isPlaying]);
+  }, [visualizerMode]);
 
   const stopVisualizer = useCallback(() => {
     if (visualizerIntervalRef.current) {
@@ -306,6 +355,10 @@ export default function KTerminal() {
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
   <span class="tc-command">volume [0-100]</span>    - Set volume level
+  <span class="tc-command">speed [0.5-2]</span>      - Playback-rate control (reports provider capability)
+  <span class="tc-command">viz on|off</span>         - Enable/disable visualizer
+  <span class="tc-command">viz bars|pulse|scope</span> - Change visualizer mode
+  <span class="tc-command">refresh</span>           - Pull recent tracks from @raikouno
   <span class="tc-command">next</span>              - Play next track
   <span class="tc-command">prev</span>              - Play previous track
   <span class="tc-command">status</span>            - Show playback status
@@ -338,14 +391,18 @@ export default function KTerminal() {
           addLine('Error: No track specified. Usage: play [id] or play [url]', 'error');
           break;
         }
-        const arg = args[0];
+        const arg = args.join(' ').trim();
         if (arg.includes('soundcloud.com')) {
           playUrl(arg);
         } else {
-          const id = parseInt(arg);
-          const track = tracks.find((t) => t.id === id);
+          const id = Number(arg);
+          const normalized = arg.toLowerCase();
+          const track = Number.isFinite(id)
+            ? tracks.find((t) => t.id === id)
+            : tracks.find((t) => t.title.toLowerCase() === normalized)
+              || tracks.find((t) => t.title.toLowerCase().includes(normalized));
           if (!track) {
-            addLine(`Error: Track ${id} not found. Type "list" to see available tracks.`, 'error');
+            addLine(`Error: Track "${arg}" not found. Use an ID, URL, or title from "list".`, 'error');
             break;
           }
           playTrack(track);
@@ -442,6 +499,58 @@ export default function KTerminal() {
         break;
       }
 
+      case 'refresh': {
+        refreshRecentTracks();
+        addLine('Refreshing recent tracks from @raikouno...');
+        break;
+      }
+
+      case 'speed': {
+        if (!args[0]) {
+          addLine(`Requested playback speed: ${playbackRate}x`);
+          break;
+        }
+        const rate = Number(args[0]);
+        if (!Number.isFinite(rate) || rate < 0.5 || rate > 2) {
+          addLine('Error: Speed must be between 0.5 and 2.0', 'error');
+          break;
+        }
+        setPlaybackRate(rate);
+        // The public SoundCloud Widget API exposes play/pause/seek/volume but no
+        // playback-rate method. Do not pretend a rate change happened.
+        addLine(`Speed set to ${rate}x in K Terminal, but SoundCloud's embedded player does not expose playback-rate control. Use a direct/custom audio source to apply it.`, 'warning');
+        break;
+      }
+
+      case 'viz': {
+        const action = (args[0] || '').toLowerCase();
+        if (!action) {
+          addLine(`Visualizer: ${visualizerEnabled ? 'ON' : 'OFF'} · mode: ${visualizerMode}`);
+          break;
+        }
+        if (action === 'off') {
+          setVisualizerEnabled(false);
+          stopVisualizer();
+          addLine('Visualizer disabled.');
+          break;
+        }
+        if (action === 'on') {
+          setVisualizerEnabled(true);
+          if (isPlaying) startVisualizer();
+          addLine(`Visualizer enabled (${visualizerMode}).`);
+          break;
+        }
+        if (['bars','pulse','scope'].includes(action)) {
+          setVisualizerMode(action as 'bars' | 'pulse' | 'scope');
+          setVisualizerEnabled(true);
+          if (isPlaying) startVisualizer();
+          addLine(`Visualizer mode: ${action}`);
+          break;
+        }
+        addLine('Usage: viz on|off|bars|pulse|scope', 'error');
+        break;
+      }
+
       case 'volume': {
         if (!args[0]) {
           addLine(`Current volume: ${volume}%`);
@@ -520,7 +629,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerMode, addLine, playTrack, playUrl, stopVisualizer, startVisualizer, refreshRecentTracks]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -567,6 +676,7 @@ Playlist: ${tracks.length} track(s)`);
         const widget = scWidgetRef.current || (window as any).SC.Widget(widgetRef.current);
         scWidgetRef.current = widget;
         bindWidgetEvents(widget);
+        window.setTimeout(refreshRecentTracks, 150);
       }
     };
     document.body.appendChild(script);
@@ -574,7 +684,7 @@ Playlist: ${tracks.length} track(s)`);
       const existing = document.getElementById('sc-api');
       if (existing) existing.remove();
     };
-  }, [bindWidgetEvents]);
+  }, [bindWidgetEvents, refreshRecentTracks]);
 
   // Auto-scroll terminal
   useEffect(() => {
@@ -593,6 +703,19 @@ Playlist: ${tracks.length} track(s)`);
 
   return (
     <div className="kt-body">
+      {/* Discovery widget: artist profile provides the rolling recent-song list. */}
+      <iframe
+        ref={discoveryWidgetRef}
+        title="SoundCloud recent-track discovery"
+        width="1"
+        height="1"
+        scrolling="no"
+        frameBorder="no"
+        allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+        style={{ position: 'absolute', bottom: 0, right: 0, width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
+      />
+
       {/* SoundCloud widget iframe -- tiny but in-viewport for mobile autoplay policy */}
       <iframe
         ref={widgetRef}
@@ -663,8 +786,7 @@ Playlist: ${tracks.length} track(s)`);
         </div>
 
         {/* Click-to-play track list */}
-        {showClickStart && (
-          <div className="kt-click-play">
+        <div className="kt-click-play">
             <div className="kt-click-header">
               <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno
             </div>
@@ -703,7 +825,6 @@ Playlist: ${tracks.length} track(s)`);
               ))}
             </ul>
           </div>
-        )}
 
         {/* Terminal */}
         <div className="kt-terminal" ref={terminalRef}>
