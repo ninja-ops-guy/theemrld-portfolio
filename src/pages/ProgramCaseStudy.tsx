@@ -73,12 +73,15 @@ const packets:Record<string,Packet> = {
 };
 
 const residualAudit:EvidenceItem[]=[
-  {label:'Source repository',state:'IMPLEMENTED',summary:'Public implementation and revision history for the harness.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'SOURCE'},
-  {label:'Core architecture',state:'IMPLEMENTED',summary:'Harness, Command Station, Mission Control/WebVM and Factory M2/M3/M4 are represented as implementation claims, not production-qualification claims.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'INSPECT CODE'},
-  {label:'Verification boundary',state:'TESTED',summary:'Contracts, receipts, verifier identity, routing boundaries, HITL and integration paths are exercised by automated and adversarial tests.'},
-  {label:'Research outcomes',state:'OBSERVED',summary:'Positive and negative experiment outcomes are retained by revision; a later pass does not erase an earlier failure.'},
-  {label:'M6 / recursive improvement',state:'OPEN',summary:'Repeated frozen-budget failures remain negative evidence. Recursive self-improvement is explicitly not claimed as solved.'},
-  {label:'Production qualification',state:'PENDING',summary:'Blank-environment install, recovery/host-loss, soak, live-provider and device/browser evidence remain release work.'}
+  {label:'StationReceipt implementation',state:'IMPLEMENTED',summary:'Exact revision 2f9dda38 binds receipt identity to hashes, verifier revision, verdict, lineage and engine metadata.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/blob/2f9dda3882f39c28a1c766859b1bf9579eea7911/residual/receipts.py',action:'CODE @ 2f9dda38'},
+  {label:'Receipt attack suite',state:'TESTED',summary:'Adversarial receipt tests exist on the same frozen revision.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/blob/2f9dda3882f39c28a1c766859b1bf9579eea7911/tests/redteam/test_receipt_attacks.py',action:'RED-TEAM TESTS'},
+  {label:'WorkerContract boundary',state:'TESTED',summary:'Factory worker-contract tests exercise M2 behavior; implementation comments explicitly avoid presenting lexical checks as an OS sandbox.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/blob/2f9dda3882f39c28a1c766859b1bf9579eea7911/tests/test_factory_worker_contract.py',action:'M2 TESTS'},
+  {label:'M4 deterministic integration',state:'TESTED',summary:'Dedicated deterministic-integrator tests are pinned to the same exact revision.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/blob/2f9dda3882f39c28a1c766859b1bf9579eea7911/tests/test_factory_m4_integrator.py',action:'M4 TESTS'},
+  {label:'Requirement traceability',state:'IMPLEMENTED',summary:'The machine-readable implementation manifest maps requirements to code, tests and unresolved closure work.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/blob/2f9dda3882f39c28a1c766859b1bf9579eea7911/implementation-status.yaml',action:'TRACEABILITY'},
+  {label:'Clean-install qualification',state:'TESTED',summary:'Exact-main workflow succeeded on revision 2f9dda38.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/actions/runs/35452581180',action:'CI RUN'},
+  {label:'Measured acceptance binding',state:'TESTED',summary:'Exact-main workflow succeeded on revision 2f9dda38.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/actions/runs/35452581184',action:'CI RUN'},
+  {label:'Qualification-driven repair',state:'OBSERVED',summary:'PR #338 documents a RuntimeJournal write-admission / ownership-pin repair that was merged before the cited exact-main qualification runs.',href:'https://github.com/ninja-ops-guy/residual-agent-harness/pull/338',action:'PR #338'},
+  {label:'Production qualification',state:'PENDING',summary:'These exact artifacts establish specific implementation and qualification claims, not universal production readiness.'}
 ];
 
 const box={border:'1px solid #162235',background:'rgba(8,15,28,.78)'};
