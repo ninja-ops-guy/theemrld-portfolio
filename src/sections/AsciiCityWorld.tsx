@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import KTerminal, { type KWorldScene } from './KTerminal';
 import { type KAudioZone } from '../data/kAudioZones';
-import { K_GALLERY_ART, K_GALLERY_ATLAS } from '../data/kGalleryArt';
+import { K_GALLERY_ART, K_GALLERY_ATLAS, K_GALLERY_PORTRAITS } from '../data/kGalleryArt';
 
 type Phase = 'explore' | 'sitting' | 'seated' | 'standing';
 type WorldMode = 'gallery' | 'city' | 'realm';
@@ -181,6 +181,15 @@ const SCENE_ARCHITECTURE:Record<SceneId,Billboard[]>={
   ]
 };
 const REALM_RETURN_GATE:Billboard={x:24.5,y:30.2,t:['╔══════════════════╗','║ ← K//CITY RETURN ║','║ PROJECT DISTRICTS║','║ GALLERY // NORTH ║','╚══════════════════╝','        ↑'],c:'#00ff66'};
+const DOWNTOWN_STRUCTURES:Billboard[]=[
+  {x:7,y:19.5,t:['╔══════════════╗','║ K//RECORDS   ║','║ VINYL · TAPE ║','║  OPEN 24:00  ║','╚═══╤══════╤═══╝','    │ ▒▒▒▒ │'],c:'#ff3bd4'},
+  {x:41,y:19.5,t:['╔══════════════╗','║ TECHOPS CAFE ║','║ COFFEE / P2  ║','║ WIFI // UP   ║','╚═══╤══════╤═══╝','    │ ░░░░ │'],c:'#00ff91'},
+  {x:7,y:23.2,t:['┌──────────────┐','│ RESIDUAL LAB │','│ AGENTS INSIDE│','│ RECEIPTS LIVE│','├──────────────┤','│▥▥│      │▥▥│','└──┴──────┴───┘'],c:'#b86bff'},
+  {x:41,y:23.2,t:['┌──────────────┐','│ VECTOR REPAIR│','│ ROBOTICS BAY │','│ ANGEL^3 MESH │','├──────────────┤','│◉ │      │ ◉│','└──┴──────┴───┘'],c:'#00d9ff'},
+  {x:10,y:27.0,t:['╔═ K//METRO ═╗','║ DOWNTOWN   ║','║ GALLERY ↑  ║','║ PORTALS ↓  ║','╚════╤═══════╝'],c:'#ffb000'},
+  {x:36,y:27.0,t:['┌─ STREET GRID ─┐','│ WALK / DRIVE  │','│ NIGHT BUS 07  │','│ FACTORY EAST  │','└──────┬────────┘'],c:'#00ffff'}
+];
+
 const PROJECT_STRUCTURES:Billboard[]=[
   {x:16,y:18.8,t:['       ╱╲','      ╱  ╲','  ╔══╧════╧══╗','  ║ RESIDUAL ║','╔═╩══════════╩═╗','║ RECEIPT HALL ║','║ OBSERVE      ║','║ VERIFY       ║','║ REPLAY       ║','╚══════╤═══════╝','       │'],c:'#ff3bd4'},
   {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
@@ -262,6 +271,7 @@ export default function AsciiCityWorld(){
   const initialScene:SceneId=queryScene&&SCENES[queryScene]?queryScene:'spring';
   const wrap=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),keys=useRef<Record<string,boolean>>({});
   const artImagesRef=useRef<Map<string,HTMLImageElement>>(new Map());
+  const portraitImageRef=useRef<HTMLImageElement|null>(null);
   const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door'|'car';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
   const touchMove=useRef({id:-1,x0:0,y0:0,dx:0,dy:0}),touchLook=useRef({id:-1,x:0,y:0});
   const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),audioPlayingRef=useRef(false),audioEnergyRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
@@ -292,6 +302,10 @@ export default function AsciiCityWorld(){
     K_GALLERY_ART.forEach((piece)=>images.set(piece.id,img));
     artImagesRef.current=images;
     return()=>{artImagesRef.current.clear();};
+  },[]);
+  useEffect(()=>{
+    const img=new Image();img.decoding='async';img.src=K_GALLERY_PORTRAITS;portraitImageRef.current=img;
+    return()=>{portraitImageRef.current=null;};
   },[]);
   const lock=useCallback(()=>{if(termRef.current)return;try{const p=canvas.current?.requestPointerLock?.();if(p&&typeof (p as Promise<void>).catch==='function')(p as Promise<void>).catch(()=>{});}catch(_){}},[]);
   const sit=useCallback(()=>{if(phase.current!=='explore')return;portableTerminalRef.current=false;const c=cam.current;seatFrom.current={x:c.x,y:c.y,ang:c.ang,h:c.height};anim.current=0;phase.current='sitting';document.exitPointerLock?.();},[]);
@@ -441,7 +455,7 @@ export default function AsciiCityWorld(){
       ? [...DOOR_SIGNS,...GALLERY_MOTIFS]
       : inRealm
         ? [...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],REALM_RETURN_GATE,sceneSign]
-        : [...SIGNS,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
+        : [...SIGNS,...DOWNTOWN_STRUCTURES,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(inCity){
       const movers=[
