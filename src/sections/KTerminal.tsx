@@ -1129,6 +1129,39 @@ Playlist: ${tracks.length} track(s)`);
           </div>
         </div>
 
+        {/* CLI console — intentionally directly beneath the projection deck */}
+        <div className="kt-cli-console">
+        {/* Terminal */}
+        <div className="kt-terminal" ref={terminalRef}>
+          {lines.map((line, i) => (
+            <div
+              key={i}
+              className="kt-line"
+              dangerouslySetInnerHTML={{ __html: line.text }}
+              style={{ marginBottom: 5, opacity: 1 }}
+            />
+          ))}
+        </div>
+
+        {/* Input */}
+        <div className="kt-input-line">
+          <span className="kt-prompt"><span className="kt-bashrc"><span className="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span className="kt-bashrc-k">k</span><span className="kt-bashrc-at">@</span><span className="kt-bashrc-the">the</span><span className="kt-bashrc-emrld">emrld</span></span><span className="kt-shell-op">$</span></span>
+          <input
+            ref={inputRef}
+            type="text"
+            className="kt-input"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <span className="kt-cursor" />
+        </div>
+
+        </div>
+
         {/* Visualizer */}
         <div className="kt-visualizer-container" style={{ display: visualizerEnabled ? 'block' : 'none' }}>
           <canvas ref={canvasRef} className="kt-canvas" />
@@ -1184,34 +1217,6 @@ Playlist: ${tracks.length} track(s)`);
             </ul>
           </div>
 
-        {/* Terminal */}
-        <div className="kt-terminal" ref={terminalRef}>
-          {lines.map((line, i) => (
-            <div
-              key={i}
-              className="kt-line"
-              dangerouslySetInnerHTML={{ __html: line.text }}
-              style={{ marginBottom: 5, opacity: 1 }}
-            />
-          ))}
-        </div>
-
-        {/* Input */}
-        <div className="kt-input-line">
-          <span className="kt-prompt"><span className="kt-bashrc"><span className="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span className="kt-bashrc-k">k</span><span className="kt-bashrc-at">@</span><span className="kt-bashrc-the">the</span><span className="kt-bashrc-emrld">emrld</span></span><span className="kt-shell-op">$</span></span>
-          <input
-            ref={inputRef}
-            type="text"
-            className="kt-input"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            autoFocus
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <span className="kt-cursor" />
-        </div>
       </div>
 
       {/* Global styles for terminal page */}
@@ -1426,6 +1431,35 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
         @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-moon,.kt-rocket{font-size:7px}.kt-cube-face{font-size:10px} }
         @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-cube-face,.kt-globe,.kt-diamond,.kt-moon,.kt-rocket,.kt-ascii-card::before{animation:none} }
+
+        .kt-cli-console {
+          border: 1px solid #00ff41;
+          background: rgba(0, 8, 3, 0.94);
+          box-shadow: inset 0 0 22px rgba(0,255,65,.08), 0 0 10px rgba(0,255,65,.08);
+          margin-bottom: 10px;
+          min-height: 150px;
+          max-height: 30vh;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .kt-cli-console .kt-terminal {
+          border: 0;
+          border-bottom: 1px solid #008f11;
+          min-height: 90px;
+          flex: 1;
+        }
+        .kt-cli-console .kt-input-line {
+          margin: 0;
+          border-top: 0;
+          padding: 9px 10px;
+          background: rgba(0, 18, 5, .72);
+          flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+          .kt-cli-console { min-height: 126px; max-height: 24vh; }
+          .kt-cli-console .kt-terminal { min-height: 72px; max-height: 15vh; }
+        }
 
         .kt-visualizer-container {
           height: 100px;
