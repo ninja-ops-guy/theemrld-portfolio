@@ -41,7 +41,7 @@ export default function Hero() {
         <div className="flex flex-wrap justify-center gap-3" style={{ marginTop: '34px' }}>
           <button type="button" onClick={() => scrollToSection('#work')} className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>SEE THE WORK →</button>
           <button type="button" onClick={() => scrollToSection('#research-thesis')} className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>HOW I APPROACH R&amp;D →</button>
-          <a href="https://github.com/ninja-ops-guy/developer-portfolio" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{ border: '1px solid #8899AA', color: '#B7C3D0' }}>DEVELOPER VIEW ↗</a>
+          <a href="https://ninja-ops-guy.github.io/developer-portfolio/" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{ border: '1px solid #8899AA', color: '#B7C3D0' }}>DEVELOPER VIEW ↗</a>
         </div>
         <div className="flex flex-wrap justify-center gap-2" style={{ marginTop: '34px', maxWidth: '980px' }}>
           {domains.map((domain) => <span key={domain} className="font-label" style={{ border: '1px solid #1A2540', padding: '8px 10px', color: '#74869A', background: 'rgba(5,10,20,.45)' }}>{domain}</span>)}
