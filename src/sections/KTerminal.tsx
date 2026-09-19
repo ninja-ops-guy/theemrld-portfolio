@@ -57,6 +57,7 @@ export default function KTerminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const widgetRef = useRef<HTMLIFrameElement>(null);
   const scWidgetRef = useRef<any>(null);
+  const widgetBoundRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -155,6 +156,9 @@ export default function KTerminal() {
     const SC = (window as any).SC;
     if (!SC) return;
 
+    if (widgetBoundRef.current) return;
+    widgetBoundRef.current = true;
+
     widget.bind(SC.Widget.Events.READY, () => {
       widget.getDuration((duration: number) => {
         setCurrentTrack((prev) => (prev ? { ...prev, duration } : prev));
@@ -202,10 +206,12 @@ export default function KTerminal() {
 
     try {
       const widget = scWidgetRef.current || SC.Widget(widgetRef.current);
-      if (!scWidgetRef.current) {
-        scWidgetRef.current = widget;
-        bindWidgetEvents(widget);
-      }
+      scWidgetRef.current = widget;
+      bindWidgetEvents(widget);
+
+      // Start playback synchronously from the user's click/Enter gesture. This is
+      // especially important on iOS, where a later READY callback may lose gesture authority.
+      try { widget.play(); } catch (e) {}
 
       widget.load(url, {
         auto_play: true,
@@ -556,12 +562,19 @@ Playlist: ${tracks.length} track(s)`);
     script.id = 'sc-api';
     script.src = 'https://w.soundcloud.com/player/api.js';
     script.async = true;
+    script.onload = () => {
+      if (widgetRef.current && (window as any).SC?.Widget) {
+        const widget = scWidgetRef.current || (window as any).SC.Widget(widgetRef.current);
+        scWidgetRef.current = widget;
+        bindWidgetEvents(widget);
+      }
+    };
     document.body.appendChild(script);
     return () => {
       const existing = document.getElementById('sc-api');
       if (existing) existing.remove();
     };
-  }, []);
+  }, [bindWidgetEvents]);
 
   // Auto-scroll terminal
   useEffect(() => {
