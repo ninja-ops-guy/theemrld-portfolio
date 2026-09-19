@@ -21,7 +21,7 @@ export default function EvidenceMatrix(){
           <div style={{background:'#08101D',padding:'22px'}}><div className="font-label" style={{marginBottom:9}}>EVIDENCE / BOUNDARY</div><p className="font-body" style={{color:'#8FA0B2',fontSize:13,lineHeight:1.65,margin:0}}>{r.evidence}</p></div>
         </article>)}
       </div>
-      <p className="font-body" style={{color:'#607287',fontSize:12,lineHeight:1.7,marginTop:18}}>The label changes when the evidence changes, not when I get more excited about the project.</p>
+      <p className="font-body" style={{color:'#74869A',fontSize:12,lineHeight:1.7,marginTop:18}}>The label changes when the evidence changes, not when I get more excited about the project.</p>
     </div>
   </section>
 }
