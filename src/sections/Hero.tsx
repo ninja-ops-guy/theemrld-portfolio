@@ -10,7 +10,14 @@ export default function Hero() {
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
   const scrollToSection = (id: string) => {
-    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const target = document.querySelector(id);
+    if (!target) return;
+    window.dispatchEvent(new CustomEvent('portfolio-scroll', { detail: id }));
+    window.setTimeout(() => {
+      if (Math.abs(target.getBoundingClientRect().top) > 120) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 120);
   };
 
   useEffect(() => {
