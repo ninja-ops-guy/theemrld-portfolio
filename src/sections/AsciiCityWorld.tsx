@@ -260,7 +260,7 @@ export default function AsciiCityWorld(){
   const artImagesRef=useRef<Map<string,HTMLImageElement>>(new Map());
   const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door'|'car';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
   const touchMove=useRef({id:-1,x0:0,y0:0,dx:0,dy:0}),touchLook=useRef({id:-1,x:0,y:0});
-  const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
+  const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),audioPlayingRef=useRef(false),audioEnergyRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
   const start=back?RETURN:portal?PORTAL_SPAWN:SPAWN,cam=useRef<Cam>({x:start.x,y:start.y,ang:start.a,pitch:0,height:1.55}),seatFrom=useRef({x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55});
   const [scene,setScene]=useState<SceneId>(initialScene);
   const [audioCue,setAudioCueState]=useState<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city');
@@ -316,14 +316,28 @@ export default function AsciiCityWorld(){
     const inRealm=!royal&&cc.y>=REALM_THRESHOLD_Y;
     const cfg=inRealm?SCENES[scene]:CITY_CONFIG;
     const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
-    const syncPulse=.72+.28*Math.abs(Math.sin(syncTime*3.15));
+    const playing=audioPlayingRef.current;
+    // SoundCloud exposes position rather than raw PCM/FFT. Build a deterministic
+    // multi-band envelope from that authoritative clock so every subsystem stays
+    // phase-locked through pause/resume without pretending this is spectral data.
+    const kick=playing?Math.pow(Math.abs(Math.sin(syncTime*3.18)),7):0;
+    const mid=playing?(Math.sin(syncTime*5.37+1.1)+1)*.5:0;
+    const high=playing?(Math.sin(syncTime*11.7+2.4)+1)*.5:0;
+    const audioEnergy=playing?Math.min(1,.48*kick+.32*mid+.20*high):0;
+    audioEnergyRef.current=audioEnergy;
+    const syncPulse=.64+.36*audioEnergy;
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
       if(y<hor){
-        const weather=(x*17+y*7+syncStep)%67===0,star=(x*41+y*13+Math.floor(syncTime))%257===0;
+        const weather=(x*17+y*7+syncStep)%Math.max(23,67-Math.floor(audioEnergy*28))===0,star=(x*41+y*13+Math.floor(syncTime))%Math.max(97,257-Math.floor(audioEnergy*100))===0;
         if(royal){
-          const rib=((x+y*2)%17===0)||(Math.abs((x%28)-14)-Math.floor((hor-y)*.18)===0);
-          chars[y][x]=rib?(x%2?'╲':'╱'):weather?'│':star?'·':' ';
-          colors[y][x]=rib?'#6f5591':weather?'#35254f':'#160e22';
+          // Tall neo-gothic gallery: lancet windows, balcony rails, suspended
+          // spotlights and violet tracery modeled after the approved reference.
+          const arch=Math.abs((x%30)-15)-Math.floor((hor-y)*.22)===0;
+          const mullion=(x%10===0&&y>Math.max(1,hor-12));
+          const balcony=y===Math.max(2,hor-7)&&x>cols*.42;
+          const pendant=((x+3)%23===0&&y===Math.max(2,hor-3));
+          chars[y][x]=arch?(x%2?'╲':'╱'):mullion?'│':balcony?'═':pendant?'▼':star?'·':' ';
+          colors[y][x]=pendant?'#ff76df':balcony?'#8c4fc7':arch||mullion?'#76579e':'#100817';
         }else{
           // Distant modern high-rise skyline behind the raycast city canyon.
           const block=Math.floor(x/5),towerH=3+((block*11+7)%10),inTower=y>=hor-towerH&&y<hor;
@@ -339,7 +353,10 @@ export default function AsciiCityWorld(){
       }else{
         const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;
         if(royal){
-          chars[y][x]=chk?'◇':'·'; colors[y][x]=chk?'#31243d':'#1a1421';
+          const reflection=((x+syncStep)%29<2)||((x*3+syncStep)%41<2);
+          const grout=(y-hor)%5===0||x%17===0;
+          chars[y][x]=reflection?'≈':grout?'─':chk?'◇':'·';
+          colors[y][x]=reflection?(x%2?'#00bfcf':'#c126ff'):grout?'#4d315f':chk?'#2d1d38':'#130f18';
         }else{
           const puddle=((x*5+y*3+syncStep)%19)<3;
           chars[y][x]=puddle?(scene==='dark'?'░':'≈'):scene==='autumn'?(chk?',':'·'):scene==='winter'?(chk?'·':'_'):scene==='light'?(chk?'·':'+'):(chk?'·':'░');
@@ -389,9 +406,9 @@ export default function AsciiCityWorld(){
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(!royal){
       const movers=[
-        {x:Math.floor(((syncTime*9)% (cols+24))-12),y:Math.max(1,hor-8),txt:'<DRONE-07>',c:'#00ffff'},
-        {x:Math.floor(cols-((syncTime*6)% (cols+20))+10),y:Math.max(2,hor-4),txt:'==AIR.TAXI==>',c:'#ff3bd4'},
-        {x:Math.floor(((syncTime*4)% (cols+30))-15),y:Math.min(rows-2,hor+5),txt:'[NIGHT BUS]',c:cfg.accent}
+        {x:Math.floor(((syncTime*(9+audioEnergy*5))% (cols+24))-12),y:Math.max(1,hor-8),txt:'<DRONE-07>',c:'#00ffff'},
+        {x:Math.floor(cols-((syncTime*(6+audioEnergy*4))% (cols+20))+10),y:Math.max(2,hor-4),txt:'==AIR.TAXI==>',c:'#ff3bd4'},
+        {x:Math.floor(((syncTime*(4+audioEnergy*3))% (cols+30))-15),y:Math.min(rows-2,hor+5),txt:'[NIGHT BUS]',c:cfg.accent}
       ];
       for(const m of movers)for(let q=0;q<m.txt.length;q++){const xx=m.x+q,yy=m.y;if(xx>=0&&xx<cols&&yy>=0&&yy<rows&&zb[Math.max(0,Math.min(cols-1,xx))]>5){chars[yy][xx]=m.txt[q];colors[yy][xx]=m.c;}}
     }
@@ -405,26 +422,59 @@ export default function AsciiCityWorld(){
         const rel=norm(Math.atan2(dy,dx)-cc.ang);
         if(Math.abs(rel)>FOV*.58)continue;
         const screenX=(.5+rel/FOV)*ww;
-        const ci=Math.max(0,Math.min(cols-1,Math.round(screenX/cw)));
-        if(d>zb[ci]+1.15)continue;
-        const scale=Math.max(.18,Math.min(1.15,5.6/d));
-        const ph=Math.max(44,piece.height*74*scale);
-        const pw=Math.max(40,piece.width*74*scale);
+        // The art positions are gallery wall anchors, not collision objects;
+        // render when facing their wall sector instead of letting the raycaster
+        // mistakenly occlude them behind the cathedral shell.
+        const scale=Math.max(.24,Math.min(1.35,6.8/d));
+        const ph=Math.max(58,piece.height*86*scale);
+        const pw=Math.max(52,piece.width*86*scale);
         const px=screenX-pw/2;
-        const py=hh*.49-ph*.58-(cc.height-1.55)*14;
-        const pad=Math.max(3,Math.round(7*scale));
+        const py=hh*.46-ph*.56-(cc.height-1.55)*14;
+        const pad=Math.max(4,Math.round(8*scale));
+        const glow=8+26*audioEnergy;
         ctx.save();
-        ctx.shadowColor=piece.accent;ctx.shadowBlur=10*scale;
-        ctx.fillStyle='#0b0710';ctx.fillRect(px-pad,py-pad,pw+pad*2,ph+pad*2);
-        ctx.strokeStyle='#9b7a55';ctx.lineWidth=Math.max(1,2*scale);ctx.strokeRect(px-pad,py-pad,pw+pad*2,ph+pad*2);
+        // Museum spotlight cone.
+        const lampY=Math.max(6,py-24*scale);
+        const grad=ctx.createLinearGradient(screenX,lampY,screenX,py+ph);
+        grad.addColorStop(0,`rgba(255,230,205,${.10+.16*audioEnergy})`);
+        grad.addColorStop(1,'rgba(255,230,205,0)');
+        ctx.fillStyle=grad;
+        ctx.beginPath();ctx.moveTo(screenX-5*scale,lampY);ctx.lineTo(px-10*scale,py+ph);ctx.lineTo(px+pw+10*scale,py+ph);ctx.closePath();ctx.fill();
+        // Layered antique-gold frame like the reference.
+        ctx.shadowColor=piece.accent;ctx.shadowBlur=glow;
+        ctx.fillStyle='#070409';ctx.fillRect(px-pad*1.6,py-pad*1.6,pw+pad*3.2,ph+pad*3.2);
+        ctx.strokeStyle='#b98a48';ctx.lineWidth=Math.max(2,3*scale);ctx.strokeRect(px-pad*1.35,py-pad*1.35,pw+pad*2.7,ph+pad*2.7);
+        ctx.strokeStyle='#51361f';ctx.lineWidth=Math.max(1,1.5*scale);ctx.strokeRect(px-pad*.65,py-pad*.65,pw+pad*1.3,ph+pad*1.3);
         ctx.shadowBlur=0;
         ctx.drawImage(img,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
-        ctx.fillStyle='rgba(2,2,5,.86)';ctx.fillRect(px,py+ph-13*scale,pw,13*scale);
-        ctx.font=`${Math.max(7,9*scale)}px ${FONT}`;
-        ctx.fillStyle=piece.accent;ctx.fillText(piece.label+' // '+piece.title,px+4*scale,py+ph-11*scale);
+        ctx.fillStyle='rgba(2,2,5,.9)';ctx.fillRect(px,py+ph-15*scale,pw,15*scale);
+        ctx.font=`${Math.max(8,10*scale)}px ${FONT}`;
+        ctx.fillStyle=piece.accent;ctx.fillText(piece.label+' // '+piece.title,px+5*scale,py+ph-12*scale);
         ctx.restore();
       }
     }
+    if(royal){
+      // Foreground installations from the reference: central armillary/pedestal,
+      // side benches, CRT and hanging ART/SURVIVES/STILL banner.
+      const pulse=audioEnergyRef.current;
+      ctx.save();
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      const cx=ww*.50,baseY=hh*.82;
+      ctx.strokeStyle=`rgba(190,105,255,${.55+.35*pulse})`;ctx.lineWidth=1.5;
+      for(let r=22;r<=54;r+=16){ctx.beginPath();ctx.ellipse(cx,baseY-58,r,r*.48,(syncTime*.18)+(r*.01),0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle='#100a14';ctx.fillRect(cx-92,baseY-24,184,62);
+      ctx.strokeStyle='#7c526f';ctx.strokeRect(cx-92,baseY-24,184,62);
+      ctx.font=`${Math.max(9,ww*.008)}px ${FONT}`;ctx.fillStyle='#c48ce8';ctx.fillText('T H E   E M R L D',cx,baseY+1);
+      ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#805b91';ctx.fillText('SOME THINGS DECAY · SOME THINGS REMAIN · SOME THINGS TRANSCEND',cx,baseY+20);
+      ctx.textAlign='left';
+      ctx.fillStyle='#09070b';ctx.fillRect(ww*.08,hh*.78,ww*.17,18);ctx.strokeStyle='#57314f';ctx.strokeRect(ww*.08,hh*.78,ww*.17,18);
+      ctx.fillRect(ww*.73,hh*.78,ww*.17,18);ctx.strokeRect(ww*.73,hh*.78,ww*.17,18);
+      ctx.fillStyle='#030a08';ctx.fillRect(ww*.86,hh*.70,ww*.11,hh*.16);ctx.strokeStyle='#00ff66';ctx.strokeRect(ww*.86,hh*.70,ww*.11,hh*.16);
+      ctx.font=`${Math.max(7,ww*.006)}px ${FONT}`;ctx.fillStyle='#00ff66';ctx.fillText('> ART',ww*.87,hh*.73);ctx.fillText('> SURVIVES',ww*.87,hh*.76);ctx.fillText('> STILL',ww*.87,hh*.79);ctx.fillText('> _',ww*.87,hh*.82);
+      ctx.fillStyle='rgba(42,12,48,.88)';ctx.fillRect(ww*.77,hh*.08,ww*.09,hh*.25);ctx.font=`${Math.max(8,ww*.006)}px ${FONT}`;ctx.fillStyle='#b96eea';ctx.textAlign='center';ctx.fillText('ART',ww*.815,hh*.14);ctx.fillText('SURVIVES',ww*.815,hh*.20);ctx.fillText('STILL',ww*.815,hh*.26);
+      ctx.restore();
+    }
+
     const hit=phase.current==='explore'?cast(cc.x,cc.y,Math.cos(cc.ang),Math.sin(cc.ang),3.2):null;const door=hit?DOOR_SCENE[hit.tile]:undefined;target.current=hit&&hit.dist<2.65&&hit.tile==='C'?{kind:'console'}:hit&&hit.dist<2.4&&hit.tile==='A'?{kind:'relic'}:hit&&hit.dist<2.8&&door?{kind:'door',scene:door}:hit&&hit.dist<2.8&&hit.tile==='V'?{kind:'car'}:null;if(time-lastHud.current>.12){lastHud.current=time;const prompt=vehicleRef.current?'[E] EXIT K//DRIVE':target.current?.kind==='console'?'[E] SIT AT K TERMINAL':target.current?.kind==='relic'?'[E] INSPECT SIGNAL RELIC':target.current?.kind==='car'?'[E] ENTER K//DRIVE · ⚑ FLAG':target.current?.kind==='door'&&target.current.scene?'[E] ENTER '+target.current.scene.toUpperCase()+' // '+SCENES[target.current.scene].label:null;setHud({area:area(cc.x,cc.y,scene),prompt,fps,x:cc.x,y:cc.y,ang:cc.ang});}},[scene]);
 
   useEffect(()=>{
@@ -518,7 +568,7 @@ export default function AsciiCityWorld(){
         onEnterScene={enterScene}
         worldAudioZone={audioCue}
         worldAudioArmed={booted}
-        onAudioState={(state)=>{audioMsRef.current=state.positionMs;setNowPlaying(state.title);}}
+        onAudioState={(state)=>{audioMsRef.current=state.positionMs;audioPlayingRef.current=state.playing;setNowPlaying(state.title);}}
       />
     </div><style>{CSS}</style></div>;
 }
