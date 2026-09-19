@@ -50,17 +50,17 @@ const TRACKS={
 } satisfies Record<string,KSoundtrackTrack>;
 
 const SCENE_PLAYLISTS:Record<SceneId,KSoundtrackTrack[]>={
-  spring:[TRACKS.spring],
+  spring:[TRACKS.spring,TRACKS.ambient1,TRACKS.ambient2],
   summer:[TRACKS.summer1,TRACKS.summer2,TRACKS.summer3],
   autumn:[TRACKS.autumn1,TRACKS.autumn2],
   winter:[TRACKS.winter1,TRACKS.winter2,TRACKS.dreamer],
   light:[TRACKS.ambient1,TRACKS.ambient2],
-  dark:[TRACKS.dark]
+  dark:[TRACKS.dark,TRACKS.ambient2]
 };
 const AMBIENT_PLAYLIST=[TRACKS.ambient1,TRACKS.ambient2];
 const cuePlaylist=(cue:string,scene:SceneId):KSoundtrackTrack[]=>{
   if(cue==='gallery-return')return[TRACKS.galleryReturn];
-  if(cue==='city')return[TRACKS.city];
+  if(cue==='city')return[TRACKS.city,TRACKS.ambient1,TRACKS.ambient2];
   if(cue==='gallery-deep')return[TRACKS.galleryDeep];
   if(cue==='car')return[TRACKS.car];
   if(cue==='flight')return[TRACKS.flight];
@@ -357,7 +357,62 @@ export default function AsciiCityWorld(){
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
     const hit=phase.current==='explore'?cast(cc.x,cc.y,Math.cos(cc.ang),Math.sin(cc.ang),3.2):null;const door=hit?DOOR_SCENE[hit.tile]:undefined;target.current=hit&&hit.dist<2.65&&hit.tile==='C'?{kind:'console'}:hit&&hit.dist<2.4&&hit.tile==='A'?{kind:'relic'}:hit&&hit.dist<2.8&&door?{kind:'door',scene:door}:hit&&hit.dist<2.8&&hit.tile==='V'?{kind:'car'}:null;if(time-lastHud.current>.12){lastHud.current=time;const prompt=vehicleRef.current?'[E] EXIT K//DRIVE':target.current?.kind==='console'?'[E] SIT AT K TERMINAL':target.current?.kind==='relic'?'[E] INSPECT SIGNAL RELIC':target.current?.kind==='car'?'[E] ENTER K//DRIVE · ⚑ FLAG':target.current?.kind==='door'&&target.current.scene?'[E] ENTER '+target.current.scene.toUpperCase()+' // '+SCENES[target.current.scene].label:null;setHud({area:area(cc.x,cc.y,scene),prompt,fps,x:cc.x,y:cc.y,ang:cc.ang});}},[scene]);
 
-  useEffect(()=>{let raf=0,last=performance.now(),ff=0,clock=0,fps=0;const frame=(now:number)=>{raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;ff++;clock+=dt;if(clock>=.5){fps=Math.round(ff/clock);ff=0;clock=0;}const c=cam.current;if(phase.current==='explore'&&booted){const k=keys.current;let fw=0,st=0;if(k.w||k.arrowup)fw++;if(k.s||k.arrowdown)fw--;if(k.a)st--;if(k.d)st++;if(touchMove.current.id!==-1){fw-=touchMove.current.dy;st+=touchMove.current.dx;}if(k.arrowleft)c.ang-=1.8*dt;if(k.arrowright)c.ang+=1.8*dt;const sp=(k.shift?3.7:2.55)*dt,dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=.24;if(!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x+=mx;if(!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y+=my;}if(phase.current==='sitting'||phase.current==='standing'){anim.current=Math.min(1,anim.current+dt/.72);const e=anim.current,sm=e*e*(3-2*e),from=seatFrom.current,to={x:SEAT.x,y:SEAT.y,ang:SEAT.a,h:1.2},aa=phase.current==='sitting'?from:to,bb=phase.current==='sitting'?to:from,da=norm(bb.ang-aa.ang);c.x=aa.x+(bb.x-aa.x)*sm;c.y=aa.y+(bb.y-aa.y)*sm;c.ang=aa.ang+da*sm;c.height=aa.h+(bb.h-aa.h)*sm;c.pitch*=1-sm;if(e>=1){if(phase.current==='sitting'){phase.current='seated';setTerminal(true);termRef.current=true;}else phase.current='explore';}}if(now-lastPaint.current>32){lastPaint.current=now;draw(now/1000,fps);}};raf=requestAnimationFrame(frame);return()=>cancelAnimationFrame(raf);},[booted,draw]);
+  useEffect(()=>{
+    let raf=0,last=performance.now(),ff=0,clock=0,fps=0;
+    const frame=(now:number)=>{
+      raf=requestAnimationFrame(frame);
+      const dt=Math.min(.05,(now-last)/1000);last=now;ff++;clock+=dt;
+      if(clock>=.5){fps=Math.round(ff/clock);ff=0;clock=0;}
+      const c=cam.current;
+      if(phase.current==='explore'&&booted){
+        const k=keys.current;
+        let fw=0,st=0;
+        if(k.w||k.arrowup)fw++;
+        if(k.s||k.arrowdown)fw--;
+        if(vehicleRef.current){
+          if(k.a||k.arrowleft)c.ang-=2.15*dt;
+          if(k.d||k.arrowright)c.ang+=2.15*dt;
+          st=0;
+        }else{
+          if(k.a)st--;
+          if(k.d)st++;
+          if(k.arrowleft)c.ang-=1.8*dt;
+          if(k.arrowright)c.ang+=1.8*dt;
+        }
+        if(touchMove.current.id!==-1){fw-=touchMove.current.dy;if(!vehicleRef.current)st+=touchMove.current.dx;}
+        if(flightRef.current){
+          if(k[' '])c.height=Math.min(5.2,c.height+2.1*dt);
+          if(k.control||k.c)c.height=Math.max(1.9,c.height-2.1*dt);
+        }
+        const sp=(vehicleRef.current?6.4:flightRef.current?5.2:(k.shift?3.7:2.55))*dt;
+        const dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=vehicleRef.current?.18:.24;
+        if(!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x+=mx;
+        if(!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y+=my;
+
+        // Zone soundtrack routing. A terminal exit gets a protected 12-second
+        // turnaround cue before the nave/deeper-gallery music can take over.
+        const inGallery=c.y<=15.9&&c.x>12&&c.x<36;
+        if(vehicleRef.current)setAudioCue('car');
+        else if(flightRef.current)setAudioCue('flight');
+        else if(inGallery){
+          if(cueRef.current==='gallery-return'&&now<galleryReturnUntil.current){/* hold */}
+          else if(c.y>8.1&&c.y<14.9)setAudioCue('gallery-deep');
+          else setAudioCue('ambient');
+        }else if(['gallery-return','gallery-deep','ambient'].includes(cueRef.current)){
+          setAudioCue('scene');
+        }
+      }
+      if(phase.current==='sitting'||phase.current==='standing'){
+        anim.current=Math.min(1,anim.current+dt/.72);
+        const e=anim.current,sm=e*e*(3-2*e),from=seatFrom.current,to={x:SEAT.x,y:SEAT.y,ang:SEAT.a,h:1.2},aa=phase.current==='sitting'?from:to,bb=phase.current==='sitting'?to:from,da=norm(bb.ang-aa.ang);
+        c.x=aa.x+(bb.x-aa.x)*sm;c.y=aa.y+(bb.y-aa.y)*sm;c.ang=aa.ang+da*sm;c.height=aa.h+(bb.h-aa.h)*sm;c.pitch*=1-sm;
+        if(e>=1){if(phase.current==='sitting'){phase.current='seated';setTerminal(true);termRef.current=true;}else phase.current='explore';}
+      }
+      if(now-lastPaint.current>32){lastPaint.current=now;draw(now/1000,fps);}
+    };
+    raf=requestAnimationFrame(frame);
+    return()=>cancelAnimationFrame(raf);
+  },[booted,draw,setAudioCue]);
   const map=useMemo(()=>mini(hud.x,hud.y,hud.ang),[hud.x,hud.y,hud.ang]);
   const sceneCfg=SCENES[scene];
 
