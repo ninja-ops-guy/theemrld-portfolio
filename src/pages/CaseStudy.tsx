@@ -55,9 +55,8 @@ const studies: Record<string, Study> = {
     stack: 'Python · React/JavaScript · Computer Vision · Optimization · Experiment Automation · GitHub Actions',
   },
   'ctf-redteam-harness': {
-    title: 'Red-Team CTF Harness', eyebrow: 'OFFENSIVE SECURITY / AGENT BENCHMARKING / DEFENSIVE TELEMETRY', status: 'ACTIVE DEVELOPMENT · PUBLIC',
+    title: 'Red-Team CTF Harness', eyebrow: 'OFFENSIVE SECURITY / AGENT BENCHMARKING / DEFENSIVE TELEMETRY', status: 'ACTIVE R&D · PRIVATE',
     thesis: 'A bounded security experimentation harness for comparing scripted and LLM-driven operators while preserving execution evidence, defensive visibility, and replayable reasoning.',
-    repo: 'https://github.com/ninja-ops-guy/ctf-redteam-harness',
     problem: 'Agentic security tooling is easy to demo and hard to evaluate. A model can appear capable while relying on unsafe execution, irreproducible reasoning, hidden retries, or a challenge set that does not expose where it fails. I wanted a testbed where the challenge, action boundary, audit record, detections, evidence, and result are all explicit enough to compare solvers and study failure.',
     architecture: [
       { title: 'Challenge + solver layer', body: 'JSON-defined challenge packs drive either deterministic ScriptSolver playbooks or OpenAI-compatible LLM solvers, including local endpoints such as Ollama/vLLM.' },
@@ -74,7 +73,6 @@ const studies: Record<string, Study> = {
   'vector-wirepod': {
     title: 'Vector / WirePod Robotics', eyebrow: 'EMBODIED AI / ROBOTICS / VERIFIED AGENT CONTROL', status: 'ACTIVE R&D · PRIVATE REPO · PUBLIC RELEASE PLANNED',
     thesis: 'An embodied-agent research platform for giving LLMs useful control over an Anki Vector without treating model output as trusted robot behavior. The core idea is to separate intent, capability, verification, execution, and learning so new behaviors can be proposed dynamically but only promoted after evidence says they are safe and functional.',
-    repo: 'https://github.com/ninja-ops-guy/vector-swarm-ai',
     problem: 'LLM-to-robot demos are easy when the model only maps text to a small fixed command set. The harder problem is what happens when the requested behavior does not exist yet. My Vector work starts from a working WirePod / SDK control surface and asks a more ambitious question: can an LLM inspect the robot\'s available capabilities, compose or write a new Python behavior, verify that behavior against explicit constraints, run it in a controlled environment, observe the result, and retain only what actually worked? That turns the robot from a collection of hard-coded tricks into a governed embodied-agent testbed.',
     architecture: [
       { title: 'WirePod + MCP control plane', body: 'WirePod provides the local robot bridge while MCP-style tools expose typed robot actions and reusable skills to an LLM. Existing typed-command control proves the model can already invoke robot capabilities through a structured interface instead of free-form shell access.' },
