@@ -96,7 +96,7 @@ function renderIdleHashFrame(tick: number): string {
 function renderTainoFrame(tick: number): string {
   const width = 31, height = 15;
   const { chars, depth } = asciiBuffer(width, height);
-  const ay = Math.sin(tick * 0.055) * 0.78;
+  const ay = tick * (Math.PI * 2 / 96);
   const ax = -0.18 + Math.sin(tick * 0.031) * 0.12;
   const az = Math.sin(tick * 0.024) * 0.08;
   const light: V3 = [-0.35, -0.35, 0.86];
@@ -972,7 +972,7 @@ Playlist: ${tracks.length} track(s)`);
         {/* Living ASCII sigils */}
         <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated terminal sigils">
           <div className="kt-ascii-card kt-taino-card">
-            <span className="kt-ascii-label">☉ TAINO://SOL·PETROGLYPH · YUCAHU.EXE</span>
+            <span className="kt-ascii-label">☉ TAINO://PETROGLYPH·SOL · RELIEF.EXE</span>
             <div className="kt-taino-stage">
               {!isPlaying && <pre className="kt-taino-noise">{renderIdleHashFrame(asciiTick)}</pre>}
               <pre className="kt-taino-symbol">{renderTainoFrame(asciiTick)}</pre>
