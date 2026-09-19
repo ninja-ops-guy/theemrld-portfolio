@@ -14,17 +14,61 @@ const OUTSIDE={x:20,y:14.45,a:Math.PI/2};
 const FONT='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 
 type SceneId=KWorldScene;
-type SceneConfig={label:string;era:string;accent:string;sky:string;haze:string;floorA:string;floorB:string;wall:string;neon:string;weather:string;weatherColor:string;wallChars:[string,string,string]};
+type SceneConfig={label:string;era:string;motifs:string;accent:string;sky:string;haze:string;floorA:string;floorB:string;wall:string;neon:string;weather:string;weatherColor:string;wallChars:[string,string,string]};
 const SCENES:Record<SceneId,SceneConfig>={
-  spring:{label:'VERNAL COURT',era:'ROYAL GOTHIC // SPRING',accent:'#a7ff9b',sky:'#160d25',haze:'#7d4cff',floorA:'#193124',floorB:'#10251d',wall:'#4e4668',neon:'#a7ff9b',weather:'·',weatherColor:'#8dffad',wallChars:['▓','▒','░']},
-  summer:{label:'SOLAR CLOISTER',era:'NEO-GOTHIC // SUMMER',accent:'#ffd166',sky:'#120c21',haze:'#ff3bd4',floorA:'#233329',floorB:'#121f1b',wall:'#384a5f',neon:'#00ffff',weather:'|',weatherColor:'#ffca58',wallChars:['█','▓','▒']},
-  autumn:{label:'RUST PROCESSIONAL',era:'BRUTALIST DECAY // AUTUMN',accent:'#ff9b42',sky:'#1b0d0a',haze:'#7a281b',floorA:'#3a2419',floorB:'#241711',wall:'#604334',neon:'#ff7a33',weather:',',weatherColor:'#d98845',wallChars:['▓','▒','░']},
-  winter:{label:'WHITEOUT GRID',era:'POSTMODERN COLLAPSE // WINTER',accent:'#d8ecff',sky:'#07111c',haze:'#8bb9df',floorA:'#253445',floorB:'#152330',wall:'#667587',neon:'#a9e7ff',weather:'*',weatherColor:'#d8ecff',wallChars:['□','▒','·']},
-  light:{label:'LUMEN ARCOLOGY',era:'POSTMODERN // LIGHT',accent:'#fff0a8',sky:'#07161b',haze:'#d9fff6',floorA:'#284143',floorB:'#173034',wall:'#71878a',neon:'#fff0a8',weather:'+',weatherColor:'#effff9',wallChars:['□','▫','·']},
-  dark:{label:'BLACKOUT WASTELAND',era:'POST-APOCALYPTIC // DARK',accent:'#ff3b59',sky:'#050208',haze:'#53102b',floorA:'#1f1118',floorB:'#11090e',wall:'#332532',neon:'#ff315f',weather:'/',weatherColor:'#7b203b',wallChars:['█','▓','·']}
+  spring:{label:'VERNAL COURT',era:'ROYAL GOTHIC // SPRING',motifs:'POINTED ARCHES · ROSE WINDOWS · IVY · HERALDRY',accent:'#a7ff9b',sky:'#160d25',haze:'#7d4cff',floorA:'#193124',floorB:'#10251d',wall:'#4e4668',neon:'#a7ff9b',weather:'·',weatherColor:'#8dffad',wallChars:['▓','▒','░']},
+  summer:{label:'SOLAR CLOISTER',era:'NEO-GOTHIC // SUMMER',motifs:'SUNBURSTS · ARCADES · FOUNTAINS · STAINED GLASS',accent:'#ffd166',sky:'#120c21',haze:'#ff3bd4',floorA:'#233329',floorB:'#121f1b',wall:'#384a5f',neon:'#00ffff',weather:'|',weatherColor:'#ffca58',wallChars:['█','▓','▒']},
+  autumn:{label:'RUST PROCESSIONAL',era:'BRUTALIST DECAY // AUTUMN',motifs:'BRUTALIST SLABS · EXPOSED REBAR · OXIDE · LEAF DRIFT',accent:'#ff9b42',sky:'#1b0d0a',haze:'#7a281b',floorA:'#3a2419',floorB:'#241711',wall:'#604334',neon:'#ff7a33',weather:',',weatherColor:'#d98845',wallChars:['▓','▒','░']},
+  winter:{label:'WHITEOUT GRID',era:'POSTMODERN COLLAPSE // WINTER',motifs:'FRACTURED GLASS · ICICLES · SNOW FENCES · BARE LATTICE',accent:'#d8ecff',sky:'#07111c',haze:'#8bb9df',floorA:'#253445',floorB:'#152330',wall:'#667587',neon:'#a9e7ff',weather:'*',weatherColor:'#d8ecff',wallChars:['□','▒','·']},
+  light:{label:'LUMEN ARCOLOGY',era:'POSTMODERN // LIGHT',motifs:'SOLAR FINS · WHITE GRID · SKY GARDENS · CIVIC ATRIA',accent:'#fff0a8',sky:'#07161b',haze:'#d9fff6',floorA:'#284143',floorB:'#173034',wall:'#71878a',neon:'#fff0a8',weather:'+',weatherColor:'#effff9',wallChars:['□','▫','·']},
+  dark:{label:'BLACKOUT WASTELAND',era:'POST-APOCALYPTIC // DARK',motifs:'COLLAPSED GANTRIES · ASH · DEAD NEON · FIRE BARRELS',accent:'#ff3b59',sky:'#050208',haze:'#53102b',floorA:'#1f1118',floorB:'#11090e',wall:'#332532',neon:'#ff315f',weather:'/',weatherColor:'#7b203b',wallChars:['█','▓','·']}
 };
 const DOOR_SCENE:Record<string,SceneId>={'1':'spring','2':'summer','3':'autumn','4':'winter','5':'light','6':'dark'};
 const DOOR_COLOR:Record<string,string>={'1':'#a7ff9b','2':'#ffd166','3':'#ff9b42','4':'#d8ecff','5':'#fff0a8','6':'#ff3b59'};
+type Billboard={x:number;y:number;t:string[];c:string};
+const GALLERY_MOTIFS:Billboard[]=[
+  {x:20,y:9.8,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','   │ ╱  ╱ │ ╲  ╲ │','    ╲  ╱  │  ╲  ╱','     ╲___♛___╱','      ROSE WINDOW'],c:'#b86bff'},
+  {x:13.5,y:8.5,t:['    ╱╲','   ╱  ╲','  ╱ ♜  ╲',' ╱______╲',' │  ║║  │',' │  ║║  │',' ╰──╨╨──╯','POINTED ARCH'],c:'#d892ff'},
+  {x:26.5,y:8.5,t:['╔═══♛═══╗','║  K//  ║','║ EMRLD ║','╚═══╤═══╝','    │',' HERALDRY'],c:'#a87cff'}
+];
+const LANDMARKS:Record<SceneId,Billboard[]>={
+  spring:[
+    {x:14,y:17.2,t:['     ❧   ❧','   ╭───────╮','  ╱  ╲ ✥ ╱  ╲',' ╱____╲│╱____╲',' │ ♛   ◎   ♛ │',' │ ║   │   ║ │',' ╰─╨───┴───╨─╯','VERNAL GATE'],c:'#a7ff9b'},
+    {x:27,y:19.4,t:['   ╭─❀─╮',' ╭─╯ ║ ╰─╮',' │  ≈╬≈  │',' │ ≈╬╬╬≈ │',' ╰──╥╥╥──╯','  FOUNTAIN'],c:'#78ffd1'},
+    {x:10.5,y:24.8,t:['❧❧❧  IVY WALK  ❧❧❧','│╲│╱│╲│╱│╲│╱│','│ ❧ │ ❀ │ ❧ │','╰───╧───╧───╯'],c:'#6dff78'},
+    {x:30.5,y:27.2,t:['╔═══ HOUSE K ═══╗','║ ♜  ♛  ✥  ♜   ║','╚══════╤════════╝','       │','  HERALDIC COURT'],c:'#c4a0ff'}
+  ],
+  summer:[
+    {x:20,y:17.4,t:['      ╲  │  ╱','    ──── ☼ ────','      ╱  │  ╲','  ╭────────────╮','  │ SOLAR NAVE │','  ╰────────────╯'],c:'#ffd166'},
+    {x:10.5,y:21.5,t:['╭─╮ ╭─╮ ╭─╮','│ │ │ │ │ │','│ │ │ │ │ │','╰─╯ ╰─╯ ╰─╯','ARCADE WALK'],c:'#ffe68a'},
+    {x:29.3,y:23.2,t:['   ╭────╮',' ╭─╯ ☼☼ ╰─╮',' │ ≈≈╬≈≈ │',' │ ≈╬╬╬≈ │',' ╰──╥╥───╯','SUN FOUNTAIN'],c:'#00ffff'},
+    {x:18,y:28.0,t:['╱╲╱╲╱╲╱╲╱╲','╲╱╲╱╲╱╲╱╲╱','STAINED GLASS','  AMBULATORY'],c:'#ff76df'}
+  ],
+  autumn:[
+    {x:13,y:17.5,t:['████████████','██  ██  ████','██  ██  ████','████████████','╫╫  ╫╫  ╫╫','BRUTAL BLOCK'],c:'#c96b35'},
+    {x:28,y:20.4,t:['╫  ╫   ╫  ╫','╫╲ ╫ ╱ ╫╲ ╫','╫ ╲╫╱  ╫ ╲╫','╫  ╳   ╫  ╫','EXPOSED REBAR'],c:'#a9552b'},
+    {x:10,y:26.0,t:['>>> WARNING >>>','OXIDE ZONE 04','/////\\\\\\','LEAF DRIFT ,,,'],c:'#ff9b42'},
+    {x:30,y:27.5,t:['┌───────────┐','│ K//WORKS  │','│   CLOSED  │','└─────╥─────┘',' ,  , ║ , ,'],c:'#e7823f'}
+  ],
+  winter:[
+    {x:13,y:17.0,t:['      ✧','    ╱╲╱╲','  ╱╲╱◇╲╱╲',' ╲╱╲╱╲╱╲╱','  ICE SPIRE'],c:'#d8ecff'},
+    {x:28,y:20.0,t:['╲   │   ╱',' ╲  │  ╱','──╲─◇─╱──',' ╱  │  ╲','╱   │   ╲','FRACTURED GLASS'],c:'#a9e7ff'},
+    {x:10,y:26.2,t:['||||||||||||','|*|*|*|*|*|','||||||||||||',' SNOW FENCE'],c:'#c5d8e8'},
+    {x:30,y:27.2,t:['╭─────────╮','│ FROZEN  │','│  TRANSIT│','╰─┬─┬─┬───╯','  * * *'],c:'#8bb9df'}
+  ],
+  light:[
+    {x:13,y:17.3,t:['    ╱│╲','   ╱ │ ╲','  ╱  ◇  ╲',' ╱___│___╲',' │ □ □ □ │',' │ □ □ □ │',' LUMEN TOWER'],c:'#fff0a8'},
+    {x:28,y:20.0,t:['╭──────────╮','│ SKY GARDEN│','│  ❀  ❧  ❀ │','╰────┬─────╯','     │'],c:'#b8ffd8'},
+    {x:10,y:26.0,t:['╱╲ ╱╲ ╱╲ ╱╲','☼  ☼  ☼  ☼','╲╱ ╲╱ ╲╱ ╲╱',' SOLAR FINS'],c:'#ffe16a'},
+    {x:30,y:27.2,t:['╔══════════╗','║ CIVIC    ║','║ ATRIUM   ║','║ □ ◇ □ ◇  ║','╚══════════╝'],c:'#effff9'}
+  ],
+  dark:[
+    {x:13,y:17.0,t:['____/╲________','   /  ╲__','__/      ╲____','   COLLAPSED','    GANTRY'],c:'#7c3547'},
+    {x:28,y:20.3,t:['   (^^)','  (####)','   ╲__/','    │','   ╱_╲','FIRE BARREL'],c:'#ff5a32'},
+    {x:10,y:25.8,t:['┌──────────┐','│ N E O N  │','│  D E A D │','└────╲─────┘','      ╲'],c:'#ff315f'},
+    {x:30,y:27.0,t:['    ╳','   ╱│╲','  ╱ │ ╲',' ╱__│__╲','    │','  ASH MAST'],c:'#6e2639'}
+  ]
+};
 
 function makeMap(){
   const g=Array.from({length:H},()=>Array(W).fill('#'));
@@ -66,6 +110,42 @@ const DOOR_SIGNS=[
   {x:30.3,y:10.5,t:['[6] DARK','BLACKOUT WASTE'],c:DOOR_COLOR['6']}
 ];
 
+function sceneWallGlyph(scene:SceneId,ix:number,iy:number,sx:number,sy:number,top:number,bot:number,time:number,fallback:string){
+  const h=Math.max(1,bot-top),v=(sy-top)/h,p=(ix*7+iy*11+sx)%19;
+  switch(scene){
+    case 'spring':
+      if(v>.22&&v<.28&&p===0)return '✥';
+      if(v>.55&&p===3)return '│';
+      if(v>.74&&p===6)return '❧';
+      return fallback;
+    case 'summer':
+      if(v>.18&&v<.25&&p===0)return '☼';
+      if(v>.42&&v<.50&&p<2)return '╭';
+      if(v>.70&&p===5)return '≈';
+      return fallback;
+    case 'autumn':
+      if(p===0&&v>.2)return '╫';
+      if((sx+sy+Math.floor(time*2))%23===0)return ',';
+      if(v>.66&&p===7)return '#';
+      return fallback;
+    case 'winter':
+      if(v<.18&&p<3)return '▼';
+      if(p===2)return '╲';
+      if(p===9)return '╱';
+      if((sx*3+sy+Math.floor(time))%29===0)return '*';
+      return fallback;
+    case 'light':
+      if(p===0)return '□';
+      if(v>.35&&v<.42&&p<3)return '◇';
+      if(v>.7&&p===8)return '│';
+      return fallback;
+    case 'dark':
+      if(p===1&&v>.18)return '╳';
+      if(p===8)return '/';
+      if((sx+sy+Math.floor(time*3))%31===0)return '·';
+      return fallback;
+  }
+}
 function tile(x:number,y:number){const ix=Math.floor(x),iy=Math.floor(y);return ix<0||iy<0||ix>=W||iy>=H?'#':MAP[iy][ix];}
 function solid(x:number,y:number){return '#NGACP123456'.includes(tile(x,y));}
 function cast(px:number,py:number,dx:number,dy:number,max=40):Hit{
@@ -89,7 +169,7 @@ function mini(x:number,y:number,a:number){
   for(let j=0;j<h;j++){let row='';for(let i=0;i<w;i++){if(i===(w>>1)&&j===(h>>1)){row+=dirs[di];continue;}const mx=px-(w>>1)+i,my=py-(h>>1)+j;if(mx<0||my<0||mx>=W||my>=H){row+=' ';continue;}const t=MAP[my][mx];row+=t==='#'?'▓':t==='N'?'▒':t==='G'?'╫':t==='C'?'▣':t==='A'?'■':t==='P'?'●':DOOR_SCENE[t]?'□':'·';}out.push(row);}return out.join('\n');
 }
 
-const CSS='.kcity{position:fixed;inset:0;background:#04060c;color:#00ff66;font-family:'+FONT+';overflow:hidden}.kc-wrap{position:absolute;inset:0}.kc-wrap canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;image-rendering:pixelated}.kc-scan,.kc-vig{position:absolute;inset:0;pointer-events:none;z-index:8}.kc-scan{background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.28) 2px 4px);mix-blend-mode:multiply}.kc-vig{background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.62) 100%),radial-gradient(ellipse at 50% 110%,rgba(176,0,255,.09),transparent 55%)}.kc-hud{position:absolute;z-index:12;left:12px;top:12px;border:1px solid #00ff6644;background:#000b;padding:8px 10px;font-size:10px;line-height:1.45}.kc-hud b,.kc-hud span,.kc-hud small{display:block}.kc-hud b{color:#00ff91}.kc-hud span{color:#00d9ff}.kc-hud small{color:#46705c}.kc-map{position:absolute;z-index:12;right:12px;top:12px;margin:0;border:1px solid #00ff6633;background:#000c;padding:7px;color:#59736a;font:8px/.95 monospace}.kc-cross{position:absolute;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);color:#00ff6699;text-shadow:0 0 8px #00ff66}.kc-ctl{position:absolute;z-index:12;left:12px;bottom:12px;border:1px solid #00ff6633;background:#000b;padding:7px 9px;color:#4c8268;font-size:9px;line-height:1.45}.kc-ctl b{color:#00ff91}.kc-prompt,.kc-lock{position:absolute;z-index:13;left:50%;transform:translateX(-50%);background:#000d;font:10px monospace;letter-spacing:.14em;padding:8px 12px;cursor:pointer}.kc-prompt{bottom:82px;border:1px solid #00ff66;color:#bfffd8;box-shadow:0 0 20px #00ff6633}.kc-lock{bottom:31%;border:1px solid #00d9ff88;color:#00d9ff}.kc-note{position:absolute;z-index:14;left:50%;top:13%;transform:translateX(-50%);border:1px solid #00ff66;background:#020805ed;padding:8px 12px;color:#00ff91;font-size:9px;letter-spacing:.09em;text-align:center}.kc-boot{position:absolute;z-index:30;inset:0;background:#04060cf5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px}.kc-logo{font-size:clamp(34px,8vw,88px);letter-spacing:.12em;color:#b86bff;text-shadow:0 0 24px #8f4dff}.kc-boot pre{color:#00ff91;line-height:1.7;font-size:11px}.kc-boot button{background:#06030b;border:1px solid #00ff66;color:#00ff91;padding:11px 22px;font:11px monospace;letter-spacing:.22em;cursor:pointer;box-shadow:0 0 18px #00ff6633}.kc-terminal{position:absolute;inset:0;z-index:40;background:#000}.kc-terminal .kt-body{height:100dvh}@media(max-width:700px){.kc-hud{font-size:8px;left:6px;top:6px;padding:6px}.kc-map{right:6px;top:6px;font-size:6px}.kc-ctl{left:6px;bottom:6px;font-size:7px;max-width:72%}.kc-prompt{bottom:68px;font-size:8px}.kc-lock{bottom:26%;font-size:8px}.kc-note{top:18%;width:82%;font-size:8px}.kc-logo{font-size:34px}.kc-boot pre{font-size:9px}}';
+const CSS='.kcity{position:fixed;inset:0;background:#04060c;color:#00ff66;font-family:'+FONT+';overflow:hidden}.kc-wrap{position:absolute;inset:0}.kc-wrap canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;image-rendering:pixelated}.kc-scan,.kc-vig{position:absolute;inset:0;pointer-events:none;z-index:8}.kc-scan{background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.28) 2px 4px);mix-blend-mode:multiply}.kc-vig{background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.62) 100%),radial-gradient(ellipse at 50% 110%,rgba(176,0,255,.09),transparent 55%)}.kc-hud{position:absolute;z-index:12;left:12px;top:12px;border:1px solid #00ff6644;background:#000b;padding:8px 10px;font-size:10px;line-height:1.45;max-width:min(440px,62vw)}.kc-hud b,.kc-hud span,.kc-hud small{display:block}.kc-hud b{color:#00ff91}.kc-hud span{color:#00d9ff}.kc-hud small{color:#46705c}.kc-map{position:absolute;z-index:12;right:12px;top:12px;margin:0;border:1px solid #00ff6633;background:#000c;padding:7px;color:#59736a;font:8px/.95 monospace}.kc-cross{position:absolute;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);color:#00ff6699;text-shadow:0 0 8px #00ff66}.kc-ctl{position:absolute;z-index:12;left:12px;bottom:12px;border:1px solid #00ff6633;background:#000b;padding:7px 9px;color:#4c8268;font-size:9px;line-height:1.45}.kc-ctl b{color:#00ff91}.kc-prompt,.kc-lock{position:absolute;z-index:13;left:50%;transform:translateX(-50%);background:#000d;font:10px monospace;letter-spacing:.14em;padding:8px 12px;cursor:pointer}.kc-prompt{bottom:82px;border:1px solid #00ff66;color:#bfffd8;box-shadow:0 0 20px #00ff6633}.kc-lock{bottom:31%;border:1px solid #00d9ff88;color:#00d9ff}.kc-note{position:absolute;z-index:14;left:50%;top:13%;transform:translateX(-50%);border:1px solid #00ff66;background:#020805ed;padding:8px 12px;color:#00ff91;font-size:9px;letter-spacing:.09em;text-align:center}.kc-boot{position:absolute;z-index:30;inset:0;background:#04060cf5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:18px}.kc-logo{font-size:clamp(34px,8vw,88px);letter-spacing:.12em;color:#b86bff;text-shadow:0 0 24px #8f4dff}.kc-boot pre{color:#00ff91;line-height:1.7;font-size:11px}.kc-boot button{background:#06030b;border:1px solid #00ff66;color:#00ff91;padding:11px 22px;font:11px monospace;letter-spacing:.22em;cursor:pointer;box-shadow:0 0 18px #00ff6633}.kc-terminal{position:absolute;inset:0;z-index:40;background:#000}.kc-terminal .kt-body{height:100dvh}@media(max-width:700px){.kc-hud{font-size:8px;left:6px;top:6px;padding:6px}.kc-map{right:6px;top:6px;font-size:6px}.kc-ctl{left:6px;bottom:6px;font-size:7px;max-width:72%}.kc-prompt{bottom:68px;font-size:8px}.kc-lock{bottom:26%;font-size:8px}.kc-note{top:18%;width:82%;font-size:8px}.kc-logo{font-size:34px}.kc-boot pre{font-size:9px}}';
 
 export default function AsciiCityWorld(){
   const [params,setParams]=useSearchParams(),back=params.get('spawn')==='console',portal=params.get('spawn')==='portal';
@@ -120,9 +200,9 @@ export default function AsciiCityWorld(){
   const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch);
     const cfg=SCENES[scene],royal=cc.y<=12.6&&cc.x>8&&cc.x<32;
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){if(y<hor){const weather=(x*17+y*7+Math.floor(time*(scene==='winter'?18:34)))%67===0,star=(x*41+y*13)%257===0;if(royal){chars[y][x]=weather?'│':star?'·':' ';colors[y][x]=weather?'#3a2055':'#1c1028';}else{chars[y][x]=weather?cfg.weather:star?'·':' ';colors[y][x]=weather?cfg.weatherColor:cfg.sky;}}else{const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;chars[y][x]=scene==='autumn'?(chk?',':'·'):scene==='winter'?(chk?'·':'_'):scene==='light'?(chk?'·':'+'):scene==='dark'?(chk?'.':':'):(chk?'·':'░');colors[y][x]=royal?(chk?'#24182f':'#15101d'):(chk?cfg.floorA:cfg.floorB);}}
-    for(let x=0;x<cols;x++){const rx=(x/Math.max(1,cols-1)-.5)*2,ra=cc.ang+rx*(FOV/2),dx=Math.cos(ra),dy=Math.sin(ra),hit=cast(cc.x,cc.y,dx,dy,42);if(!hit){zb[x]=999;continue;}const d=Math.max(.08,hit.dist*Math.cos(ra-cc.ang));zb[x]=d;const wh=Math.min(rows*1.5,(rows*1.05)/d),top=Math.max(0,Math.floor(hor-wh*.56)),bot=Math.min(rows-1,Math.ceil(hor+wh*.44));const fixed=hit.iy<=12||'GACP123456'.includes(hit.tile),base=DOOR_COLOR[hit.tile]||COLORS[hit.tile]||(hit.tile==='N'?cfg.neon:cfg.wall),sh=fixed?(d<3?['█','▓','▒']:d<7?['▓','▒','░']:['▒','░','·']):cfg.wallChars;for(let y=top;y<=bot;y++){const band=Math.floor((y-top)/Math.max(1,bot-top)*3);chars[y][x]=hit.tile==='C'&&(x+y)%7===0?'▣':DOOR_SCENE[hit.tile]&&y===Math.round((top+bot)/2)?hit.tile:sh[Math.min(2,band)];colors[y][x]=hit.side?dim(base,.72):base;}}
+    for(let x=0;x<cols;x++){const rx=(x/Math.max(1,cols-1)-.5)*2,ra=cc.ang+rx*(FOV/2),dx=Math.cos(ra),dy=Math.sin(ra),hit=cast(cc.x,cc.y,dx,dy,42);if(!hit){zb[x]=999;continue;}const d=Math.max(.08,hit.dist*Math.cos(ra-cc.ang));zb[x]=d;const wh=Math.min(rows*1.5,(rows*1.05)/d),top=Math.max(0,Math.floor(hor-wh*.56)),bot=Math.min(rows-1,Math.ceil(hor+wh*.44));const fixed=hit.iy<=12||'GACP123456'.includes(hit.tile),base=DOOR_COLOR[hit.tile]||COLORS[hit.tile]||(hit.tile==='N'?cfg.neon:cfg.wall),sh=fixed?(d<3?['█','▓','▒']:d<7?['▓','▒','░']:['▒','░','·']):cfg.wallChars;for(let y=top;y<=bot;y++){const band=Math.floor((y-top)/Math.max(1,bot-top)*3),raw=hit.tile==='C'&&(x+y)%7===0?'▣':DOOR_SCENE[hit.tile]&&y===Math.round((top+bot)/2)?hit.tile:sh[Math.min(2,band)];chars[y][x]=fixed?raw:sceneWallGlyph(scene,hit.ix,hit.iy,x,y,top,bot,time,raw);colors[y][x]=hit.side?dim(base,.72):base;}}
     const sceneSign={x:20,y:16.3,t:['['+scene.toUpperCase()+'] '+cfg.label,cfg.era],c:cfg.accent};
-    const allSigns=[...SIGNS,...DOOR_SIGNS,sceneSign];
+    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...LANDMARKS[scene],sceneSign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
     const hit=phase.current==='explore'?cast(cc.x,cc.y,Math.cos(cc.ang),Math.sin(cc.ang),3.2):null;const door=hit?DOOR_SCENE[hit.tile]:undefined;target.current=hit&&hit.dist<2.65&&hit.tile==='C'?{kind:'console'}:hit&&hit.dist<2.4&&hit.tile==='A'?{kind:'relic'}:hit&&hit.dist<2.8&&door?{kind:'door',scene:door}:null;if(time-lastHud.current>.12){lastHud.current=time;const prompt=target.current?.kind==='console'?'[E] SIT AT K TERMINAL':target.current?.kind==='relic'?'[E] INSPECT SIGNAL RELIC':target.current?.kind==='door'&&target.current.scene?'[E] ENTER '+target.current.scene.toUpperCase()+' // '+SCENES[target.current.scene].label:null;setHud({area:area(cc.x,cc.y,scene),prompt,fps,x:cc.x,y:cc.y,ang:cc.ang});}},[scene]);
@@ -132,7 +212,7 @@ export default function AsciiCityWorld(){
   const sceneCfg=SCENES[scene];
 
   return <div className="kcity"><div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/>
-    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v4.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT<br/><b>GALLERY DOORS: SPRING · SUMMER · AUTUMN · WINTER · LIGHT · DARK</b></div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}</>}
+    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v4.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>MOTIFS {sceneCfg.motifs}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT<br/><b>GALLERY DOORS: SPRING · SUMMER · AUTUMN · WINTER · LIGHT · DARK</b></div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}</>}
     {notice&&!terminal&&<div className="kc-note">{notice}</div>}
     {!booted&&<div className="kc-boot"><div className="kc-logo">K//THE EMRLD</div><pre>{'☿ SOLVE / COAGULA ☉\n> booting ASCII raycaster ........ ok\n> mounting K//GALLERY royal nexus  ok\n> six seasonal/light/dark doors .. online\n> TECHOPS city grid .............. online\n> apse K Terminal ................ armed'}</pre><button onClick={()=>{setBooted(true);lock();}}>ENTER K//CITY</button></div>}
     {terminal&&<div className="kc-terminal"><KTerminal embedded onExitToCity={exit} onEnterScene={enterScene}/></div>}<style>{CSS}</style></div>;
