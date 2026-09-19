@@ -385,7 +385,7 @@ export default function AsciiCityWorld(){
           if(k.control||k.c)c.height=Math.max(1.9,c.height-2.1*dt);
         }
         const sp=(vehicleRef.current?6.4:flightRef.current?5.2:(k.shift?3.7:2.55))*dt;
-        const dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=vehicleRef.current?.18:.24;
+        const dx=Math.cos(c.ang),dy=Math.sin(c.ang),mx=(dx*fw-dy*st)*sp,my=(dy*fw+dx*st)*sp,r=vehicleRef.current ? .18 : .24;
         if(!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x+=mx;
         if(!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y+=my;
 
