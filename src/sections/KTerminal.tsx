@@ -761,47 +761,76 @@ Playlist: ${tracks.length} track(s)`);
               <pre className="kt-eye">{asciiTick % 32 < 3 ? '  ╔═☿═🜍═╗\n ╱  ─────  ╲\n<  ── ◇ ──  >\n ╲  ─────  ╱\n  ╚═☽═🜔═╝' : '  ╔═☿═🜍═╗\n ╱  ◉   ◉  ╲\n<     ◈     >\n ╲   ╲▴╱   ╱\n  ╚═☽═🜔═╝'}</pre>
             </div>
           </div>
-          <div className="kt-ascii-card kt-apollo-card">\n            <span className="kt-ascii-label">☉ APOLLO://MUSIC·LIGHT·PROPHECY · ORACLE.EXE</span>\n            <div className="kt-apollo-stage">\n              <pre className="kt-apollo">{asciiTick % 40 < 3 ? `       \\ | /\n     --  ☼  --\n       / | \\\n        .---.\n       / - - \\\n      |   ▴   |\n      |  ___  |\n     .\\_____/ .\n    /| /|♩|\\ |\\\n   /_|/_|_|_\\|_\\\n     / / ║ \\ \\\n    /_/  ║  \\_\\\n       __║__\n      /_/_\\_\\` : `       \\ | /\n     --  ☼  --\n       / | \\\n        .---.\n       / ◉ ◉ \\\n      |   ▴   |\n      |  ___  |\n     .\\_____/ .\n    /| /|♫|\\ |\\\n   /_|/_|_|_\\|_\\\n     / / ║ \\ \\\n    /_/  ║  \\_\\\n       __║__\n      /_/_\\_\\`}</pre>\n            </div>\n          </div>\n          <div className="kt-ascii-card kt-angel-card">
-            <span className="kt-ascii-label">♄ CHOIR://RENAISSANCE·CELESTIAL · ANGELNET</span>
+          <div className="kt-ascii-card kt-apollo-card">
+            <span className="kt-ascii-label">☉ APOLLO://MARBLE·ORACLE · MUSAGETES.EXE</span>
+            <div className="kt-apollo-stage">
+              <pre className="kt-apollo">{asciiTick % 40 < 3 ? `          .-☉-.
+       .-'     '-.
+      /  .-"""-.  \\
+     /  / .---. \\  \\
+    |  | /     \\ |  |
+    |  ||  ─ ─  ||  |
+    |  ||   ▴   ||  |
+    |  |\\  ─  /|  |
+     \\  '.___.'  /
+      '._/|___|\\_.'
+       / /|   |\\ \\
+     _/ / | ♫ | \\ \\_
+   .'/ /  |___|  \\ \\'.
+  /_/ /_.-===== -._\\ \\_\\
+ /___/  /_______\\  \\___\\
+      _/ MARBLE \\_
+     /____☿_☉____\\` : `          .-☉-.
+       .-'     '-.
+      /  .-"""-.  \\
+     /  / .---. \\  \\
+    |  | /     \\ |  |
+    |  || ◉   ◉ ||  |
+    |  ||   ▴   ||  |
+    |  |\\  ▿  /|  |
+     \\  '.___.'  /
+      '._/|___|\\_.'
+       / /|   |\\ \\
+     _/ / | ♫ | \\ \\_
+   .'/ /  |___|  \\ \\'.
+  /_/ /_.-===== -._\\ \\_\\
+ /___/  /_______\\  \\___\\
+      _/ MARBLE \\_
+     /____☿_☉____\\`}</pre>
+            </div>
+          </div>
+          <div className="kt-ascii-card kt-angel-card">
+            <span className="kt-ascii-label">♄ CHOIR://MARBLE·SERAPHIM · ANGELNET</span>
             <div className="kt-angel-stage">
-              <pre className="kt-angels">{asciiTick % 28 < 3 ? `   .      *       .
-      \\  |  /
-   .---\\ O /---.
-  /  .--\\|/--.  \\
- <  /   ( )   \\  >
-  \\|   /|\\   |/
-   '  /_|_\\  '
-     / /♩\\ \\
-    /_/ )_( \\_
-       /___\\
-
-  .--.       .--.
- /_\\ \\     / /_\\
-(  o  )   (  o  )====>
- \\_=_/     \\_=_/   /
- /| |\\     /| |\\==/
-<_|_|_>   <_|_|_>
-  / \\       / \\
- /___\\     /___\\` : `   .      +       .
-      \\  |  /
-   .---\\☼/---.
-  /  .--\\|/--.  \\
- <  /   ◉ ◉   \\  >
-  \\|    ▴    |/
-   '  \\___/  '
-     /_|♫|_\\
-    / /╲╱\\ \\
-   /_/  ║  \\_\\
-       /___\\
-
-  .--.       .--.
- /_\\ \\     / /_\\
-(  ◉  )   (  ◉  )====>
- \\_▽_/     \\_▽_/  /
- /| |\\     /| |\\==/
-<_|_|_>   <_|_|_>
-  / \\       / \\
- /___\\     /___\\`}</pre>
+              <pre className="kt-angels">{asciiTick % 28 < 3 ? `       .-✧-.             .-✦-.
+    .-' /|\\ '-.       .-' /|\\ '-.
+   /  _/ | \\_  \\     /  _/ | \\_  \\
+  /.-'  .-.  '-.\\   /.-'  .-.  '-.\\
+ <(    / ─ \\    )> <(    / ─ \\    )>
+  \\|   | ▴ |   |/   \\|   | ▴ |   |/
+   '._ \\___/ _.'     '._ \\___/ _.'
+      /|___|\\           /|___|\\
+    _/ | ♫ | \\_       _/ |===>\\ \\_
+   /___|___|___\\     /___|_____|___\\
+     / /| |\\ \\         / /| |\\ \\
+  __/ /_| |_\\ \\__   __/ /_| |_\\ \\__
+ /___/  | |  \\___\\ /___/  | |  \\___\\
+      __| |__           __| |__
+     /__HARP_\\         /TRUMPET\\` : `       .-✧-.             .-✦-.
+    .-' /|\\ '-.       .-' /|\\ '-.
+   /  _/ | \\_  \\     /  _/ | \\_  \\
+  /.-'  .-.  '-.\\   /.-'  .-.  '-.\\
+ <(    /◉ ◉\\    )> <(    /◉ ◉\\    )>
+  \\|   | ▴ |   |/   \\|   | ▴ |   |/
+   '._ \\_▽_/ _.'     '._ \\_▽_/ _.'
+      /|___|\\           /|___|\\
+    _/ | ♫ | \\_       _/ |===>\\ \\_
+   /___|___|___\\     /___|_____|___\\
+     / /| |\\ \\         / /| |\\ \\
+  __/ /_| |_\\ \\__   __/ /_| |_\\ \\__
+ /___/  | |  \\___\\ /___/  | |  \\___\\
+      __| |__           __| |__
+     /__HARP_\\         /TRUMPET\\`}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-cube-card">
@@ -1023,8 +1052,8 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ouro-snake { position:absolute; inset:-18px; color:#00ff41; font-size:8px; word-break:break-all; opacity:.7; filter:contrast(1.4); }
         .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
         .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
-        .kt-apollo { margin:0; color:#ffb000; font:10px/1 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(255,176,0,.7),0 0 12px rgba(255,0,255,.2); animation:kt-apollo-aura 1.8s steps(8) infinite; }\n        .kt-apollo-card { background:radial-gradient(circle at 50% 42%,rgba(255,176,0,.11),rgba(13,2,8,.96) 64%); }\n        @keyframes kt-apollo-aura { 50% { filter:brightness(1.3); transform:translateY(-1px); } }\n        .kt-angel-card { background:radial-gradient(ellipse at 50% 45%,rgba(255,176,0,.09),rgba(255,0,255,.025) 44%,rgba(13,2,8,.97) 74%); }
-        .kt-angels { margin:0; color:#f0c96a; font:8px/1 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(240,201,106,.72),0 0 11px rgba(0,255,255,.15); animation:kt-choir-breathe 2.6s steps(10) infinite; }
+        .kt-apollo { margin:0; color:#ffb000; font:9px/.95 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(255,176,0,.7),0 0 12px rgba(255,0,255,.2); animation:kt-apollo-aura 1.8s steps(8) infinite; }\n        .kt-apollo-card { background:radial-gradient(circle at 50% 42%,rgba(255,176,0,.11),rgba(13,2,8,.96) 64%); }\n        @keyframes kt-apollo-aura { 50% { filter:brightness(1.3); transform:translateY(-1px); } }\n        .kt-angel-card { background:radial-gradient(ellipse at 50% 45%,rgba(255,176,0,.09),rgba(255,0,255,.025) 44%,rgba(13,2,8,.97) 74%); }
+        .kt-angels { margin:0; color:#f0c96a; font:7px/.92 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(240,201,106,.72),0 0 11px rgba(0,255,255,.15); animation:kt-choir-breathe 2.6s steps(10) infinite; }
         .kt-angel-card::before { content:'✦  ·  ✧  ·  ✦'; position:absolute; left:0; right:0; bottom:4px; text-align:center; color:#ff00ff; opacity:.55; font-size:8px; letter-spacing:.3em; animation:kt-stars 1.4s steps(4) infinite; }
         @keyframes kt-choir-breathe { 50% { transform:translateY(-1px); filter:brightness(1.22); } }
         @keyframes kt-stars { 50% { opacity:.2; } }
