@@ -1278,19 +1278,21 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
   }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, playZone]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        const value = inputValue.trim();
-        if (!value) return;
-        const [rawCommand, ...rawArgs] = value.split(' ');
-        const commandHtml = `<span class="tc-prompt"><span class="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span class="kt-bashrc-k">k</span><span class="kt-bashrc-at">@</span><span class="kt-bashrc-the">the</span><span class="kt-bashrc-emrld">emrld</span></span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
-        addLine(commandHtml, 'command');
-        setInputValue('');
-        const parts = value.split(' ');
-        const cmd = parts[0].toLowerCase();
-        const args = parts.slice(1);
-        executeCommand(cmd, args);
-      }
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // K Terminal owns every key while the prompt has focus. Without this,
+      // K//CITY's global Space handler treats spaces as flight input and
+      // prevents multi-argument commands such as "play 1".
+      e.stopPropagation();
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const value = inputValue.trim();
+      if (!value) return;
+      const parts = value.split(/\s+/).filter(Boolean);
+      const [rawCommand, ...rawArgs] = parts;
+      const commandHtml = `<span class="tc-prompt"><span class="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span class="kt-bashrc-k">k</span><span class="kt-bashrc-at">@</span><span class="kt-bashrc-the">the</span><span class="kt-bashrc-emrld">emrld</span></span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
+      addLine(commandHtml, 'command');
+      setInputValue('');
+      executeCommand(rawCommand.toLowerCase(), rawArgs);
     },
     [inputValue, addLine, executeCommand]
   );
@@ -1485,6 +1487,9 @@ Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}`);
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onKeyUp={(e) => e.stopPropagation()}
+            onKeyPress={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             autoFocus
             autoComplete="off"
             spellCheck={false}
