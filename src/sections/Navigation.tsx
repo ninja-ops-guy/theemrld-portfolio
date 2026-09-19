@@ -14,7 +14,13 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { const onScroll=()=>setScrolled(window.scrollY>160); window.addEventListener('scroll',onScroll,{passive:true}); return()=>window.removeEventListener('scroll',onScroll); }, []);
-  const scrollTo=(id:string)=>{ setMenuOpen(false); document.querySelector(id)?.scrollIntoView({behavior:'smooth'}); };
+  const scrollTo=(id:string)=>{
+    setMenuOpen(false);
+    const target=document.querySelector(id);
+    if(!target) return;
+    window.dispatchEvent(new CustomEvent('portfolio-scroll',{detail:id}));
+    window.setTimeout(()=>{ if(Math.abs(target.getBoundingClientRect().top)>120) target.scrollIntoView({behavior:'smooth',block:'start'}); },120);
+  };
   return <nav className="fixed top-0 left-0 right-0 z-[100] transition-all duration-[400ms] ease-out" style={{height:'64px',background:scrolled?'rgba(5,10,20,.9)':'rgba(5,10,20,.62)',backdropFilter:'blur(18px)',WebkitBackdropFilter:'blur(18px)'}}>
     <div className="flex items-center justify-between h-full px-6 md:px-10 max-w-[1440px] mx-auto">
       <a href="#hero" onClick={(e)=>{e.preventDefault();scrollTo('#hero')}} className="font-headline text-[11px] uppercase tracking-[0.2em] text-[#E8EDF3]">THEEMRLD</a>
