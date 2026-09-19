@@ -109,7 +109,7 @@ export default function Networking() {
                 className="font-headline"
                 style={{
                   fontSize: '14px',
-                  color: '#4A6DFF',
+                  color: '#5A78FF',
                   letterSpacing: '0.1em',
                 }}
               >
@@ -186,7 +186,7 @@ export default function Networking() {
                   <span
                     className="font-label"
                     style={{
-                      color: cert.status === 'CERTIFIED' ? '#4A6DFF' : '#ffaa00',
+                      color: cert.status === 'CERTIFIED' ? '#5A78FF' : '#ffaa00',
                       fontSize: '10px',
                     }}
                   >
@@ -202,7 +202,7 @@ export default function Networking() {
             {/* Network evidence panel — local, durable, no external asset dependency */}
             <div style={{ marginBottom: '40px', aspectRatio: '16/9', border: '1px solid #162235', background: 'linear-gradient(135deg,#08101D,#0A1425)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px' }}>
               <div>
-                <p className="font-label" style={{ color: '#4A6DFF', marginBottom: '12px' }}>PRODUCTION NETWORKING</p>
+                <p className="font-label" style={{ color: '#5A78FF', marginBottom: '12px' }}>PRODUCTION NETWORKING</p>
                 <p className="font-headline" style={{ color: '#E8EDF3', fontSize: 'clamp(1.4rem,3vw,2.3rem)', lineHeight: 1.15 }}>Switching · DHCP/DNS · SNMP · Packet Analysis</p>
                 <p className="font-body" style={{ color: '#718399', fontSize: '13px', lineHeight: 1.7, marginTop: '14px' }}>Operational experience is described through sanitized incidents and verifiable methods rather than stock imagery.</p>
               </div>
