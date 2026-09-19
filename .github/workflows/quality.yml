@@ -1,0 +1,93 @@
+name: Portfolio Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck and production build
+        run: npm run build
+
+      - name: Static lint
+        run: npm run lint
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start production preview
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/portfolio-preview.log 2>&1 &
+          echo $! > /tmp/portfolio-preview.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/theemrld-portfolio/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/portfolio-preview.log
+          exit 1
+
+      - name: Browser, responsive, console and accessibility audit
+        env:
+          PORTFOLIO_BASE_URL: http://127.0.0.1:4173/theemrld-portfolio/
+        run: npm run audit:portfolio
+
+      - name: Lighthouse budgets
+        run: |
+          mkdir -p artifacts/lighthouse
+          export CHROME_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          npx lighthouse http://127.0.0.1:4173/theemrld-portfolio/             --quiet             --chrome-flags="--headless --no-sandbox"             --output=json             --output-path=artifacts/lighthouse/home.json
+          node scripts/check-lighthouse.mjs artifacts/lighthouse/home.json
+
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-quality-evidence
+          path: artifacts/
+          if-no-files-found: ignore
+
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check public links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --exclude-mail
+            --exclude 'linkedin.com'
+            --exclude 'tryhackme.com'
+            --exclude 'soundcloud.com'
+            './README.md'
+            './src/**/*.tsx'
+            './index.html'
+          fail: true
