@@ -80,6 +80,9 @@ export default function KTerminal() {
   const [visualizerBars, setVisualizerBars] = useState(50);
   const [visualizerFps, setVisualizerFps] = useState(20);
   const [asciiTick, setAsciiTick] = useState(0);
+  const [ritualEnabled, setRitualEnabled] = useState(true);
+  const [ritualIntensity, setRitualIntensity] = useState(72);
+  const [ritualFps, setRitualFps] = useState(8);
 
   const bootIndexRef = useRef(0);
   const STORAGE_KEY = 'k-terminal:tracks:v3';
@@ -100,10 +103,13 @@ export default function KTerminal() {
       if (typeof settings.visualizerBars === 'number') setVisualizerBars(settings.visualizerBars);
       if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
       if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
+      if (typeof settings.ritualEnabled === 'boolean') setRitualEnabled(settings.ritualEnabled);
+      if (typeof settings.ritualIntensity === 'number') setRitualIntensity(settings.ritualIntensity);
+      if (typeof settings.ritualFps === 'number') setRitualFps(settings.ritualFps);
     } catch (_) {}
   }, []);
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
-  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate]);
+  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -113,9 +119,9 @@ export default function KTerminal() {
 
   // Low-FPS terminal art clock: intentionally stepped to preserve the retro CRT feel.
   useEffect(() => {
-    const timer = window.setInterval(() => setAsciiTick((n) => (n + 1) % 240), 120);
+    const timer = window.setInterval(() => setAsciiTick((n) => (n + 1) % 240), Math.max(50, Math.round(1000 / ritualFps)));
     return () => window.clearInterval(timer);
-  }, []);
+  }, [ritualFps]);
 
   // Boot sequence
   useEffect(() => {
@@ -366,6 +372,10 @@ export default function KTerminal() {
   <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
   <span class="tc-command">visualizer bars [8-128]</span> - Set density
   <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate
+  <span class="tc-command">ritual on|off</span>      - Toggle celestial ASCII audio-reactive mode
+  <span class="tc-command">ritual intensity [0-100]</span> - Set reaction strength
+  <span class="tc-command">ritual fps [2-20]</span>  - Set stepped animation clock
+  <span class="tc-command">ritual map</span>         - Show animation/audio mapping
   <span class="tc-command">next</span>              - Play next track
   <span class="tc-command">prev</span>              - Play previous track
   <span class="tc-command">status</span>            - Show playback status
@@ -516,6 +526,17 @@ export default function KTerminal() {
         break;
       }
 
+      case 'ritual': {
+        const sub = (args[0] || '').toLowerCase();
+        if (!sub) { addLine(`Ritual: ${ritualEnabled ? 'ON' : 'OFF'} | intensity=${ritualIntensity} | fps=${ritualFps}`); break; }
+        if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setRitualEnabled(enabled); addLine(`Celestial ritual ${enabled ? 'engaged' : 'silenced'}.`); break; }
+        if (sub === 'intensity') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 0 || n > 100) { addLine('Error: ritual intensity must be 0-100', 'error'); break; } setRitualIntensity(n); addLine(`Ritual intensity set to ${n}.`); break; }
+        if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 2 || n > 20) { addLine('Error: ritual fps must be 2-20', 'error'); break; } setRitualFps(n); addLine(`Ritual clock set to ${n} fps.`); break; }
+        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → OUROBOROS pulse\nMID → APOLLO solar aura\nTRANSIENT → ANGEL/TRUMPET herald\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
+        addLine('Usage: ritual on|off | ritual intensity [0-100] | ritual fps [2-20] | ritual map', 'error');
+        break;
+      }
+
       case 'visualizer': {
         const sub = (args[0] || '').toLowerCase();
         if (!sub) { addLine(`Visualizer: ${visualizerEnabled ? 'ON' : 'OFF'} | bars=${visualizerBars} | fps=${visualizerFps}`); break; }
@@ -604,7 +625,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, addLine, playTrack, playUrl, stopVisualizer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -733,7 +754,7 @@ Playlist: ${tracks.length} track(s)`);
         </div>
 
         {/* Living ASCII sigils */}
-        <div className="kt-ascii-deck" aria-label="animated terminal sigils">
+        <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated terminal sigils">
           <div className="kt-ascii-card kt-ouroboros">
             <span className="kt-ascii-label">OUROBOROS://RECURSION</span>
             <div className="kt-ouro-stage">
@@ -1010,6 +1031,13 @@ Playlist: ${tracks.length} track(s)`);
         @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
         @keyframes kt-eye-float { 50% { transform:translateY(2px); opacity:.82; } }
         @keyframes kt-cube-z { to { transform:rotateZ(360deg); } }
+        .kt-ritual-off .kt-ascii-card * { animation-play-state:paused !important; }
+        .kt-ritual-idle .kt-ascii-card { opacity:.58; filter:saturate(.55) brightness(.72); }
+        .kt-ritual-playing .kt-ouro-ring { animation-duration:calc(6s - (var(--ritual-power) * 3s)); box-shadow:0 0 calc(10px + var(--ritual-power) * 20px) rgba(0,255,65,.6),inset 0 0 12px rgba(0,255,65,.25); }
+        .kt-ritual-playing .kt-apollo { animation-duration:calc(2.2s - (var(--ritual-power) * .9s)); }
+        .kt-ritual-playing .kt-angels { animation-duration:calc(3s - (var(--ritual-power) * 1.4s)); }
+        .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
+        .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; }
         @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-ouro-ring{width:82px;height:82px}.kt-eye{font-size:11px}.kt-cube-face{font-size:10px} }
         @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face,.kt-apollo,.kt-angels,.kt-angel-card::before{animation:none} }
