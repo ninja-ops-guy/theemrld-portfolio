@@ -9,24 +9,32 @@ type Cam = { x:number; y:number; ang:number; pitch:number; height:number };
 type Hit = { tile:string; ix:number; iy:number; dist:number; side:number } | null;
 
 const W=48,H=40,FOV=Math.PI/2.65;
-const SPAWN={x:24.5,y:35.5,a:-Math.PI/2};
+const SPAWN={x:24.5,y:26.5,a:-Math.PI/2};
 const RETURN={x:23.5,y:6.45,a:Math.PI/2};
 const SEAT={x:23.5,y:5.9,a:-Math.PI/2};
-const OUTSIDE={x:24.5,y:17.45,a:Math.PI/2};
+const PORTAL_SPAWN={x:24.5,y:35.2,a:-Math.PI/2};
+const REALM_THRESHOLD_Y=29;
 const FONT='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 
 type SceneId=KWorldScene;
 type SceneConfig={label:string;era:string;motifs:string;accent:string;sky:string;haze:string;floorA:string;floorB:string;wall:string;neon:string;weather:string;weatherColor:string;wallChars:[string,string,string]};
+const CITY_CONFIG:SceneConfig={
+  label:'K//CITY',
+  era:'ASCII CITY // INNER RING',
+  motifs:'PROJECT DISTRICTS · FACTORY SYSTEMS · NEON TRANSIT · GALLERY NORTH',
+  accent:'#00ff66',sky:'#050913',haze:'#50206c',floorA:'#15212d',floorB:'#0b121b',wall:'#39475c',neon:'#00ffff',weather:'│',weatherColor:'#184a66',wallChars:['▓','▒','░']
+};
+
 const SCENES:Record<SceneId,SceneConfig>={
-  spring:{label:'VERNAL COURT',era:'ROYAL GOTHIC → CYBER SPRING',motifs:'POINTED ARCHES · ROSE WINDOWS · IVY · HERALDRY',accent:'#a7ff9b',sky:'#160d25',haze:'#7d4cff',floorA:'#193124',floorB:'#10251d',wall:'#4e566c',neon:'#9effbe',weather:'·',weatherColor:'#8dffad',wallChars:['▓','▒','░']},
-  summer:{label:'SOLAR CLOISTER',era:'ROYAL GOTHIC → SOLAR CITY',motifs:'SUNBURSTS · ARCADES · FOUNTAINS · STAINED GLASS',accent:'#ffd166',sky:'#120c21',haze:'#ff3bd4',floorA:'#263329',floorB:'#121f1b',wall:'#42536a',neon:'#00ffff',weather:'|',weatherColor:'#ffca58',wallChars:['█','▓','▒']},
-  autumn:{label:'RUST PROCESSIONAL',era:'ROYAL GOTHIC → BRUTALIST DECAY',motifs:'BRUTALIST SLABS · EXPOSED REBAR · OXIDE · LEAF DRIFT',accent:'#ff9b42',sky:'#1b0d0a',haze:'#7a281b',floorA:'#3a2419',floorB:'#241711',wall:'#604334',neon:'#ff7a33',weather:',',weatherColor:'#d98845',wallChars:['▓','▒','░']},
-  winter:{label:'WHITEOUT GRID',era:'ROYAL GOTHIC → POSTMODERN COLLAPSE',motifs:'FRACTURED GLASS · ICICLES · SNOW FENCES · BARE LATTICE',accent:'#d8ecff',sky:'#07111c',haze:'#8bb9df',floorA:'#253445',floorB:'#152330',wall:'#667587',neon:'#a9e7ff',weather:'*',weatherColor:'#d8ecff',wallChars:['□','▒','·']},
-  light:{label:'LUMEN ARCOLOGY',era:'ROYAL GOTHIC → POSTMODERN LIGHT',motifs:'SOLAR FINS · WHITE GRID · SKY GARDENS · CIVIC ATRIA',accent:'#fff0a8',sky:'#07161b',haze:'#d9fff6',floorA:'#284143',floorB:'#173034',wall:'#71878a',neon:'#fff0a8',weather:'+',weatherColor:'#effff9',wallChars:['□','▫','·']},
-  dark:{label:'BLACKOUT WASTELAND',era:'ROYAL GOTHIC → POST-APOCALYPTIC DARK',motifs:'COLLAPSED GANTRIES · ASH · DEAD NEON · FIRE BARRELS',accent:'#ff3b59',sky:'#050208',haze:'#53102b',floorA:'#1f1118',floorB:'#11090e',wall:'#332532',neon:'#ff315f',weather:'/',weatherColor:'#7b203b',wallChars:['█','▓','·']}
+  spring:{label:'SOL TROPICAL',era:'SUN PORTAL → TROPICAL TEMPLE',motifs:'PALMS · LAGOON · BASALT TEMPLE · SOLAR ALTAR · HUMID RAIN',accent:'#ffb000',sky:'#06171a',haze:'#ffb000',floorA:'#123b2a',floorB:'#08271e',wall:'#3d5d48',neon:'#ffb000',weather:'✦',weatherColor:'#ffd36a',wallChars:['▓','▒','░']},
+  summer:{label:'EMERALD HALO',era:'TORUS PORTAL → RING GARDEN',motifs:'CONCENTRIC ARCHES · BIO-CIRCUIT VINES · HALO CANALS · LOOP BRIDGES',accent:'#00ff91',sky:'#03100d',haze:'#00ff91',floorA:'#0c3428',floorB:'#061f18',wall:'#185442',neon:'#00ff91',weather:'·',weatherColor:'#65ffbd',wallChars:['▓','▒','░']},
+  autumn:{label:'PRISM CAVERNS',era:'DIAMOND PORTAL → CRYSTAL QUARRY',motifs:'FACETS · CRYSTAL COLUMNS · REFRACTION · DATA VEINS · MIRROR POOLS',accent:'#00ffff',sky:'#020b17',haze:'#6f38ff',floorA:'#082f3b',floorB:'#041b27',wall:'#165267',neon:'#00ffff',weather:'✦',weatherColor:'#8ffcff',wallChars:['◆','▒','·']},
+  winter:{label:'RED LABYRINTH',era:'TESSERACT PORTAL → 4D REACTOR',motifs:'NESTED CUBES · IMPOSSIBLE STAIRS · RED GRID · REACTOR CORE · AXIS GATES',accent:'#ff3b3b',sky:'#100205',haze:'#ff003c',floorA:'#351018',floorB:'#1d080d',wall:'#541923',neon:'#ff3b3b',weather:'+',weatherColor:'#ff687b',wallChars:['█','╳','·']},
+  light:{label:'K-01 ORBITAL',era:'ROCKET PORTAL → SPACE STATION',motifs:'DOCKING RING · AIRLOCKS · SOLAR ARRAYS · OBSERVATION DOME · EVA LANE',accent:'#ffb000',sky:'#00040d',haze:'#00ffff',floorA:'#111b28',floorB:'#07101c',wall:'#505968',neon:'#ffb000',weather:'·',weatherColor:'#d8efff',wallChars:['□','▓','·']},
+  dark:{label:'LUNAR OUTPOST',era:'MOON PORTAL → LUNAR SURFACE',motifs:'CRATERS · REGOLITH · LANDER · EARTHRISE · LOW GRAVITY · HAB DOME',accent:'#d8e6ff',sky:'#000107',haze:'#324b6a',floorA:'#3a3f48',floorB:'#252a31',wall:'#515a66',neon:'#d8e6ff',weather:'·',weatherColor:'#a7bad1',wallChars:['░','▒','·']}
 };
 const DOOR_SCENE:Record<string,SceneId>={'1':'spring','2':'summer','3':'autumn','4':'winter','5':'light','6':'dark'};
-const DOOR_COLOR:Record<string,string>={'1':'#a7ff9b','2':'#ffd166','3':'#ff9b42','4':'#d8ecff','5':'#fff0a8','6':'#ff3b59'};
+const DOOR_COLOR:Record<string,string>={'1':'#ffb000','2':'#00ff91','3':'#00ffff','4':'#ff3b3b','5':'#ffb000','6':'#d8e6ff'};
 
 type Billboard={x:number;y:number;t:string[];c:string};
 
@@ -45,40 +53,28 @@ const GALLERY_MOTIFS:Billboard[]=[
 ];
 const LANDMARKS:Record<SceneId,Billboard[]>={
   spring:[
-    {x:18,y:19.2,t:['     ❧   ❧','   ╭───────╮','  ╱  ╲ ✥ ╱  ╲',' ╱____╲│╱____╲',' │ ♛   ◎   ♛ │',' ╰─╨───┴───╨─╯','VERNAL GATE'],c:'#a7ff9b'},
-    {x:31,y:22.0,t:['   ╭─❀─╮',' ╭─╯ ║ ╰─╮',' │  ≈╬≈  │',' │ ≈╬╬╬≈ │',' ╰──╥╥╥──╯','FOUNTAIN'],c:'#78ffd1'},
-    {x:14.5,y:27.5,t:['❧❧ IVY WALK ❧❧','│╲│╱│╲│╱│╲│','│ ❧ │ ❀ │ ❧│','╰───╧───╧──╯'],c:'#6dff78'},
-    {x:34,y:31.5,t:['╔══ HOUSE K ══╗','║ ♜ ♛ ✥ ♜    ║','╚════╤════════╝','HERALDIC COURT'],c:'#c4a0ff'}
+    {x:19,y:31.6,t:['🌴 PALM COLONNADE 🌴','│╲│╱│╲│╱│','│ ☼ │ ~ │ ☼ │','LAGOON WALK'],c:'#ffd36a'},
+    {x:29,y:35.7,t:['╭─ WATERFALL ─╮','│ ≋ ≋ ≋ ≋ ≋ │','│  SOL SHRINE │','╰────╥────────╯'],c:'#00d9ff'}
   ],
   summer:[
-    {x:24,y:19.2,t:['      ╲ │ ╱','    ─── ☼ ───','      ╱ │ ╲','  ╭──────────╮','  │SOLAR NAVE│','  ╰──────────╯'],c:'#ffd166'},
-    {x:14,y:24.5,t:['╭─╮ ╭─╮ ╭─╮','│ │ │ │ │ │','╰─╯ ╰─╯ ╰─╯','ARCADE WALK'],c:'#ffe68a'},
-    {x:34,y:25.2,t:['  ╭────╮','╭─╯ ☼☼ ╰─╮','│ ≈≈╬≈≈ │','╰──╥╥───╯','SUN FOUNTAIN'],c:'#00ffff'},
-    {x:22,y:32.0,t:['╱╲╱╲╱╲╱╲╱╲','╲╱╲╱╲╱╲╱╲╱','STAINED GLASS'],c:'#ff76df'}
+    {x:19,y:31.8,t:['╭──◎──◎──◎──╮','│ HALO CANAL │','│ ≈≈≈≈≈≈≈≈≈ │','╰──◎──◎──◎──╯'],c:'#00ff91'},
+    {x:29,y:35.5,t:['LOOP BRIDGE','╭────◎────╮','╰────◎────╯','VINES // LIVE'],c:'#65ffbd'}
   ],
   autumn:[
-    {x:17,y:20.2,t:['████████████','██  ██  ████','██  ██  ████','████████████','╫╫  ╫╫  ╫╫','BRUTAL BLOCK'],c:'#c96b35'},
-    {x:33,y:23.4,t:['╫  ╫   ╫  ╫','╫╲ ╫ ╱ ╫╲ ╫','╫ ╲╫╱  ╫ ╲╫','╫  ╳   ╫  ╫','EXPOSED REBAR'],c:'#a9552b'},
-    {x:14,y:30,t:['>>> WARNING >>>','OXIDE ZONE 04','/////\\\\','LEAF DRIFT ,,,'],c:'#ff9b42'},
-    {x:34,y:32,t:['┌───────────┐','│ K//WORKS  │','│   CLOSED  │','└─────╥─────┘',' , ,  ║ , ,'],c:'#e7823f'}
+    {x:19,y:31.7,t:['◇ SHARD FOREST ◇','╱╲  ╱╲  ╱╲','◆│  ◇│  ◆│','╲╱  ╲╱  ╲╱'],c:'#00ffff'},
+    {x:29,y:35.6,t:['REFRACTOR GATE','◇╲   │   ╱◇','  ╲  │  ╱','───╲◆╱───'],c:'#8ffcff'}
   ],
   winter:[
-    {x:17,y:19.7,t:['      ✧','    ╱╲╱╲','  ╱╲╱◇╲╱╲',' ╲╱╲╱╲╱╲╱',' ICE SPIRE'],c:'#d8ecff'},
-    {x:33,y:23.5,t:['╲   │   ╱',' ╲  │  ╱','──╲─◇─╱──',' ╱  │  ╲','FRACTURED GLASS'],c:'#a9e7ff'},
-    {x:14,y:30.2,t:['||||||||||||','|*|*|*|*|*|','||||||||||||','SNOW FENCE'],c:'#c5d8e8'},
-    {x:34,y:32,t:['╭─────────╮','│ FROZEN  │','│ TRANSIT │','╰─┬─┬─┬───╯','  * * *'],c:'#8bb9df'}
+    {x:19,y:31.7,t:['AXIS GATE','XW // YZ // XZ','╔═╗ ╔═╗ ╔═╗','╚═╝╔═╩═╗╚═╝'],c:'#ff3b3b'},
+    {x:29,y:35.5,t:['REACTOR//4D','[■■■■■■■■]','[■  ◇   ■]','[■■■■■■■■]'],c:'#ff687b'}
   ],
   light:[
-    {x:17,y:19.5,t:['    ╱│╲','   ╱ │ ╲','  ╱  ◇  ╲',' ╱___│___╲',' │ □ □ □ │','LUMEN TOWER'],c:'#fff0a8'},
-    {x:33,y:23.0,t:['╭──────────╮','│SKY GARDEN│','│ ❀  ❧  ❀ │','╰────┬─────╯','     │'],c:'#b8ffd8'},
-    {x:14,y:30,t:['╱╲ ╱╲ ╱╲ ╱╲','☼  ☼  ☼  ☼','╲╱ ╲╱ ╲╱ ╲╱','SOLAR FINS'],c:'#ffe16a'},
-    {x:34,y:32,t:['╔══════════╗','║ CIVIC    ║','║ ATRIUM   ║','║ □ ◇ □ ◇  ║','╚══════════╝'],c:'#effff9'}
+    {x:19,y:31.8,t:['AIRLOCK K-01','╔═══╤═══╗','║   │   ║','╚═══╧═══╝','PRESSURE // OK'],c:'#ffb000'},
+    {x:29,y:35.5,t:['DOCKING RING','◎────◎────◎','   STARFIELD','·  *   ·  *'],c:'#00ffff'}
   ],
   dark:[
-    {x:17,y:19.5,t:['____/╲________','   /  ╲__','__/      ╲____',' COLLAPSED','  GANTRY'],c:'#7c3547'},
-    {x:33,y:23.2,t:['   (^^)','  (####)','   ╲__/','    │','   ╱_╲','FIRE BARREL'],c:'#ff5a32'},
-    {x:14,y:30,t:['┌──────────┐','│ N E O N  │','│  D E A D │','└────╲─────┘','      ╲'],c:'#ff315f'},
-    {x:34,y:32,t:['    ╳','   ╱│╲','  ╱ │ ╲',' ╱__│__╲','  ASH MAST'],c:'#6e2639'}
+    {x:19,y:31.8,t:['CRATER RIDGE','___○____○___','__○___○_____','LOW-G // 0.16'],c:'#d8e6ff'},
+    {x:29,y:35.5,t:['HAB DOME','  .-────-.',' /  ◉  ◉  \\','│  LIFE OK  │',' \________/'],c:'#a7bad1'}
   ]
 };
 
@@ -119,15 +115,15 @@ function makeMap(){
     rep('#',21)+rep('.',6)+rep('#',21),
     rep('#',20)+'N'+rep('.',6)+'N'+rep('#',20),
     rep('#',21)+rep('.',6)+rep('#',21),
-    rep('#',15)+rep('.',18)+rep('#',15),
-    rep('#',15)+rep('.',18)+rep('#',15),
-    rep('#',15)+rep('.',18)+rep('#',15),
+    rep('#',6)+rep('.',36)+rep('#',6),
+    rep('#',6)+rep('.',36)+rep('#',6),
+    rep('#',6)+rep('.',36)+rep('#',6),
     rep('#',48),
     rep('#',48),
     rep('#',48)
   ];
   // Parked car in lower city plaza. Interact to enter K//DRIVE.
-  const carX=31,carY=35;
+  const carX=38,carY=26;
   rows[carY]=rows[carY].slice(0,carX)+'V'+rows[carY].slice(carX+1);
   return rows;
 }
@@ -147,39 +143,40 @@ const SIGNS=[
   {x:24,y:3.55,t:['╔══════════════════╗','║ K TERMINAL // 01 ║','║ APSE COMMAND     ║','║ HUMAN GATE: ARMED║','╚══════════════════╝'],c:'#00ff66'}
 ];
 const DOOR_SIGNS=[
-  {x:13.7,y:6.5,t:['[1] SPRING','VERNAL COURT'],c:DOOR_COLOR['1']},
-  {x:34.3,y:6.5,t:['[2] SUMMER','SOLAR CLOISTER'],c:DOOR_COLOR['2']},
-  {x:13.7,y:9.5,t:['[3] AUTUMN','RUST PROCESSION'],c:DOOR_COLOR['3']},
-  {x:34.3,y:9.5,t:['[4] WINTER','WHITEOUT GRID'],c:DOOR_COLOR['4']},
-  {x:13.7,y:12.5,t:['[5] LIGHT','LUMEN ARCOLOGY'],c:DOOR_COLOR['5']},
-  {x:34.3,y:12.5,t:['[6] DARK','BLACKOUT WASTE'],c:DOOR_COLOR['6']}
+  {x:13.7,y:6.5,t:['[1] ☉ SUN','TROPICAL TEMPLE'],c:DOOR_COLOR['1']},
+  {x:34.3,y:6.5,t:['[2] TORUS','EMERALD HALO'],c:DOOR_COLOR['2']},
+  {x:13.7,y:9.5,t:['[3] ◇ DIAMOND','PRISM CAVERNS'],c:DOOR_COLOR['3']},
+  {x:34.3,y:9.5,t:['[4] TESSERACT','RED LABYRINTH'],c:DOOR_COLOR['4']},
+  {x:13.7,y:12.5,t:['[5] △ ROCKET','K-01 ORBITAL'],c:DOOR_COLOR['5']},
+  {x:34.3,y:12.5,t:['[6] ☽ MOON','LUNAR OUTPOST'],c:DOOR_COLOR['6']}
 ]
 const SCENE_ARCHITECTURE:Record<SceneId,Billboard[]>={
   spring:[
-    {x:6,y:18,t:['        ♛','      ╱╲│╱╲','    ╱❀ ╲│╱ ❀╲','  ╭╯────┼────╰╮','  │ ❧ VERNAL ❧ │','╭─┴─────┼─────┴─╮','│ IVY PALACE / K │','╰───────┴───────╯'],c:'#a7ff9b'},
-    {x:42,y:22,t:['❧  ❀  ❧  ❀','╭─╮╭─╮╭─╮╭─╮','│ ││ ││ ││ │','╰─╯╰─╯╰─╯╰─╯','ROSE ARCADE'],c:'#78ffd1'}
+    {x:17,y:34.5,t:['        ☼','    _\  |  /_','  _/  \ | /  \_',' /  🌴 \|/ 🌴  \\','│~~~ SOL LAGOON ~~~│','│  BASALT TEMPLE   │','╰──────┬───────────╯','       │',' TROPICAL TEMPLE'],c:'#ffb000'},
+    {x:31,y:33.0,t:['  🌴     🌴',' ╱│╲   ╱│╲','  │  ~~~ │','╭─┴──────┴─╮','│ SOLAR ALTAR│','│  ☼  ☼  ☼  │','╰───────────╯'],c:'#ffd36a'}
   ],
   summer:[
-    {x:7,y:18,t:['       ╲ │ ╱','     ─── ☼ ───','   ╭─────┼─────╮',' ╭─┴─╮ ╭─┴─╮ ╭─┴─╮',' │ ☼ │ │ ☼ │ │ ☼ │',' ╰───╯ ╰───╯ ╰───╯',' SOLAR BASILICA'],c:'#ffd166'},
-    {x:41,y:23,t:[' ≈≈≈≈≈╬≈≈≈≈≈','   ╭──╨──╮',' ╭─╯ ☼  ☼ ╰─╮',' │  FOUNTAIN │',' ╰────╥──────╯'],c:'#00ffff'}
+    {x:17,y:34.5,t:['      ╭────────╮','   ╭──╯  ◎◎  ╰──╮',' ╭─╯ ◎  ╭──╮  ◎ ╰─╮',' │ ◎   ╭╯  ╰╮   ◎ │',' │  EMERALD HALO  │',' ╰─╮ ◎  ╰──╯  ◎ ╭─╯','   ╰──╮      ╭──╯','      ╰──────╯'],c:'#00ff91'},
+    {x:31,y:33.2,t:['❧╲  ◎  ╱❧','  ╲◎◎╱','◎──╬──◎','  ╱◎◎╲','❧╱  ◎  ╲❧','BIO-CIRCUIT','RING GARDEN'],c:'#65ffbd'}
   ],
   autumn:[
-    {x:6,y:18,t:['██████████████','██  ████  ████','██  ╫╫╫╫  ████','████╫╫╫╫██████','   ╱╫╫╫╫╲','  / RUST  \\','BRUTALIST STACK'],c:'#c96b35'},
-    {x:42,y:24,t:['╫ ╫  ╫ ╫  ╫ ╫','╫╲╫╱ ╫╲╫╱ ╫╲╫','╫ ╳  ╫ ╳  ╫ ╳',' , , OXIDE , ,','REBAR PROCESSION'],c:'#ff9b42'}
+    {x:17,y:34.2,t:['        ◇','       ╱╲','      ╱◇ ╲','   ◇ ╱____╲ ◇','    ╱╲ ◇ ╱╲','   ╱__╲╱╲__╲','  PRISM CATHEDRAL','  CYAN QUARRY'],c:'#00ffff'},
+    {x:31,y:33.4,t:['◇  ◇   ◆  ◇',' ╲│╱ ╲│╱','──◆──◇──◆──',' ╱│╲ ╱│╲','◆  ◇   ◆  ◇','DATA VEINS','REFRACTION FIELD'],c:'#8ffcff'}
   ],
   winter:[
-    {x:7,y:18,t:['       ✧','     ╱╲╱╲','   ╱╲╱◇╲╱╲',' ╱╲╱╲╱│╲╱╲╱╲','╲╱╲╱╲╱│╲╱╲╱╲╱','   WHITEOUT','  GLASS SPIRE'],c:'#d8ecff'},
-    {x:41,y:24,t:['▼ ▼ ▼ ▼ ▼ ▼','│╲ │ ╱│╲ │ ╱','│ ╲◇╱ │ ╲◇╱','│  │  │  │','SNOW LATTICE'],c:'#a9e7ff'}
+    {x:17,y:34.4,t:['╔════════════╗','║ ╔════════╗ ║','║ ║ ╔════╗ ║ ║','║ ║ ║ ◇  ║ ║ ║','║ ║ ╚════╝ ║ ║','║ ╚════════╝ ║','╚════════════╝','4D RED CORE'],c:'#ff3b3b'},
+    {x:31,y:33.3,t:['  ╱────╲',' ╱ ╲  ╱ ╲','│ ╲ ╲╱ ╱ │','│  ╳  ╳  │','│ ╱ ╱╲ ╲ │',' ╲ ╱  ╲ ╱','  ╲────╱','IMPOSSIBLE STAIRS'],c:'#ff687b'}
   ],
   light:[
-    {x:7,y:18,t:['        ◇','      ╱ │ ╲','    ╱   │   ╲','  ╱─────┼─────╲',' │ □  □ │ □  □ │',' │  SKY GARDEN  │',' ╰──────┬───────╯',' LUMEN ARCOLOGY'],c:'#fff0a8'},
-    {x:41,y:24,t:['☼  ╱╲  ☼  ╱╲  ☼','  ╱  ╲   ╱  ╲',' ╱____╲ ╱____╲',' SOLAR FINS',' ↑ FLIGHT LANE ↑'],c:'#b8ffd8'}
+    {x:17,y:34.3,t:['        △','       ╱│╲','   ╔═══╧╧═══╗',' ╔═╩════════╩═╗',' ║ K-01 ORBITAL║',' ║  DOCK RING  ║',' ╚═╦════════╦═╝','   ║ AIRLOCK║','   ╚═══╤════╝','       │'],c:'#ffb000'},
+    {x:31,y:33.0,t:['☼═══╦══════╦═══☼','    ║  ◉   ║',' ╔══╩══════╩══╗',' ║ OBSERVATION║',' ║    DOME    ║',' ╚══╦══════╦══╝','SOLAR ARRAY / EVA'],c:'#00ffff'}
   ],
   dark:[
-    {x:7,y:18,t:['______/╲________','  ___/  ╲__','_/   ╳     ╲____','   ╱ │ ╲','__/  │  ╲_______','BLACKOUT GANTRY','  // COLLAPSED'],c:'#7c3547'},
-    {x:41,y:24,t:['  (^^)      ╳',' (####)   __│__','  ╲__/   /     \\','   │    / DEAD  \\','  ╱_╲  / NEON   \\',' ASH / FIRE'],c:'#ff315f'}
+    {x:17,y:34.5,t:['           ·','      _.-" "-._','   .-"   ☽    "-.','  /   ○      ○  \\',' │  LUNAR OUTPOST │',' │   [HAB]  [LAB] │','  \____╥____╥____/','       ║    ║','REGOLITH / CRATERS'],c:'#d8e6ff'},
+    {x:31,y:33.1,t:['      .     *','  ___/\___',' /  LANDER  \\','│  /|\  /|\ │','╰──┴────┴──╯',' ○   ○   ○','EARTHRISE → ◉'],c:'#a7bad1'}
   ]
 };
+const REALM_RETURN_GATE:Billboard={x:24.5,y:30.2,t:['╔══════════════════╗','║ ← K//CITY RETURN ║','║ PROJECT DISTRICTS║','║ GALLERY // NORTH ║','╚══════════════════╝','        ↑'],c:'#00ff66'};
 const PROJECT_STRUCTURES:Billboard[]=[
   {x:16,y:18.8,t:['       ╱╲','      ╱  ╲','  ╔══╧════╧══╗','  ║ RESIDUAL ║','╔═╩══════════╩═╗','║ RECEIPT HALL ║','║ OBSERVE      ║','║ VERIFY       ║','║ REPLAY       ║','╚══════╤═══════╝','       │'],c:'#ff3bd4'},
   {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
@@ -195,35 +192,38 @@ function sceneWallGlyph(scene:SceneId,ix:number,iy:number,sx:number,sy:number,to
   const h=Math.max(1,bot-top),v=(sy-top)/h,p=(ix*7+iy*11+sx)%19;
   switch(scene){
     case 'spring':
-      if(v>.22&&v<.28&&p===0)return '✥';
+      if(v>.16&&v<.23&&p===0)return '☼';
       if(v>.55&&p===3)return '│';
-      if(v>.74&&p===6)return '❧';
+      if(v>.72&&p===6)return '❧';
+      if((sx+Math.floor(time*2))%31===0)return '~';
       return fallback;
     case 'summer':
-      if(v>.18&&v<.25&&p===0)return '☼';
-      if(v>.42&&v<.50&&p<2)return '╭';
-      if(v>.70&&p===5)return '≈';
+      if(p===0)return '◎';
+      if(v>.42&&v<.50&&p<3)return '○';
+      if(v>.72&&p===5)return '❧';
       return fallback;
     case 'autumn':
-      if(p===0&&v>.2)return '╫';
-      if((sx+sy+Math.floor(time*2))%23===0)return ',';
-      if(v>.66&&p===7)return '#';
+      if(p===0)return '◇';
+      if(p===4)return '╲';
+      if(p===9)return '╱';
+      if((sx+sy+Math.floor(time*2))%29===0)return '✦';
       return fallback;
     case 'winter':
-      if(v<.18&&p<3)return '▼';
-      if(p===2)return '╲';
-      if(p===9)return '╱';
-      if((sx*3+sy+Math.floor(time))%29===0)return '*';
+      if(p===0)return '□';
+      if(p===5)return '╳';
+      if(v>.36&&v<.43&&p<3)return '═';
+      if((sx*3+sy+Math.floor(time))%31===0)return '+';
       return fallback;
     case 'light':
-      if(p===0)return '□';
-      if(v>.35&&v<.42&&p<3)return '◇';
-      if(v>.7&&p===8)return '│';
+      if(v<.2&&p===0)return '·';
+      if(p===2)return '║';
+      if(p===8)return '═';
+      if(v>.65&&p===12)return '□';
       return fallback;
     case 'dark':
-      if(p===1&&v>.18)return '╳';
-      if(p===8)return '/';
-      if((sx+sy+Math.floor(time*3))%31===0)return '·';
+      if(v>.68&&p===0)return '○';
+      if(v>.72&&p===7)return '_';
+      if((sx*3+sy)%27===0)return '·';
       return fallback;
   }
 }
@@ -244,7 +244,7 @@ function cast(px:number,py:number,dx:number,dy:number,max=40):Hit{
 }
 function norm(a:number){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a;}
 function dim(hex:string,k:number){const h=hex.slice(1);const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return 'rgb('+Math.round(r*k)+','+Math.round(g*k)+','+Math.round(b*k)+')';}
-function area(x:number,y:number,scene:SceneId){if(y<6.2&&x>12&&x<36)return'APSE COMMAND // K TERMINAL';if(y<=15.8&&x>12&&x<36)return'K//GALLERY // ART + MEMORY NAVE';const cfg=SCENES[scene];if(y<24)return'RESIDUAL QUARTER // '+cfg.label;if(y<29)return'TECHOPS CROSSING // FACTORY SYSTEMS';if(x<20)return'PALANROOF / RESEARCH DISTRICT';if(x>29)return'VECTOR / HERO DISTRICT';return'LOWER CITY // SWARM + R&D';}
+function area(x:number,y:number,scene:SceneId){if(y<6.2&&x>12&&x<36)return'APSE COMMAND // K TERMINAL';if(y<=15.8&&x>12&&x<36)return'K//GALLERY // ART + MEMORY NAVE';if(y>=REALM_THRESHOLD_Y)return SCENES[scene].label+' // PORTAL REALM';if(y<24)return'K//CITY INNER RING // PROJECT QUARTER';return'K//CITY CENTRAL // TECHOPS CROSSING';}
 function mini(x:number,y:number,a:number){
   const w=19,h=9,px=Math.floor(x),py=Math.floor(y),dirs=['→','↘','↓','↙','←','↖','↑','↗'];const di=((Math.round(a/(Math.PI*2)*8)%8)+8)%8;const out:string[]=[];
   for(let j=0;j<h;j++){let row='';for(let i=0;i<w;i++){if(i===(w>>1)&&j===(h>>1)){row+=dirs[di];continue;}const mx=px-(w>>1)+i,my=py-(h>>1)+j;if(mx<0||my<0||mx>=W||my>=H){row+=' ';continue;}const t=MAP[my][mx];row+=t==='#'?'▓':t==='N'?'▒':t==='S'?'╬':t==='W'?'◆':t==='G'?'╫':t==='C'?'▣':t==='A'?'■':t==='P'?'●':t==='V'?'▰':DOOR_SCENE[t]?'□':'·';}out.push(row);}return out.join('\n');
@@ -261,7 +261,7 @@ export default function AsciiCityWorld(){
   const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door'|'car';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
   const touchMove=useRef({id:-1,x0:0,y0:0,dx:0,dy:0}),touchLook=useRef({id:-1,x:0,y:0});
   const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
-  const start=back?RETURN:portal?OUTSIDE:SPAWN,cam=useRef<Cam>({x:start.x,y:start.y,ang:start.a,pitch:0,height:1.55}),seatFrom=useRef({x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55});
+  const start=back?RETURN:portal?PORTAL_SPAWN:SPAWN,cam=useRef<Cam>({x:start.x,y:start.y,ang:start.a,pitch:0,height:1.55}),seatFrom=useRef({x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55});
   const [scene,setScene]=useState<SceneId>(initialScene);
   const [audioCue,setAudioCueState]=useState<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city');
   const [nowPlaying,setNowPlaying]=useState('');
@@ -301,8 +301,8 @@ export default function AsciiCityWorld(){
     setNotice('GALLERY APSE // TURN AROUND // 4DADNM SIGNAL');
     window.setTimeout(()=>setNotice(''),3600);
   },[setAudioCue]);
-  const enterScene=useCallback((next:SceneId)=>{setScene(next);setParams({scene:next,spawn:'portal'},{replace:true});setTerminal(false);termRef.current=false;portableTerminalRef.current=false;setVehicle(false);vehicleRef.current=false;setFlight(false);flightRef.current=false;setAudioCue(next);phase.current='explore';document.exitPointerLock?.();cam.current={x:OUTSIDE.x,y:OUTSIDE.y,ang:OUTSIDE.a,pitch:0,height:1.55};seatFrom.current={x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55};setNotice('PORTAL '+next.toUpperCase()+' // '+SCENES[next].label+' // K TERMINAL AUTO DJ');window.setTimeout(()=>setNotice(''),3600);},[setParams,setAudioCue]);
-  const toggleFlight=useCallback(()=>{if(scene!=='light'){setNotice('FLIGHT MODE // AVAILABLE ONLY IN LIGHT / LUMEN ARCOLOGY');window.setTimeout(()=>setNotice(''),2200);return;}const next=!flightRef.current;flightRef.current=next;setFlight(next);setVehicle(false);vehicleRef.current=false;cam.current.height=next?2.75:1.55;cam.current.pitch=next?-5:0;setAudioCue(next?'flight':'light');setNotice(next?'FLIGHT MODE // MIRROR PLANE // [F] LAND':'TOUCHDOWN // LUMEN ARCOLOGY');window.setTimeout(()=>setNotice(''),2600);},[scene,setAudioCue]);
+  const enterScene=useCallback((next:SceneId)=>{setScene(next);setParams({scene:next,spawn:'portal'},{replace:true});setTerminal(false);termRef.current=false;portableTerminalRef.current=false;setVehicle(false);vehicleRef.current=false;setFlight(false);flightRef.current=false;setAudioCue(next);phase.current='explore';document.exitPointerLock?.();cam.current={x:PORTAL_SPAWN.x,y:PORTAL_SPAWN.y,ang:PORTAL_SPAWN.a,pitch:0,height:1.55};seatFrom.current={x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55};setNotice('PORTAL '+next.toUpperCase()+' // '+SCENES[next].label+' // K TERMINAL AUTO DJ');window.setTimeout(()=>setNotice(''),3600);},[setParams,setAudioCue]);
+  const toggleFlight=useCallback(()=>{if(scene!=='light'){setNotice('EVA MODE // AVAILABLE ONLY AT ROCKET / K-01 ORBITAL');window.setTimeout(()=>setNotice(''),2200);return;}const next=!flightRef.current;flightRef.current=next;setFlight(next);setVehicle(false);vehicleRef.current=false;cam.current.height=next?2.75:1.55;cam.current.pitch=next?-5:0;setAudioCue(next?'flight':'light');setNotice(next?'EVA MODE // MIRROR PLANE // [F] RETURN':'AIRLOCK REENTRY // K-01 ORBITAL');window.setTimeout(()=>setNotice(''),2600);},[scene,setAudioCue]);
   const interact=useCallback(()=>{if(phase.current!=='explore')return;if(vehicleRef.current){vehicleRef.current=false;setVehicle(false);setAudioCue(scene);setNotice('K//DRIVE EXITED // FLAG SIGNAL RELEASED');window.setTimeout(()=>setNotice(''),2200);return;}const t=target.current;if(!t)return;if(t.kind==='console')sit();else if(t.kind==='relic'){setNotice('SIGNAL SCRIPTURE // ARCHIVE LINK VERIFIED');window.setTimeout(()=>setNotice(''),2200);}else if(t.kind==='door'&&t.scene)enterScene(t.scene);else if(t.kind==='car'){vehicleRef.current=true;setVehicle(true);flightRef.current=false;setFlight(false);cam.current.height=1.25;setAudioCue('car');setNotice('K//DRIVE ONLINE // ⚑ FLAG ON DASH // [E] EXIT VEHICLE');window.setTimeout(()=>setNotice(''),3000);}},[sit,enterScene,setAudioCue,scene]);
 
   useEffect(()=>{const down=(e:KeyboardEvent)=>{const el=e.target as HTMLElement|null;if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable))return;const k=e.key.toLowerCase();keys.current[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(k==='e')interact();if(k==='f')toggleFlight();if(k==='t'&&!termRef.current)openPortableTerminal();if(k==='escape'&&termRef.current)exit();};const up=(e:KeyboardEvent)=>{keys.current[e.key.toLowerCase()]=false;};const pl=()=>setLocked(document.pointerLockElement===canvas.current);const mm=(e:MouseEvent)=>{if(document.pointerLockElement!==canvas.current||phase.current!=='explore')return;cam.current.ang+=e.movementX*.00235;cam.current.pitch=Math.max(-13,Math.min(13,cam.current.pitch-e.movementY*.07));};window.addEventListener('keydown',down);window.addEventListener('keyup',up);document.addEventListener('pointerlockchange',pl);document.addEventListener('mousemove',mm);return()=>{window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);document.removeEventListener('pointerlockchange',pl);document.removeEventListener('mousemove',mm);};},[interact,exit,toggleFlight,openPortableTerminal]);
@@ -312,8 +312,9 @@ export default function AsciiCityWorld(){
   const te=useCallback((e:React.TouchEvent)=>{for(const t of Array.from(e.changedTouches)){if(t.identifier===touchMove.current.id)touchMove.current={id:-1,x0:0,y0:0,dx:0,dy:0};if(t.identifier===touchLook.current.id)touchLook.current={id:-1,x:0,y:0};}},[]);
 
   const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch-(cc.height-1.55)*1.8);
-    const cfg=SCENES[scene],royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
-    const scenePhase=scene==='spring'?0:scene==='summer'?1:scene==='autumn'?2:scene==='winter'?3:scene==='light'?4:5;
+    const royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
+    const inRealm=!royal&&cc.y>=REALM_THRESHOLD_Y;
+    const cfg=inRealm?SCENES[scene]:CITY_CONFIG;
     const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
     const syncPulse=.72+.28*Math.abs(Math.sin(syncTime*3.15));
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
@@ -373,13 +374,18 @@ export default function AsciiCityWorld(){
         else if(hit.tile==='N') glyph=((y-top)%4===1)?(((x+hit.ix)%4===0)?'▣':'▫'):'▓';
         else if(hit.tile==='V') glyph=(y===Math.round((top+bot)/2))?'⚑':((x+y)%4===0?'▰':'▓');
         else if(hit.tile==='#') glyph=((y-top)%5===1&&((x+hit.ix+hit.iy)%5===0))?'▪':((y-top)%7===0?'─':glyph);
-        if(!gothic&&hit.tile!=='V') glyph=sceneWallGlyph(scene,hit.ix,hit.iy,x,y,top,bot,syncTime,glyph);
+        if(inRealm&&!gothic&&hit.tile!=='V') glyph=sceneWallGlyph(scene,hit.ix,hit.iy,x,y,top,bot,syncTime,glyph);
         chars[y][x]=glyph;
         colors[y][x]=hit.side?dim(base,.70):base;
       }
     }
-    const sceneSign={x:24.5,y:18.3,t:['['+scene.toUpperCase()+'] '+cfg.label,cfg.era],c:cfg.accent};
-    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...PROJECT_STRUCTURES,...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],CAR_SIGN,sceneSign];
+    const sceneSign={x:24.5,y:32.0,t:['['+scene.toUpperCase()+'] '+SCENES[scene].label,SCENES[scene].era],c:SCENES[scene].accent};
+    const citySign:Billboard={x:24.5,y:23.3,t:['K//CITY // INNER RING','PROJECTS · OPERATIONS · R&D','GALLERY ↑ NORTH'],c:'#00ff66'};
+    const allSigns=royal
+      ? [...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS]
+      : inRealm
+        ? [...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],REALM_RETURN_GATE,sceneSign]
+        : [...SIGNS,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(!royal){
       const movers=[
@@ -454,22 +460,32 @@ export default function AsciiCityWorld(){
         if(flyingOver||!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x=Math.max(1.1,Math.min(W-1.1,c.x+mx));
         if(flyingOver||!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y=Math.max(1.1,Math.min(H-1.1,c.y+my));
 
-        // Audio changes only at meaningful room/experience boundaries.
-        // Once a track starts, walking around that room never reloads it.
+        // K Terminal changes tracks only when crossing an actual room/world
+        // boundary. Walking inside a room never restarts or cuts its song.
         const inGallery=c.y<=15.9&&c.x>12&&c.x<36;
-        const wasGallery=(cam.current as Cam & { _gallery?: boolean })._gallery ?? inGallery;
-        (cam.current as Cam & { _gallery?: boolean })._gallery=inGallery;
+        const inRealm=c.y>=REALM_THRESHOLD_Y;
+        const memory=cam.current as Cam & {_gallery?:boolean;_realm?:boolean};
+        const wasGallery=memory._gallery ?? inGallery;
+        const wasRealm=memory._realm ?? inRealm;
+        memory._gallery=inGallery;memory._realm=inRealm;
         if(vehicleRef.current){
           if(cueRef.current!=='car')setAudioCue('car');
         }else if(flightRef.current){
           if(cueRef.current!=='flight')setAudioCue('flight');
         }else if(inGallery&&!wasGallery){
-          // Entering the gallery starts its room soundtrack once. Deeper
-          // movement and individual paintings do not interrupt the song.
           if(cueRef.current!=='gallery-turnaround')setAudioCue('gallery-deep');
         }else if(!inGallery&&wasGallery){
-          // Crossing the cathedral threshold is the scene/city music boundary.
+          setAudioCue('city');
+          setNotice('K//CITY REENTRY // PROJECT DISTRICTS // PORTALS SOUTH');
+          window.setTimeout(()=>setNotice(''),2200);
+        }else if(inRealm&&!wasRealm){
           setAudioCue(scene);
+          setNotice(SCENES[scene].label+' // WORLD SIGNAL ACQUIRED');
+          window.setTimeout(()=>setNotice(''),2200);
+        }else if(!inRealm&&wasRealm){
+          setAudioCue('city');
+          setNotice('K//CITY RETURN GATE // GALLERY NORTH');
+          window.setTimeout(()=>setNotice(''),2400);
         }
       }
       if(phase.current==='sitting'||phase.current==='standing'){
@@ -489,11 +505,11 @@ export default function AsciiCityWorld(){
 
   return <div className="kcity">
     <div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/><div className="kc-gallery-glow"/>
-    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>WORLD ID {scene.toUpperCase()} // {sceneCfg.motifs}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'LUMEN FLIGHT · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
+    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>{hud.y>=REALM_THRESHOLD_Y ? `PORTAL ${scene.toUpperCase()} // ${sceneCfg.era}` : 'K//CITY // SHARED INNER WORLD'}</small><small>{hud.y>=REALM_THRESHOLD_Y ? `WORLD ID ${scene.toUpperCase()} // ${sceneCfg.motifs}` : 'RETURN PATH // GALLERY NORTH · PORTALS SOUTH'}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'K-01 EVA · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
     {vehicle&&!terminal&&<div className="kc-drive-dashboard"><pre>{'┌───────────┐\n│ ⚑ K//FLAG │\n│ ▓▒░▓▒░▓▒░ │\n└─────┬─────┘\n      │'}</pre><div className="kc-drive-center"><b>K//DRIVE // NIGHT DASH</b>FLAG SIGNAL LOCKED<br/>♫ {nowPlaying||'FLAG'}</div><div className="kc-drive-gauge">SPD // {keys.current.w?'88':'00'}<br/>NET // ONLINE<br/>[E] EXIT</div></div>}
-    {flight&&!terminal&&<div className="kc-flight-hud"><b>LUMEN FLIGHT</b><br/>ALT // {cam.current.height.toFixed(1)}<br/>MIRROR PLANE // SYNC<br/>SPACE ↑ · C/CTRL ↓</div>}
+    {flight&&!terminal&&<div className="kc-flight-hud"><b>K-01 EVA</b><br/>ALT // {cam.current.height.toFixed(1)}<br/>MIRROR PLANE // SYNC<br/>SPACE ↑ · C/CTRL ↓</div>}
     {notice&&!terminal&&<div className="kc-note">{notice}</div>}
-    {!booted&&<div className="kc-boot"><div className="kc-logo">K//THE EMRLD</div><pre>{'☿ SOLVE / COAGULA ☉\n> booting ASCII raycaster ........ ok\n> K//CITY soundtrack bus ......... armed\n> six seasonal/light/dark doors .. online\n> K//DRIVE + FLAG dash ........... online\n> LUMEN flight system ............ online\n> apse K Terminal ................ armed'}</pre><button onClick={()=>{setAudioCue('city');setBooted(true);lock();}}>ENTER K//CITY</button></div>}
+    {!booted&&<div className="kc-boot"><div className="kc-logo">K//THE EMRLD</div><pre>{'☿ SOLVE / COAGULA ☉\n> booting ASCII raycaster ........ ok\n> K//CITY soundtrack bus ......... armed\n> six seasonal/light/dark doors .. online\n> K//DRIVE + FLAG dash ........... online\n> K-01 EVA system ............ online\n> apse K Terminal ................ armed'}</pre><button onClick={()=>{setAudioCue('city');setBooted(true);lock();}}>ENTER K//CITY</button></div>}
     <div className={`kc-terminal ${terminal?'kc-terminal-open':'kc-terminal-hidden'}`}>
       <KTerminal
         embedded
