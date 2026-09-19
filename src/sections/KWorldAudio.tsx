@@ -139,6 +139,13 @@ export default function KWorldAudio({
     widgetRef.current?.setVolume?.(volume);
   }, [volume]);
 
+  useEffect(() => {
+    if (!armed) {
+      widgetRef.current?.pause?.();
+      onPlayingChange?.(false);
+    }
+  }, [armed, onPlayingChange]);
+
   if (!playlist.length) return null;
 
   return (
