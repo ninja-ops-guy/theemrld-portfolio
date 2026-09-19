@@ -345,7 +345,6 @@ export default function KTerminal() {
     }
     const t: Track = { id: 999, url, title: 'Custom URL', duration: 0, plays: 0 };
     setCurrentTrack(t);
-    setShowClickStart(false);
     addLine(`Loading SoundCloud URL...`);
     addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
     initSoundCloud(url);
