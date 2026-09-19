@@ -74,8 +74,34 @@ export default function KTerminal() {
   const [showClickStart, setShowClickStart] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [visualizerEnabled, setVisualizerEnabled] = useState(true);
+  const [visualizerBars, setVisualizerBars] = useState(50);
+  const [visualizerFps, setVisualizerFps] = useState(20);
 
   const bootIndexRef = useRef(0);
+  const STORAGE_KEY = 'k-terminal:tracks:v3';
+  const SETTINGS_KEY = 'k-terminal:audio-settings:v1';
+
+  // Restore persistent library/settings. New bundled tracks merge with saved tracks.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as Track[];
+      if (Array.isArray(saved) && saved.length) {
+        const byUrl = new Map<string, Track>();
+        [...defaultTracks, ...saved].forEach((t) => byUrl.set(t.url, t));
+        setTracks(Array.from(byUrl.values()));
+      }
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      if (typeof settings.volume === 'number') setVolume(settings.volume);
+      if (typeof settings.visualizerEnabled === 'boolean') setVisualizerEnabled(settings.visualizerEnabled);
+      if (typeof settings.visualizerBars === 'number') setVisualizerBars(settings.visualizerBars);
+      if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
+      if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
+    } catch (_) {}
+  }, []);
+  useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
+  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -240,7 +266,8 @@ export default function KTerminal() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const bars = 50;
+    if (!visualizerEnabled) return;
+    const bars = visualizerBars;
     const draw = () => {
       if (!isPlaying) return;
       ctx.fillStyle = 'rgba(13, 2, 8, 0.2)';
@@ -253,8 +280,8 @@ export default function KTerminal() {
         ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
       }
     };
-    visualizerIntervalRef.current = setInterval(draw, 50);
-  }, [isPlaying]);
+    visualizerIntervalRef.current = setInterval(draw, Math.max(16, Math.round(1000 / visualizerFps)));
+  }, [isPlaying, visualizerEnabled, visualizerBars, visualizerFps]);
 
   const stopVisualizer = useCallback(() => {
     if (visualizerIntervalRef.current) {
@@ -306,6 +333,10 @@ export default function KTerminal() {
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
   <span class="tc-command">volume [0-100]</span>    - Set volume level
+  <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
+  <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
+  <span class="tc-command">visualizer bars [8-128]</span> - Set density
+  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate
   <span class="tc-command">next</span>              - Play next track
   <span class="tc-command">prev</span>              - Play previous track
   <span class="tc-command">status</span>            - Show playback status
@@ -442,6 +473,30 @@ export default function KTerminal() {
         break;
       }
 
+      case 'speed': {
+        if (!args[0]) { addLine(`Playback speed: ${playbackRate}x`); break; }
+        const rate = Number(args[0]);
+        if (!Number.isFinite(rate) || rate < 0.5 || rate > 2) { addLine('Error: Speed must be between 0.5 and 2.0', 'error'); break; }
+        setPlaybackRate(rate);
+        const widget: any = scWidgetRef.current;
+        if (widget && typeof widget.setPlaybackRate === 'function') {
+          try { widget.setPlaybackRate(rate); addLine(`Playback speed set to ${rate}x`); } catch (_) { addLine('Provider rejected playback-rate control.', 'error'); }
+        } else {
+          addLine('Speed preference saved, but SoundCloud embedded playback does not expose playback-rate control in this browser.', 'warning');
+        }
+        break;
+      }
+
+      case 'visualizer': {
+        const sub = (args[0] || '').toLowerCase();
+        if (!sub) { addLine(`Visualizer: ${visualizerEnabled ? 'ON' : 'OFF'} | bars=${visualizerBars} | fps=${visualizerFps}`); break; }
+        if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setVisualizerEnabled(enabled); if (!enabled) stopVisualizer(); addLine(`Visualizer ${enabled ? 'enabled' : 'disabled'}.`); break; }
+        if (sub === 'bars') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 8 || n > 128) { addLine('Error: visualizer bars must be 8-128', 'error'); break; } setVisualizerBars(n); addLine(`Visualizer bars set to ${n}.`); break; }
+        if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 5 || n > 60) { addLine('Error: visualizer fps must be 5-60', 'error'); break; } setVisualizerFps(n); addLine(`Visualizer refresh set to ${n} fps.`); break; }
+        addLine('Usage: visualizer on|off | visualizer bars [8-128] | visualizer fps [5-60]', 'error');
+        break;
+      }
+
       case 'volume': {
         if (!args[0]) {
           addLine(`Current volume: ${volume}%`);
@@ -520,7 +575,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, addLine, playTrack, playUrl, stopVisualizer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -649,7 +704,7 @@ Playlist: ${tracks.length} track(s)`);
         </div>
 
         {/* Visualizer */}
-        <div className="kt-visualizer-container">
+        <div className="kt-visualizer-container" style={{ display: visualizerEnabled ? 'block' : 'none' }}>
           <canvas ref={canvasRef} className="kt-canvas" />
         </div>
 
@@ -663,10 +718,9 @@ Playlist: ${tracks.length} track(s)`);
         </div>
 
         {/* Click-to-play track list */}
-        {showClickStart && (
-          <div className="kt-click-play">
+        <div className="kt-click-play">
             <div className="kt-click-header">
-              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno
+              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · persistent library
             </div>
             {isMobile && (
               <div
@@ -703,7 +757,6 @@ Playlist: ${tracks.length} track(s)`);
               ))}
             </ul>
           </div>
-        )}
 
         {/* Terminal */}
         <div className="kt-terminal" ref={terminalRef}>
