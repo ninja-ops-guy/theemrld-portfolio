@@ -965,7 +965,7 @@ Playlist: ${tracks.length} track(s)`);
         const value = inputValue.trim();
         if (!value) return;
         const [rawCommand, ...rawArgs] = value.split(' ');
-        const commandHtml = `<span class="tc-prompt">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一 k@theemrld</span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
+        const commandHtml = `<span class="tc-prompt"><span class="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span class="kt-bashrc-k">k</span><span class="kt-bashrc-at">@</span><span class="kt-bashrc-the">the</span><span class="kt-bashrc-emrld">emrld</span></span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
         addLine(commandHtml, 'command');
         setInputValue('');
         const parts = value.split(' ');
@@ -1030,6 +1030,9 @@ Playlist: ${tracks.length} track(s)`);
 
   return (
     <div className="kt-body">
+      <div className="kt-regal-pillar kt-regal-pillar-left" aria-hidden="true"><span className="kt-pillar-glyph">♛</span></div>
+      <div className="kt-regal-pillar kt-regal-pillar-right" aria-hidden="true"><span className="kt-pillar-glyph">♛</span></div>
+
       {/* SoundCloud widget iframe -- tiny but in-viewport for mobile autoplay policy */}
       <iframe
         ref={widgetRef}
@@ -1195,7 +1198,7 @@ Playlist: ${tracks.length} track(s)`);
 
         {/* Input */}
         <div className="kt-input-line">
-          <span className="kt-prompt"><span className="kt-bashrc">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一 k@theemrld</span><span className="kt-shell-op">$</span></span>
+          <span className="kt-prompt"><span className="kt-bashrc"><span className="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span className="kt-bashrc-k">k</span><span className="kt-bashrc-at">@</span><span className="kt-bashrc-the">the</span><span className="kt-bashrc-emrld">emrld</span></span><span className="kt-shell-op">$</span></span>
           <input
             ref={inputRef}
             type="text"
@@ -1281,9 +1284,63 @@ Playlist: ${tracks.length} track(s)`);
           height: 100vh;
           display: flex;
           flex-direction: column;
-          padding: 20px;
+          padding: 20px 58px;
           position: relative;
           z-index: 5;
+        }
+
+        .kt-regal-pillar {
+          position: fixed;
+          top: 58px;
+          bottom: 22px;
+          width: 34px;
+          z-index: 4;
+          pointer-events: none;
+          border-left: 2px solid #8f4dff;
+          border-right: 2px solid #5a189a;
+          background:
+            repeating-linear-gradient(90deg, rgba(255,255,255,.09) 0 2px, transparent 2px 7px),
+            linear-gradient(90deg, #220535 0%, #6f2dbd 22%, #b86bff 46%, #4b1678 72%, #170020 100%);
+          box-shadow:
+            inset 0 0 9px rgba(255,255,255,.13),
+            inset 0 0 18px rgba(32,0,45,.86),
+            0 0 12px rgba(158,79,255,.44),
+            0 0 28px rgba(112,0,255,.18);
+        }
+        .kt-regal-pillar-left { left: 10px; }
+        .kt-regal-pillar-right { right: 10px; }
+        .kt-regal-pillar::before,
+        .kt-regal-pillar::after {
+          content:'';
+          position:absolute;
+          left:-9px;
+          width:48px;
+          height:16px;
+          border:2px solid #9d4edd;
+          background:
+            linear-gradient(180deg, rgba(216,146,255,.25), rgba(52,4,77,.96)),
+            repeating-linear-gradient(90deg,#7b2cbf 0 5px,#3c096c 5px 10px);
+          box-shadow:0 0 10px rgba(157,78,221,.45), inset 0 0 7px rgba(0,0,0,.8);
+        }
+        .kt-regal-pillar::before {
+          top:-13px;
+          clip-path:polygon(0 35%,12% 35%,20% 0,80% 0,88% 35%,100% 35%,100% 100%,0 100%);
+        }
+        .kt-regal-pillar::after {
+          bottom:-13px;
+          height:20px;
+          clip-path:polygon(0 0,100% 0,100% 72%,88% 72%,82% 100%,18% 100%,12% 72%,0 72%);
+        }
+        .kt-pillar-glyph {
+          position:absolute;
+          left:50%;
+          top:50%;
+          transform:translate(-50%,-50%) rotate(-90deg);
+          color:#d892ff;
+          font-size:12px;
+          letter-spacing:.25em;
+          text-shadow:0 0 8px #b86bff, 0 0 16px rgba(0,255,65,.18);
+          opacity:.72;
         }
 
         .kt-header {
@@ -1456,6 +1513,7 @@ Playlist: ${tracks.length} track(s)`);
         .kt-track-plays { color: #008f11; font-size: 11px; margin-left: 10px; flex-shrink: 0; }
 
         @media (max-width: 768px) {
+          .kt-regal-pillar { display:none; }
           .kt-track-item {
             padding: 12px 10px;
             font-size: 15px;
@@ -1491,7 +1549,24 @@ Playlist: ${tracks.length} track(s)`);
           padding-top: 10px;
         }
         .kt-prompt { color: #00ff41; margin-right: 10px; font-weight: bold; white-space: nowrap; display:flex; align-items:center; gap:8px; }
-        .kt-bashrc { color:#ff00ff; text-shadow:0 0 8px rgba(255,0,255,.45); }
+        .kt-bashrc { display:inline-flex; align-items:center; gap:0; text-shadow:none; }
+        .kt-bashrc-mark { color:#9d4edd; text-shadow:0 0 7px rgba(157,78,221,.5); }
+        .kt-bashrc-k { color:#ff2b2b; font-weight:900; text-shadow:0 0 8px rgba(255,43,43,.82); }
+        .kt-bashrc-at { color:#7b2cbf; }
+        .kt-bashrc-the {
+          color:#050505;
+          background:#00ff41;
+          padding:0 2px;
+          margin-left:1px;
+          text-shadow:none;
+          box-shadow:0 0 5px rgba(0,255,65,.42);
+        }
+        .kt-bashrc-emrld {
+          color:#00ff41;
+          background:#050505;
+          padding:0 2px;
+          text-shadow:0 0 7px rgba(0,255,65,.72);
+        }
         .kt-shell-op, .tc-shell-op { color:#ffaa00; }
         .tc-command-name { color:#00ffff; font-weight:bold; }
         .tc-arg { color:#f5f5f5; }
