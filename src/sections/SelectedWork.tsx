@@ -23,7 +23,7 @@ const flagships: Project[] = [
 const foundation: Project = {
   title:'Production Systems Engineering', category:'FOUNDATION / INFRASTRUCTURE / INCIDENT OWNERSHIP', status:'PRODUCTION EXPERIENCE', tone:'live',
   thesis:'The research work is grounded in operating systems that people actually depend on: restore service, find the real failure mode, reduce recurrence, and leave behind a repeatable operating path.',
-  claimState:'OBSERVED IN PRODUCTION', evidence:['170+ → ~15 support backlog','Critical production recovery','Rogue DHCP traced to switch port','SNMP infrastructure automation'],
+  claimState:'OBSERVED IN PRODUCTION', evidence:['170+ → ~15 support backlog','Critical production recovery','Wrote tools to physically locate devices and triage network outages','SNMP infrastructure automation'],
   primitive:'Recovery playbooks · automation · observability · operating procedures', caseStudy:'/case-study/production-systems'
 };
 
