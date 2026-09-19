@@ -72,7 +72,6 @@ export default function KTerminal() {
   const [progress, setProgress] = useState(0);
   const [timeDisplay, setTimeDisplay] = useState('00:00 / 00:00');
   const [audioStatus, setAudioStatus] = useState('STANDBY');
-  const [showClickStart, setShowClickStart] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
@@ -333,7 +332,6 @@ export default function KTerminal() {
   // Play track by click
   const playTrack = useCallback((track: Track) => {
     setCurrentTrack(track);
-    setShowClickStart(false);
     addLine(`Loading track ${track.id}: ${track.title}...`);
     addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
     initSoundCloud(track.url);
