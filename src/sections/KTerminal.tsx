@@ -844,41 +844,113 @@ Playlist: ${tracks.length} track(s)`);
             <span className="kt-ascii-label">◇ DIAMOND://CARBON·PRISM · LAPIS.EXE</span>
             <div className="kt-diamond-stage">
               <pre className="kt-diamond">{[
-`        /\\
-       /░▒\\
-      /▒▓▓▒\\
-     /▓▒░▒▓\\
-    <───◇────>
-     \\▓▒░▒▓/
-      \\▒▓▒/
-       \\░/
-        \/`,
-`       . /\\ .
-      / /▒\\ \\
-     /_/▓▓\\_\\
-    <__\\◇/__>
-     \\  /\\  /
-      \\/▒▓\\/
-       \\▓/
-        ◇`,
-`        /\\
-      _/▓▓\\_
-     /▒░◇░▒\\
-    /▓▒/\\▒▓\\
-    \\▓\\/▒▓/
-     \\▒◇░▒/
-      \\▓▓/
-       \\/`,
-`        ◇
-       /▓\\
-      /▒/\\\\
-     /_/◇\\_\\
-    <__\\/__>
-     \\▓/\\▒/
-      \\/░\\/
-       \\▒/
-        \/`
-][Math.floor(asciiTick/2)%4]}</pre>
+`        ╱╲
+      ╱░│▒╲
+    ╱▒▓│▓▒╲
+  ╱▓██│██▓╲
+<━━━━━━◇━━━━━━>
+  ╲▓██│██▓╱
+    ╲▒▓│▓▒╱
+      ╲░│▒╱
+        ╲╱`,
+`        ╱╲
+      ╱▒│▓╲··
+    ╱▓█│▒╲  ·
+  ╱██▒│░ ╲  ·
+<━━◆┄┄◇━━━━━━>
+  ╲██▒│░ ╱  ·
+    ╲▓█│▒╱  ·
+      ╲▒│▓╱··
+        ╲╱`,
+`       ╱╲
+     ╱▓│▒╲···
+   ╱██│░ ╲  ·
+ ╱██▓│   ╲ ·
+<━◆┄┄┄┄◇━━━━>
+ ╲██▓│   ╱ ·
+   ╲██│░ ╱  ·
+     ╲▓│▒╱···
+       ╲╱`,
+`      ╱╲
+    ╱█│▒╲····
+  ╱██│  ╲   ·
+<◆┄┄┄┼┄┄┄◇>
+  ╲██│  ╱   ·
+    ╲█│▒╱····
+      ╲╱
+      │`,
+`       ╱╲
+    ···╱▒│▓╲
+   ·  ╱ ░│██╲
+  · ╱   │▓██╲
+<━━━━◇┄┄┄┄◆━>
+  · ╲   │▓██╱
+   ·  ╲ ░│██╱
+    ···╲▒│▓╱
+       ╲╱`,
+`        ╱╲
+   ··╱▓│▒╲
+  · ╱▒│█▓╲
+ · ╱ ░│▒██╲
+<━━━━━━◇┄┄◆━━>
+ · ╲ ░│▒██╱
+  · ╲▒│█▓╱
+   ··╲▓│▒╱
+        ╲╱`,
+`        ╱╲
+      ╱▒│░╲
+    ╱▒▓│▓▒╲
+  ╱▓██│██▓╲
+<━━━━━━◆━━━━━━>
+  ╲▓██│██▓╱
+    ╲▒▓│▓▒╱
+      ╲▒│░╱
+        ╲╱`,
+`        ╱╲
+      ··╱▓│▒╲
+     · ╱█▓│▒╲
+    · ╱██▒│░ ╲
+<━━◇┄┄◆━━━━━━>
+    · ╲██▒│░ ╱
+     · ╲█▓│▒╱
+      ··╲▓│▒╱
+        ╲╱`,
+`       ╱╲
+    ···╱▒│▓╲
+   ·  ╱ ░│██╲
+  · ╱   │▓██╲
+<━━━━◇┄┄┄┄◆━>
+  · ╲   │▓██╱
+   ·  ╲ ░│██╱
+    ···╲▒│▓╱
+       ╲╱`,
+`      ╱╲
+····╱▒│█╲
+·   ╱  │██╲
+<◇┄┄┄┼┄┄┄◆>
+·   ╲  │██╱
+····╲▒│█╱
+      ╲╱
+      │`,
+`       ╱╲
+     ╱▓│▒╲···
+   ╱██│░ ╲  ·
+ ╱██▓│   ╲ ·
+<━◆┄┄┄┄◇━━━━>
+ ╲██▓│   ╱ ·
+   ╲██│░ ╱  ·
+     ╲▓│▒╱···
+       ╲╱`,
+`        ╱╲
+      ╱▒│▓╲··
+    ╱▓█│▒╲  ·
+  ╱██▒│░ ╲  ·
+<━━◆┄┄◇━━━━━━>
+  ╲██▒│░ ╱  ·
+    ╲▓█│▒╱  ·
+      ╲▒│▓╱··
+        ╲╱`
+][Math.floor(asciiTick/2)%12]}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-cube-card">
@@ -1106,11 +1178,16 @@ Playlist: ${tracks.length} track(s)`);
         @keyframes kt-globe-turn { 0%{transform:rotateZ(-2deg) scale(.98)} 50%{transform:rotateZ(2deg) scale(1.02)} 100%{transform:rotateZ(-2deg) scale(.98)} }
         .kt-diamond { margin:0; white-space:pre; text-align:center; transform-origin:center; }
         .kt-dodeca { color:#ffb000; font:9px/.95 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(255,176,0,.7),0 0 13px rgba(255,0,255,.22); animation:kt-poly-spin 4.6s steps(32) infinite; }
-        .kt-diamond { color:#00ffff; font:10px/.95 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.8),0 0 15px rgba(255,0,255,.3); animation:kt-gem-spin 3.7s steps(28) infinite; }
+        .kt-diamond { color:#00ffff; font:9px/.90 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.9),0 0 15px rgba(255,0,255,.34); animation:kt-gem-depth 4s steps(48) infinite; will-change:transform,filter; }
         .kt-dodeca-card { background:radial-gradient(circle at 50% 50%,rgba(255,176,0,.10),rgba(13,2,8,.96) 68%); }
-        .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.11),rgba(255,0,255,.025) 46%,rgba(13,2,8,.97) 74%); }
+        .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.13),rgba(255,0,255,.035) 46%,rgba(13,2,8,.97) 74%); }
         @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }
-        @keyframes kt-gem-spin { to { transform:rotateY(-360deg) rotateZ(360deg); } }
+        @keyframes kt-gem-depth {
+          0%,100% { transform:perspective(260px) rotateX(-4deg) rotateZ(-1.5deg) scale(.97); filter:brightness(.92) contrast(1.08); }
+          25% { transform:perspective(260px) rotateX(3deg) rotateZ(1deg) scale(1.01); filter:brightness(1.16) contrast(1.15); }
+          50% { transform:perspective(260px) rotateX(5deg) rotateZ(1.5deg) scale(.98); filter:brightness(.88) contrast(1.12); }
+          75% { transform:perspective(260px) rotateX(-2deg) rotateZ(-1deg) scale(1.02); filter:brightness(1.22) contrast(1.18); }
+        }
         .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
         @keyframes kt-sigil-stream { 0%,100%{transform:translateX(-3px);opacity:.22} 50%{transform:translateX(3px);opacity:.5} }
         @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
