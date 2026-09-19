@@ -531,7 +531,7 @@ export default function KTerminal() {
         if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setRitualEnabled(enabled); addLine(`Celestial ritual ${enabled ? 'engaged' : 'silenced'}.`); break; }
         if (sub === 'intensity') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 0 || n > 100) { addLine('Error: ritual intensity must be 0-100', 'error'); break; } setRitualIntensity(n); addLine(`Ritual intensity set to ${n}.`); break; }
         if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 2 || n > 20) { addLine('Error: ritual fps must be 2-20', 'error'); break; } setRitualFps(n); addLine(`Ritual clock set to ${n} fps.`); break; }
-        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → OUROBOROS pulse\nMID → APOLLO solar aura\nTRANSIENT → ANGEL/TRUMPET herald\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
+        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → OUROBOROS pulse\nMID → DODECAHEDRON aether rotation\nTRANSIENT → DIAMOND prism flare\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
         addLine('Usage: ritual on|off | ritual intensity [0-100] | ritual fps [2-20] | ritual map', 'error');
         break;
       }
@@ -761,76 +761,92 @@ Playlist: ${tracks.length} track(s)`);
               <pre className="kt-eye">{asciiTick % 32 < 3 ? '  ╔═☿═🜍═╗\n ╱  ─────  ╲\n<  ── ◇ ──  >\n ╲  ─────  ╱\n  ╚═☽═🜔═╝' : '  ╔═☿═🜍═╗\n ╱  ◉   ◉  ╲\n<     ◈     >\n ╲   ╲▴╱   ╱\n  ╚═☽═🜔═╝'}</pre>
             </div>
           </div>
-          <div className="kt-ascii-card kt-apollo-card">
-            <span className="kt-ascii-label">☉ APOLLO://MARBLE·ORACLE · MUSAGETES.EXE</span>
-            <div className="kt-apollo-stage">
-              <pre className="kt-apollo">{asciiTick % 40 < 3 ? `          .-☉-.
-       .-'     '-.
-      /  .-"""-.  \\
-     /  / .---. \\  \\
-    |  | /     \\ |  |
-    |  ||  ─ ─  ||  |
-    |  ||   ▴   ||  |
-    |  |\\  ─  /|  |
-     \\  '.___.'  /
-      '._/|___|\\_.'
-       / /|   |\\ \\
-     _/ / | ♫ | \\ \\_
-   .'/ /  |___|  \\ \\'.
-  /_/ /_.-===== -._\\ \\_\\
- /___/  /_______\\  \\___\\
-      _/ MARBLE \\_
-     /____☿_☉____\\` : `          .-☉-.
-       .-'     '-.
-      /  .-"""-.  \\
-     /  / .---. \\  \\
-    |  | /     \\ |  |
-    |  || ◉   ◉ ||  |
-    |  ||   ▴   ||  |
-    |  |\\  ▿  /|  |
-     \\  '.___.'  /
-      '._/|___|\\_.'
-       / /|   |\\ \\
-     _/ / | ♫ | \\ \\_
-   .'/ /  |___|  \\ \\'.
-  /_/ /_.-===== -._\\ \\_\\
- /___/  /_______\\  \\___\\
-      _/ MARBLE \\_
-     /____☿_☉____\\`}</pre>
+          <div className="kt-ascii-card kt-dodeca-card">
+            <span className="kt-ascii-label">🜔 DODECAHEDRON://AETHER·12 · PLATONIC.SEAL</span>
+            <div className="kt-dodeca-stage">
+              <pre className="kt-dodeca">{[
+`        _____
+      /\\   /\\
+     /  \\_/  \\
+    /___/ \\___\\
+    \\   \\ /   /
+     \\___X___/
+     /   / \\   \\
+    /___/___\\___\\
+     \\  \\_/  /
+      \\_/ \\_/`,
+`       .-----.
+     .' \\ | / '.
+    /---\\|/---\\
+   <_____/\\_____>
+    \\   /  \\  /
+     \\_/____\\/
+     / \\    / \\
+    <___\\__/___>
+      '.\\/.'
+        '·'`,
+`        /\\
+      _/  \\_
+    .' \\  / '.
+   /____\\/____\\
+   \\    /\\    /
+    \\__/  \\__/
+    /  \\  /  \\
+   /____\\/____\\
+    '.  /\\  .'
+      \\/__\\/`,
+`       _____
+     /'  |  '\\
+    / \\  |  / \\
+   /___\\_|_/___\\
+   \\   / | \\   /
+    \\_/__|__\\_/
+    / \\  |  / \\
+   /___\\_|_/___\\
+     \\  \|/  /
+      '---'`
+][Math.floor(asciiTick/2)%4]}</pre>
             </div>
           </div>
-          <div className="kt-ascii-card kt-angel-card">
-            <span className="kt-ascii-label">♄ CHOIR://MARBLE·SERAPHIM · ANGELNET</span>
-            <div className="kt-angel-stage">
-              <pre className="kt-angels">{asciiTick % 28 < 3 ? `       .-✧-.             .-✦-.
-    .-' /|\\ '-.       .-' /|\\ '-.
-   /  _/ | \\_  \\     /  _/ | \\_  \\
-  /.-'  .-.  '-.\\   /.-'  .-.  '-.\\
- <(    / ─ \\    )> <(    / ─ \\    )>
-  \\|   | ▴ |   |/   \\|   | ▴ |   |/
-   '._ \\___/ _.'     '._ \\___/ _.'
-      /|___|\\           /|___|\\
-    _/ | ♫ | \\_       _/ |===>\\ \\_
-   /___|___|___\\     /___|_____|___\\
-     / /| |\\ \\         / /| |\\ \\
-  __/ /_| |_\\ \\__   __/ /_| |_\\ \\__
- /___/  | |  \\___\\ /___/  | |  \\___\\
-      __| |__           __| |__
-     /__HARP_\\         /TRUMPET\\` : `       .-✧-.             .-✦-.
-    .-' /|\\ '-.       .-' /|\\ '-.
-   /  _/ | \\_  \\     /  _/ | \\_  \\
-  /.-'  .-.  '-.\\   /.-'  .-.  '-.\\
- <(    /◉ ◉\\    )> <(    /◉ ◉\\    )>
-  \\|   | ▴ |   |/   \\|   | ▴ |   |/
-   '._ \\_▽_/ _.'     '._ \\_▽_/ _.'
-      /|___|\\           /|___|\\
-    _/ | ♫ | \\_       _/ |===>\\ \\_
-   /___|___|___\\     /___|_____|___\\
-     / /| |\\ \\         / /| |\\ \\
-  __/ /_| |_\\ \\__   __/ /_| |_\\ \\__
- /___/  | |  \\___\\ /___/  | |  \\___\\
-      __| |__           __| |__
-     /__HARP_\\         /TRUMPET\\`}</pre>
+          <div className="kt-ascii-card kt-diamond-card">
+            <span className="kt-ascii-label">◇ DIAMOND://CARBON·PRISM · LAPIS.EXE</span>
+            <div className="kt-diamond-stage">
+              <pre className="kt-diamond">{[
+`        /\\
+       /░▒\\
+      /▒▓▓▒\\
+     /▓▒░▒▓\\
+    <───◇────>
+     \\▓▒░▒▓/
+      \\▒▓▒/
+       \\░/
+        \/`,
+`       . /\\ .
+      / /▒\\ \\
+     /_/▓▓\\_\\
+    <__\\◇/__>
+     \\  /\\  /
+      \\/▒▓\\/
+       \\▓/
+        ◇`,
+`        /\\
+      _/▓▓\\_
+     /▒░◇░▒\\
+    /▓▒/\\▒▓\\
+    \\▓\\/▒▓/
+     \\▒◇░▒/
+      \\▓▓/
+       \\/`,
+`        ◇
+       /▓\\
+      /▒/\\\\
+     /_/◇\\_\\
+    <__\\/__>
+     \\▓/\\▒/
+      \\/░\\/
+       \\▒/
+        \/`
+][Math.floor(asciiTick/2)%4]}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-cube-card">
@@ -1047,16 +1063,18 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ascii-card { box-shadow:inset 0 0 22px rgba(0,255,65,.08),0 0 9px rgba(255,0,255,.08); }
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
         .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
-        .kt-ouro-stage,.kt-cube-stage,.kt-apollo-stage,.kt-angel-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-ouro-stage,.kt-cube-stage,.kt-dodeca-stage,.kt-diamond-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
         .kt-ouro-ring { position:absolute; width:105px; height:105px; border:7px dotted #00ff41; border-radius:50%; box-shadow:0 0 12px rgba(0,255,65,.35),inset 0 0 12px rgba(0,255,65,.2); animation:kt-ouro-spin 5.5s steps(32) infinite; transform:rotateX(64deg) rotateZ(0deg); }
         .kt-ouro-snake { position:absolute; inset:-18px; color:#00ff41; font-size:8px; word-break:break-all; opacity:.7; filter:contrast(1.4); }
         .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
         .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
-        .kt-apollo { margin:0; color:#ffb000; font:9px/.95 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(255,176,0,.7),0 0 12px rgba(255,0,255,.2); animation:kt-apollo-aura 1.8s steps(8) infinite; }\n        .kt-apollo-card { background:radial-gradient(circle at 50% 42%,rgba(255,176,0,.11),rgba(13,2,8,.96) 64%); }\n        @keyframes kt-apollo-aura { 50% { filter:brightness(1.3); transform:translateY(-1px); } }\n        .kt-angel-card { background:radial-gradient(ellipse at 50% 45%,rgba(255,176,0,.09),rgba(255,0,255,.025) 44%,rgba(13,2,8,.97) 74%); }
-        .kt-angels { margin:0; color:#f0c96a; font:7px/.92 'Share Tech Mono',monospace; white-space:pre; text-align:center; text-shadow:0 0 5px rgba(240,201,106,.72),0 0 11px rgba(0,255,255,.15); animation:kt-choir-breathe 2.6s steps(10) infinite; }
-        .kt-angel-card::before { content:'✦  ·  ✧  ·  ✦'; position:absolute; left:0; right:0; bottom:4px; text-align:center; color:#ff00ff; opacity:.55; font-size:8px; letter-spacing:.3em; animation:kt-stars 1.4s steps(4) infinite; }
-        @keyframes kt-choir-breathe { 50% { transform:translateY(-1px); filter:brightness(1.22); } }
-        @keyframes kt-stars { 50% { opacity:.2; } }
+        .kt-dodeca,.kt-diamond { margin:0; white-space:pre; text-align:center; transform-origin:center; }
+        .kt-dodeca { color:#ffb000; font:9px/.95 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(255,176,0,.7),0 0 13px rgba(255,0,255,.22); animation:kt-poly-spin 4.6s steps(32) infinite; }
+        .kt-diamond { color:#00ffff; font:10px/.95 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.8),0 0 15px rgba(255,0,255,.3); animation:kt-gem-spin 3.7s steps(28) infinite; }
+        .kt-dodeca-card { background:radial-gradient(circle at 50% 50%,rgba(255,176,0,.10),rgba(13,2,8,.96) 68%); }
+        .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.11),rgba(255,0,255,.025) 46%,rgba(13,2,8,.97) 74%); }
+        @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }
+        @keyframes kt-gem-spin { to { transform:rotateY(-360deg) rotateZ(360deg); } }
         .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
         @keyframes kt-sigil-stream { 0%,100%{transform:translateX(-3px);opacity:.22} 50%{transform:translateX(3px);opacity:.5} }
         @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
@@ -1065,13 +1083,12 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ritual-off .kt-ascii-card * { animation-play-state:paused !important; }
         .kt-ritual-idle .kt-ascii-card { opacity:.58; filter:saturate(.55) brightness(.72); }
         .kt-ritual-playing .kt-ouro-ring { animation-duration:calc(6s - (var(--ritual-power) * 3s)); box-shadow:0 0 calc(10px + var(--ritual-power) * 20px) rgba(0,255,65,.6),inset 0 0 12px rgba(0,255,65,.25); }
-        .kt-ritual-playing .kt-apollo { animation-duration:calc(2.2s - (var(--ritual-power) * .9s)); }
-        .kt-ritual-playing .kt-angels { animation-duration:calc(3s - (var(--ritual-power) * 1.4s)); }
+        .kt-ritual-playing .kt-dodeca { animation-duration:calc(5s - (var(--ritual-power) * 2.3s)); }\n        .kt-ritual-playing .kt-diamond { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
         .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
         .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
         @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-ouro-ring{width:82px;height:82px}.kt-eye{font-size:11px}.kt-cube-face{font-size:10px} }
-        @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face,.kt-apollo,.kt-angels,.kt-angel-card::before,.kt-ascii-card::before{animation:none} }
+        @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face,.kt-dodeca,.kt-diamond,.kt-ascii-card::before{animation:none} }
 
         .kt-visualizer-container {
           height: 100px;
