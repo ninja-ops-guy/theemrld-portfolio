@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import KBandStage from './KBandStage';
 
 interface Track {
   id: number;
@@ -385,6 +386,9 @@ function renderDiamondFrame(tick: number): string {
 }
 
 export default function KTerminal() {
+  const navigate = useNavigate();
+  const [terminalParams] = useSearchParams();
+  const fromGallery = terminalParams.get('from') === 'gallery';
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -411,6 +415,7 @@ export default function KTerminal() {
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
   const [visualizerBars, setVisualizerBars] = useState(50);
   const [visualizerFps, setVisualizerFps] = useState(20);
+  const [bandEnabled, setBandEnabled] = useState(true);
   const [asciiTick, setAsciiTick] = useState(0);
   const [ritualEnabled, setRitualEnabled] = useState(true);
   const [ritualIntensity, setRitualIntensity] = useState(72);
@@ -435,13 +440,14 @@ export default function KTerminal() {
       if (typeof settings.visualizerBars === 'number') setVisualizerBars(settings.visualizerBars);
       if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
       if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
+      if (typeof settings.bandEnabled === 'boolean') setBandEnabled(settings.bandEnabled);
       if (typeof settings.ritualEnabled === 'boolean') setRitualEnabled(settings.ritualEnabled);
       if (typeof settings.ritualIntensity === 'number') setRitualIntensity(settings.ritualIntensity);
       if (typeof settings.ritualFps === 'number') setRitualFps(settings.ritualFps);
     } catch (_) {}
   }, []);
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
-  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps]);
+  useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled]);
 
   // Detect mobile on mount
   useEffect(() => {
@@ -703,7 +709,7 @@ export default function KTerminal() {
   <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
   <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
   <span class="tc-command">visualizer bars [8-128]</span> - Set density
-  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate
+  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate\n  <span class="tc-command">band on|off</span>       - Toggle K clone ensemble
   <span class="tc-command">ritual on|off</span>      - Toggle celestial ASCII audio-reactive mode
   <span class="tc-command">ritual intensity [0-100]</span> - Set reaction strength
   <span class="tc-command">ritual fps [2-20]</span>  - Set stepped animation clock
@@ -869,6 +875,19 @@ export default function KTerminal() {
         break;
       }
 
+      case 'band': {
+        const sub = (args[0] || '').toLowerCase();
+        if (!sub) { addLine(`K clone ensemble: ${bandEnabled ? 'ON' : 'OFF'}`); break; }
+        if (sub === 'on' || sub === 'off') {
+          const enabled = sub === 'on';
+          setBandEnabled(enabled);
+          addLine(`K clone ensemble ${enabled ? 'on stage' : 'muted'}.`);
+          break;
+        }
+        addLine('Usage: band on|off', 'error');
+        break;
+      }
+
       case 'visualizer': {
         const sub = (args[0] || '').toLowerCase();
         if (!sub) { addLine(`Visualizer: ${visualizerEnabled ? 'ON' : 'OFF'} | bars=${visualizerBars} | fps=${visualizerFps}`); break; }
@@ -957,7 +976,7 @@ Playlist: ${tracks.length} track(s)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, addLine, playTrack, playUrl, stopVisualizer]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -1075,6 +1094,16 @@ Playlist: ${tracks.length} track(s)`);
             K Terminal <span className="kt-artist-badge">THEEMRLD</span>
           </div>
           <div className="flex items-center gap-4">
+            {fromGallery && (
+              <button
+                type="button"
+                className="kt-gallery-exit"
+                onClick={() => navigate('/gallery?spawn=console')}
+                title="Exit K Terminal and return to the gallery apse computer"
+              >
+                [EXIT → GALLERY]
+              </button>
+            )}
             <Link
               to="/"
               className="kt-status hover:text-[#00ffff] transition-colors duration-300"
@@ -1128,6 +1157,15 @@ Playlist: ${tracks.length} track(s)`);
             </div>
           </div>
         </div>
+
+        {/* K clone band — playback-reactive sprite ensemble */}
+        <KBandStage
+          isPlaying={isPlaying}
+          progress={progress}
+          intensity={ritualIntensity}
+          trackTitle={currentTrack?.title}
+          enabled={bandEnabled}
+        />
 
         {/* CLI console — intentionally directly beneath the projection deck */}
         <div className="kt-cli-console">
@@ -1375,6 +1413,8 @@ Playlist: ${tracks.length} track(s)`);
           text-transform: uppercase;
         }
         .kt-status { font-size: 14px; color: #008f11; }
+        .kt-gallery-exit { background:rgba(176,0,255,.08); border:1px solid #b000ff; color:#d7a8ff; padding:4px 8px; font:inherit; font-size:12px; cursor:pointer; text-shadow:0 0 7px rgba(176,0,255,.7); }
+        .kt-gallery-exit:hover { background:rgba(176,0,255,.22); color:#fff; }
         .kt-audio-success { color: #00ff41; }
         .kt-audio-warning { color: #ffaa00; }
         .kt-audio-error { color: #ff3333; }
