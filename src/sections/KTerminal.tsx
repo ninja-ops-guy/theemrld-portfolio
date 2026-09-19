@@ -109,10 +109,11 @@ export default function KTerminal() {
   // Deep-link commands from the developer portfolio.
   useEffect(() => {
     if (bootPhase !== 'done') return;
-    const params = new URLSearchParams(window.location.search);
+    const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
+    const params = new URLSearchParams(hashQuery || window.location.search);
     if (params.get('cmd') === 'techopshero') {
       setGameOpen(true);
-      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+      window.history.replaceState({}, '', window.location.pathname + '#/terminal');
     }
   }, [bootPhase]);
 
