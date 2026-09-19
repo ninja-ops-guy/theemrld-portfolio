@@ -51,6 +51,11 @@ for (const target of targets) {
       impact: v.impact,
       help: v.help,
       nodes: v.nodes.length,
+      details: v.nodes.map(node => ({
+        target: node.target,
+        html: node.html,
+        failureSummary: node.failureSummary,
+      })),
     })),
   };
   report.push(result);
