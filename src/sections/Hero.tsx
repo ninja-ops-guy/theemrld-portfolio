@@ -9,6 +9,10 @@ export default function Hero() {
   const labelRef = useRef<HTMLParagraphElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
+  const scrollToSection = (id: string) => {
+    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
     tl.fromTo(labelRef.current,{ opacity: 0, y: 10 },{ opacity: 1, y: 0, duration: 0.6, delay: 0.2 })
@@ -28,8 +32,8 @@ export default function Hero() {
           I work on hard problems where infrastructure, security, automation, AI, and research overlap. I run real systems, figure out what actually failed, test ideas, and turn the useful parts into something reusable.
         </p>
         <div className="flex flex-wrap justify-center gap-3" style={{ marginTop: '34px' }}>
-          <a href="#work" className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>SEE THE WORK →</a>
-          <a href="#research-thesis" className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>HOW I APPROACH R&amp;D →</a>
+          <button type="button" onClick={() => scrollToSection('#work')} className="font-label px-5 py-3" style={{ background: '#4A6DFF', color: '#050A14' }}>SEE THE WORK →</button>
+          <button type="button" onClick={() => scrollToSection('#research-thesis')} className="font-label px-5 py-3" style={{ border: '1px solid #4A6DFF', color: '#4A6DFF' }}>HOW I APPROACH R&amp;D →</button>
         </div>
         <div className="flex flex-wrap justify-center gap-2" style={{ marginTop: '34px', maxWidth: '980px' }}>
           {domains.map((domain) => <span key={domain} className="font-label" style={{ border: '1px solid #1A2540', padding: '8px 10px', color: '#74869A', background: 'rgba(5,10,20,.45)' }}>{domain}</span>)}
