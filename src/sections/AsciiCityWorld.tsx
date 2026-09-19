@@ -422,7 +422,6 @@ export default function AsciiCityWorld(){
         const rel=norm(Math.atan2(dy,dx)-cc.ang);
         if(Math.abs(rel)>FOV*.58)continue;
         const screenX=(.5+rel/FOV)*ww;
-        const ci=Math.max(0,Math.min(cols-1,Math.round(screenX/cw)));
         // The art positions are gallery wall anchors, not collision objects;
         // render when facing their wall sector instead of letting the raycaster
         // mistakenly occlude them behind the cathedral shell.
