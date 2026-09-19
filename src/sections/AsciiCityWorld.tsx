@@ -518,6 +518,19 @@ export default function AsciiCityWorld(){
       // side benches, CRT and hanging ART/SURVIVES/STILL banner.
       const pulse=audioEnergyRef.current;
       ctx.save();
+      // Temple-of-Solomon-inspired ceremonial grammar: twin bronze pillars,
+      // cedar/gold lintel and palm/pomegranate frieze around the art nave.
+      const pillarW=Math.max(16,ww*.025),pillarH=hh*.58;
+      [[ww*.025,'JACHIN'],[ww*.945,'BOAZ']].forEach(([x,label])=>{
+        const px=Number(x);ctx.fillStyle='#3b2515';ctx.fillRect(px,hh*.18,pillarW,pillarH);
+        ctx.strokeStyle='#d5a85a';ctx.lineWidth=2;ctx.strokeRect(px,hh*.18,pillarW,pillarH);
+        ctx.fillStyle='#d5a85a';ctx.fillRect(px-5,hh*.16,pillarW+10,8);ctx.fillRect(px-5,hh*.76,pillarW+10,8);
+        ctx.font=`${Math.max(7,ww*.005)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(String(label),px-4,hh*.79);
+      });
+      ctx.fillStyle='#21140f';ctx.fillRect(ww*.03,hh*.105,ww*.94,hh*.045);ctx.strokeStyle='#d5a85a';ctx.strokeRect(ww*.03,hh*.105,ww*.94,hh*.045);
+      ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#b98649';ctx.textAlign='center';ctx.fillText('❦  ◉  ❦  PALM · POMEGRANATE · CEDAR · GOLD  ❦  ◉  ❦',ww*.5,hh*.128);
+      ctx.restore();
+      ctx.save();
       ctx.textAlign='center';ctx.textBaseline='middle';
       const cx=ww*.50,baseY=hh*.82;
       ctx.strokeStyle=`rgba(190,105,255,${.55+.35*pulse})`;ctx.lineWidth=1.5;
@@ -607,7 +620,7 @@ export default function AsciiCityWorld(){
   },[booted,draw,setAudioCue,setMode,scene]);
   const map=useMemo(()=>mini(hud.x,hud.y,hud.ang),[hud.x,hud.y,hud.ang]);
   const sceneCfg=SCENES[scene];
-  const displayArea=worldMode==='gallery'?'K//GALLERY // INDOOR ART + MEMORY NAVE':worldMode==='realm'?sceneCfg.label+' // ISOLATED PORTAL WORLD':'K//CITY // PROJECT DISTRICTS';
+  const displayArea=worldMode==='gallery'?'K//GALLERY // INDOOR ART + MEMORY NAVE':worldMode==='realm'?sceneCfg.label+' // ISOLATED PORTAL WORLD':'K//CITY // DOWNTOWN STREET + PROJECT DISTRICTS';
   const audioState=nowPlaying?'K TERMINAL':'ARMED';
 
   return <div className="kcity">
