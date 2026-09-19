@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import EvidenceExplorer, { type EvidenceItem } from '../components/EvidenceExplorer';
 
 type Project = {
   title:string; category:string; status:string; tone:'live'|'research'|'private';
@@ -34,6 +35,21 @@ const secondary = [
   ['Vector / WirePod Embodied AI','A private embodied-agent research platform for typed LLM control, reusable robot skills, event-driven coordination, and a developing RESIDUAL qualification layer. Included as work in progress rather than public evidence.','','','/case-study/vector-wirepod','PRIVATE · PUBLIC RELEASE PLANNED'],
 ];
 
+const flagshipEvidence: Record<string,EvidenceItem[]> = {
+  RESIDUAL:[
+    {label:'Public implementation',state:'IMPLEMENTED',summary:'Inspect the public harness and current implementation history.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'SOURCE'},
+    {label:'Contracts, receipts & deterministic integration',state:'TESTED',summary:'These are implemented code paths and are described in the case study with their acceptance boundaries.',href:'https://github.com/ninja-ops-guy/residual-agent-harness',action:'INSPECT REPOSITORY'},
+    {label:'Mixed experimental outcomes',state:'OBSERVED',summary:'PASS, FAIL, UNKNOWN and BLOCKED outcomes are intentionally retained; broader reliability remains under active qualification.'},
+    {label:'Production readiness',state:'PENDING',summary:'Install/recovery, soak, live-provider and device/browser qualification remain active release gates.'}
+  ],
+  'RAC / Adversarial Clothing':[
+    {label:'Public research implementation',state:'IMPLEMENTED',summary:'Pattern generation, experiment infrastructure and provenance mechanisms are publicly inspectable.',href:'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',action:'SOURCE'},
+    {label:'Frozen / held-out evaluation boundaries',state:'TESTED',summary:'The research program separates experiment contracts, held-out evaluation and provenance from efficacy claims.',href:'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline',action:'INSPECT REPOSITORY'},
+    {label:'Negative digital results',state:'OBSERVED',summary:'Failed digital generations are retained as evidence rather than promoted into a success claim.'},
+    {label:'Physical efficacy',state:'PENDING',summary:'Physical garment validation has not established efficacy; the portfolio keeps that boundary explicit.'}
+  ]
+};
+
 const toneColor=(t:Project['tone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
 
 export default function SelectedWork(){
@@ -51,7 +67,7 @@ export default function SelectedWork(){
           <p className="font-body" style={{color:'#A6B3C2',fontSize:15,lineHeight:1.7,marginTop:16}}>{p.thesis}</p>
           <div style={{marginTop:24}}><p className="font-label" style={{color:'#5A78FF',marginBottom:10}}>WHAT I CAN POINT TO</p>{p.evidence.map(x=><p key={x} className="font-body" style={{color:'#B7C3D0',fontSize:13,lineHeight:1.65,margin:'6px 0'}}>→ {x}</p>)}</div>
           <div style={{marginTop:22,paddingTop:18,borderTop:'1px solid #162235'}}><p className="font-label" style={{color:'#5A78FF'}}>WHAT CAME OUT OF IT</p><p className="font-body" style={{color:'#8899AA',fontSize:13,lineHeight:1.65,marginTop:8}}>{p.primitive}</p></div>
-          <div className="flex flex-wrap gap-3 mt-auto pt-7"><Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#5A78FF] text-[#050A14]">OPEN CASE STUDY →</Link>{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}{p.demo&&<a href={p.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#5A78FF] text-[#5A78FF]">DEMO →</a>}</div>
+          <div className="flex flex-wrap gap-3 mt-auto pt-7"><Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#5A78FF] text-[#050A14]">OPEN CASE STUDY →</Link>{flagshipEvidence[p.title]&&<EvidenceExplorer title={`${p.title} / EVIDENCE`} items={flagshipEvidence[p.title]} />}{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}{p.demo&&<a href={p.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#5A78FF] text-[#5A78FF]">DEMO →</a>}</div>
         </article>)}
       </div>
 
