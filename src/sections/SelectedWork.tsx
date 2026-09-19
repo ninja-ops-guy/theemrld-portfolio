@@ -18,12 +18,6 @@ const flagships: Project[] = [
     claimState:'PREREGISTERED / PENDING PHYSICAL TEST', evidence:['Frozen experiment contracts','Held-out evaluation boundaries','Artifact + provenance tracking','Negative digital results retained','Physical efficacy explicitly remains unestablished'],
     primitive:'Evidence gates · frozen protocols · provenance · reproducible trials', caseStudy:'/case-study/adversarial-clothing', github:'https://github.com/ninja-ops-guy/adversarial-clothing-pipeline'
   },
-  {
-    title:'Vector / WirePod Embodied AI', category:'EMBODIED AI / VERIFIED ROBOT CONTROL', status:'ACTIVE R&D · PRIVATE', tone:'private',
-    thesis:'A robotics testbed for moving from typed LLM control toward governed dynamic behavior: observe, propose, verify, act, measure, and retain only behaviors that survive qualification on the real system.',
-    claimState:'WORKING CONTROL PLANE / QUALIFICATION IN PROGRESS', evidence:['Typed LLM-to-Vector control already working','Reusable SDK-backed robot skills','Local-first WirePod control boundary','Event-driven multi-robot coordination direction','RESIDUAL qualification layer under active implementation'],
-    primitive:'Intent → capability → verification → execution → measured retention', caseStudy:'/case-study/vector-wirepod'
-  },
 ];
 
 const foundation: Project = {
@@ -37,6 +31,7 @@ const secondary = [
   ['TechOps Hero','A public product-engineering testbed for runtime QA, state management, campaign regressions, mobile controls, deployment, and failure-driven iteration.','https://github.com/ninja-ops-guy/techops-hero','https://ninja-ops-guy.github.io/techops-hero/','/case-study/techops-hero','PUBLIC · PLAYABLE'],
   ['Red-Team CTF Harness','A bounded environment for comparing scripted and LLM-driven security operators while retaining execution evidence, replayable reasoning, and defensive telemetry.','https://github.com/ninja-ops-guy/ctf-redteam-harness','','/case-study/ctf-redteam-harness','PUBLIC · ACTIVE'],
   ['CIC + LDD','Research into structural complexity, SAT, proof ideas, formalization, and observability. Kept as research exploration, with open claims separated from measured or formal evidence.','https://github.com/ninja-ops-guy/cic-p-vs-np-research','https://github.com/ninja-ops-guy/LDD-Kit','/case-study/cic-sat','PUBLIC RESEARCH'],
+  ['Vector / WirePod Embodied AI','A private embodied-agent research platform for typed LLM control, reusable robot skills, event-driven coordination, and a developing RESIDUAL qualification layer. Included as work in progress rather than public evidence.','','','/case-study/vector-wirepod','PRIVATE · PUBLIC RELEASE PLANNED'],
 ];
 
 const toneColor=(t:Project['tone'])=>t==='live'?'#7DE2A8':t==='research'?'#9AAEFF':'#D8B26E';
@@ -46,7 +41,7 @@ export default function SelectedWork(){
     <div className="max-w-[1280px] mx-auto px-6 md:px-10">
       <p className="font-label">FLAGSHIP RESEARCH & ENGINEERING</p>
       <h2 className="font-headline" style={{color:'#E8EDF3',fontSize:'clamp(2rem,4vw,4rem)',marginTop:18,maxWidth:950,lineHeight:1}}>Run the system. Find the problem. Test the idea. Keep what survives.</h2>
-      <p className="font-body" style={{color:'#8899AA',maxWidth:840,marginTop:20,lineHeight:1.7}}>Three programs carry the main research story. Each one has a different domain, but the evaluation rule is the same: separate what is implemented from what is observed, and what is observed from what is still a hypothesis.</p>
+      <p className="font-body" style={{color:'#8899AA',maxWidth:840,marginTop:20,lineHeight:1.7}}>The public flagship work carries the main research story. Each program has a different domain, but the evaluation rule is the same: separate what is implemented from what is observed, and what is observed from what is still a hypothesis.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{marginTop:58}}>
         {flagships.map((p,i)=><article key={p.title} className="border border-[#162235] p-6 md:p-7 flex flex-col" style={{background:'rgba(8,15,28,.78)'}}>
