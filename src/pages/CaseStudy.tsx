@@ -54,6 +54,23 @@ const studies: Record<string, Study> = {
     remains: ['Connect/freeze exact approved detector model sets', 'Collect calibrated print and garment deformation measurements', 'Run preregistered physical trials across pose/view/light/distance', 'Complete RAC-P and RAC-M evidence gates before product-efficacy claims'],
     stack: 'Python · React/JavaScript · Computer Vision · Optimization · Experiment Automation · GitHub Actions',
   },
+  'ctf-redteam-harness': {
+    title: 'Red-Team CTF Harness', eyebrow: 'OFFENSIVE SECURITY / AGENT BENCHMARKING / DEFENSIVE TELEMETRY', status: 'ACTIVE DEVELOPMENT · PUBLIC',
+    thesis: 'A bounded security experimentation harness for comparing scripted and LLM-driven operators while preserving execution evidence, defensive visibility, and replayable reasoning.',
+    repo: 'https://github.com/ninja-ops-guy/ctf-redteam-harness',
+    problem: 'Agentic security tooling is easy to demo and hard to evaluate. A model can appear capable while relying on unsafe execution, irreproducible reasoning, hidden retries, or a challenge set that does not expose where it fails. I wanted a testbed where the challenge, action boundary, audit record, detections, evidence, and result are all explicit enough to compare solvers and study failure.',
+    architecture: [
+      { title: 'Challenge + solver layer', body: 'JSON-defined challenge packs drive either deterministic ScriptSolver playbooks or OpenAI-compatible LLM solvers, including local endpoints such as Ollama/vLLM.' },
+      { title: 'Bounded execution', body: 'Shell and Python actions are constrained by timeouts, output caps, environment scrubbing, resource limits, namespace isolation, anti-obfuscation checks, and an optional Firecracker execution path.' },
+      { title: 'Evidence + replay', body: 'Executed and blocked commands enter an HMAC-chained audit log. Structured agent turns feed reasoning replay, evidence graphs, stall analysis, and attack-chain extraction instead of disappearing into an opaque transcript.' },
+      { title: 'Security observability', body: 'The harness also evaluates operator actions through Sigma-style detections, IOC extraction, log forensics, host-baseline checks, and per-attempt reporting so offensive activity produces defensive evidence.' },
+      { title: 'Comparative evaluation', body: 'Benchmark tooling races solver configurations across the same pack and records solve rate, time, steps, and throughput so hosted/local models and routing strategies can be compared on a common workload.' },
+    ],
+    evidence: ['20 public challenge scenarios across 12 security domains', 'Scripted and LLM-driven solver paths share the same harness boundary', 'Tamper-evident HMAC audit detects edit, deletion, and reorder', 'Specialist routing, evidence graphs, replay, and benchmarking are implemented modules', 'Defensive detection, IOC, log-forensics, and baseline modules are wired into the solve loop', 'Local-model operation is supported through OpenAI-compatible endpoints'],
+    failure: { signal: 'An agent may produce plausible reasoning or a candidate flag while taking unsafe, irrelevant, or non-reproducible actions.', response: 'Keep execution authority outside the model, bound every action, validate flags independently, retain blocked actions and detections, and replay the reasoning/action sequence against explicit success criteria.', lesson: 'For autonomous security work, capability is only one axis. The execution boundary, evidence quality, reproducibility, and defensive observability are part of the system being evaluated.' },
+    remains: ['Run larger apples-to-apples local-versus-hosted benchmark campaigns', 'Add more realistic multi-stage and service-backed challenge environments', 'Use RESIDUAL as an external qualification/control layer for selected agent runs', 'Expand failure taxonomy and adversarial missions for routing, replay, and evidence integrity'],
+    stack: 'Python · LLM agents · Ollama/vLLM/OpenAI-compatible APIs · Firecracker/bwrap · HMAC audit · Sigma-style detection · SAT tooling',
+  },
   'cic-sat': {
     title: 'CIC & SAT Research', eyebrow: 'COMPLEXITY RESEARCH / FORMAL REASONING', status: 'RESEARCH PROGRAM · PUBLIC',
     thesis: 'A computational research program exploring structural complexity measures with experiments, proof attempts, solver tooling, and formalization artifacts—while keeping open implications visibly open.',
