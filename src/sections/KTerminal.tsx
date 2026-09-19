@@ -176,31 +176,43 @@ export default function KTerminal() {
     });
   }, [volume, updateProgressUI, addLine, currentTrack?.duration]);
 
-  // SoundCloud Widget init -- NO auto_play (mobile blocks it)
+  // SoundCloud Widget init. load() keeps playback attached to the existing
+  // iframe/widget instance so a user's click remains the playback gesture.
   const initSoundCloud = useCallback((url: string) => {
     if (!widgetRef.current) return;
 
     const SC = (window as any).SC;
     if (!SC || !SC.Widget) {
       addLine('<span class="tc-warning">[WARN]</span> SoundCloud API loading... retrying...');
-      setTimeout(() => initSoundCloud(url), 1000);
+      window.setTimeout(() => initSoundCloud(url), 500);
       return;
     }
 
     try {
-      widgetRef.current.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false`;
-
-      widgetRef.current.onload = () => {
-        if (!widgetRef.current) return;
-        const widget = SC.Widget(widgetRef.current);
+      const widget = scWidgetRef.current || SC.Widget(widgetRef.current);
+      if (!scWidgetRef.current) {
         scWidgetRef.current = widget;
         bindWidgetEvents(widget);
-      };
+      }
+
+      widget.load(url, {
+        auto_play: true,
+        hide_related: true,
+        show_comments: false,
+        show_user: false,
+        show_reposts: false,
+        visual: false,
+        callback: () => {
+          widget.setVolume(volume);
+          widget.play();
+        },
+      });
     } catch (err) {
       console.error('SC Widget error:', err);
-      addLine('<span class="tc-error">Error loading SoundCloud player.</span>');
+      setAudioStatus('ERROR');
+      addLine('<span class="tc-error">Error loading SoundCloud player. Try the track again.</span>');
     }
-  }, [bindWidgetEvents, addLine]);
+  }, [bindWidgetEvents, addLine, volume]);
 
   // Visualizer
   const startVisualizer = useCallback(() => {
@@ -550,7 +562,8 @@ Playlist: ${tracks.length} track(s)`);
         scrolling="no"
         frameBorder="no"
         allow="autoplay"
-        style={{ position: 'absolute', bottom: '0', left: '0', opacity: 0, pointerEvents: 'none' }}
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno/real&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+        style={{ position: 'absolute', bottom: '0', left: '0', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
       />
 
       <div className="kt-container">
