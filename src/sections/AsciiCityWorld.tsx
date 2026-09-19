@@ -154,6 +154,32 @@ const DOOR_SIGNS=[
   {x:13.7,y:12.5,t:['[5] LIGHT','LUMEN ARCOLOGY'],c:DOOR_COLOR['5']},
   {x:34.3,y:12.5,t:['[6] DARK','BLACKOUT WASTE'],c:DOOR_COLOR['6']}
 ]
+const SCENE_ARCHITECTURE:Record<SceneId,Billboard[]>={
+  spring:[
+    {x:6,y:18,t:['        ♛','      ╱╲│╱╲','    ╱❀ ╲│╱ ❀╲','  ╭╯────┼────╰╮','  │ ❧ VERNAL ❧ │','╭─┴─────┼─────┴─╮','│ IVY PALACE / K │','╰───────┴───────╯'],c:'#a7ff9b'},
+    {x:42,y:22,t:['❧  ❀  ❧  ❀','╭─╮╭─╮╭─╮╭─╮','│ ││ ││ ││ │','╰─╯╰─╯╰─╯╰─╯','ROSE ARCADE'],c:'#78ffd1'}
+  ],
+  summer:[
+    {x:7,y:18,t:['       ╲ │ ╱','     ─── ☼ ───','   ╭─────┼─────╮',' ╭─┴─╮ ╭─┴─╮ ╭─┴─╮',' │ ☼ │ │ ☼ │ │ ☼ │',' ╰───╯ ╰───╯ ╰───╯',' SOLAR BASILICA'],c:'#ffd166'},
+    {x:41,y:23,t:[' ≈≈≈≈≈╬≈≈≈≈≈','   ╭──╨──╮',' ╭─╯ ☼  ☼ ╰─╮',' │  FOUNTAIN │',' ╰────╥──────╯'],c:'#00ffff'}
+  ],
+  autumn:[
+    {x:6,y:18,t:['██████████████','██  ████  ████','██  ╫╫╫╫  ████','████╫╫╫╫██████','   ╱╫╫╫╫╲','  / RUST  \\','BRUTALIST STACK'],c:'#c96b35'},
+    {x:42,y:24,t:['╫ ╫  ╫ ╫  ╫ ╫','╫╲╫╱ ╫╲╫╱ ╫╲╫','╫ ╳  ╫ ╳  ╫ ╳',' , , OXIDE , ,','REBAR PROCESSION'],c:'#ff9b42'}
+  ],
+  winter:[
+    {x:7,y:18,t:['       ✧','     ╱╲╱╲','   ╱╲╱◇╲╱╲',' ╱╲╱╲╱│╲╱╲╱╲','╲╱╲╱╲╱│╲╱╲╱╲╱','   WHITEOUT','  GLASS SPIRE'],c:'#d8ecff'},
+    {x:41,y:24,t:['▼ ▼ ▼ ▼ ▼ ▼','│╲ │ ╱│╲ │ ╱','│ ╲◇╱ │ ╲◇╱','│  │  │  │','SNOW LATTICE'],c:'#a9e7ff'}
+  ],
+  light:[
+    {x:7,y:18,t:['        ◇','      ╱ │ ╲','    ╱   │   ╲','  ╱─────┼─────╲',' │ □  □ │ □  □ │',' │  SKY GARDEN  │',' ╰──────┬───────╯',' LUMEN ARCOLOGY'],c:'#fff0a8'},
+    {x:41,y:24,t:['☼  ╱╲  ☼  ╱╲  ☼','  ╱  ╲   ╱  ╲',' ╱____╲ ╱____╲',' SOLAR FINS',' ↑ FLIGHT LANE ↑'],c:'#b8ffd8'}
+  ],
+  dark:[
+    {x:7,y:18,t:['______/╲________','  ___/  ╲__','_/   ╳     ╲____','   ╱ │ ╲','__/  │  ╲_______','BLACKOUT GANTRY','  // COLLAPSED'],c:'#7c3547'},
+    {x:41,y:24,t:['  (^^)      ╳',' (####)   __│__','  ╲__/   /     \\','   │    / DEAD  \\','  ╱_╲  / NEON   \\',' ASH / FIRE'],c:'#ff315f'}
+  ]
+};
 const PROJECT_STRUCTURES:Billboard[]=[
   {x:16,y:18.8,t:['       ╱╲','      ╱  ╲','  ╔══╧════╧══╗','  ║ RESIDUAL ║','╔═╩══════════╩═╗','║ RECEIPT HALL ║','║ OBSERVE      ║','║ VERIFY       ║','║ REPLAY       ║','╚══════╤═══════╝','       │'],c:'#ff3bd4'},
   {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
@@ -279,7 +305,7 @@ export default function AsciiCityWorld(){
   const toggleFlight=useCallback(()=>{if(scene!=='light'){setNotice('FLIGHT MODE // AVAILABLE ONLY IN LIGHT / LUMEN ARCOLOGY');window.setTimeout(()=>setNotice(''),2200);return;}const next=!flightRef.current;flightRef.current=next;setFlight(next);setVehicle(false);vehicleRef.current=false;cam.current.height=next?2.75:1.55;cam.current.pitch=next?-5:0;setAudioCue(next?'flight':'light');setNotice(next?'FLIGHT MODE // MIRROR PLANE // [F] LAND':'TOUCHDOWN // LUMEN ARCOLOGY');window.setTimeout(()=>setNotice(''),2600);},[scene,setAudioCue]);
   const interact=useCallback(()=>{if(phase.current!=='explore')return;if(vehicleRef.current){vehicleRef.current=false;setVehicle(false);setAudioCue(scene);setNotice('K//DRIVE EXITED // FLAG SIGNAL RELEASED');window.setTimeout(()=>setNotice(''),2200);return;}const t=target.current;if(!t)return;if(t.kind==='console')sit();else if(t.kind==='relic'){setNotice('SIGNAL SCRIPTURE // ARCHIVE LINK VERIFIED');window.setTimeout(()=>setNotice(''),2200);}else if(t.kind==='door'&&t.scene)enterScene(t.scene);else if(t.kind==='car'){vehicleRef.current=true;setVehicle(true);flightRef.current=false;setFlight(false);cam.current.height=1.25;setAudioCue('car');setNotice('K//DRIVE ONLINE // ⚑ FLAG ON DASH // [E] EXIT VEHICLE');window.setTimeout(()=>setNotice(''),3000);}},[sit,enterScene,setAudioCue,scene]);
 
-  useEffect(()=>{const down=(e:KeyboardEvent)=>{const k=e.key.toLowerCase();keys.current[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(k==='e')interact();if(k==='f')toggleFlight();if(k==='t'&&!termRef.current)openPortableTerminal();if(k==='escape'&&termRef.current)exit();};const up=(e:KeyboardEvent)=>{keys.current[e.key.toLowerCase()]=false;};const pl=()=>setLocked(document.pointerLockElement===canvas.current);const mm=(e:MouseEvent)=>{if(document.pointerLockElement!==canvas.current||phase.current!=='explore')return;cam.current.ang+=e.movementX*.00235;cam.current.pitch=Math.max(-13,Math.min(13,cam.current.pitch-e.movementY*.07));};window.addEventListener('keydown',down);window.addEventListener('keyup',up);document.addEventListener('pointerlockchange',pl);document.addEventListener('mousemove',mm);return()=>{window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);document.removeEventListener('pointerlockchange',pl);document.removeEventListener('mousemove',mm);};},[interact,exit,toggleFlight,openPortableTerminal]);
+  useEffect(()=>{const down=(e:KeyboardEvent)=>{const el=e.target as HTMLElement|null;if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable))return;const k=e.key.toLowerCase();keys.current[k]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();if(k==='e')interact();if(k==='f')toggleFlight();if(k==='t'&&!termRef.current)openPortableTerminal();if(k==='escape'&&termRef.current)exit();};const up=(e:KeyboardEvent)=>{keys.current[e.key.toLowerCase()]=false;};const pl=()=>setLocked(document.pointerLockElement===canvas.current);const mm=(e:MouseEvent)=>{if(document.pointerLockElement!==canvas.current||phase.current!=='explore')return;cam.current.ang+=e.movementX*.00235;cam.current.pitch=Math.max(-13,Math.min(13,cam.current.pitch-e.movementY*.07));};window.addEventListener('keydown',down);window.addEventListener('keyup',up);document.addEventListener('pointerlockchange',pl);document.addEventListener('mousemove',mm);return()=>{window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);document.removeEventListener('pointerlockchange',pl);document.removeEventListener('mousemove',mm);};},[interact,exit,toggleFlight,openPortableTerminal]);
 
   const ts=useCallback((e:React.TouchEvent)=>{const half=window.innerWidth/2;for(const t of Array.from(e.changedTouches)){if(t.clientX<half&&touchMove.current.id===-1)touchMove.current={id:t.identifier,x0:t.clientX,y0:t.clientY,dx:0,dy:0};else if(touchLook.current.id===-1)touchLook.current={id:t.identifier,x:t.clientX,y:t.clientY};}},[]);
   const tm=useCallback((e:React.TouchEvent)=>{for(const t of Array.from(e.changedTouches)){if(t.identifier===touchMove.current.id){touchMove.current.dx=Math.max(-1,Math.min(1,(t.clientX-touchMove.current.x0)/65));touchMove.current.dy=Math.max(-1,Math.min(1,(t.clientY-touchMove.current.y0)/65));}else if(t.identifier===touchLook.current.id&&phase.current==='explore'){cam.current.ang+=(t.clientX-touchLook.current.x)*.0065;cam.current.pitch=Math.max(-13,Math.min(13,cam.current.pitch-(t.clientY-touchLook.current.y)*.13));touchLook.current.x=t.clientX;touchLook.current.y=t.clientY;}}},[]);
@@ -287,6 +313,7 @@ export default function AsciiCityWorld(){
 
   const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch-(cc.height-1.55)*1.8);
     const cfg=SCENES[scene],royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
+    const scenePhase=scene==='spring'?0:scene==='summer'?1:scene==='autumn'?2:scene==='winter'?3:scene==='light'?4:5;
     const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
     const syncPulse=.72+.28*Math.abs(Math.sin(syncTime*3.15));
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
@@ -352,7 +379,7 @@ export default function AsciiCityWorld(){
       }
     }
     const sceneSign={x:24.5,y:18.3,t:['['+scene.toUpperCase()+'] '+cfg.label,cfg.era],c:cfg.accent};
-    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...PROJECT_STRUCTURES,...LANDMARKS[scene],CAR_SIGN,sceneSign];
+    const allSigns=[...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS,...PROJECT_STRUCTURES,...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],CAR_SIGN,sceneSign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(!royal){
       const movers=[
@@ -427,16 +454,21 @@ export default function AsciiCityWorld(){
         if(flyingOver||!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x=Math.max(1.1,Math.min(W-1.1,c.x+mx));
         if(flyingOver||!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y=Math.max(1.1,Math.min(H-1.1,c.y+my));
 
-        // Zone soundtrack routing. A terminal exit gets a protected 12-second
-        // turnaround cue before the nave/deeper-gallery music can take over.
+        // Audio changes only at meaningful room/experience boundaries.
+        // Once a track starts, walking around that room never reloads it.
         const inGallery=c.y<=15.9&&c.x>12&&c.x<36;
-        if(vehicleRef.current)setAudioCue('car');
-        else if(flightRef.current)setAudioCue('flight');
-        else if(inGallery){
-          if(cueRef.current==='gallery-turnaround'&&now<galleryReturnUntil.current){/* hold */}
-          else if(c.y>8.1&&c.y<14.9)setAudioCue('gallery-deep');
-          else setAudioCue('ambient');
-        }else if(['gallery-turnaround','gallery-deep','ambient','city'].includes(cueRef.current)){
+        const wasGallery=(cam.current as Cam & { _gallery?: boolean })._gallery ?? inGallery;
+        (cam.current as Cam & { _gallery?: boolean })._gallery=inGallery;
+        if(vehicleRef.current){
+          if(cueRef.current!=='car')setAudioCue('car');
+        }else if(flightRef.current){
+          if(cueRef.current!=='flight')setAudioCue('flight');
+        }else if(inGallery&&!wasGallery){
+          // Entering the gallery starts its room soundtrack once. Deeper
+          // movement and individual paintings do not interrupt the song.
+          if(cueRef.current!=='gallery-turnaround')setAudioCue('gallery-deep');
+        }else if(!inGallery&&wasGallery){
+          // Crossing the cathedral threshold is the scene/city music boundary.
           setAudioCue(scene);
         }
       }
@@ -457,7 +489,7 @@ export default function AsciiCityWorld(){
 
   return <div className="kcity">
     <div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/><div className="kc-gallery-glow"/>
-    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>MOTIFS {sceneCfg.motifs}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'LUMEN FLIGHT · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
+    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>PORTAL {scene.toUpperCase()} // {sceneCfg.era}</small><small>WORLD ID {scene.toUpperCase()} // {sceneCfg.motifs}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'LUMEN FLIGHT · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
     {vehicle&&!terminal&&<div className="kc-drive-dashboard"><pre>{'┌───────────┐\n│ ⚑ K//FLAG │\n│ ▓▒░▓▒░▓▒░ │\n└─────┬─────┘\n      │'}</pre><div className="kc-drive-center"><b>K//DRIVE // NIGHT DASH</b>FLAG SIGNAL LOCKED<br/>♫ {nowPlaying||'FLAG'}</div><div className="kc-drive-gauge">SPD // {keys.current.w?'88':'00'}<br/>NET // ONLINE<br/>[E] EXIT</div></div>}
     {flight&&!terminal&&<div className="kc-flight-hud"><b>LUMEN FLIGHT</b><br/>ALT // {cam.current.height.toFixed(1)}<br/>MIRROR PLANE // SYNC<br/>SPACE ↑ · C/CTRL ↓</div>}
     {notice&&!terminal&&<div className="kc-note">{notice}</div>}
