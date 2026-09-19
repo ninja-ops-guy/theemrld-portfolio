@@ -28,9 +28,15 @@ function Portfolio() {
     lenisRef.current = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
+    const onPortfolioScroll = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      const target = id ? document.querySelector(id) : null;
+      if (target) lenis.scrollTo(target as HTMLElement, { offset: -64, duration: 1.1 });
+    };
+    window.addEventListener('portfolio-scroll', onPortfolioScroll);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
-    return () => { gsap.ticker.remove(tick); lenis.destroy(); };
+    return () => { window.removeEventListener('portfolio-scroll', onPortfolioScroll); gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
   return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><About /><Networking /><Contact /></main><Footer /></>;
 }
