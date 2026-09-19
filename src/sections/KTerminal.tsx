@@ -73,6 +73,103 @@ function asciiBuffer(width: number, height: number) {
   return { chars, depth };
 }
 
+
+function renderIdleHashFrame(tick: number): string {
+  const width = 31, height = 11;
+  const rows: string[] = [];
+  let seed = (tick + 1) * 2654435761 >>> 0;
+  const next = () => {
+    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+    return seed >>> 0;
+  };
+  for (let y = 0; y < height; y++) {
+    let row = '';
+    for (let x = 0; x < width; x++) {
+      const r = next() % 23;
+      row += r < 5 ? '#' : r < 11 ? String((next() >>> 3) & 1) : ' ';
+    }
+    rows.push(row.replace(/\s+$/, ''));
+  }
+  return rows.join('\n');
+}
+
+function renderTainoFrame(tick: number): string {
+  const width = 31, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const ay = Math.sin(tick * 0.055) * 0.78;
+  const ax = -0.18 + Math.sin(tick * 0.031) * 0.12;
+  const az = Math.sin(tick * 0.024) * 0.08;
+  const light: V3 = [-0.35, -0.35, 0.86];
+
+  const putPoint = (p0: V3, ch = '█') => {
+    const p = rotate3(p0, ax, ay, az);
+    const camera = 4.8 - p[2];
+    if (camera <= 0.2) return;
+    const k = 1 / camera;
+    const sx = Math.round(width / 2 + p[0] * 31 * k);
+    const sy = Math.round(height / 2 + p[1] * 17 * k);
+    if (sx < 0 || sx >= width || sy < 0 || sy >= height || p[2] <= depth[sy][sx]) return;
+    depth[sy][sx] = p[2];
+    chars[sy][sx] = ch;
+  };
+
+  const shadedPoint = (p0: V3, normal0: V3) => {
+    const p = rotate3(p0, ax, ay, az);
+    const n = rotate3(normal0, ax, ay, az);
+    const camera = 4.8 - p[2];
+    if (camera <= 0.2) return;
+    const k = 1 / camera;
+    const sx = Math.round(width / 2 + p[0] * 31 * k);
+    const sy = Math.round(height / 2 + p[1] * 17 * k);
+    if (sx < 0 || sx >= width || sy < 0 || sy >= height || p[2] <= depth[sy][sx]) return;
+    const lum = n[0] * light[0] + n[1] * light[1] + n[2] * light[2];
+    const idx = Math.max(2, Math.min(ASCII_LIGHT.length - 1, Math.round(((lum + 1) / 2) * (ASCII_LIGHT.length - 1))));
+    depth[sy][sx] = p[2];
+    chars[sy][sx] = ASCII_LIGHT[idx];
+  };
+
+  // A stylized Taíno sun / petroglyph-inspired relief: central face, circular brow,
+  // spiral cheek marks, mouth and radial rays extruded into a shallow 3D tablet.
+  for (let a = 0; a < Math.PI * 2; a += 0.055) {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    for (let z = -0.12; z <= 0.12; z += 0.12) {
+      shadedPoint([1.0 * ca, 1.0 * sa, z], [ca, sa, 0.35]);
+    }
+  }
+
+  for (let r = 1.24, i = 0; i < 12; i++) {
+    const a = i * Math.PI / 6;
+    const ux = Math.cos(a), uy = Math.sin(a);
+    for (let t = 0; t <= 1; t += 0.08) {
+      const rr = r + t * 0.48;
+      putPoint([rr * ux, rr * uy, 0.02 + 0.06 * Math.sin(t * Math.PI)], t > 0.75 ? '◆' : '▓');
+    }
+  }
+
+  const facial = [
+    [-0.42, -0.22], [0.42, -0.22], // eyes
+    [-0.18, 0.34], [0, 0.42], [0.18, 0.34], // mouth
+    [0, 0.02], [0, 0.12], // nose
+  ] as [number, number][];
+  facial.forEach(([x, y], i) => putPoint([x, y, 0.22], i < 2 ? '◉' : i < 5 ? '▄' : '│'));
+
+  for (const side of [-1, 1]) {
+    for (let a = 0; a < Math.PI * 1.65; a += 0.13) {
+      const rr = 0.12 + a * 0.075;
+      const x = side * (0.50 + rr * Math.cos(a));
+      const y = 0.12 + rr * Math.sin(a);
+      putPoint([x, y, 0.18], a > 3.2 ? '░' : '▒');
+    }
+  }
+
+  // Brow / crown bridge to make the face read even at narrow angles.
+  for (let x = -0.62; x <= 0.62; x += 0.06) {
+    putPoint([x, -0.48 - 0.08 * Math.cos(x * Math.PI / 0.62), 0.20], '▓');
+  }
+
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
 function renderTorusFrame(tick: number): string {
   const width = 35, height = 15;
   const { chars, depth } = asciiBuffer(width, height);
@@ -651,7 +748,7 @@ export default function KTerminal() {
         if (sub === 'on' || sub === 'off') { const enabled = sub === 'on'; setRitualEnabled(enabled); addLine(`Celestial ritual ${enabled ? 'engaged' : 'silenced'}.`); break; }
         if (sub === 'intensity') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 0 || n > 100) { addLine('Error: ritual intensity must be 0-100', 'error'); break; } setRitualIntensity(n); addLine(`Ritual intensity set to ${n}.`); break; }
         if (sub === 'fps') { const n = Number(args[1]); if (!Number.isInteger(n) || n < 2 || n > 20) { addLine('Error: ritual fps must be 2-20', 'error'); break; } setRitualFps(n); addLine(`Ritual clock set to ${n} fps.`); break; }
-        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → OUROBOROS pulse\nMID → GLOBE meridian rotation\nTRANSIENT → DIAMOND prism flare\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
+        if (sub === 'map') { addLine('RITUAL MAP // playback-reactive fallback\nBASS/KICK → TAINO sun-relief pulse\nMID → GLOBE meridian rotation\nTRANSIENT → DIAMOND prism flare\nBEAT/CLOCK → CUBE Z-step\nPLAY/PAUSE → EYE + celestial illumination\n\nRaw frequency analysis requires the planned custom audio engine; SoundCloud iframe mode uses playback state/progress as a deterministic surrogate.', 'cyan'); break; }
         addLine('Usage: ritual on|off | ritual intensity [0-100] | ritual fps [2-20] | ritual map', 'error');
         break;
       }
@@ -874,11 +971,11 @@ Playlist: ${tracks.length} track(s)`);
 
         {/* Living ASCII sigils */}
         <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated terminal sigils">
-          <div className="kt-ascii-card kt-ouroboros">
-            <span className="kt-ascii-label">☿ OUROBOROS://RECURSION · SOLVE/COAGULA</span>
-            <div className="kt-ouro-stage">
-              <div className="kt-ouro-ring"><span className="kt-ouro-snake">▓▒░☿░▒▓·🜍·▓▒░☽░▒▓·🜔·</span><span className="kt-ouro-head">◆</span></div>
-              <pre className="kt-eye">{asciiTick % 32 < 3 ? '  ╔═☿═🜍═╗\n ╱  ─────  ╲\n<  ── ◇ ──  >\n ╲  ─────  ╱\n  ╚═☽═🜔═╝' : '  ╔═☿═🜍═╗\n ╱  ◉   ◉  ╲\n<     ◈     >\n ╲   ╲▴╱   ╱\n  ╚═☽═🜔═╝'}</pre>
+          <div className="kt-ascii-card kt-taino-card">
+            <span className="kt-ascii-label">☉ TAINO://SOL·PETROGLYPH · YUCAHU.EXE</span>
+            <div className="kt-taino-stage">
+              {!isPlaying && <pre className="kt-taino-noise">{renderIdleHashFrame(asciiTick)}</pre>}
+              <pre className="kt-taino-symbol">{renderTainoFrame(asciiTick)}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-globe-card">
@@ -1107,11 +1204,10 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ascii-card { box-shadow:inset 0 0 22px rgba(0,255,65,.08),0 0 9px rgba(255,0,255,.08); }
         .kt-ascii-card::before { content:'☉  ☽  ☿  ♀  ♂  ♃  ♄  🜍  🜔'; position:absolute; left:0; right:0; bottom:3px; text-align:center; font-size:8px; letter-spacing:.18em; color:#00ffff; opacity:.32; text-shadow:0 0 6px #00ffff; animation:kt-sigil-stream 5s steps(16) infinite; }
         .kt-ascii-label { position:absolute; top:5px; left:8px; z-index:4; color:#008f11; font-size:10px; letter-spacing:.12em; }
-        .kt-ouro-stage,.kt-cube-stage,.kt-globe-stage,.kt-diamond-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
-        .kt-ouro-ring { position:absolute; width:105px; height:105px; border:7px dotted #00ff41; border-radius:50%; box-shadow:0 0 12px rgba(0,255,65,.35),inset 0 0 12px rgba(0,255,65,.2); animation:kt-ouro-spin 5.5s steps(32) infinite; transform:rotateX(64deg) rotateZ(0deg); }
-        .kt-ouro-snake { position:absolute; inset:-18px; color:#00ff41; font-size:8px; word-break:break-all; opacity:.7; filter:contrast(1.4); }
-        .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
-        .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
+        .kt-taino-stage,.kt-cube-stage,.kt-globe-stage,.kt-diamond-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
+        .kt-taino-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.12),rgba(0,255,65,.035) 48%,rgba(13,2,8,.97) 75%); }
+        .kt-taino-symbol { position:relative; z-index:2; margin:0; white-space:pre; text-align:center; color:#ffb000; font:8px/.84 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(255,176,0,.85),0 0 14px rgba(0,255,65,.24); animation:kt-taino-glow 1.7s steps(6) infinite; }
+        .kt-taino-noise { position:absolute; inset:6px 4px 0; z-index:1; margin:0; overflow:hidden; color:#00ff41; font:7px/.9 'Share Tech Mono',monospace; white-space:pre; text-align:center; opacity:.24; text-shadow:0 0 6px rgba(0,255,65,.9); animation:kt-binary-flash .72s steps(2,end) infinite; }
         .kt-globe,.kt-diamond { margin:0; white-space:pre; text-align:center; transform-origin:center; }
         .kt-globe { color:#00ff91; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(0,255,145,.8),0 0 13px rgba(0,255,255,.28); animation:kt-torus-glow 1.8s steps(6) infinite; will-change:filter; }
         .kt-globe-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,145,.12),rgba(0,255,255,.035) 45%,rgba(13,2,8,.97) 75%); }
@@ -1125,18 +1221,18 @@ Playlist: ${tracks.length} track(s)`);
         @keyframes kt-gem-glow { 0%,100% { filter:brightness(.9) contrast(1.08); } 50% { filter:brightness(1.22) contrast(1.2); } }
         .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
         @keyframes kt-sigil-stream { 0%,100%{transform:translateX(-3px);opacity:.22} 50%{transform:translateX(3px);opacity:.5} }
-        @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
-        @keyframes kt-eye-float { 50% { transform:translateY(2px); opacity:.82; } }
+        @keyframes kt-taino-glow { 0%,100%{filter:brightness(.88) contrast(1.08)} 50%{filter:brightness(1.24) contrast(1.22)} }
+        @keyframes kt-binary-flash { 0%,45%{opacity:.12} 46%,100%{opacity:.42} }
         @keyframes kt-cube-z { to { transform:rotateZ(360deg); } }
         .kt-ritual-off .kt-ascii-card * { animation-play-state:paused !important; }
         .kt-ritual-idle .kt-ascii-card { opacity:.58; filter:saturate(.55) brightness(.72); }
-        .kt-ritual-playing .kt-ouro-ring { animation-duration:calc(6s - (var(--ritual-power) * 3s)); box-shadow:0 0 calc(10px + var(--ritual-power) * 20px) rgba(0,255,65,.6),inset 0 0 12px rgba(0,255,65,.25); }
+        .kt-ritual-playing .kt-taino-symbol { animation-duration:calc(2s - (var(--ritual-power) * .9s)); text-shadow:0 0 calc(7px + var(--ritual-power) * 16px) rgba(255,176,0,.92),0 0 15px rgba(0,255,65,.3); }
         .kt-ritual-playing .kt-globe { animation-duration:calc(6.5s - (var(--ritual-power) * 2.8s)); }\n        .kt-ritual-playing .kt-diamond { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
         .kt-ritual-playing .kt-cube-face { animation-duration:calc(4s - (var(--ritual-power) * 2s)); }
         .kt-ritual-playing .kt-eye { text-shadow:0 0 calc(7px + var(--ritual-power) * 15px) rgba(255,0,255,.9); }
         .kt-ascii-card::after { content:''; position:absolute; inset:0; pointer-events:none; opacity:.28; background-image:radial-gradient(circle,rgba(0,255,65,.65) 0 1px,transparent 1px); background-size:4px 4px; mix-blend-mode:screen; box-shadow:inset 0 0 0 1px rgba(255,176,0,.08); }
-        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-ouro-ring{width:82px;height:82px}.kt-eye{font-size:11px}.kt-cube-face{font-size:10px} }
-        @media(prefers-reduced-motion:reduce){ .kt-ouro-ring,.kt-eye,.kt-cube-face,.kt-globe,.kt-diamond,.kt-ascii-card::before{animation:none} }
+        @media(max-width:768px){ .kt-ascii-deck{grid-template-columns:1fr 1fr;min-height:108px}.kt-ascii-card{min-height:108px}.kt-taino-symbol{font-size:7px}.kt-taino-noise{font-size:6px}.kt-cube-face{font-size:10px} }
+        @media(prefers-reduced-motion:reduce){ .kt-taino-symbol,.kt-taino-noise,.kt-cube-face,.kt-globe,.kt-diamond,.kt-ascii-card::before{animation:none} }
 
         .kt-visualizer-container {
           height: 100px;
