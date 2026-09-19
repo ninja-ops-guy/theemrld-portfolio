@@ -12,6 +12,7 @@ import ExecutiveImpact from './sections/ExecutiveImpact';
 import ResearchThesis from './sections/ResearchThesis';
 import EvidenceMatrix from './sections/EvidenceMatrix';
 import About from './sections/About';
+import Journey from './sections/Journey';
 import Networking from './sections/Networking';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
@@ -38,7 +39,7 @@ function Portfolio() {
     gsap.ticker.lagSmoothing(0);
     return () => { window.removeEventListener('portfolio-scroll', onPortfolioScroll); gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
-  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><About /><Networking /><Contact /></main><Footer /></>;
+  return <><ConstellationCanvas /><CustomCursor /><Navigation /><main className="relative"><Hero /><ExecutiveImpact /><SelectedWork /><ResearchThesis /><EvidenceMatrix /><Journey /><About /><Networking /><Contact /></main><Footer /></>;
 }
 
 function App() {
