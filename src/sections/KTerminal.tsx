@@ -72,6 +72,7 @@ export default function KTerminal() {
   const [audioStatus, setAudioStatus] = useState('STANDBY');
   const [showClickStart, setShowClickStart] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [gameOpen, setGameOpen] = useState(false);
 
   const bootIndexRef = useRef(0);
 
@@ -283,6 +284,7 @@ export default function KTerminal() {
   <span class="tc-command">remove [id]</span>       - Remove track from playlist
   <span class="tc-command">clearplaylist</span>     - Remove all tracks
   <span class="tc-command">artist</span>            - Open @raikouno profile
+  <span class="tc-command">techopshero</span>       - Launch TechOps Hero inside K Terminal
   <span class="tc-command">pause</span>             - Pause current track
   <span class="tc-command">resume</span>            - Resume paused track
   <span class="tc-command">stop</span>              - Stop playback
@@ -481,6 +483,12 @@ Playlist: ${tracks.length} track(s)`);
         break;
       }
 
+      case 'techopshero': {
+        setGameOpen(true);
+        addLine('<span class="tc-cyan">[GAME]</span> Mounting TechOps Hero in CRT viewport...');
+        break;
+      }
+
       case 'clear': {
         setLines([]);
         break;
@@ -496,7 +504,9 @@ Playlist: ${tracks.length} track(s)`);
       if (e.key === 'Enter') {
         const value = inputValue.trim();
         if (!value) return;
-        addLine(`<span class="tc-prompt">k@theemrld:~$</span> ${value}`, 'command');
+        const [rawCommand, ...rawArgs] = value.split(' ');
+        const commandHtml = `<span class="tc-prompt">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一 k@theemrld</span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
+        addLine(commandHtml, 'command');
         setInputValue('');
         const parts = value.split(' ');
         const cmd = parts[0].toLowerCase();
@@ -565,6 +575,28 @@ Playlist: ${tracks.length} track(s)`);
         src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno/real&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
         style={{ position: 'absolute', bottom: '0', left: '0', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
       />
+
+      {gameOpen && (
+        <div className="kt-game-shell" role="dialog" aria-label="TechOps Hero">
+          <div className="kt-game-toolbar">
+            <span><span className="tc-cyan">K://GAMES/</span>TECHOPS-HERO.EXE</span>
+            <div className="kt-game-actions">
+              <a href="https://ninja-ops-guy.github.io/techops-hero/" target="_blank" rel="noreferrer">[OPEN NATIVE ↗]</a>
+              <button type="button" onClick={() => setGameOpen(false)}>[ESC / CLOSE]</button>
+            </div>
+          </div>
+          <div className="kt-game-frame-wrap">
+            <iframe
+              className="kt-game-frame"
+              src="https://ninja-ops-guy.github.io/techops-hero/"
+              title="TechOps Hero"
+              allow="autoplay; fullscreen; gamepad"
+            />
+            <div className="kt-game-scanlines" aria-hidden="true" />
+            <div className="kt-game-vignette" aria-hidden="true" />
+          </div>
+        </div>
+      )}
 
       <div className="kt-container">
         {/* Header */}
@@ -657,7 +689,7 @@ Playlist: ${tracks.length} track(s)`);
 
         {/* Input */}
         <div className="kt-input-line">
-          <span className="kt-prompt">k@theemrld:~$</span>
+          <span className="kt-prompt"><span className="kt-bashrc">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一 k@theemrld</span><span className="kt-shell-op">$</span></span>
           <input
             ref={inputRef}
             type="text"
@@ -909,7 +941,20 @@ Playlist: ${tracks.length} track(s)`);
           border-top: 1px solid #008f11;
           padding-top: 10px;
         }
-        .kt-prompt { color: #00ff41; margin-right: 10px; font-weight: bold; white-space: nowrap; }
+        .kt-prompt { color: #00ff41; margin-right: 10px; font-weight: bold; white-space: nowrap; display:flex; align-items:center; gap:8px; }
+        .kt-bashrc { color:#ff00ff; text-shadow:0 0 8px rgba(255,0,255,.45); }
+        .kt-shell-op, .tc-shell-op { color:#ffaa00; }
+        .tc-command-name { color:#00ffff; font-weight:bold; }
+        .tc-arg { color:#f5f5f5; }
+        .kt-game-shell { position:fixed; inset:10px; z-index:50; background:#050805; border:2px solid #00ff41; box-shadow:0 0 28px rgba(0,255,65,.35); display:flex; flex-direction:column; }
+        .kt-game-toolbar { min-height:42px; padding:8px 12px; border-bottom:1px solid #00ff41; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#071007; color:#00ff41; font-size:13px; }
+        .kt-game-actions { display:flex; gap:12px; align-items:center; }
+        .kt-game-actions a, .kt-game-actions button { color:#00ffff; background:transparent; border:0; font:inherit; cursor:pointer; text-decoration:none; }
+        .kt-game-frame-wrap { flex:1; min-height:0; position:relative; overflow:hidden; background:#000; }
+        .kt-game-frame { width:100%; height:100%; border:0; display:block; filter:saturate(.82) contrast(1.08) brightness(.9) sepia(.08); }
+        .kt-game-scanlines { position:absolute; inset:0; pointer-events:none; z-index:2; background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.22) 2px 4px); mix-blend-mode:multiply; }
+        .kt-game-vignette { position:absolute; inset:0; pointer-events:none; z-index:3; box-shadow:inset 0 0 90px 28px rgba(0,0,0,.62); border-radius:2px; }
+        @media (max-width:768px) { .kt-game-shell { inset:4px; } .kt-game-toolbar { font-size:11px; flex-wrap:wrap; } .kt-game-actions { gap:8px; } }
         .kt-input {
           background: transparent;
           border: none;
