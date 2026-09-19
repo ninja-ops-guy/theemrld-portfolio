@@ -51,6 +51,126 @@ const defaultTracks: Track[] = [
   { id: 20, url: 'https://soundcloud.com/raikouno/black-bside', title: 'BLACK BSIDE', duration: 0, plays: 174 },
 ];
 
+
+const ASCII_LIGHT = ' .·:░▒▓█';
+
+type V3 = [number, number, number];
+
+function rotate3([x, y, z]: V3, ax: number, ay: number, az: number): V3 {
+  const cx = Math.cos(ax), sx = Math.sin(ax);
+  const cy = Math.cos(ay), sy = Math.sin(ay);
+  const cz = Math.cos(az), sz = Math.sin(az);
+  const y1 = y * cx - z * sx;
+  const z1 = y * sx + z * cx;
+  const x2 = x * cy + z1 * sy;
+  const z2 = -x * sy + z1 * cy;
+  return [x2 * cz - y1 * sz, x2 * sz + y1 * cz, z2];
+}
+
+function asciiBuffer(width: number, height: number) {
+  const chars = Array.from({ length: height }, () => Array(width).fill(' '));
+  const depth = Array.from({ length: height }, () => Array(width).fill(-Infinity));
+  return { chars, depth };
+}
+
+function renderTorusFrame(tick: number): string {
+  const width = 35, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const ax = 0.72 + Math.sin(tick * 0.035) * 0.12;
+  const az = tick * 0.075;
+  const light: V3 = [0.25, -0.45, 0.86];
+
+  for (let u = 0; u < Math.PI * 2; u += 0.12) {
+    for (let v = 0; v < Math.PI * 2; v += 0.18) {
+      const ring = 1.75 + 0.62 * Math.cos(v);
+      const p = rotate3([ring * Math.cos(u), 0.62 * Math.sin(v), ring * Math.sin(u)], ax, 0, az);
+      const n = rotate3([Math.cos(v) * Math.cos(u), Math.sin(v), Math.cos(v) * Math.sin(u)], ax, 0, az);
+      const camera = 4.8 - p[2];
+      if (camera <= 0.2) continue;
+      const perspective = 1 / camera;
+      const sx = Math.round(width / 2 + p[0] * 25 * perspective);
+      const sy = Math.round(height / 2 + p[1] * 12 * perspective);
+      if (sx < 0 || sx >= width || sy < 0 || sy >= height) continue;
+      const z = p[2];
+      if (z <= depth[sy][sx]) continue;
+      depth[sy][sx] = z;
+      const lum = n[0] * light[0] + n[1] * light[1] + n[2] * light[2];
+      const idx = Math.max(1, Math.min(ASCII_LIGHT.length - 1, Math.round(((lum + 1) / 2) * (ASCII_LIGHT.length - 1))));
+      chars[sy][sx] = ASCII_LIGHT[idx];
+    }
+  }
+
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
+function renderDiamondFrame(tick: number): string {
+  const width = 31, height = 15;
+  const { chars, depth } = asciiBuffer(width, height);
+  const ay = tick * (Math.PI * 2 / 64);
+  const ax = -0.18 + Math.sin(tick * 0.055) * 0.16;
+  const az = Math.sin(tick * 0.04) * 0.08;
+  const base: V3[] = [
+    [0, -1.42, 0], [0, 1.42, 0],
+    [1.12, 0, 0], [0, 0, 0.92], [-1.12, 0, 0], [0, 0, -0.92],
+  ];
+  const faces = [
+    [0,2,3],[0,3,4],[0,4,5],[0,5,2],
+    [1,3,2],[1,4,3],[1,5,4],[1,2,5],
+  ];
+  const verts = base.map((v) => rotate3(v, ax, ay, az));
+  const light: V3 = [-0.28, -0.42, 0.86];
+  const projected = verts.map((p) => {
+    const camera = 4.4 - p[2];
+    const k = 1 / camera;
+    return [width / 2 + p[0] * 33 * k, height / 2 + p[1] * 18 * k, p[2]] as V3;
+  });
+
+  for (const [ia, ib, ic] of faces) {
+    const a = verts[ia], b = verts[ib], d = verts[ic];
+    const ab: V3 = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
+    const ad: V3 = [d[0]-a[0], d[1]-a[1], d[2]-a[2]];
+    let nx = ab[1]*ad[2] - ab[2]*ad[1];
+    let ny = ab[2]*ad[0] - ab[0]*ad[2];
+    let nz = ab[0]*ad[1] - ab[1]*ad[0];
+    const nl = Math.hypot(nx, ny, nz) || 1;
+    nx /= nl; ny /= nl; nz /= nl;
+    const lum = nx*light[0] + ny*light[1] + nz*light[2];
+    const shade = ASCII_LIGHT[Math.max(2, Math.min(ASCII_LIGHT.length - 1, Math.round(((lum + 1) / 2) * (ASCII_LIGHT.length - 1))))];
+
+    const pa = projected[ia], pb = projected[ib], pc = projected[ic];
+    for (let i = 0; i <= 18; i++) {
+      for (let j = 0; j <= 18 - i; j++) {
+        const wa = i / 18, wb = j / 18, wc = 1 - wa - wb;
+        const sx = Math.round(pa[0]*wa + pb[0]*wb + pc[0]*wc);
+        const sy = Math.round(pa[1]*wa + pb[1]*wb + pc[1]*wc);
+        const z = pa[2]*wa + pb[2]*wb + pc[2]*wc;
+        if (sx < 0 || sx >= width || sy < 0 || sy >= height || z <= depth[sy][sx]) continue;
+        depth[sy][sx] = z;
+        chars[sy][sx] = shade;
+      }
+    }
+  }
+
+  const edges = [[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[2,3],[3,4],[4,5],[5,2]];
+  for (const [ia, ib] of edges) {
+    const a = projected[ia], b = projected[ib];
+    const steps = Math.max(2, Math.ceil(Math.max(Math.abs(b[0]-a[0]), Math.abs(b[1]-a[1])) * 1.5));
+    const dx = b[0]-a[0], dy = b[1]-a[1];
+    const edgeChar = Math.abs(dx) > Math.abs(dy)*1.8 ? '─' : Math.abs(dy) > Math.abs(dx)*1.8 ? '│' : dx*dy >= 0 ? '╲' : '╱';
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const sx = Math.round(a[0] + dx*t), sy = Math.round(a[1] + dy*t), z = a[2] + (b[2]-a[2])*t + 0.03;
+      if (sx < 0 || sx >= width || sy < 0 || sy >= height || z < depth[sy][sx] - 0.08) continue;
+      depth[sy][sx] = z;
+      chars[sy][sx] = edgeChar;
+    }
+  }
+
+  const centerY = Math.floor(height / 2), centerX = Math.floor(width / 2);
+  if (chars[centerY]?.[centerX] !== undefined) chars[centerY][centerX] = '◆';
+  return chars.map((row) => row.join('').replace(/\s+$/, '')).join('\n');
+}
+
 export default function KTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -762,195 +882,15 @@ Playlist: ${tracks.length} track(s)`);
             </div>
           </div>
           <div className="kt-ascii-card kt-globe-card">
-            <span className="kt-ascii-label">☿ GLOBE://TERRA·SPHERE · MUNDUS.EXE</span>
+            <span className="kt-ascii-label">☿ TORUS://ORBIT·RING · MUNDUS.EXE</span>
             <div className="kt-globe-stage">
-              <pre className="kt-globe">{[
-`          .-"""""""-.
-       .-'░▒▓████▓▒░'-.
-     .'░▒▓██▓▒░░▒▓██▓▒'.
-    /░▓██▒░  ╱│╲  ░▒██▓\\
-   /▒██▒   ╱──┼──╲   ▒██▒\\
-  |▓██░  ╱ ░▒▓│▓▒░ ╲  ░██▓|
-  |██▒──┼──▓██│██▓──┼──▒██|
-  |██░  │▒██▓▒│▒▓██▒│  ░██|
-  |██▒──┼──▒▓█│█▓▒──┼──▒██|
-  |▓██░  ╲ ░▒▓│▓▒░ ╱  ░██▓|
-   \\▒██▒   ╲──┼──╱   ▒██▒/
-    \\░▓██▒░  ╲│╱  ░▒██▓/
-     '.▒▓██▓▒░░▒▓██▓▒.'
-       '-.░▒▓████▓▒.-'
-          '-.____.-'
-             ║║
-          .--╨╨--.
-        _/___☿____\\_`,
-`          .-"""""""-.
-       .-'▒▓██████▓▒'-.
-     .'▓██▓▒░░░▒▓██▓'.
-    /██▓░ ╲  │  ╱ ░▓██\\
-   /██▒ ╲──╲ │ ╱──╱ ▒██\\
-  |██░   ╲░▓███▓░╱   ░██|
-  |█▓───░▓██▒│▒██▓░───▓█|
-  |█▒ ░▒██▓░ │ ░▓██▒░ ▒█|
-  |█▓───░▓██▒│▒██▓░───▓█|
-  |██░   ╱░▓███▓░╲   ░██|
-   \\██▒ ╱──╱ │ ╲──╲ ▒██/
-    \\██▓░ ╱  │  ╲ ░▓██/
-     '.▓██▓▒░░░▒▓██▓.'
-       '-▒▓██████▓▒-'
-          '-.____.-'
-             ║║
-          .--╨╨--.
-        _/___☉____\\_`,
-`          .-"""""""-.
-       .-'░▓██████▓░'-.
-     .'▒██▓▒░╱│╲░▒▓██▒'.
-    /▓██▒ ╱───┼───╲ ▒██▓\\
-   /██░ ╱░▒▓██│██▓▒░╲ ░██\\
-  |██▒╱▒██▓▒░ │ ░▒▓██▒╲▒██|
-  |██┼██▓░ ───┼─── ░▓██┼██|
-  |██│▓▒░  ░▒▓│▓▒░  ░▒▓│██|
-  |██┼██▓░ ───┼─── ░▓██┼██|
-  |██▒╲▒██▓▒░ │ ░▒▓██▒╱▒██|
-   \\██░ ╲░▒▓██│██▓▒░╱ ░██/
-    \\▓██▒ ╲───┼───╱ ▒██▓/
-     '.▒██▓▒░╲│╱░▒▓██▒.'
-       '-.░▓██████▓░.-'
-          '-.____.-'
-             ║║
-          .--╨╨--.
-        _/___☽____\\_`,
-`          .-"""""""-.
-       .-'▓████▓▒░▒▓'-.
-     .'██▓▒░░▒▓██████▒'.
-    /██▒   ╱│╲ ░▒▓██▓▒\\
-   /█▓ ╱───┼───╲ ░▒▓██\\
-  |██╱ ░▒▓██│██▓▒░  ╲██|
-  |█┼──▓██▒░│░▒██▓──┼█|
-  |█│▒██▓░   │  ░▓██▒│█|
-  |█┼──▓██▒░│░▒██▓──┼█|
-  |██╲ ░▒▓██│██▓▒░  ╱██|
-   \\██▒╲───┼───╱ ▒██/
-    \\▒▓██▒░╲│╱░▒██▓/
-     '.▒██████▓▒░░▒▓██.'
-       '-.▓▒░▒▓████▓.-'
-          '-.____.-'
-             ║║
-          .--╨╨--.
-        _/___♄____\\_`
-][Math.floor(asciiTick/2)%4]}</pre>
+              <pre className="kt-globe">{renderTorusFrame(asciiTick)}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-diamond-card">
             <span className="kt-ascii-label">◇ DIAMOND://CARBON·PRISM · LAPIS.EXE</span>
             <div className="kt-diamond-stage">
-              <pre className="kt-diamond">{[
-`        ╱╲
-      ╱░│▒╲
-    ╱▒▓│▓▒╲
-  ╱▓██│██▓╲
-<━━━━━━◇━━━━━━>
-  ╲▓██│██▓╱
-    ╲▒▓│▓▒╱
-      ╲░│▒╱
-        ╲╱`,
-`        ╱╲
-      ╱▒│▓╲··
-    ╱▓█│▒╲  ·
-  ╱██▒│░ ╲  ·
-<━━◆┄┄◇━━━━━━>
-  ╲██▒│░ ╱  ·
-    ╲▓█│▒╱  ·
-      ╲▒│▓╱··
-        ╲╱`,
-`       ╱╲
-     ╱▓│▒╲···
-   ╱██│░ ╲  ·
- ╱██▓│   ╲ ·
-<━◆┄┄┄┄◇━━━━>
- ╲██▓│   ╱ ·
-   ╲██│░ ╱  ·
-     ╲▓│▒╱···
-       ╲╱`,
-`      ╱╲
-    ╱█│▒╲····
-  ╱██│  ╲   ·
-<◆┄┄┄┼┄┄┄◇>
-  ╲██│  ╱   ·
-    ╲█│▒╱····
-      ╲╱
-      │`,
-`       ╱╲
-    ···╱▒│▓╲
-   ·  ╱ ░│██╲
-  · ╱   │▓██╲
-<━━━━◇┄┄┄┄◆━>
-  · ╲   │▓██╱
-   ·  ╲ ░│██╱
-    ···╲▒│▓╱
-       ╲╱`,
-`        ╱╲
-   ··╱▓│▒╲
-  · ╱▒│█▓╲
- · ╱ ░│▒██╲
-<━━━━━━◇┄┄◆━━>
- · ╲ ░│▒██╱
-  · ╲▒│█▓╱
-   ··╲▓│▒╱
-        ╲╱`,
-`        ╱╲
-      ╱▒│░╲
-    ╱▒▓│▓▒╲
-  ╱▓██│██▓╲
-<━━━━━━◆━━━━━━>
-  ╲▓██│██▓╱
-    ╲▒▓│▓▒╱
-      ╲▒│░╱
-        ╲╱`,
-`        ╱╲
-      ··╱▓│▒╲
-     · ╱█▓│▒╲
-    · ╱██▒│░ ╲
-<━━◇┄┄◆━━━━━━>
-    · ╲██▒│░ ╱
-     · ╲█▓│▒╱
-      ··╲▓│▒╱
-        ╲╱`,
-`       ╱╲
-    ···╱▒│▓╲
-   ·  ╱ ░│██╲
-  · ╱   │▓██╲
-<━━━━◇┄┄┄┄◆━>
-  · ╲   │▓██╱
-   ·  ╲ ░│██╱
-    ···╲▒│▓╱
-       ╲╱`,
-`      ╱╲
-····╱▒│█╲
-·   ╱  │██╲
-<◇┄┄┄┼┄┄┄◆>
-·   ╲  │██╱
-····╲▒│█╱
-      ╲╱
-      │`,
-`       ╱╲
-     ╱▓│▒╲···
-   ╱██│░ ╲  ·
- ╱██▓│   ╲ ·
-<━◆┄┄┄┄◇━━━━>
- ╲██▓│   ╱ ·
-   ╲██│░ ╱  ·
-     ╲▓│▒╱···
-       ╲╱`,
-`        ╱╲
-      ╱▒│▓╲··
-    ╱▓█│▒╲  ·
-  ╱██▒│░ ╲  ·
-<━━◆┄┄◇━━━━━━>
-  ╲██▒│░ ╱  ·
-    ╲▓█│▒╱  ·
-      ╲▒│▓╱··
-        ╲╱`
-][Math.floor(asciiTick/2)%12]}</pre>
+              <pre className="kt-diamond">{renderDiamondFrame(asciiTick)}</pre>
             </div>
           </div>
           <div className="kt-ascii-card kt-cube-card">
@@ -1173,21 +1113,16 @@ Playlist: ${tracks.length} track(s)`);
         .kt-ouro-head { position:absolute; right:-9px; top:42px; color:#00ffff; text-shadow:0 0 8px #00ffff; }
         .kt-eye { position:relative; z-index:3; margin:0; color:#ff00ff; font:14px/1 'Share Tech Mono',monospace; text-align:center; text-shadow:0 0 7px rgba(255,0,255,.75); animation:kt-eye-float 2.2s steps(8) infinite; }
         .kt-globe,.kt-diamond { margin:0; white-space:pre; text-align:center; transform-origin:center; }
-        .kt-globe { color:#00ff91; font:7px/.86 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(0,255,145,.8),0 0 13px rgba(0,255,255,.28); animation:kt-globe-turn 6s steps(40) infinite; }
+        .kt-globe { color:#00ff91; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(0,255,145,.8),0 0 13px rgba(0,255,255,.28); animation:kt-torus-glow 1.8s steps(6) infinite; will-change:filter; }
         .kt-globe-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,145,.12),rgba(0,255,255,.035) 45%,rgba(13,2,8,.97) 75%); }
-        @keyframes kt-globe-turn { 0%{transform:rotateZ(-2deg) scale(.98)} 50%{transform:rotateZ(2deg) scale(1.02)} 100%{transform:rotateZ(-2deg) scale(.98)} }
+        @keyframes kt-torus-glow { 0%,100%{filter:brightness(.9) contrast(1.08)} 50%{filter:brightness(1.16) contrast(1.18)} }
         .kt-diamond { margin:0; white-space:pre; text-align:center; transform-origin:center; }
         .kt-dodeca { color:#ffb000; font:9px/.95 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(255,176,0,.7),0 0 13px rgba(255,0,255,.22); animation:kt-poly-spin 4.6s steps(32) infinite; }
-        .kt-diamond { color:#00ffff; font:9px/.90 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.9),0 0 15px rgba(255,0,255,.34); animation:kt-gem-depth 4s steps(48) infinite; will-change:transform,filter; }
+        .kt-diamond { color:#00ffff; font:9px/.82 'Share Tech Mono',monospace; text-shadow:0 0 7px rgba(0,255,255,.9),0 0 15px rgba(255,0,255,.34); animation:kt-gem-glow 1.6s steps(6) infinite; will-change:filter; }
         .kt-dodeca-card { background:radial-gradient(circle at 50% 50%,rgba(255,176,0,.10),rgba(13,2,8,.96) 68%); }
         .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.13),rgba(255,0,255,.035) 46%,rgba(13,2,8,.97) 74%); }
         @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }
-        @keyframes kt-gem-depth {
-          0%,100% { transform:perspective(260px) rotateX(-4deg) rotateZ(-1.5deg) scale(.97); filter:brightness(.92) contrast(1.08); }
-          25% { transform:perspective(260px) rotateX(3deg) rotateZ(1deg) scale(1.01); filter:brightness(1.16) contrast(1.15); }
-          50% { transform:perspective(260px) rotateX(5deg) rotateZ(1.5deg) scale(.98); filter:brightness(.88) contrast(1.12); }
-          75% { transform:perspective(260px) rotateX(-2deg) rotateZ(-1deg) scale(1.02); filter:brightness(1.22) contrast(1.18); }
-        }
+        @keyframes kt-gem-glow { 0%,100% { filter:brightness(.9) contrast(1.08); } 50% { filter:brightness(1.22) contrast(1.2); } }
         .kt-cube-face { margin:0; color:#00ffff; font:14px/1.05 'Share Tech Mono',monospace; white-space:pre; text-shadow:0 0 8px rgba(0,255,255,.55); transform-origin:center; animation:kt-cube-z 3.4s steps(24) infinite; }
         @keyframes kt-sigil-stream { 0%,100%{transform:translateX(-3px);opacity:.22} 50%{transform:translateX(3px);opacity:.5} }
         @keyframes kt-ouro-spin { to { transform:rotateX(64deg) rotateZ(360deg); } }
