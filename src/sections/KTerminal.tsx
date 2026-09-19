@@ -510,6 +510,7 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   const widgetBoundRef = useRef(false);
   const catalogHydratedRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const playbackPositionRef = useRef(0);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [bootPhase, setBootPhase] = useState<'booting' | 'done'>('booting');
@@ -520,6 +521,7 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   const [tracks, setTracks] = useState<Track[]>(defaultTracks);
   const [volume, setVolume] = useState(50);
   const [progress, setProgress] = useState(0);
+  const [playbackPositionMs, setPlaybackPositionMs] = useState(0);
   const [timeDisplay, setTimeDisplay] = useState('00:00 / 00:00');
   const [audioStatus, setAudioStatus] = useState('STANDBY');
   const [isMobile, setIsMobile] = useState(false);
@@ -634,6 +636,8 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
   }, []);
 
   const updateProgressUI = useCallback((current: number, total: number) => {
+    playbackPositionRef.current = current || 0;
+    setPlaybackPositionMs(current || 0);
     if (!total) return;
     const percent = (current / total) * 100;
     setProgress(percent);
@@ -755,19 +759,23 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
     if (!visualizerEnabled) return;
     const bars = visualizerBars;
     const draw = () => {
-      if (!isPlaying) return;
-      ctx.fillStyle = 'rgba(13, 2, 8, 0.2)';
+      ctx.fillStyle = 'rgba(13, 2, 8, 0.22)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       const barWidth = canvas.width / bars;
+      const t = playbackPositionRef.current / 1000;
       for (let i = 0; i < bars; i++) {
-        const height = Math.random() * canvas.height * 0.8;
+        // SoundCloud does not expose raw FFT data. Keep the visualizer deterministic
+        // and phase-locked to playback position instead of using random bars.
+        const wave = (Math.sin(t * 5.1 + i * 0.47) + Math.sin(t * 2.3 + i * 0.19) * 0.55 + 1.55) / 3.1;
+        const pulse = 0.62 + 0.38 * Math.abs(Math.sin(t * 3.2));
+        const height = Math.max(2, wave * pulse * canvas.height * 0.86);
         const hue = (i / bars) * 120 + 100;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
+        ctx.fillRect(i * barWidth, canvas.height - height, Math.max(1, barWidth - 2), height);
       }
     };
     visualizerIntervalRef.current = setInterval(draw, Math.max(16, Math.round(1000 / visualizerFps)));
-  }, [isPlaying, visualizerEnabled, visualizerBars, visualizerFps]);
+  }, [visualizerEnabled, visualizerBars, visualizerFps]);
 
   const stopVisualizer = useCallback(() => {
     if (visualizerIntervalRef.current) {
@@ -801,6 +809,27 @@ export default function KTerminal({ embedded = false, onExitToCity, onEnterScene
     addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
     initSoundCloud(url);
   }, [addLine, initSoundCloud]);
+
+  // Poll the widget as a secondary source of truth. Some mobile/browser combinations
+  // can miss an early PLAY event after widget.load(); this keeps the K band and
+  // visualizer moving whenever SoundCloud is actually playing.
+  useEffect(() => {
+    if (!currentTrack) return;
+    const id = window.setInterval(() => {
+      const widget = scWidgetRef.current;
+      if (!widget) return;
+      widget.isPaused?.((paused: boolean) => {
+        const playing = !paused;
+        setIsPlaying(playing);
+        setAudioStatus(playing ? 'PLAYING' : 'PAUSED');
+        if (playing && !visualizerIntervalRef.current) startVisualizer();
+      });
+      widget.getPosition?.((position: number) => {
+        widget.getDuration?.((duration: number) => updateProgressUI(position || 0, duration || currentTrack.duration || 0));
+      });
+    }, 300);
+    return () => window.clearInterval(id);
+  }, [currentTrack, startVisualizer, updateProgressUI]);
 
   // Terminal commands
   const executeCommand = useCallback((cmd: string, args: string[]) => {
@@ -1148,10 +1177,8 @@ Playlist: ${tracks.length} track(s)`);
       }
     };
     document.body.appendChild(script);
-    return () => {
-      const existing = document.getElementById('sc-api');
-      if (existing) existing.remove();
-    };
+    // Keep the shared Widget API loaded. K//CITY uses the same script after
+    // the terminal overlay closes, avoiding a silent handoff/reload gap.
   }, [bindWidgetEvents]);
 
   // Auto-scroll terminal
@@ -1323,6 +1350,7 @@ Playlist: ${tracks.length} track(s)`);
         <KBandStage
           isPlaying={isPlaying}
           progress={progress}
+          positionMs={playbackPositionMs}
           intensity={ritualIntensity}
           trackTitle={currentTrack?.title}
           enabled={bandEnabled}
