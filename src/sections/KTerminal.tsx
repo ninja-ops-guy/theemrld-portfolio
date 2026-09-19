@@ -58,6 +58,7 @@ export default function KTerminal() {
   const widgetRef = useRef<HTMLIFrameElement>(null);
   const scWidgetRef = useRef<any>(null);
   const widgetBoundRef = useRef(false);
+  const catalogHydratedRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
@@ -186,6 +187,31 @@ export default function KTerminal() {
     widgetBoundRef.current = true;
 
     widget.bind(SC.Widget.Events.READY, () => {
+      // The initial widget is the artist profile. SoundCloud resolves it to the
+      // current public catalogue, so getSounds() gives us recent uploads without
+      // hard-coding a stale list. Only hydrate once; later READY events are tracks.
+      if (!catalogHydratedRef.current && typeof widget.getSounds === 'function') {
+        widget.getSounds((sounds: any[]) => {
+          if (Array.isArray(sounds) && sounds.length > 1) {
+            catalogHydratedRef.current = true;
+            const liveTracks: Track[] = sounds.map((sound: any, index: number) => ({
+              id: index + 1,
+              url: sound.permalink_url || sound.uri || '',
+              title: sound.title || `Track ${index + 1}`,
+              duration: sound.duration || 0,
+              plays: sound.playback_count || 0,
+            })).filter((track: Track) => track.url);
+            if (liveTracks.length) {
+              setTracks((saved) => {
+                const byUrl = new Map<string, Track>();
+                [...liveTracks, ...saved].forEach((t) => { if (!byUrl.has(t.url)) byUrl.set(t.url, t); });
+                return Array.from(byUrl.values()).map((t, i) => ({ ...t, id: i + 1 }));
+              });
+              addLine(`<span class="tc-success">[SYNC]</span> Loaded ${liveTracks.length} current SoundCloud tracks.`);
+            }
+          }
+        });
+      }
       widget.getDuration((duration: number) => {
         setCurrentTrack((prev) => (prev ? { ...prev, duration } : prev));
       });
@@ -657,7 +683,7 @@ Playlist: ${tracks.length} track(s)`);
         scrolling="no"
         frameBorder="no"
         allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno/real&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
         style={{ position: 'absolute', bottom: '0', left: '0', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
       />
 
