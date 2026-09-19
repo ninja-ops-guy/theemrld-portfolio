@@ -335,6 +335,7 @@ export default function KTerminal() {
     setCurrentTrack(track);
     setShowClickStart(false);
     addLine(`Loading track ${track.id}: ${track.title}...`);
+    addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
     initSoundCloud(track.url);
   }, [addLine, initSoundCloud]);
 
@@ -348,6 +349,7 @@ export default function KTerminal() {
     setCurrentTrack(t);
     setShowClickStart(false);
     addLine(`Loading SoundCloud URL...`);
+    addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
     initSoundCloud(url);
   }, [addLine, initSoundCloud]);
 
