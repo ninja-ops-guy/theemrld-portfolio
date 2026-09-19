@@ -45,13 +45,13 @@ export default function SelectedWork(){
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{marginTop:58}}>
         {flagships.map((p,i)=><article key={p.title} className="border border-[#162235] p-6 md:p-7 flex flex-col" style={{background:'rgba(8,15,28,.78)'}}>
-          <div className="font-label" style={{color:'#4A6DFF'}}>0{i+1} / {p.category}</div>
+          <div className="font-label" style={{color:'#5A78FF'}}>0{i+1} / {p.category}</div>
           <div className="flex items-center justify-between gap-4 flex-wrap" style={{marginTop:14}}><span className="font-label" style={{color:toneColor(p.tone),fontSize:10}}>● {p.status}</span><span className="font-label" style={{border:'1px solid #263750',padding:'6px 8px',color:'#A9B6C5'}}>{p.claimState}</span></div>
           <h3 className="font-headline" style={{fontSize:'clamp(1.7rem,2.8vw,2.5rem)',color:'#E8EDF3',marginTop:18}}>{p.title}</h3>
           <p className="font-body" style={{color:'#A6B3C2',fontSize:15,lineHeight:1.7,marginTop:16}}>{p.thesis}</p>
-          <div style={{marginTop:24}}><p className="font-label" style={{color:'#4A6DFF',marginBottom:10}}>WHAT I CAN POINT TO</p>{p.evidence.map(x=><p key={x} className="font-body" style={{color:'#B7C3D0',fontSize:13,lineHeight:1.65,margin:'6px 0'}}>→ {x}</p>)}</div>
-          <div style={{marginTop:22,paddingTop:18,borderTop:'1px solid #162235'}}><p className="font-label" style={{color:'#4A6DFF'}}>WHAT CAME OUT OF IT</p><p className="font-body" style={{color:'#8899AA',fontSize:13,lineHeight:1.65,marginTop:8}}>{p.primitive}</p></div>
-          <div className="flex flex-wrap gap-3 mt-auto pt-7"><Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#4A6DFF] text-[#050A14]">OPEN CASE STUDY →</Link>{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}{p.demo&&<a href={p.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#4A6DFF] text-[#4A6DFF]">DEMO →</a>}</div>
+          <div style={{marginTop:24}}><p className="font-label" style={{color:'#5A78FF',marginBottom:10}}>WHAT I CAN POINT TO</p>{p.evidence.map(x=><p key={x} className="font-body" style={{color:'#B7C3D0',fontSize:13,lineHeight:1.65,margin:'6px 0'}}>→ {x}</p>)}</div>
+          <div style={{marginTop:22,paddingTop:18,borderTop:'1px solid #162235'}}><p className="font-label" style={{color:'#5A78FF'}}>WHAT CAME OUT OF IT</p><p className="font-body" style={{color:'#8899AA',fontSize:13,lineHeight:1.65,marginTop:8}}>{p.primitive}</p></div>
+          <div className="flex flex-wrap gap-3 mt-auto pt-7"><Link to={p.caseStudy} className="font-label px-5 py-2 bg-[#5A78FF] text-[#050A14]">OPEN CASE STUDY →</Link>{p.github&&<a href={p.github} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#8899AA] text-[#8899AA]">SOURCE →</a>}{p.demo&&<a href={p.demo} target="_blank" rel="noreferrer" className="font-label px-5 py-2 border border-[#5A78FF] text-[#5A78FF]">DEMO →</a>}</div>
         </article>)}
       </div>
 
@@ -67,7 +67,7 @@ export default function SelectedWork(){
 
       <div style={{marginTop:96,borderTop:'1px solid #1A2540',paddingTop:38}}>
         <p className="font-label">OTHER WORK</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{marginTop:26}}>{secondary.map(([title,body,link1,link2,caseStudy,note])=><div key={title} className="p-6 border border-[#162235]" style={{background:'#07101E'}}><h3 className="font-headline" style={{color:'#E8EDF3',fontSize:22}}>{title}</h3>{note&&<p className="font-label" style={{color:'#D8B26E',fontSize:10,marginTop:10}}>● {note}</p>}<p className="font-body" style={{color:'#8899AA',lineHeight:1.7,fontSize:14,marginTop:12}}>{body}</p><div className="flex flex-wrap gap-3" style={{marginTop:20}}>{caseStudy&&<Link className="font-label" style={{color:'#7DE2A8'}} to={caseStudy}>CASE STUDY →</Link>}{link1&&<a className="font-label" style={{color:'#4A6DFF'}} href={link1} target="_blank" rel="noreferrer">OPEN ↗</a>}{link2&&<a className="font-label" style={{color:'#8899AA'}} href={link2} target="_blank" rel="noreferrer">RELATED ↗</a>}</div></div>)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{marginTop:26}}>{secondary.map(([title,body,link1,link2,caseStudy,note])=><div key={title} className="p-6 border border-[#162235]" style={{background:'#07101E'}}><h3 className="font-headline" style={{color:'#E8EDF3',fontSize:22}}>{title}</h3>{note&&<p className="font-label" style={{color:'#D8B26E',fontSize:10,marginTop:10}}>● {note}</p>}<p className="font-body" style={{color:'#8899AA',lineHeight:1.7,fontSize:14,marginTop:12}}>{body}</p><div className="flex flex-wrap gap-3" style={{marginTop:20}}>{caseStudy&&<Link className="font-label" style={{color:'#7DE2A8'}} to={caseStudy}>CASE STUDY →</Link>}{link1&&<a className="font-label" style={{color:'#5A78FF'}} href={link1} target="_blank" rel="noreferrer">OPEN ↗</a>}{link2&&<a className="font-label" style={{color:'#8899AA'}} href={link2} target="_blank" rel="noreferrer">RELATED ↗</a>}</div></div>)}</div>
       </div>
     </div>
   </section>
