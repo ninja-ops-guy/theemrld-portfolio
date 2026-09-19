@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 interface Track {
   id: number;
@@ -385,6 +385,9 @@ function renderDiamondFrame(tick: number): string {
 }
 
 export default function KTerminal() {
+  const navigate = useNavigate();
+  const [terminalParams] = useSearchParams();
+  const fromGallery = terminalParams.get('from') === 'gallery';
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1075,6 +1078,14 @@ Playlist: ${tracks.length} track(s)`);
             K Terminal <span className="kt-artist-badge">THEEMRLD</span>
           </div>
           <div className="flex items-center gap-4">
+            {fromGallery && <button
+              type="button"
+              className="kt-gallery-exit"
+              onClick={() => navigate('/gallery?spawn=console')}
+              title="Exit K Terminal and return to the apse computer"
+            >
+              [EXIT → GALLERY]
+            </button>}
             <Link
               to="/"
               className="kt-status hover:text-[#00ffff] transition-colors duration-300"
@@ -1369,7 +1380,7 @@ Playlist: ${tracks.length} track(s)`);
           font-size: 12px;
           text-transform: uppercase;
         }
-        .kt-status { font-size: 14px; color: #008f11; }
+        .kt-status { font-size: 14px; color: #008f11; }\n        .kt-gallery-exit { background:rgba(176,0,255,.08); border:1px solid #b000ff; color:#d8a8ff; padding:4px 8px; font:inherit; font-size:12px; cursor:pointer; text-shadow:0 0 7px rgba(176,0,255,.7); }\n        .kt-gallery-exit:hover { background:rgba(176,0,255,.2); color:#fff; }
         .kt-audio-success { color: #00ff41; }
         .kt-audio-warning { color: #ffaa00; }
         .kt-audio-error { color: #ff3333; }
