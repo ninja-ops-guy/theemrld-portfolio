@@ -5,6 +5,7 @@ import { type KAudioZone } from '../data/kAudioZones';
 import { K_GALLERY_ART, K_GALLERY_ATLAS } from '../data/kGalleryArt';
 
 type Phase = 'explore' | 'sitting' | 'seated' | 'standing';
+type WorldMode = 'gallery' | 'city' | 'realm';
 type Cam = { x:number; y:number; ang:number; pitch:number; height:number };
 type Hit = { tile:string; ix:number; iy:number; dist:number; side:number } | null;
 
@@ -14,6 +15,9 @@ const RETURN={x:23.5,y:6.45,a:Math.PI/2};
 const SEAT={x:23.5,y:5.9,a:-Math.PI/2};
 const PORTAL_SPAWN={x:24.5,y:35.2,a:-Math.PI/2};
 const REALM_THRESHOLD_Y=29;
+const GALLERY_THRESHOLD_Y=15.9;
+const CITY_SPAWN={x:24.5,y:18.4,a:Math.PI/2};
+const REALM_EXIT={x:24.5,y:29.4,a:-Math.PI/2};
 const FONT='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 
 type SceneId=KWorldScene;
@@ -263,6 +267,8 @@ export default function AsciiCityWorld(){
   const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),audioPlayingRef=useRef(false),audioEnergyRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
   const start=back?RETURN:portal?PORTAL_SPAWN:SPAWN,cam=useRef<Cam>({x:start.x,y:start.y,ang:start.a,pitch:0,height:1.55}),seatFrom=useRef({x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55});
   const [scene,setScene]=useState<SceneId>(initialScene);
+  const [worldMode,setWorldMode]=useState<WorldMode>(back?'gallery':portal?'realm':'city');
+  const worldModeRef=useRef<WorldMode>(back?'gallery':portal?'realm':'city');
   const [audioCue,setAudioCueState]=useState<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city');
   const [nowPlaying,setNowPlaying]=useState('');
   const [vehicle,setVehicle]=useState(false),[flight,setFlight]=useState(false);
@@ -274,6 +280,7 @@ export default function AsciiCityWorld(){
     cueRef.current=cue;
     setAudioCueState(cue);
   },[]);
+  const setMode=useCallback((mode:WorldMode)=>{worldModeRef.current=mode;setWorldMode(mode);},[]);
 
   const resize=useCallback(()=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const d=Math.min(2,window.devicePixelRatio||1),ww=w.clientWidth,hh=w.clientHeight;c.width=Math.floor(ww*d);c.height=Math.floor(hh*d);c.style.width=ww+'px';c.style.height=hh+'px';c.getContext('2d')?.setTransform(d,0,0,d,0,0);},[]);
   useEffect(()=>{resize();window.addEventListener('resize',resize);const t=window.setTimeout(()=>setNotice(''),4200);return()=>{window.removeEventListener('resize',resize);window.clearTimeout(t);};},[resize]);
@@ -297,11 +304,12 @@ export default function AsciiCityWorld(){
   const returnToGallery=useCallback(()=>{
     setTerminal(false);termRef.current=false;portableTerminalRef.current=false;phase.current='explore';document.exitPointerLock?.();
     cam.current={x:RETURN.x,y:RETURN.y,ang:RETURN.a,pitch:0,height:1.55};
+    setMode('gallery');
     galleryReturnUntil.current=performance.now()+12000;setAudioCue('gallery-turnaround');
     setNotice('GALLERY APSE // TURN AROUND // 4DADNM SIGNAL');
     window.setTimeout(()=>setNotice(''),3600);
   },[setAudioCue]);
-  const enterScene=useCallback((next:SceneId)=>{setScene(next);setParams({scene:next,spawn:'portal'},{replace:true});setTerminal(false);termRef.current=false;portableTerminalRef.current=false;setVehicle(false);vehicleRef.current=false;setFlight(false);flightRef.current=false;setAudioCue(next);phase.current='explore';document.exitPointerLock?.();cam.current={x:PORTAL_SPAWN.x,y:PORTAL_SPAWN.y,ang:PORTAL_SPAWN.a,pitch:0,height:1.55};seatFrom.current={x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55};setNotice('PORTAL '+next.toUpperCase()+' // '+SCENES[next].label+' // K TERMINAL AUTO DJ');window.setTimeout(()=>setNotice(''),3600);},[setParams,setAudioCue]);
+  const enterScene=useCallback((next:SceneId)=>{setScene(next);setMode('realm');setParams({scene:next,spawn:'portal'},{replace:true});setTerminal(false);termRef.current=false;portableTerminalRef.current=false;setVehicle(false);vehicleRef.current=false;setFlight(false);flightRef.current=false;setAudioCue(next);phase.current='explore';document.exitPointerLock?.();cam.current={x:PORTAL_SPAWN.x,y:PORTAL_SPAWN.y,ang:PORTAL_SPAWN.a,pitch:0,height:1.55};seatFrom.current={x:RETURN.x,y:RETURN.y,ang:RETURN.a,h:1.55};setNotice('PORTAL '+next.toUpperCase()+' // '+SCENES[next].label+' // K TERMINAL AUTO DJ');window.setTimeout(()=>setNotice(''),3600);},[setParams,setAudioCue,setMode]);
   const toggleFlight=useCallback(()=>{if(scene!=='light'){setNotice('EVA MODE // AVAILABLE ONLY AT ROCKET / K-01 ORBITAL');window.setTimeout(()=>setNotice(''),2200);return;}const next=!flightRef.current;flightRef.current=next;setFlight(next);setVehicle(false);vehicleRef.current=false;cam.current.height=next?2.75:1.55;cam.current.pitch=next?-5:0;setAudioCue(next?'flight':'light');setNotice(next?'EVA MODE // MIRROR PLANE // [F] RETURN':'AIRLOCK REENTRY // K-01 ORBITAL');window.setTimeout(()=>setNotice(''),2600);},[scene,setAudioCue]);
   const interact=useCallback(()=>{if(phase.current!=='explore')return;if(vehicleRef.current){vehicleRef.current=false;setVehicle(false);setAudioCue(scene);setNotice('K//DRIVE EXITED // FLAG SIGNAL RELEASED');window.setTimeout(()=>setNotice(''),2200);return;}const t=target.current;if(!t)return;if(t.kind==='console')sit();else if(t.kind==='relic'){setNotice('SIGNAL SCRIPTURE // ARCHIVE LINK VERIFIED');window.setTimeout(()=>setNotice(''),2200);}else if(t.kind==='door'&&t.scene)enterScene(t.scene);else if(t.kind==='car'){vehicleRef.current=true;setVehicle(true);flightRef.current=false;setFlight(false);cam.current.height=1.25;setAudioCue('car');setNotice('K//DRIVE ONLINE // ⚑ FLAG ON DASH // [E] EXIT VEHICLE');window.setTimeout(()=>setNotice(''),3000);}},[sit,enterScene,setAudioCue,scene]);
 
@@ -312,8 +320,10 @@ export default function AsciiCityWorld(){
   const te=useCallback((e:React.TouchEvent)=>{for(const t of Array.from(e.changedTouches)){if(t.identifier===touchMove.current.id)touchMove.current={id:-1,x0:0,y0:0,dx:0,dy:0};if(t.identifier===touchLook.current.id)touchLook.current={id:-1,x:0,y:0};}},[]);
 
   const draw=useCallback((time:number,fps:number)=>{const c=canvas.current,w=wrap.current;if(!c||!w)return;const ctx=c.getContext('2d');if(!ctx)return;const ww=w.clientWidth,hh=w.clientHeight,targetCols=ww<700?94:ww<1100?120:154,fs=Math.max(7,(ww/targetCols)/.62);ctx.font=fs+'px '+FONT;const cw=ctx.measureText('M').width||fs*.62,ch=fs*1.03,cols=Math.max(48,Math.floor(ww/cw)),rows=Math.max(26,Math.floor(hh/ch)),chars=Array.from({length:rows},()=>Array(cols).fill(' ')),colors=Array.from({length:rows},()=>Array(cols).fill('#07101b')),zb=new Float32Array(cols),cc=cam.current,hor=Math.floor(rows*.49+cc.pitch-(cc.height-1.55)*1.8);
-    const royal=cc.y<=15.9&&cc.x>12&&cc.x<36;
-    const inRealm=!royal&&cc.y>=REALM_THRESHOLD_Y;
+    const mode=worldModeRef.current;
+    const royal=mode==='gallery';
+    const inRealm=mode==='realm';
+    const inCity=mode==='city';
     const cfg=inRealm?SCENES[scene]:CITY_CONFIG;
     const audioTime=audioMsRef.current/1000,syncStep=Math.floor(audioMsRef.current/180),syncTime=audioMsRef.current>0?audioTime:time;
     const playing=audioPlayingRef.current;
@@ -338,17 +348,39 @@ export default function AsciiCityWorld(){
           const pendant=((x+3)%23===0&&y===Math.max(2,hor-3));
           chars[y][x]=arch?(x%2?'╲':'╱'):mullion?'│':balcony?'═':pendant?'▼':star?'·':' ';
           colors[y][x]=pendant?'#ff76df':balcony?'#8c4fc7':arch||mullion?'#76579e':'#100817';
+        }else if(inRealm){
+          if(scene==='spring'){
+            const canopy=y>=hor-(3+((Math.floor(x/6)*7)%6))&&y<hor;
+            chars[y][x]=canopy?(x%6===0?'│':x%3===0?'❧':'▓'):weather?'✦':star?'·':' ';
+            colors[y][x]=canopy?(x%3===0?'#ffb000':'#145a38'):weather?'#ffd36a':cfg.sky;
+          }else if(scene==='summer'){
+            const ring=Math.abs(Math.hypot((x-cols*.5)/1.8,(y-hor*.58)*1.2)-cols*.18)<1.2;
+            chars[y][x]=ring?'◎':weather?'·':star?'·':' ';
+            colors[y][x]=ring?'#00ff91':weather?'#65ffbd':cfg.sky;
+          }else if(scene==='autumn'){
+            const shard=y>=hor-(2+((x*7)%12))&&y<hor&&x%5<2;
+            chars[y][x]=shard?(x%2?'╱':'╲'):weather?'✦':star?'◇':' ';
+            colors[y][x]=shard?'#00ffff':weather?'#8ffcff':cfg.sky;
+          }else if(scene==='winter'){
+            const grid=(x%9===0)||(y%5===0&&y>hor-14);
+            chars[y][x]=grid?(x%9===0?'│':'─'):weather?'+':star?'·':' ';
+            colors[y][x]=grid?'#ff3b3b':weather?'#ff687b':cfg.sky;
+          }else if(scene==='light'){
+            const bright=((x*31+y*17+syncStep)%83===0);
+            chars[y][x]=bright?'✦':((x+y)%113===0?'·':' ');
+            colors[y][x]=bright?'#d8efff':cfg.sky;
+          }else{
+            const earth=Math.hypot(x-cols*.72,y-hor*.30)<3.2;
+            chars[y][x]=earth?'◉':weather?'·':star?'·':' ';
+            colors[y][x]=earth?'#5fa8ff':weather?'#a7bad1':cfg.sky;
+          }
         }else{
-          // Distant modern high-rise skyline behind the raycast city canyon.
-          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),inTower=y>=hor-towerH&&y<hor;
-          if(inTower){
+          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),tower=y>=hor-towerH&&y<hor;
+          if(tower){
             const edge=x%5===0||x%5===4,lit=((x+y+block)%7===0);
             chars[y][x]=edge?'│':lit?'▫':'▓';
-            colors[y][x]=lit?dim(cfg.neon,syncPulse):dim(cfg.wall,.42);
-          }else{
-            chars[y][x]=weather?cfg.weather:star?'·':' ';
-            colors[y][x]=weather?cfg.weatherColor:cfg.sky;
-          }
+            colors[y][x]=lit?dim(CITY_CONFIG.neon,syncPulse):dim(CITY_CONFIG.wall,.42);
+          }else{chars[y][x]=weather?'│':star?'·':' ';colors[y][x]=weather?'#184a66':CITY_CONFIG.sky;}
         }
       }else{
         const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;
@@ -357,10 +389,17 @@ export default function AsciiCityWorld(){
           const grout=(y-hor)%5===0||x%17===0;
           chars[y][x]=reflection?'≈':grout?'─':chk?'◇':'·';
           colors[y][x]=reflection?(x%2?'#00bfcf':'#c126ff'):grout?'#4d315f':chk?'#2d1d38':'#130f18';
+        }else if(inRealm){
+          if(scene==='spring'){chars[y][x]=((x+y+syncStep)%13<3)?'~':chk?'·':'░';colors[y][x]=chars[y][x]==='~'?'#087f85':chk?'#123b2a':'#08271e';}
+          else if(scene==='summer'){chars[y][x]=(x%11===0||y%6===0)?'◎':chk?'·':'░';colors[y][x]=chars[y][x]==='◎'?'#00ff91':chk?'#0c3428':'#061f18';}
+          else if(scene==='autumn'){chars[y][x]=(x+y)%9===0?'◇':chk?'╱':'╲';colors[y][x]=chars[y][x]==='◇'?'#00ffff':chk?'#082f3b':'#041b27';}
+          else if(scene==='winter'){chars[y][x]=(x%7===0||y%4===0)?(x%7===0?'│':'─'):chk?'╳':'·';colors[y][x]=chars[y][x]==='╳'?'#ff3b3b':chk?'#351018':'#1d080d';}
+          else if(scene==='light'){chars[y][x]=(x%12===0)?'║':(y%5===0?'═':chk?'□':'·');colors[y][x]=chars[y][x]==='□'?'#ffb000':chk?'#111b28':'#07101c';}
+          else{const crater=((x*3+y*5)%23)<3;chars[y][x]=crater?'○':chk?'░':'·';colors[y][x]=crater?'#69727e':chk?'#3a3f48':'#252a31';}
         }else{
           const puddle=((x*5+y*3+syncStep)%19)<3;
-          chars[y][x]=puddle?(scene==='dark'?'░':'≈'):scene==='autumn'?(chk?',':'·'):scene==='winter'?(chk?'·':'_'):scene==='light'?(chk?'·':'+'):(chk?'·':'░');
-          colors[y][x]=puddle?dim(cfg.neon,.52):(chk?cfg.floorA:cfg.floorB);
+          chars[y][x]=puddle?'≈':chk?'·':'░';
+          colors[y][x]=puddle?dim(CITY_CONFIG.neon,.52):(chk?CITY_CONFIG.floorA:CITY_CONFIG.floorB);
         }
       }
     }
@@ -399,12 +438,12 @@ export default function AsciiCityWorld(){
     const sceneSign={x:24.5,y:32.0,t:['['+scene.toUpperCase()+'] '+SCENES[scene].label,SCENES[scene].era],c:SCENES[scene].accent};
     const citySign:Billboard={x:24.5,y:23.3,t:['K//CITY // INNER RING','PROJECTS · OPERATIONS · R&D','GALLERY ↑ NORTH'],c:'#00ff66'};
     const allSigns=royal
-      ? [...SIGNS,...DOOR_SIGNS,...GALLERY_MOTIFS]
+      ? [...DOOR_SIGNS,...GALLERY_MOTIFS]
       : inRealm
         ? [...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],REALM_RETURN_GATE,sceneSign]
         : [...SIGNS,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
-    if(!royal){
+    if(inCity){
       const movers=[
         {x:Math.floor(((syncTime*(9+audioEnergy*5))% (cols+24))-12),y:Math.max(1,hor-8),txt:'<DRONE-07>',c:'#00ffff'},
         {x:Math.floor(cols-((syncTime*(6+audioEnergy*4))% (cols+20))+10),y:Math.max(2,hor-4),txt:'==AIR.TAXI==>',c:'#ff3bd4'},
@@ -510,32 +549,28 @@ export default function AsciiCityWorld(){
         if(flyingOver||!solid(c.x+mx+Math.sign(mx||1)*r,c.y))c.x=Math.max(1.1,Math.min(W-1.1,c.x+mx));
         if(flyingOver||!solid(c.x,c.y+my+Math.sign(my||1)*r))c.y=Math.max(1.1,Math.min(H-1.1,c.y+my));
 
-        // K Terminal changes tracks only when crossing an actual room/world
-        // boundary. Walking inside a room never restarts or cuts its song.
-        const inGallery=c.y<=15.9&&c.x>12&&c.x<36;
-        const inRealm=c.y>=REALM_THRESHOLD_Y;
-        const memory=cam.current as Cam & {_gallery?:boolean;_realm?:boolean};
-        const wasGallery=memory._gallery ?? inGallery;
-        const wasRealm=memory._realm ?? inRealm;
-        memory._gallery=inGallery;memory._realm=inRealm;
+        // Gallery, city and portal realms are separate scene identities.
+        const mode=worldModeRef.current;
         if(vehicleRef.current){
           if(cueRef.current!=='car')setAudioCue('car');
         }else if(flightRef.current){
           if(cueRef.current!=='flight')setAudioCue('flight');
-        }else if(inGallery&&!wasGallery){
-          if(cueRef.current!=='gallery-turnaround')setAudioCue('gallery-deep');
-        }else if(!inGallery&&wasGallery){
-          setAudioCue('city');
-          setNotice('K//CITY REENTRY // PROJECT DISTRICTS // PORTALS SOUTH');
-          window.setTimeout(()=>setNotice(''),2200);
-        }else if(inRealm&&!wasRealm){
-          setAudioCue(scene);
-          setNotice(SCENES[scene].label+' // WORLD SIGNAL ACQUIRED');
-          window.setTimeout(()=>setNotice(''),2200);
-        }else if(!inRealm&&wasRealm){
-          setAudioCue('city');
-          setNotice('K//CITY RETURN GATE // GALLERY NORTH');
-          window.setTimeout(()=>setNotice(''),2400);
+        }else if(mode==='gallery'&&c.y>GALLERY_THRESHOLD_Y){
+          setMode('city');setAudioCue('city');
+          cam.current={...cam.current,x:CITY_SPAWN.x,y:CITY_SPAWN.y,ang:CITY_SPAWN.a};
+          setNotice('EXIT // K//GALLERY → K//CITY');window.setTimeout(()=>setNotice(''),2200);
+        }else if(mode==='city'&&c.y<GALLERY_THRESHOLD_Y&&c.x>12&&c.x<36){
+          setMode('gallery');setAudioCue('gallery-deep');
+          cam.current={...cam.current,x:24,y:14.8,ang:-Math.PI/2};
+          setNotice('ENTER // INDOOR GALLERY NAVE');window.setTimeout(()=>setNotice(''),2200);
+        }else if(mode==='realm'&&c.y<REALM_THRESHOLD_Y){
+          setMode('city');setAudioCue('city');
+          cam.current={...cam.current,x:REALM_EXIT.x,y:REALM_EXIT.y-1,ang:REALM_EXIT.a};
+          setNotice('PORTAL EXIT // BACK INSIDE K//CITY');window.setTimeout(()=>setNotice(''),2400);
+        }else if(mode==='city'&&c.y>REALM_THRESHOLD_Y){
+          setMode('realm');setAudioCue(scene);
+          cam.current={...cam.current,x:PORTAL_SPAWN.x,y:PORTAL_SPAWN.y,ang:PORTAL_SPAWN.a};
+          setNotice('PORTAL ENTRY // '+SCENES[scene].label);window.setTimeout(()=>setNotice(''),2200);
         }
       }
       if(phase.current==='sitting'||phase.current==='standing'){
@@ -548,14 +583,15 @@ export default function AsciiCityWorld(){
     };
     raf=requestAnimationFrame(frame);
     return()=>cancelAnimationFrame(raf);
-  },[booted,draw,setAudioCue]);
+  },[booted,draw,setAudioCue,setMode,scene]);
   const map=useMemo(()=>mini(hud.x,hud.y,hud.ang),[hud.x,hud.y,hud.ang]);
   const sceneCfg=SCENES[scene];
+  const displayArea=worldMode==='gallery'?'K//GALLERY // INDOOR ART + MEMORY NAVE':worldMode==='realm'?sceneCfg.label+' // ISOLATED PORTAL WORLD':'K//CITY // PROJECT DISTRICTS';
   const audioState=nowPlaying?'K TERMINAL':'ARMED';
 
   return <div className="kcity">
-    <div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/><div className="kc-gallery-glow"/>
-    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{hud.area}</span><small>{hud.y>=REALM_THRESHOLD_Y ? `PORTAL ${scene.toUpperCase()} // ${sceneCfg.era}` : 'K//CITY // SHARED INNER WORLD'}</small><small>{hud.y>=REALM_THRESHOLD_Y ? `WORLD ID ${scene.toUpperCase()} // ${sceneCfg.motifs}` : 'RETURN PATH // GALLERY NORTH · PORTALS SOUTH'}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'K-01 EVA · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
+    <div ref={wrap} className="kc-wrap"><canvas ref={canvas} onClick={lock} onTouchStart={ts} onTouchMove={tm} onTouchEnd={te} onTouchCancel={te}/></div><div className="kc-scan"/><div className="kc-vig"/>{worldMode==='gallery'&&<div className="kc-gallery-glow"/>}
+    {booted&&!terminal&&<><div className="kc-hud"><b>K//CITY ASCII-RT v5.0</b><span>{displayArea}</span><small>{worldMode==='realm' ? `PORTAL ${scene.toUpperCase()} // ${sceneCfg.era}` : worldMode==='gallery' ? 'INDOOR // GOTHIC GALLERY' : 'OUTDOOR // K//CITY'}</small><small>{worldMode==='realm' ? `WORLD ID ${scene.toUpperCase()} // ${sceneCfg.motifs}` : worldMode==='gallery' ? 'ART A–J · EMRLD ALTAR · PORTAL DOORS' : 'PROJECT DISTRICTS · GALLERY NORTH · PORTALS SOUTH'}</small><small>SYNC {audioState} // {nowPlaying||'WAITING FOR SOUNDCLOUD'}</small><small>POS {hud.x.toFixed(1)}:{hud.y.toFixed(1)} · ALT {cam.current.height.toFixed(1)} · {hud.fps}FPS</small></div><pre className="kc-map">SCAN GRID{"\n"}{map}</pre><div className="kc-cross">+</div><div className="kc-ctl">[WASD] WALK · [MOUSE/DRAG] LOOK · [SHIFT] RUN · [E] INTERACT · [T] K TERMINAL{scene==='light'?' · [F] FLY':''}<br/><b>{vehicle?'K//DRIVE ACTIVE · [E] EXIT':flight?'K-01 EVA · [SPACE] CLIMB · [C/CTRL] DESCEND':'BUILD · VERIFY · OPERATE · RESEARCH // [T] K TERMINAL'}</b></div><div className="kc-nowplaying"><b>♫ {audioState}</b> // {nowPlaying||'SOUNDTRACK ARMING'}</div>{hud.prompt&&<button className="kc-prompt" onClick={interact}>{hud.prompt}</button>}{!locked&&!vehicle&&!flight&&<button className="kc-lock" onClick={lock}>CLICK TO CAPTURE MOUSE</button>}{scene==='light'&&<button className="kc-flight-toggle" onClick={toggleFlight}>{flight?'[F] LAND':'[F] FLY'}</button>}</>}
     {vehicle&&!terminal&&<div className="kc-drive-dashboard"><pre>{'┌───────────┐\n│ ⚑ K//FLAG │\n│ ▓▒░▓▒░▓▒░ │\n└─────┬─────┘\n      │'}</pre><div className="kc-drive-center"><b>K//DRIVE // NIGHT DASH</b>FLAG SIGNAL LOCKED<br/>♫ {nowPlaying||'FLAG'}</div><div className="kc-drive-gauge">SPD // {keys.current.w?'88':'00'}<br/>NET // ONLINE<br/>[E] EXIT</div></div>}
     {flight&&!terminal&&<div className="kc-flight-hud"><b>K-01 EVA</b><br/>ALT // {cam.current.height.toFixed(1)}<br/>MIRROR PLANE // SYNC<br/>SPACE ↑ · C/CTRL ↓</div>}
     {notice&&!terminal&&<div className="kc-note">{notice}</div>}
