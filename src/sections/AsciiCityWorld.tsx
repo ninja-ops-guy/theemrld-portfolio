@@ -474,43 +474,43 @@ export default function AsciiCityWorld(){
     }
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
     if(royal){
-      for(const piece of K_GALLERY_ART){
-        const img=artImagesRef.current.get(piece.id);
-        if(!img||!img.complete||!img.naturalWidth)continue;
-        const dx=piece.x-cc.x,dy=piece.y-cc.y,d=Math.hypot(dx,dy);
-        if(d<.55||d>16)continue;
-        const rel=norm(Math.atan2(dy,dx)-cc.ang);
-        if(Math.abs(rel)>FOV*.58)continue;
-        const screenX=(.5+rel/FOV)*ww;
-        // The art positions are gallery wall anchors, not collision objects;
-        // render when facing their wall sector instead of letting the raycaster
-        // mistakenly occlude them behind the cathedral shell.
-        const scale=Math.max(.24,Math.min(1.35,6.8/d));
-        const ph=Math.max(58,piece.height*86*scale);
-        const pw=Math.max(52,piece.width*86*scale);
-        const px=screenX-pw/2;
-        const py=hh*.46-ph*.56-(cc.height-1.55)*14;
-        const pad=Math.max(4,Math.round(8*scale));
-        const glow=8+26*audioEnergy;
-        ctx.save();
-        // Museum spotlight cone.
-        const lampY=Math.max(6,py-24*scale);
-        const grad=ctx.createLinearGradient(screenX,lampY,screenX,py+ph);
-        grad.addColorStop(0,`rgba(255,230,205,${.10+.16*audioEnergy})`);
-        grad.addColorStop(1,'rgba(255,230,205,0)');
-        ctx.fillStyle=grad;
-        ctx.beginPath();ctx.moveTo(screenX-5*scale,lampY);ctx.lineTo(px-10*scale,py+ph);ctx.lineTo(px+pw+10*scale,py+ph);ctx.closePath();ctx.fill();
-        // Layered antique-gold frame like the reference.
-        ctx.shadowColor=piece.accent;ctx.shadowBlur=glow;
-        ctx.fillStyle='#070409';ctx.fillRect(px-pad*1.6,py-pad*1.6,pw+pad*3.2,ph+pad*3.2);
-        ctx.strokeStyle='#b98a48';ctx.lineWidth=Math.max(2,3*scale);ctx.strokeRect(px-pad*1.35,py-pad*1.35,pw+pad*2.7,ph+pad*2.7);
-        ctx.strokeStyle='#51361f';ctx.lineWidth=Math.max(1,1.5*scale);ctx.strokeRect(px-pad*.65,py-pad*.65,pw+pad*1.3,ph+pad*1.3);
-        ctx.shadowBlur=0;
-        ctx.drawImage(img,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
-        ctx.fillStyle='rgba(2,2,5,.9)';ctx.fillRect(px,py+ph-15*scale,pw,15*scale);
-        ctx.font=`${Math.max(8,10*scale)}px ${FONT}`;
-        ctx.fillStyle=piece.accent;ctx.fillText(piece.label+' // '+piece.title,px+5*scale,py+ph-12*scale);
-        ctx.restore();
+      // Reference-matched salon wall. This deliberately renders the committed
+      // A–J atlas as a stable interior composition so the paintings cannot be
+      // hidden by raycast wall depth.
+      const atlas=artImagesRef.current.get(K_GALLERY_ART[0]?.id||'');
+      if(atlas&&atlas.complete&&atlas.naturalWidth){
+        const layout=[
+          [.055,.16,.13,.28],[.195,.18,.11,.25],[.315,.19,.18,.22],
+          [.055,.49,.17,.27],[.245,.50,.19,.22],[.455,.30,.13,.32],
+          [.595,.29,.14,.34],[.745,.24,.12,.23],[.875,.23,.11,.23],[.805,.53,.15,.25]
+        ];
+        const parallax=norm(cc.ang-RETURN.a)*ww*.035;
+        K_GALLERY_ART.forEach((piece,i)=>{
+          const l=layout[i];if(!l)return;
+          const px=l[0]*ww+parallax,py=l[1]*hh,pw=l[2]*ww,ph=l[3]*hh,pad=Math.max(3,ww*.0035);
+          ctx.save();
+          const lampX=px+pw*.5,lampY=Math.max(5,py-22);
+          const grad=ctx.createLinearGradient(lampX,lampY,lampX,py+ph);
+          grad.addColorStop(0,`rgba(255,226,188,${.12+.14*audioEnergy})`);grad.addColorStop(1,'rgba(255,226,188,0)');
+          ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(lampX-4,lampY);ctx.lineTo(px-pad,py+ph);ctx.lineTo(px+pw+pad,py+ph);ctx.closePath();ctx.fill();
+          ctx.shadowColor=piece.accent;ctx.shadowBlur=8+24*audioEnergy;
+          ctx.fillStyle='#050306';ctx.fillRect(px-pad*2,py-pad*2,pw+pad*4,ph+pad*4);
+          ctx.strokeStyle='#c09552';ctx.lineWidth=Math.max(2,pad*.65);ctx.strokeRect(px-pad*1.5,py-pad*1.5,pw+pad*3,ph+pad*3);
+          ctx.shadowBlur=0;ctx.drawImage(atlas,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
+          ctx.fillStyle='rgba(3,2,4,.9)';ctx.fillRect(px,py+ph-14,pw,14);
+          ctx.font=`${Math.max(7,ww*.006)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(piece.label+' // '+piece.title,px+4,py+ph-12);
+          ctx.restore();
+        });
+      }
+      const portraits=portraitImageRef.current;
+      if(portraits&&portraits.complete&&portraits.naturalWidth){
+        const pw=ww*.115,ph=hh*.20,py=hh*.66;
+        [[ww*.055,0],[ww*.83,92]].forEach(([px,sx],i)=>{
+          ctx.save();ctx.shadowColor=i?'#00ffff':'#ff3bd4';ctx.shadowBlur=12+20*audioEnergy;
+          ctx.fillStyle='#030303';ctx.fillRect(px-5,py-5,pw+10,ph+10);ctx.strokeStyle='#c09552';ctx.lineWidth=2;ctx.strokeRect(px-5,py-5,pw+10,ph+10);
+          ctx.shadowBlur=0;ctx.drawImage(portraits,sx,0,90,90,px,py,pw,ph);
+          ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#c09552';ctx.fillText('K // ASCII SELF '+(i+1),px,py+ph+5);ctx.restore();
+        });
       }
     }
     if(royal){
