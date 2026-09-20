@@ -12,7 +12,7 @@ function frame(g,a,id,x,y,z,w,h,yaw=0){
  const corners=[p(-w/2-.06,-h/2-.06,.035),p(w/2+.06,-h/2-.06,.035),p(w/2+.06,h/2+.06,.035),p(-w/2-.06,h/2+.06,.035)];
  for(let i=0;i<4;i++)g.beam(corners[i],corners[(i+1)%4],.045,GOLD,{emission:.28});
  g.plane(x+normal[0]*.026,y,z+normal[2]*.026,iw,ih,yaw,'#ffffff',{texture:id,emission:1});
- label(g,a,[`${art.letter} / ${art.title}`],x+normal[0]*.06,y-h/2-.29,z+normal[2]*.06,Math.max(1.35,w*.75),.25,'#d5b785',yaw,{fontSize:32,width:768,height:96,border:false});
+ label(g,a,[`K//ARCHIVE ${art.letter}`],x+normal[0]*.06,y-h/2-.29,z+normal[2]*.06,Math.max(1.35,w*.75),.25,'#00ff41',yaw,{fontSize:32,width:768,height:96,border:false,background:'#010401'});
  // Real small fixture above the work; spot response is deliberately restrained.
  const lamp=p(0,h/2+.38,.30);g.box(...lamp,.22,.09,.26,'#423333');g.box(lamp[0],lamp[1]-.05,lamp[2],.15,.023,.15,'#ffcfa0',{emission:1.05});
  g.interactions.push({id:'art-'+id,type:'art',art:id,title:art.title,position:p(0,0,.25),radius:4.5});
@@ -94,6 +94,7 @@ export function buildGallery(a){const g=new Geometry();
  g.interactions.push({id:'console',type:'terminal',title:'K TERMINAL / AUDIO AUTHORITY',position:[7.8,1.55,13.2],radius:2.7});
  // Books and low candles are geometry, not screen decorations.
  for(const x of [-8.8,8.8])for(let z=-12;z<14;z+=5.5){g.cylinder(x,.85,z,.055,1.7,GOLD,6);g.box(x,1.73,z,.08,.25,.08,'#f2bd70',{emission:1});}
+ label(g,a,['K // LIVING ARCHIVE','LOOK AWAY · RETURN CHANGED'],0,4.15,16.72,3.8,.62,'#00ff41',0,{fontSize:38,width:1024,height:192,border:false,background:'#010401'});
  gate(g,a,'gallery-exit',0,16.1,'K // CITY',GREEN,'city');
  return g.finish({...BASE,id:'gallery',title:'K // GALLERY',subtitle:'Art · memory · sacred systems',spawn:[0,1.7,10.5],yaw:0,bounds:[-11.5,11.5,-16.5,16.5]});
 }
