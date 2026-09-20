@@ -13,6 +13,9 @@ export type KGalleryArtPiece = {
   sh: number;
 };
 
+export const K_GALLERY_PORTRAITS = `${import.meta.env.BASE_URL}assets/gallery/k-ascii-portraits.webp`;
+export const K_GALLERY_REFERENCE = `${import.meta.env.BASE_URL}assets/gallery/k-gallery-concept.webp`;
+
 export const K_GALLERY_ATLAS = `${import.meta.env.BASE_URL}assets/gallery/k-gallery-atlas.webp`;
 
 export const K_GALLERY_ART: KGalleryArtPiece[] = [

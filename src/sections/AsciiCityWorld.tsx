@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import KTerminal, { type KWorldScene } from './KTerminal';
 import { type KAudioZone } from '../data/kAudioZones';
-import { K_GALLERY_ART, K_GALLERY_ATLAS } from '../data/kGalleryArt';
+import { K_GALLERY_ART, K_GALLERY_ATLAS, K_GALLERY_PORTRAITS } from '../data/kGalleryArt';
 
 type Phase = 'explore' | 'sitting' | 'seated' | 'standing';
 type WorldMode = 'gallery' | 'city' | 'realm';
@@ -43,17 +43,17 @@ const DOOR_COLOR:Record<string,string>={'1':'#ffb000','2':'#00ff91','3':'#00ffff
 type Billboard={x:number;y:number;t:string[];c:string};
 
 const GALLERY_MOTIFS:Billboard[]=[
-  {x:24,y:10.4,t:['        .-=====-.','     .-╱  ✥  ╲-.','    ╱  ╲  │  ╱  ╲','   │ ╲  ╲ │ ╱  ╱ │','   │───╲─◎─╱───│','    ╲  ╱  │  ╲  ╱','     ╲___K___╱','  ROSE WINDOW // K'],c:'#b86bff'},
-  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D','TEN YEARS // HANDS ON'],c:'#d892ff'},
-  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL','SYSTEMS','REMEMBER'],c:'#caa7ff'},
+  {x:15.2,y:5.1,t:['╔══ JACHIN ══╗','║     ║      ║','║  ◉──╫──◉   ║','║     ║      ║','╚═════╩══════╝'],c:'#d5a85a'},
+  {x:32.8,y:5.1,t:['╔══ BOAZ ════╗','║     ║      ║','║  ◉──╫──◉   ║','║     ║      ║','╚═════╩══════╝'],c:'#d5a85a'},
+  {x:24,y:10.4,t:['       ╭────╮','    ╭──┤ ✦  ├──╮','  ╭─┤  ╰─┬──╯  ├─╮','  │ │ ╲  │  ╱ │ │','  │ │  ╲ ◎ ╱  │ │','╭─┴─┴───╲│╱───┴─┴─╮','│ CEDAR / GOLD NAVE │','╰────────┬──────────╯'],c:'#d5a85a'},
+  {x:19.5,y:3.0,t:['K//GALLERY','T H E   E M R L D','HOUSE OF ART / MEMORY'],c:'#d892ff'},
+  {x:31.5,y:3.4,t:['ART','SURVIVES','STILL','POMEGRANATE','PALM / CEDAR'],c:'#caa7ff'},
   {x:24,y:12.2,t:['╔════════════════════╗','║      THE EMRLD     ║','║ BUILD WHAT YOU NEED║','║ VERIFY WHAT YOU SHIP║','║ LEAVE RECEIPTS     ║','╚════════════════════╝'],c:'#a87cff'},
   {x:30.5,y:13.5,t:['┌─────────────┐','│ > ART       │','│ > SYSTEMS   │','│ > SURVIVES  │','│ > STILL     │','│ > _         │','└─────────────┘'],c:'#00ff91'},
   {x:17.0,y:13.7,t:['[ ART ]','[ MEMORY ]','[ RESEARCH ]','[ OPERATIONS ]','[ STILL HERE ]'],c:'#ff5ee1'},
   {x:24,y:8.2,t:['       ╭─╮','    ╭──┤●├──╮','  ╭─┤  ╰┬╯  ├─╮','  │ ╰───┼───╯ │','╭─┴─────┼─────┴─╮','│ RESIDUAL ORRERY│','│ AGENTS / EVIDENCE│','╰────────────────╯'],c:'#c686ff'},
-  {x:17.0,y:10.6,t:['╔═ CERT WALL ═╗','║ CCNA        ║','║ SECURITY+   ║','║ LINUX+      ║','║ NETWORK+    ║','╚═════════════╝'],c:'#00d9ff'},
-  {x:31.0,y:10.6,t:['╔═ WORK WALL ═╗','║ FACTORY IT  ║','║ NETWORKING  ║','║ SECURITY    ║','║ AI / R&D    ║','╚═════════════╝'],c:'#00ff91'},
-  {x:20.2,y:6.8,t:['┌─ COMMANDMENT ─┐','│ NO CLAIM      │','│ WITHOUT       │','│ EVIDENCE      │','└───────────────┘'],c:'#ff3bd4'},
-  {x:27.8,y:6.8,t:['┌─ OPERATOR ────┐','│ HUMAN GATE    │','│ FAIL CLOSED   │','│ REPLAY FIRST  │','└───────────────┘'],c:'#ffb000'}
+  {x:18.0,y:10.8,t:['❦  ◉  ❦  ◉  ❦','PALM / POMEGRANATE','CEDAR PANEL'],c:'#d5a85a'},
+  {x:30.0,y:10.8,t:['╲       ╱',' ╲  ✦  ╱','  ╲___╱','WINGED GUARDIANS'],c:'#d5a85a'}
 ];
 const LANDMARKS:Record<SceneId,Billboard[]>={
   spring:[
@@ -181,6 +181,15 @@ const SCENE_ARCHITECTURE:Record<SceneId,Billboard[]>={
   ]
 };
 const REALM_RETURN_GATE:Billboard={x:24.5,y:30.2,t:['╔══════════════════╗','║ ← K//CITY RETURN ║','║ PROJECT DISTRICTS║','║ GALLERY // NORTH ║','╚══════════════════╝','        ↑'],c:'#00ff66'};
+const DOWNTOWN_STRUCTURES:Billboard[]=[
+  {x:7,y:19.5,t:['╔══════════════╗','║ K//RECORDS   ║','║ VINYL · TAPE ║','║  OPEN 24:00  ║','╚═══╤══════╤═══╝','    │ ▒▒▒▒ │'],c:'#ff3bd4'},
+  {x:41,y:19.5,t:['╔══════════════╗','║ TECHOPS CAFE ║','║ COFFEE / P2  ║','║ WIFI // UP   ║','╚═══╤══════╤═══╝','    │ ░░░░ │'],c:'#00ff91'},
+  {x:7,y:23.2,t:['┌──────────────┐','│ RESIDUAL LAB │','│ AGENTS INSIDE│','│ RECEIPTS LIVE│','├──────────────┤','│▥▥│      │▥▥│','└──┴──────┴───┘'],c:'#b86bff'},
+  {x:41,y:23.2,t:['┌──────────────┐','│ VECTOR REPAIR│','│ ROBOTICS BAY │','│ ANGEL^3 MESH │','├──────────────┤','│◉ │      │ ◉│','└──┴──────┴───┘'],c:'#00d9ff'},
+  {x:10,y:27.0,t:['╔═ K//METRO ═╗','║ DOWNTOWN   ║','║ GALLERY ↑  ║','║ PORTALS ↓  ║','╚════╤═══════╝'],c:'#ffb000'},
+  {x:36,y:27.0,t:['┌─ STREET GRID ─┐','│ WALK / DRIVE  │','│ NIGHT BUS 07  │','│ FACTORY EAST  │','└──────┬────────┘'],c:'#00ffff'}
+];
+
 const PROJECT_STRUCTURES:Billboard[]=[
   {x:16,y:18.8,t:['       ╱╲','      ╱  ╲','  ╔══╧════╧══╗','  ║ RESIDUAL ║','╔═╩══════════╩═╗','║ RECEIPT HALL ║','║ OBSERVE      ║','║ VERIFY       ║','║ REPLAY       ║','╚══════╤═══════╝','       │'],c:'#ff3bd4'},
   {x:32,y:18.8,t:['    ┌─┬─┬─┐','  ┌─┘ │ │ └─┐','  │ VECTOR  │','  │ ANGEL^3 │','  │ ◉  ◇  ◉ │','  └──┬───┬──┘','     ╰─┬─╯',' ROBOTICS LAB'],c:'#00d9ff'},
@@ -262,6 +271,7 @@ export default function AsciiCityWorld(){
   const initialScene:SceneId=queryScene&&SCENES[queryScene]?queryScene:'spring';
   const wrap=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),keys=useRef<Record<string,boolean>>({});
   const artImagesRef=useRef<Map<string,HTMLImageElement>>(new Map());
+  const portraitImageRef=useRef<HTMLImageElement|null>(null);
   const phase=useRef<Phase>('explore'),anim=useRef(0),termRef=useRef(false),target=useRef<{kind:'console'|'relic'|'door'|'car';scene?:SceneId}|null>(null),lastPaint=useRef(0),lastHud=useRef(0);
   const touchMove=useRef({id:-1,x0:0,y0:0,dx:0,dy:0}),touchLook=useRef({id:-1,x:0,y:0});
   const vehicleRef=useRef(false),flightRef=useRef(false),audioMsRef=useRef(0),audioPlayingRef=useRef(false),audioEnergyRef=useRef(0),portableTerminalRef=useRef(false),cueRef=useRef<KAudioZone>(back?'gallery-turnaround':portal?initialScene:'city'),galleryReturnUntil=useRef(back?performance.now()+12000:0);
@@ -292,6 +302,10 @@ export default function AsciiCityWorld(){
     K_GALLERY_ART.forEach((piece)=>images.set(piece.id,img));
     artImagesRef.current=images;
     return()=>{artImagesRef.current.clear();};
+  },[]);
+  useEffect(()=>{
+    const img=new Image();img.decoding='async';img.src=K_GALLERY_PORTRAITS;portraitImageRef.current=img;
+    return()=>{portraitImageRef.current=null;};
   },[]);
   const lock=useCallback(()=>{if(termRef.current)return;try{const p=canvas.current?.requestPointerLock?.();if(p&&typeof (p as Promise<void>).catch==='function')(p as Promise<void>).catch(()=>{});}catch(_){}},[]);
   const sit=useCallback(()=>{if(phase.current!=='explore')return;portableTerminalRef.current=false;const c=cam.current;seatFrom.current={x:c.x,y:c.y,ang:c.ang,h:c.height};anim.current=0;phase.current='sitting';document.exitPointerLock?.();},[]);
@@ -335,7 +349,6 @@ export default function AsciiCityWorld(){
     const high=playing?(Math.sin(syncTime*11.7+2.4)+1)*.5:0;
     const audioEnergy=playing?Math.min(1,.48*kick+.32*mid+.20*high):0;
     audioEnergyRef.current=audioEnergy;
-    const syncPulse=.64+.36*audioEnergy;
     for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
       if(y<hor){
         const weather=(x*17+y*7+syncStep)%Math.max(23,67-Math.floor(audioEnergy*28))===0,star=(x*41+y*13+Math.floor(syncTime))%Math.max(97,257-Math.floor(audioEnergy*100))===0;
@@ -375,12 +388,17 @@ export default function AsciiCityWorld(){
             colors[y][x]=earth?'#5fa8ff':weather?'#a7bad1':cfg.sky;
           }
         }else{
-          const block=Math.floor(x/5),towerH=3+((block*11+7)%10),tower=y>=hor-towerH&&y<hor;
-          if(tower){
-            const edge=x%5===0||x%5===4,lit=((x+y+block)%7===0);
-            chars[y][x]=edge?'│':lit?'▫':'▓';
-            colors[y][x]=lit?dim(CITY_CONFIG.neon,syncPulse):dim(CITY_CONFIG.wall,.42);
-          }else{chars[y][x]=weather?'│':star?'·':' ';colors[y][x]=weather?'#184a66':CITY_CONFIG.sky;}
+          const bx=Math.floor(x/7),towerH=7+((bx*5+3)%9),tower=y>=hor-towerH&&y<hor;
+          const avenue=Math.abs(x-cols*.5)<Math.max(5,(hor-y)*.7);
+          if(tower&&!avenue){
+            const edge=x%7===0||x%7===6,window=((x+2*y+bx)%6===0),escape=(x%14===2&&y%3===0);
+            chars[y][x]=escape?'╫':edge?'│':window?'▣':'▓';
+            colors[y][x]=window?(x%3?'#00ffff':'#ff3bd4'):escape?'#77808d':dim(CITY_CONFIG.wall,.48);
+          }else{
+            const lamp=(x%23===4&&y===hor-3);
+            chars[y][x]=lamp?'●':weather?'│':star?'·':' ';
+            colors[y][x]=lamp?'#ffb000':weather?'#184a66':CITY_CONFIG.sky;
+          }
         }
       }else{
         const chk=((Math.floor(x/3)+Math.floor((y-hor)/2))&1)===0;
@@ -397,9 +415,11 @@ export default function AsciiCityWorld(){
           else if(scene==='light'){chars[y][x]=(x%12===0)?'║':(y%5===0?'═':chk?'□':'·');colors[y][x]=chars[y][x]==='□'?'#ffb000':chk?'#111b28':'#07101c';}
           else{const crater=((x*3+y*5)%23)<3;chars[y][x]=crater?'○':chk?'░':'·';colors[y][x]=crater?'#69727e':chk?'#3a3f48':'#252a31';}
         }else{
-          const puddle=((x*5+y*3+syncStep)%19)<3;
-          chars[y][x]=puddle?'≈':chk?'·':'░';
-          colors[y][x]=puddle?dim(CITY_CONFIG.neon,.52):(chk?CITY_CONFIG.floorA:CITY_CONFIG.floorB);
+          const center=Math.abs(x-cols*.5),road=center<cols*.22,curb=Math.abs(center-cols*.22)<1.2;
+          const lane=road&&Math.abs(center-cols*.06)<.7&&((y+syncStep)%7<4);
+          const puddle=road&&((x*5+y*3+syncStep)%23)<3;
+          chars[y][x]=curb?'║':lane?'│':puddle?'≈':road?'·':chk?'▒':'░';
+          colors[y][x]=curb?'#8a9099':lane?'#ffb000':puddle?dim(CITY_CONFIG.neon,.55):road?'#111720':chk?'#252c36':'#1b222c';
         }
       }
     }
@@ -441,7 +461,7 @@ export default function AsciiCityWorld(){
       ? [...DOOR_SIGNS,...GALLERY_MOTIFS]
       : inRealm
         ? [...SCENE_ARCHITECTURE[scene],...LANDMARKS[scene],REALM_RETURN_GATE,sceneSign]
-        : [...SIGNS,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
+        : [...SIGNS,...DOWNTOWN_STRUCTURES,...PROJECT_STRUCTURES,CAR_SIGN,citySign];
     for(const sg of allSigns){const dx=sg.x-cc.x,dy=sg.y-cc.y,d=Math.hypot(dx,dy);if(d<.3||d>18)continue;const rel=norm(Math.atan2(dy,dx)-cc.ang);if(Math.abs(rel)>FOV*.64)continue;const sx=Math.round((.5+rel/FOV)*cols),ci=Math.max(0,Math.min(cols-1,sx));if(d>zb[ci]+.6)continue;const sy=Math.round(hor-(rows*.28)/Math.max(1.1,d));sg.t.forEach((line,li)=>{const st=Math.round(sx-line.length/2);for(let q=0;q<line.length;q++){const xx=st+q,yy=sy+li;if(xx>=0&&xx<cols&&yy>=0&&yy<rows){chars[yy][xx]=line[q];colors[yy][xx]=sg.c;}}});}
     if(inCity){
       const movers=[
@@ -453,49 +473,62 @@ export default function AsciiCityWorld(){
     }
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
     if(royal){
-      for(const piece of K_GALLERY_ART){
-        const img=artImagesRef.current.get(piece.id);
-        if(!img||!img.complete||!img.naturalWidth)continue;
-        const dx=piece.x-cc.x,dy=piece.y-cc.y,d=Math.hypot(dx,dy);
-        if(d<.55||d>16)continue;
-        const rel=norm(Math.atan2(dy,dx)-cc.ang);
-        if(Math.abs(rel)>FOV*.58)continue;
-        const screenX=(.5+rel/FOV)*ww;
-        // The art positions are gallery wall anchors, not collision objects;
-        // render when facing their wall sector instead of letting the raycaster
-        // mistakenly occlude them behind the cathedral shell.
-        const scale=Math.max(.24,Math.min(1.35,6.8/d));
-        const ph=Math.max(58,piece.height*86*scale);
-        const pw=Math.max(52,piece.width*86*scale);
-        const px=screenX-pw/2;
-        const py=hh*.46-ph*.56-(cc.height-1.55)*14;
-        const pad=Math.max(4,Math.round(8*scale));
-        const glow=8+26*audioEnergy;
-        ctx.save();
-        // Museum spotlight cone.
-        const lampY=Math.max(6,py-24*scale);
-        const grad=ctx.createLinearGradient(screenX,lampY,screenX,py+ph);
-        grad.addColorStop(0,`rgba(255,230,205,${.10+.16*audioEnergy})`);
-        grad.addColorStop(1,'rgba(255,230,205,0)');
-        ctx.fillStyle=grad;
-        ctx.beginPath();ctx.moveTo(screenX-5*scale,lampY);ctx.lineTo(px-10*scale,py+ph);ctx.lineTo(px+pw+10*scale,py+ph);ctx.closePath();ctx.fill();
-        // Layered antique-gold frame like the reference.
-        ctx.shadowColor=piece.accent;ctx.shadowBlur=glow;
-        ctx.fillStyle='#070409';ctx.fillRect(px-pad*1.6,py-pad*1.6,pw+pad*3.2,ph+pad*3.2);
-        ctx.strokeStyle='#b98a48';ctx.lineWidth=Math.max(2,3*scale);ctx.strokeRect(px-pad*1.35,py-pad*1.35,pw+pad*2.7,ph+pad*2.7);
-        ctx.strokeStyle='#51361f';ctx.lineWidth=Math.max(1,1.5*scale);ctx.strokeRect(px-pad*.65,py-pad*.65,pw+pad*1.3,ph+pad*1.3);
-        ctx.shadowBlur=0;
-        ctx.drawImage(img,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
-        ctx.fillStyle='rgba(2,2,5,.9)';ctx.fillRect(px,py+ph-15*scale,pw,15*scale);
-        ctx.font=`${Math.max(8,10*scale)}px ${FONT}`;
-        ctx.fillStyle=piece.accent;ctx.fillText(piece.label+' // '+piece.title,px+5*scale,py+ph-12*scale);
-        ctx.restore();
+      // Reference-matched salon wall. This deliberately renders the committed
+      // A–J atlas as a stable interior composition so the paintings cannot be
+      // hidden by raycast wall depth.
+      const atlas=artImagesRef.current.get(K_GALLERY_ART[0]?.id||'');
+      if(atlas&&atlas.complete&&atlas.naturalWidth){
+        const layout=[
+          [.055,.16,.13,.28],[.195,.18,.11,.25],[.315,.19,.18,.22],
+          [.055,.49,.17,.27],[.245,.50,.19,.22],[.455,.30,.13,.32],
+          [.595,.29,.14,.34],[.745,.24,.12,.23],[.875,.23,.11,.23],[.805,.53,.15,.25]
+        ];
+        const parallax=norm(cc.ang-RETURN.a)*ww*.035;
+        K_GALLERY_ART.forEach((piece,i)=>{
+          const l=layout[i];if(!l)return;
+          const px=l[0]*ww+parallax,py=l[1]*hh,pw=l[2]*ww,ph=l[3]*hh,pad=Math.max(3,ww*.0035);
+          ctx.save();
+          const lampX=px+pw*.5,lampY=Math.max(5,py-22);
+          const grad=ctx.createLinearGradient(lampX,lampY,lampX,py+ph);
+          grad.addColorStop(0,`rgba(255,226,188,${.12+.14*audioEnergy})`);grad.addColorStop(1,'rgba(255,226,188,0)');
+          ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(lampX-4,lampY);ctx.lineTo(px-pad,py+ph);ctx.lineTo(px+pw+pad,py+ph);ctx.closePath();ctx.fill();
+          ctx.shadowColor=piece.accent;ctx.shadowBlur=8+24*audioEnergy;
+          ctx.fillStyle='#050306';ctx.fillRect(px-pad*2,py-pad*2,pw+pad*4,ph+pad*4);
+          ctx.strokeStyle='#c09552';ctx.lineWidth=Math.max(2,pad*.65);ctx.strokeRect(px-pad*1.5,py-pad*1.5,pw+pad*3,ph+pad*3);
+          ctx.shadowBlur=0;ctx.drawImage(atlas,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
+          ctx.fillStyle='rgba(3,2,4,.9)';ctx.fillRect(px,py+ph-14,pw,14);
+          ctx.font=`${Math.max(7,ww*.006)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(piece.label+' // '+piece.title,px+4,py+ph-12);
+          ctx.restore();
+        });
+      }
+      const portraits=portraitImageRef.current;
+      if(portraits&&portraits.complete&&portraits.naturalWidth){
+        const pw=ww*.115,ph=hh*.20,py=hh*.66;
+        [[ww*.055,0],[ww*.83,92]].forEach(([px,sx],i)=>{
+          ctx.save();ctx.shadowColor=i?'#00ffff':'#ff3bd4';ctx.shadowBlur=12+20*audioEnergy;
+          ctx.fillStyle='#030303';ctx.fillRect(px-5,py-5,pw+10,ph+10);ctx.strokeStyle='#c09552';ctx.lineWidth=2;ctx.strokeRect(px-5,py-5,pw+10,ph+10);
+          ctx.shadowBlur=0;ctx.drawImage(portraits,sx,0,90,90,px,py,pw,ph);
+          ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#c09552';ctx.fillText('K // ASCII SELF '+(i+1),px,py+ph+5);ctx.restore();
+        });
       }
     }
     if(royal){
       // Foreground installations from the reference: central armillary/pedestal,
       // side benches, CRT and hanging ART/SURVIVES/STILL banner.
       const pulse=audioEnergyRef.current;
+      ctx.save();
+      // Temple-of-Solomon-inspired ceremonial grammar: twin bronze pillars,
+      // cedar/gold lintel and palm/pomegranate frieze around the art nave.
+      const pillarW=Math.max(16,ww*.025),pillarH=hh*.58;
+      [[ww*.025,'JACHIN'],[ww*.945,'BOAZ']].forEach(([x,label])=>{
+        const px=Number(x);ctx.fillStyle='#3b2515';ctx.fillRect(px,hh*.18,pillarW,pillarH);
+        ctx.strokeStyle='#d5a85a';ctx.lineWidth=2;ctx.strokeRect(px,hh*.18,pillarW,pillarH);
+        ctx.fillStyle='#d5a85a';ctx.fillRect(px-5,hh*.16,pillarW+10,8);ctx.fillRect(px-5,hh*.76,pillarW+10,8);
+        ctx.font=`${Math.max(7,ww*.005)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(String(label),px-4,hh*.79);
+      });
+      ctx.fillStyle='#21140f';ctx.fillRect(ww*.03,hh*.105,ww*.94,hh*.045);ctx.strokeStyle='#d5a85a';ctx.strokeRect(ww*.03,hh*.105,ww*.94,hh*.045);
+      ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#b98649';ctx.textAlign='center';ctx.fillText('❦  ◉  ❦  PALM · POMEGRANATE · CEDAR · GOLD  ❦  ◉  ❦',ww*.5,hh*.128);
+      ctx.restore();
       ctx.save();
       ctx.textAlign='center';ctx.textBaseline='middle';
       const cx=ww*.50,baseY=hh*.82;
@@ -586,7 +619,7 @@ export default function AsciiCityWorld(){
   },[booted,draw,setAudioCue,setMode,scene]);
   const map=useMemo(()=>mini(hud.x,hud.y,hud.ang),[hud.x,hud.y,hud.ang]);
   const sceneCfg=SCENES[scene];
-  const displayArea=worldMode==='gallery'?'K//GALLERY // INDOOR ART + MEMORY NAVE':worldMode==='realm'?sceneCfg.label+' // ISOLATED PORTAL WORLD':'K//CITY // PROJECT DISTRICTS';
+  const displayArea=worldMode==='gallery'?'K//GALLERY // INDOOR ART + MEMORY NAVE':worldMode==='realm'?sceneCfg.label+' // ISOLATED PORTAL WORLD':'K//CITY // DOWNTOWN STREET + PROJECT DISTRICTS';
   const audioState=nowPlaying?'K TERMINAL':'ARMED';
 
   return <div className="kcity">
