@@ -11,8 +11,7 @@ export default function AsciiCityWorld() {
   const frame = useRef<HTMLIFrameElement>(null);
   const requested = useCallback(() => {
     const params = new URLSearchParams(location.search);
-    const segments = location.pathname.split('/').filter(Boolean);
-    return params.get('scene') || segments[segments.length - 1] || 'gallery';
+    return params.get('scene') || location.pathname.split('/').filter(Boolean).at(-1) || 'gallery';
   }, [location.pathname, location.search]);
   const [source] = useState(() => `${import.meta.env.BASE_URL}k-world/index.html?entry=${encodeURIComponent(requested())}`);
   const sendLocation = useCallback(() => {

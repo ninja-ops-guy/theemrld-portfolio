@@ -1,0 +1,226 @@
+[
+  {
+    "id": 1,
+    "slot": 1,
+    "title": "Real (I'm trying to articulate)",
+    "url": "https://soundcloud.com/raikouno/real",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 2,
+    "slot": 2,
+    "title": "Two cups",
+    "url": "https://soundcloud.com/raikouno/two-cups",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 3,
+    "slot": 3,
+    "title": "3 valentines",
+    "url": "https://soundcloud.com/raikouno/3-valentines-2-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 4,
+    "slot": 4,
+    "title": "When It's All Done (Minor Dream Mix)",
+    "url": "https://soundcloud.com/raikouno/when-its-all-done-minor-1",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 5,
+    "slot": 5,
+    "title": "waiting-patience-ay",
+    "url": "https://soundcloud.com/raikouno/waiting-patience-ay-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 6,
+    "slot": 6,
+    "title": "Hot sauce",
+    "url": "https://soundcloud.com/raikouno/hot-sauce-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 7,
+    "slot": 7,
+    "title": "Ghost town",
+    "url": "https://soundcloud.com/raikouno/ghost-town",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 8,
+    "slot": 8,
+    "title": "MOTORCELL",
+    "url": "https://soundcloud.com/raikouno/motorcell-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 9,
+    "slot": 9,
+    "title": "See right thru 3",
+    "url": "https://soundcloud.com/raikouno/see-right-thru-3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 10,
+    "slot": 10,
+    "title": "My Master Hacker",
+    "url": "https://soundcloud.com/raikouno/flow-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 11,
+    "slot": 11,
+    "title": "BLACK",
+    "url": "https://soundcloud.com/raikouno/black",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 12,
+    "slot": 12,
+    "title": "Heavy",
+    "url": "https://soundcloud.com/raikouno/heavy-wav",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 13,
+    "slot": 13,
+    "title": "When It's All Done",
+    "url": "https://soundcloud.com/raikouno/when-its-all-done",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 14,
+    "slot": 14,
+    "title": "Wake up and die B ft OZ",
+    "url": "https://soundcloud.com/raikouno/wake-up-and-die-ft-oz",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 15,
+    "slot": 15,
+    "title": "will-i-be-there",
+    "url": "https://soundcloud.com/raikouno/will-i-be-there",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 16,
+    "slot": 16,
+    "title": "I was a dreamer too, you know",
+    "url": "https://soundcloud.com/raikouno/i-was-a-dreamer-once-too-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 17,
+    "slot": 17,
+    "title": "When It's All Done (Minor Dream Mix) 2",
+    "url": "https://soundcloud.com/raikouno/when-its-all-done-minor-dream",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 18,
+    "slot": 18,
+    "title": "Temporal pressure",
+    "url": "https://soundcloud.com/raikouno/floor-mp3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 19,
+    "slot": 19,
+    "title": "Urim and Thummim",
+    "url": "https://soundcloud.com/raikouno/two-horses",
+    "provider": "soundcloud"
+  },
+  {
+    "id": 20,
+    "slot": 20,
+    "title": "BLACK BSIDE",
+    "url": "https://soundcloud.com/raikouno/black-bside",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "my-song-4dadnm-aggressive",
+    "url": "https://soundcloud.com/raikouno/my-song-4dadnm-aggressive",
+    "title": "My Song 4DADNM Aggressive",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "maybe-mp3",
+    "url": "https://soundcloud.com/raikouno/maybe-mp3",
+    "title": "Maybe",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "ponderthought",
+    "url": "https://soundcloud.com/raikouno/ponderthought",
+    "title": "Ponderthought",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "winter-mp3",
+    "url": "https://soundcloud.com/raikouno/winter-mp3",
+    "title": "Winter",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "winter-2-mp3",
+    "url": "https://soundcloud.com/raikouno/winter-2-mp3",
+    "title": "Winter 2",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "star-struck-blue",
+    "url": "https://soundcloud.com/raikouno/star-struck-blue",
+    "title": "Star Struck Blue",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "lovesick-1-wav",
+    "url": "https://soundcloud.com/raikouno/lovesick-1-wav",
+    "title": "Lovesick",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "gandala-3",
+    "url": "https://soundcloud.com/raikouno/gandala-3",
+    "title": "Gandala 3",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "god-hands-mp3",
+    "url": "https://soundcloud.com/raikouno/god-hands-mp3",
+    "title": "God Hands",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "flag-mp3",
+    "url": "https://soundcloud.com/raikouno/flag-mp3",
+    "title": "Flag",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "i-see-the-dead-mp3",
+    "url": "https://soundcloud.com/raikouno/i-see-the-dead-mp3",
+    "title": "I See The Dead",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "alien-superstar-mp3",
+    "url": "https://soundcloud.com/raikouno/alien-superstar-mp3",
+    "title": "Alien Superstar",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "g-13",
+    "url": "https://soundcloud.com/raikouno/g-13",
+    "title": "G-13",
+    "provider": "soundcloud"
+  },
+  {
+    "id": "mirror-plane-autotuned-rage",
+    "url": "https://soundcloud.com/raikouno/mirror-plane-autotuned-rage",
+    "title": "Mirror Plane (Autotuned Rage)",
+    "provider": "soundcloud"
+  }
+]
