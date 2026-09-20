@@ -152,7 +152,21 @@ async function start(){try{renderer=new Renderer($('scene'));setView(preferences
  if(assets.errors.length)toast('Artwork missing: '+assets.errors.join(', ')+'. Named fallbacks are visible; nothing fails silently.');
  if(qa){$('loading').hidden=true;if(requested==='terminal')openDialog('terminal');}
  else{$('load-state').textContent='Archive ready. Your art, music and worlds.';const enter=document.createElement('button'),quiet=document.createElement('button');enter.textContent='ENTER WORLD / SOUND ON';quiet.textContent='EXPLORE QUIETLY';const finish=(sound)=>{$('loading').hidden=true;if(sound)music.arm();else music.pause();if(requested==='terminal')openDialog('terminal');};on(enter,'click',()=>finish(true));on(quiet,'click',()=>finish(false));$('loading').append(enter,quiet);}
- if(qa)window.__K_WORLD_QA__={navigate:(id,pose)=>navigate(id,pose||{}),camera:(position,yaw=0,pitch=0)=>{camera.position=[...position];camera.yaw=yaw;camera.pitch=pitch;},state:()=>({activeId,ascii:renderer.ascii,camera:JSON.parse(JSON.stringify(camera)),assets:[...assets.loaded],errors:[...assets.errors],meshCount:scene.meshes.length,drawCalls:renderer.drawCalls,backend:renderer.backend,audio:music.state,interaction:target?.id,flight,drive}),scene:()=>scene,terminal:()=>openDialog('terminal'),inspect:i=>showArt(i),setView,close:()=>{for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();},sample:()=>Array.from(renderer.backend==='canvas'?renderer.image.data.slice(0,16):[])};
+ if(qa)window.__K_WORLD_QA__={
+ navigate:(id,pose)=>navigate(id,pose||{}),
+ camera:(position,yaw=0,pitch=0)=>{camera.position=[...position];camera.yaw=yaw;camera.pitch=pitch;},
+ state:()=>({activeId,ascii:renderer.ascii,camera:JSON.parse(JSON.stringify(camera)),assets:[...assets.loaded],errors:[...assets.errors],meshCount:scene.meshes.length,drawCalls:renderer.drawCalls,backend:renderer.backend,audio:music.state,interaction:target?.id,flight,drive}),
+ scene:()=>scene,
+ terminal:()=>openDialog('terminal'),
+ inspect:i=>showArt(i),
+ setView,
+ close:()=>{for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();},
+ sample:()=>Array.from(renderer.backend==='canvas'?renderer.image.data.slice(0,16):[]),
+ archive:()=>ART.map(({id,letter,title,src})=>({id,letter,title,src})),
+ frameState:()=>scene?.interactions?.filter(x=>x.type==='art').map(x=>({slot:x.id,art:x.art,title:x.title}))||[],
+ rotateFrame:slot=>{const item=scene?.interactions?.find(x=>x.type==='art'&&(x.id===slot||x.id==='art-'+slot));if(!item)return null;const before=item.art;rotateArtworkWhenUnseen(item);return {before,after:item.art,title:item.title};},
+ command:raw=>command(raw)
+};
  }catch(e){$('loading').classList.add('error');$('load-state').textContent='Unable to open the 3D renderer: '+e.message;console.error(e);}}
 start();
 on(window,'pagehide',()=>{cancelAnimationFrame(frameId);clearInput();clearTimeout(arrivalTimer);clearTimeout(toastTimer);music.destroy();renderer?.dispose();for(const url of objectUrls)URL.revokeObjectURL(url);aborter.abort();});
