@@ -11,7 +11,8 @@ const write=(key,data)=>{try{localStorage.setItem(key,JSON.stringify(data));}cat
 const cleanTrack=t=>t&&typeof t.title==='string'&&canonicalUrl(t.url)?{id:String(t.id||t.url),title:t.title.slice(0,250),url:canonicalUrl(t.url),provider:'soundcloud',slot:Number.isInteger(t.slot)&&t.slot>0?t.slot:(Number.isInteger(t.id)&&t.id>0?t.id:null),createdAt:typeof t.createdAt==='string'?t.createdAt:null}:null;
 let stored=read(KEYS,read('k-terminal:tracks:v3',[])),library=(Array.isArray(stored)?stored:[]).map(cleanTrack).filter(Boolean),recent=read(RECENT,[]);if(!Array.isArray(recent))recent=[];
 let preferences={ascii:DEFAULT_ASCII,volume:55,viz:true,vizStyle:'bars',vizBars:40,vizTheme:'emerald',band:true,...read(PREF,{})};preferences.ascii=resolveAsciiPreference(preferences.ascii);preferences.volume=clamp(Number.isFinite(Number(preferences.volume))?Number(preferences.volume):55,0,100);preferences.vizBars=clamp(Number(preferences.vizBars)||40,8,128);
-let renderer,assets,scene,activeId='gallery',camera={position:[0,1.7,11],yaw:0,pitch:0},target=null,flight=false,drive=false,flightHome=null,vy=0,lastTime=0,elapsed=0,lastIcons=0,lastUI=0,frameId=0,artIndex=0,arrivalTimer,toastTimer,modeBeforeInspect='';
+let renderer,assets,scene,activeId='gallery',camera={position:[0,1.7,11],yaw:0,pitch:0},target=null,flight=false,drive=false,flightHome=null,vy=0,lastTime=0,elapsed=0,lastIcons=0,lastUI=0,frameId=0,artIndex=0,arrivalTimer,toastTimer,modeBeforeInspect='',lastLookedArt=null;
+const galleryRotation=new Map();
 let input={forward:false,back:false,left:false,right:false,up:false,down:false},keyState=new Set(),history=[],historyIndex=0,drag=null;
 const cache=new Map(),aborter=new AbortController(),signal=aborter.signal,objectUrls=new Set();
 const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
@@ -42,6 +43,20 @@ function navigate(id,{returning=false,arm=false,position=null,yaw=null}={}){
 }
 function historyReplace(){const hash=activeId;try{window.history.replaceState(null,'','#'+hash);}catch{}}
 function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
+function rotateArtworkWhenUnseen(interaction){
+ if(activeId!=='gallery'||!interaction?.art||ART.length<2)return;
+ const slot=interaction.id.replace(/^art-/,'');
+ const current=galleryRotation.get(slot)||interaction.art;
+ const pool=ART.filter(p=>p.id!==current);
+ const next=pool[Math.floor(Math.random()*pool.length)];
+ if(!next)return;
+ const image=assets.images.get(next.id);if(!image)return;
+ // Rebind only this frame's texture key. Geometry stays put, so the change
+ // happens behind the visitor rather than popping the architecture.
+ renderer.texture(slot,image);
+ galleryRotation.set(slot,next.id);
+ interaction.art=next.id;interaction.title=next.title;
+}
 function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=ART[artIndex];$('art-title').textContent=piece.letter+' / '+piece.title;$('art-image').src=globalThis.__K_EMBEDDED_ASSETS__?.[piece.src]||piece.src;$('art-image').alt=piece.title+' — user supplied artwork';if(!$('art-dialog').open)openDialog('art');}
 function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside K-01 Orbital.');return;}clearInput();if(!flight){flightHome={position:[...camera.position],yaw:camera.yaw};flight=true;camera.position[1]=Math.max(2.4,camera.position[1]);music.setZone('flight');toast('EVA engaged. Space / + climbs; C / − descends. F lands safely.');}else{flight=false;camera.position=[...flightHome.position];camera.yaw=flightHome.yaw;flightHome=null;music.setZone('light');toast('Airlock reentry. Position restored safely.');}$('special-toggle').textContent=flight?'F / LAND':'F / EVA';}
 function manualNext(delta){if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[(index+delta+library.length)%library.length]);}
@@ -113,7 +128,12 @@ function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.
  if(!anyDialog()&&$('loading').hidden){let fw=(keyState.has('w')||keyState.has('arrowup')||input.forward?1:0)-(keyState.has('s')||keyState.has('arrowdown')||input.back?1:0),st=(keyState.has('d')||input.right?1:0)-(keyState.has('a')||input.left?1:0);if(keyState.has('arrowleft'))camera.yaw-=dt*1.6;if(keyState.has('arrowright'))camera.yaw+=dt*1.6;if(drive){camera.yaw+=st*dt*1.15;st=0;}const len=Math.max(1,Math.hypot(fw,st)),speed=drive?7:flight?5:keyState.has('shift')?4.0:2.55;fw/=len;st/=len;const dx=(Math.sin(camera.yaw)*fw+Math.cos(camera.yaw)*st)*dt*speed,dz=(-Math.cos(camera.yaw)*fw+Math.sin(camera.yaw)*st)*dt*speed;
   if(flight){camera.position[0]=clamp(camera.position[0]+dx,-11,11);camera.position[2]=clamp(camera.position[2]+dz,-20,14);camera.position[1]=clamp(camera.position[1]+((keyState.has(' ')||input.up?1:0)-(keyState.has('c')||keyState.has('control')||input.down?1:0))*dt*2.3,1.7,6.2);}
   else{moveCamera(scene,camera,dx,dz);const base=(scene.ground?.(camera.position[0],camera.position[2])||0)+(drive?1.35:1.7);if(activeId==='moon'&&(vy||camera.position[1]>base+.02)){vy-=dt*1.62;camera.position[1]+=vy*dt;if(camera.position[1]<=base){camera.position[1]=base;vy=0;}}else camera.position[1]=base;}
-  target=findInteraction(scene,camera);$('interact').hidden=!target&&!drive;$('interact').textContent=drive?'E / EXIT K // DRIVE':target?'E / '+(target.type==='art'?'INSPECT ':target.type==='gate'?'ENTER ':'')+target.title:'';
+  const previousArt=lastLookedArt;
+  target=findInteraction(scene,camera);
+  const currentArt=target?.type==='art'?target:null;
+  if(previousArt&&(!currentArt||currentArt.id!==previousArt.id))rotateArtworkWhenUnseen(previousArt);
+  lastLookedArt=currentArt;
+  $('interact').hidden=!target&&!drive;$('interact').textContent=drive?'E / EXIT K // DRIVE':target?'E / '+(target.type==='art'?'INSPECT ':target.type==='gate'?'ENTER ':'')+target.title:'';
   if(drive)$('drive-speed').textContent=fw?'88':'00';
  }
  const envelope=reactiveEnvelope(music.state,port.spectrum()),visualTime=music.state.current?music.state.position/1000:elapsed*.25,reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
