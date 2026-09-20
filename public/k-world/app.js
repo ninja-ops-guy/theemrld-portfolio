@@ -47,8 +47,11 @@ function rotateArtworkWhenUnseen(interaction){
  if(activeId!=='gallery'||!interaction?.art||ART.length<2)return;
  const slot=interaction.id.replace(/^art-/,'');
  const current=galleryRotation.get(slot)||interaction.art;
- const pool=ART.filter(p=>p.id!==current);
- const next=pool[Math.floor(Math.random()*pool.length)];
+ const visible=new Set((scene?.interactions||[]).filter(x=>x.type==='art'&&x!==interaction).map(x=>x.art));
+ const pool=ART.filter(p=>p.id!==current&&assets.images.has(p.id)&&!visible.has(p.id));
+ const fallback=ART.filter(p=>p.id!==current&&assets.images.has(p.id));
+ const choices=pool.length?pool:fallback;
+ const next=choices[Math.floor(Math.random()*choices.length)];
  if(!next)return;
  const image=assets.images.get(next.id);if(!image)return;
  // Rebind only this frame's texture key. Geometry stays put, so the change
@@ -61,7 +64,7 @@ function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=
 function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside K-01 Orbital.');return;}clearInput();if(!flight){flightHome={position:[...camera.position],yaw:camera.yaw};flight=true;camera.position[1]=Math.max(2.4,camera.position[1]);music.setZone('flight');toast('EVA engaged. Space / + climbs; C / − descends. F lands safely.');}else{flight=false;camera.position=[...flightHome.position];camera.yaw=flightHome.yaw;flightHome=null;music.setZone('light');toast('Airlock reentry. Position restored safely.');}$('special-toggle').textContent=flight?'F / LAND':'F / EVA';}
 function manualNext(delta){if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[(index+delta+library.length)%library.length]);}
 function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map(s=>s.replace(/^['"]|['"]$/g,''))||[];if(!tokens.length)return;const [cmd,...args]=tokens;log('k@theemrld $ '+raw,'command-line');const key=cmd.toLowerCase();try{switch(key){
- case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nauto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art 1–12 · view ascii|phosphor · residual · techopshero · clear\n\nChanging rooms queues music; only an explicit next/play command interrupts.');break;
+ case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nauto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero · clear\n\nChanging rooms queues music; only an explicit next/play command interrupts.');break;
  case 'play':case 'song':case 'track':{if(!args.length){music.resume();break;}const value=args.join(' '),url=canonicalUrl(value),slot=Number(value);let t=url?library.find(t=>t.url===url):Number.isInteger(slot)?library.find(t=>t.slot===slot):library.find(t=>t.title.toLowerCase()===value.toLowerCase());if(!t&&!url){const matches=library.filter(t=>t.title.toLowerCase().includes(value.toLowerCase()));if(matches.length===1)t=matches[0];else throw Error(matches.length?'More than one song matches. Use its number.':'Song not found. Use songs or the library search.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
  case 'pause':music.pause();log('Paused. Walking into another room will not restart music.');break;
  case 'resume':music.resume();log('Resuming the current song.');break;
@@ -85,7 +88,7 @@ function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map
  case 'moon':navigate('moon',{arm:true});break;
  case 'rocket':case 'station':navigate('station',{arm:true});break;
  case 'atlas':openDialog('atlas');break;
- case 'art':{const n=Number(args[0]);if(!Number.isInteger(n)||n<1||n>12)throw Error('art 1–12');showArt(n-1);break;}
+ case 'art':{const n=Number(args[0]);if(!Number.isInteger(n)||n<1||n>ART.length)throw Error(`art 1–${ART.length}`);showArt(n-1);break;}
  case 'residual':window.open('https://ninja-ops-guy.github.io/residual-agent-harness/','_blank','noopener,noreferrer');break;
  case 'techopshero':window.open('https://ninja-ops-guy.github.io/techops-hero/','_blank','noopener,noreferrer');break;
  case 'refresh':refreshLibrary();break;
