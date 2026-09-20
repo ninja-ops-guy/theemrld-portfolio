@@ -1,0 +1,119 @@
+[
+  {
+    "id": "cope",
+    "source": "smokegirl.png",
+    "file": "cope.webp",
+    "width": 1000,
+    "height": 1000,
+    "source_sha256": "0df875be63b7f23f854df1349c60d22af036f311631962186897cbb758758205",
+    "sha256": "ad9dee012174ae9f44dd4ac3877385e11bec6e75c0771eeb4553d68e4a86ab27"
+  },
+  {
+    "id": "fear",
+    "source": "fear.png",
+    "file": "fear.webp",
+    "width": 1000,
+    "height": 1000,
+    "source_sha256": "745a66233337745ed39bb64a959eb08cfc5809400ca05ac04bf0cdb9df030adf",
+    "sha256": "439be94c1f95c5066a339a0f36c0e3153dfc4a9dbf8f5a0ab3ebaa7c06017393"
+  },
+  {
+    "id": "death-eater",
+    "source": "deatheater.png",
+    "file": "death-eater.webp",
+    "width": 1536,
+    "height": 1024,
+    "source_sha256": "9c99004e5109025672e7938e0b007637bd9e32994a0e51e081987bf85daf7fba",
+    "sha256": "df2d586bd4c67cc8e97249dea46ee377bd70edcdfa427e079a083d804288f019"
+  },
+  {
+    "id": "wolf",
+    "source": "c8cfe2fa-98f6-499e-8848-dd292ad13015.png",
+    "file": "wolf.webp",
+    "width": 676,
+    "height": 676,
+    "source_sha256": "db17fcb47ce8ce4a9ade5d2e713aa3b4bfbec6398e322d3cf4b09168703f71bd",
+    "sha256": "d3b2bd925d3d5f4b955c4c5453ba157e76dc73848381c3fc49a686a6c604cb5b"
+  },
+  {
+    "id": "garden",
+    "source": "Screenshot 2025-08-31 005346.png",
+    "file": "garden.webp",
+    "width": 394,
+    "height": 361,
+    "source_sha256": "f374d844cd277681ced76f1e4f4fc837eeb832c7e7ecb2e619f3c33004d7c9bc",
+    "sha256": "5f74ecb461ef2292f8ef7da026d1081a6a179b4aa79aef670097918a0a3882fe"
+  },
+  {
+    "id": "meteor",
+    "source": "Screenshot 2025-10-05 184333.png",
+    "file": "meteor.webp",
+    "width": 427,
+    "height": 569,
+    "source_sha256": "f6642813928f30bbb5c4c5319ef10c6e90b3df91f89eab4bf07e599489810bcc",
+    "sha256": "58fc11a44d42141873ec55ef58a1e1a8373fe571c6ae38c3b13b2ac8b98a6765"
+  },
+  {
+    "id": "cathedral",
+    "source": "Screenshot 2025-06-26 201117.png",
+    "file": "cathedral.webp",
+    "width": 732,
+    "height": 732,
+    "source_sha256": "e34e8de5fc7dd1e67af49c95b3edd483c120b597d2ad6d5d577e300cf3bec4b8",
+    "sha256": "53f6e8645a1de058b9413d4a47a033efd50ef3e5347fc4cf3fd167932ecedb70"
+  },
+  {
+    "id": "blue-relic",
+    "source": "Screenshot 2025-03-01 194626.png",
+    "file": "blue-relic.webp",
+    "width": 799,
+    "height": 786,
+    "source_sha256": "a668dd9f3a48d797707c17eab17ed523ffea737d9b4e3508b3f969d762b4dbe9",
+    "sha256": "77e424a3f3a038e37b7436096233887b9822081fe2266f9fc7c9168048ccf231"
+  },
+  {
+    "id": "neon-cosmos",
+    "source": "Screenshot 2026-07-01 220233.png",
+    "file": "neon-cosmos.webp",
+    "width": 523,
+    "height": 525,
+    "source_sha256": "125b969b0671f84656bae0a1c4d4c56bb6ac96bcf978d64fe26e81c926c3b4ce",
+    "sha256": "3dc5e7b274e33d6039c722feaaebf38a330c35bb94d1a8c6ed38250adb4450cb"
+  },
+  {
+    "id": "equations",
+    "source": "Screenshot 2024-10-17 230049.png",
+    "file": "equations.webp",
+    "width": 342,
+    "height": 315,
+    "source_sha256": "8a1a8547472de538f3275471d8b6add2cdb8fc811bd65d7e4c7bf1390631e458",
+    "sha256": "def8a42b447687903cea8a7634f1c999fe2ebbc6a30be3e251bf7a29bd71de3a"
+  },
+  {
+    "id": "self-i",
+    "source": "IMG_2107(1).jpeg",
+    "file": "self-i.webp",
+    "width": 851,
+    "height": 1249,
+    "source_sha256": "7b27365f8c022e7d6371e302a8f571ebee077e711c2171236dde29d77c0de86f",
+    "sha256": "5765be88851a11de21d5b3a0841e2a4932247d93c05a16e7278c7b5ac5173349"
+  },
+  {
+    "id": "self-ii",
+    "source": "IMG_2106(1).jpeg",
+    "file": "self-ii.webp",
+    "width": 1319,
+    "height": 1372,
+    "source_sha256": "c01c7d69ea1456089949ba45e3aa7058a748c594da30cd57b86e5c26f676631d",
+    "sha256": "d85299cbf7eb5797c5ccbe7090c0ae6cb862ca39a24e69149ae0b380b3b6eca6"
+  },
+  {
+    "id": "k-band",
+    "source": "k-band-sheet.png",
+    "file": "k-band.webp",
+    "width": 1536,
+    "height": 1024,
+    "source_sha256": "340cddfeef86fe5da353d5bea5af810cdebb078d9fd6d79b9070c2791554c910",
+    "sha256": "5e34c379bcd084747937d28a8833331f6bbe97091fc14ceaece0faa68bc1bc6c"
+  }
+]
