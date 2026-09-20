@@ -1,0 +1,55 @@
+name: K World Asset Integrity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/k-world/**'
+      - 'src/App.tsx'
+      - 'src/sections/AsciiCityWorld.tsx'
+      - 'scripts/kx_asset_gate.py'
+      - '.github/workflows/k-world-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install qualified asset-check dependencies
+        run: python -m pip install 'Pillow==12.3.0' 'playwright==1.57.0'
+      - name: Reject missing runtime and invalid source assets
+        run: python scripts/kx_asset_gate.py --world public/k-world --output qa/kx-assets-source.json
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build repository
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Install Chromium
+        run: python -m playwright install --with-deps chromium
+      - name: Decode exact built bytes and verify source preservation
+        run: |
+          CHROMIUM=$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')
+          python scripts/kx_asset_gate.py --world public/k-world --built-world dist/k-world --chromium "$CHROMIUM" --require-built --output qa/kx-assets-built.json
+      - name: Retain scoped receipts even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kx-asset-receipts
+          path: qa/kx-assets-*.json
+          if-no-files-found: warn
+          retention-days: 14
