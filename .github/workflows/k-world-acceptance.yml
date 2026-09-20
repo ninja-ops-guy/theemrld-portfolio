@@ -1,0 +1,80 @@
+name: K World Release Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/k-world/**'
+      - 'src/App.tsx'
+      - 'src/sections/KTerminal.tsx'
+      - 'src/sections/AsciiCityWorld.tsx'
+      - 'tests/k-world-*.test.mjs'
+      - 'tests/k-world-acceptance.py'
+      - '.github/workflows/k-world-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and build exact candidate
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Run deterministic K World unit contracts
+        run: node --test tests/k-world-*.test.mjs
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Chromium acceptance runner
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+
+      - name: Start built portfolio
+        run: |
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/k-world-preview.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/theemrld-portfolio/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/k-world-preview.log
+          exit 1
+
+      - name: Run browser release acceptance
+        env:
+          K_WORLD_BASE_URL: http://127.0.0.1:4173/theemrld-portfolio/
+          K_WORLD_QA_DIR: qa/k-world-acceptance
+        run: python tests/k-world-acceptance.py
+
+      - name: Retain acceptance receipt and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k-world-release-acceptance
+          path: |
+            qa/k-world-acceptance/receipt.json
+            qa/k-world-acceptance/gallery-desktop.png
+            qa/k-world-acceptance/gallery-mobile.png
+          if-no-files-found: warn
+          retention-days: 14
