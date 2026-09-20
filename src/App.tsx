@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,7 +15,6 @@ import About from './sections/About';
 import Networking from './sections/Networking';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
-import KTerminal from './sections/KTerminal';
 import AsciiCityWorld from './sections/AsciiCityWorld';
 import CaseStudy from './pages/CaseStudy';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
@@ -50,9 +49,10 @@ function App() {
   }, [location.pathname, location.hash]);
   return <Routes>
     <Route path="/" element={<Portfolio />} />
-    <Route path="/terminal" element={<KTerminal />} />
-    <Route path="/gallery" element={<AsciiCityWorld />} />
-    <Route path="/city" element={<AsciiCityWorld />} />
+    <Route path="/k/*" element={<AsciiCityWorld />} />
+    <Route path="/terminal" element={<Navigate to={`/k/terminal${location.search}`} replace />} />
+    <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
+    <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
