@@ -1,7 +1,20 @@
 import {ART} from './data.js';
 export class Assets {
  constructor(renderer){this.renderer=renderer;this.images=new Map();this.labels=new Map();this.errors=[];this.loaded=[];}
- async load(){await Promise.all([...ART,{id:'k-band',src:'assets/k-band.webp'}].map(async p=>{try{const image=new Image();image.src=globalThis.__K_EMBEDDED_ASSETS__?.[p.src]||p.src;await image.decode();if(!image.naturalWidth)throw Error('Empty decoded image');this.images.set(p.id,image);this.renderer.texture(p.id,image);this.loaded.push(p.id);}catch(e){this.errors.push(p.id);const c=this.canvas(512,384),ctx=c.getContext('2d');ctx.fillStyle='#140d19';ctx.fillRect(0,0,512,384);ctx.fillStyle='#dfc692';ctx.font='22px monospace';ctx.fillText('ARTWORK UNAVAILABLE',30,170);ctx.fillText(p.id,30,210);this.renderer.texture(p.id,c);}}));return this;}
+ async load(){await Promise.all([...ART,{id:'k-band',src:'assets/k-band.webp'}].map(async p=>{try{
+ const image=new Image(),source=globalThis.__K_EMBEDDED_ASSETS__?.[p.src]||p.src;
+ // The expanded archive uses confirmed HTTPS media URLs. WebGL textures require
+ // anonymous CORS for cross-origin image uploads.
+ if(/^https:\/\//.test(source))image.crossOrigin='anonymous';
+ image.src=source;await image.decode();if(!image.naturalWidth||!image.naturalHeight)throw Error('Empty decoded image');
+ this.images.set(p.id,image);this.renderer.texture(p.id,image);this.loaded.push(p.id);
+}catch(e){
+ this.errors.push(p.id);const c=this.canvas(512,384),ctx=c.getContext('2d');
+ ctx.fillStyle='#010401';ctx.fillRect(0,0,512,384);ctx.strokeStyle='#00ff41';ctx.strokeRect(10,10,492,364);
+ ctx.fillStyle='#00ff41';ctx.font='20px monospace';ctx.fillText('ARTIFACT SIGNAL LOST',30,168);
+ ctx.fillStyle='#008f11';ctx.font='15px monospace';ctx.fillText('asset: '+p.id,30,205);
+ this.renderer.texture(p.id,c);
+}}));return this;}
  canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
  label(lines,color='#b98aef',options={}){const key=JSON.stringify([lines,color,options]);if(this.labels.has(key))return this.labels.get(key);const id='label-'+this.labels.size,w=options.width||1024,h=options.height||256,c=this.canvas(w,h),ctx=c.getContext('2d');ctx.fillStyle=options.background||'#0b0910';ctx.fillRect(0,0,w,h);if(options.border!==false){ctx.strokeStyle=color;ctx.lineWidth=2;ctx.strokeRect(7,7,w-14,h-14);}ctx.textAlign='center';ctx.textBaseline='middle';lines.forEach((line,i)=>{ctx.fillStyle=i===0?color:options.secondary||'#b4a7be';const size=Math.min(options.fontSize||54,w/(Math.max(3,line.length)*.64),h/(lines.length+1)*.8);ctx.font=`${i===0?'500':'400'} ${size}px monospace`;ctx.fillText(line,w/2,h*(i+1)/(lines.length+1));});this.renderer.texture(id,c);this.labels.set(key,id);return id;}
  ornament(){if(this.labels.has('ornament'))return this.labels.get('ornament');const c=this.canvas(1024,128),ctx=c.getContext('2d');ctx.fillStyle='#1c1011';ctx.fillRect(0,0,1024,128);ctx.strokeStyle='#ab8248';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,12);ctx.lineTo(1024,12);ctx.moveTo(0,116);ctx.lineTo(1024,116);ctx.stroke();for(let x=30;x<1024;x+=94){ctx.beginPath();ctx.moveTo(x,90);ctx.quadraticCurveTo(x-15,40,x,20);ctx.moveTo(x,90);ctx.quadraticCurveTo(x+15,40,x,20);ctx.stroke();for(let j=0;j<4;j++){let y=36+j*14;ctx.beginPath();ctx.ellipse(x-10,y,14,3,.65,0,Math.PI*2);ctx.ellipse(x+10,y,14,3,-.65,0,Math.PI*2);ctx.stroke();}ctx.beginPath();ctx.arc(x+45,68,12,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#a76f41';ctx.fillRect(x+42,51,6,7);}this.renderer.texture('ornament',c);this.labels.set('ornament','ornament');return 'ornament';}

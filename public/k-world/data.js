@@ -1,6 +1,42 @@
-export const ART = [
+const LOCAL_ART = [
  ['cope','A','COPE'],['fear','B','FEAR'],['death-eater','C','DEATH EATER'],['wolf','D','SIGNAL HOUND'],['garden','E','ORCHARD SIGNAL'],['meteor','F','METEOR / RABBIT'],['cathedral','G','STAIR / CATHEDRAL'],['blue-relic','H','BLUE RELIC'],['neon-cosmos','I','NEON COSMOS'],['equations','J','EQUATION STUDY'],['self-i','K','K // SELF I'],['self-ii','L','K // SELF II']
 ].map(([id,letter,title])=>({id,letter,title,src:`assets/${id}.webp`}));
+
+// Extended user-supplied archive. The gallery has twelve physical frames; these
+// works rotate through those frames only after the visitor looks away.
+const ARCHIVE_ART = [
+ {id:'end-for-us',letter:'13',title:'THIS WILL NOT BE THE END FOR US',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/4d7a0c35-fb1f-4164-a415-12571dc689d5.jpg'},
+ {id:'k-hand-portrait',letter:'14',title:'THE HAND REMEMBERS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d0282f7f-70c2-4283-ab6e-9e51af1e4667.jpg'},
+ {id:'k-mask-emerald',letter:'15',title:'BETWEEN WORLDS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/2cfd9b07-2838-47b1-9cbc-651e022617cf.jpg'},
+ {id:'k-mask-crimson',letter:'16',title:'STILL HERE',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/3d7aec96-5032-4ba1-a00a-85f28acbfa8e.jpg'},
+ {id:'k-portrait-study',letter:'17',title:'PORTRAIT / RETURN',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/ea05afa1-2ca2-4ab5-9037-c8711a2e83eb.jpg'},
+ {id:'factory-dimension',letter:'18',title:'ANOTHER DIMENSION',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/667cbadb-57a6-4fba-9c1f-750ba4c933c9.jpg'},
+ {id:'shattered-reflection',letter:'19',title:'SHATTERED REFLECTION',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/f7d4b7e1-9ebd-4716-a7ef-823c24498c89.jpg'},
+ {id:'tortoise-garden',letter:'20',title:'CARRY IT FORWARD',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/fa3344ce-b394-454a-ac21-4fcf030ded64.jpg'},
+ {id:'jungle-house',letter:'21',title:'RETURN PATH',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/27a0bfcb-c6ce-4944-a334-dcf803d54b7e.jpg'},
+ {id:'jellyfish-duality',letter:'22',title:'TWO WORLDS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/03a17ab5-c693-44f8-a137-ad7b02399ec8.jpg'},
+ {id:'twin-horses',letter:'23',title:'TWIN PATHS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/49e6639d-09d4-47a8-b726-a51a940f221f.jpg'},
+ {id:'be-not-afraid',letter:'24',title:'BE NOT AFRAID',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/9a1d7eb4-ff9e-43cf-ba11-66d3429d648d.png'},
+ {id:'lunar-1',letter:'25',title:'LUNAR 1',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/5e21e945-8c81-4e27-b974-29ae04c4abf6.jpg'},
+ {id:'lunar-2',letter:'26',title:'LUNAR 2',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/9640fe4e-5352-47b8-8701-752cd191681f.jpg'},
+ {id:'googaboogalight',letter:'27',title:'GOOGABOOGABOOGALIGHT',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/4e6b92dc-ac5a-4ae8-8bb2-00848870a5da.jpg'},
+ {id:'goat-1',letter:'28',title:'GOAT 1',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/5c91b1a7-afb8-4912-81d7-8f2b95aaf249.jpg'},
+ {id:'fuck-five',letter:'29',title:'FUCK FUCK FUCK FUCK FUCK',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/9c3e4917-f814-493b-a1ec-d8f240b4884c.png'},
+ {id:'goat-3',letter:'30',title:'GOAT 3',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/6201389f-6e90-4f74-9ca1-340f83e03c3c.png'},
+ {id:'void-world-3',letter:'31',title:'VOID WORLD 3',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/b1af0ee5-b2f3-459c-aa23-fb02921b9ed9.jpg'},
+ {id:'spring-study',letter:'32',title:'SPRING STUDY',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/0c8f4bc6-df9b-4159-bf0c-0040eeda886c.png'},
+ {id:'distortion-sanctuary',letter:'33',title:'DISTORTION SANCTUARY',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/3cc8b675-9daf-4c0e-a154-5db0c561c6ca.jpg'},
+ {id:'fractured-monument',letter:'34',title:'FRACTURED MONUMENT',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/46df4d47-c316-4e72-9d1d-6e4033f076a8.jpg'},
+ {id:'grasping-hands',letter:'35',title:'GRASPING HANDS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d4afc96e-ef90-4860-81bb-84f1cbd47679.png'},
+ {id:'astor-club',letter:'36',title:'ASTOR CLUB',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/2389a4e7-2a99-4406-a6ec-eec0e23ea23b.jpg'},
+ {id:'green-line-figure',letter:'37',title:'GREEN LINE FIGURE',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/a9887ee3-5cb6-40b6-9724-5c4ca30d06fe.jpg'},
+ {id:'vares-end',letter:'38',title:'VARES / END OF WORLD',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/c68a6dc0-5850-48d8-b304-a9cce260da88.jpg'},
+ {id:'choose-one',letter:'39',title:'CHOOSE ONE',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/98a77266-1fdc-4457-aa48-8aacbab29489.jpg'},
+ {id:'trial-begins',letter:'40',title:'WHEN THE TRIAL BEGINS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/6704d664-74cd-4d38-bb55-7e2293ef9f36.jpg'},
+ {id:'watcher',letter:'41',title:'WATCHER',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d6809b74-19f6-416e-ab96-7b6aeac58629.png'}
+];
+
+export const ART=[...LOCAL_ART,...ARCHIVE_ART];
 export const WORLDS=[
  {id:'sol',legacy:'spring',icon:'sun',name:'SOL',subtitle:'Tropical temple',color:'#ffbc52',tag:'PARADISE AWAITS',zone:'spring',description:'Amber sunlight, basalt steps, palms and a turquoise lagoon.'},
  {id:'torus',legacy:'summer',icon:'torus',name:'TORUS',subtitle:'Emerald halo',color:'#42efa0',tag:'GROW FOREVER',zone:'summer',description:'Concentric bridges, a living ring garden and green reservoirs.'},
