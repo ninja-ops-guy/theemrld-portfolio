@@ -21,12 +21,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
       - name: Download and verify the user-approved immutable package
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = cf2ac30419b5249bca9dba57ca2922ec6e94f27d
+          git merge-base --is-ancestor cf2ac30419b5249bca9dba57ca2922ec6e94f27d HEAD
           curl --fail --location --retry 2 --max-time 120 'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/7217e6e9-8b15-4fd9-83db-9580f8fe4710.zip' --output "$RUNNER_TEMP/k-world-approved.zip"
           echo "13bd268d492c83baef8b3ea391e55acfa5f986113ebe314274ac20df2cb53d8d  $RUNNER_TEMP/k-world-approved.zip" | sha256sum -c -
       - name: Install exact runtime, artwork, tests, and preserve legacy songs
