@@ -33,7 +33,16 @@ const ARCHIVE_ART = [
  {id:'vares-end',letter:'38',title:'VARES / END OF WORLD',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/c68a6dc0-5850-48d8-b304-a9cce260da88.jpg'},
  {id:'choose-one',letter:'39',title:'CHOOSE ONE',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/98a77266-1fdc-4457-aa48-8aacbab29489.jpg'},
  {id:'trial-begins',letter:'40',title:'WHEN THE TRIAL BEGINS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/6704d664-74cd-4d38-bb55-7e2293ef9f36.jpg'},
- {id:'watcher',letter:'41',title:'WATCHER',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d6809b74-19f6-416e-ab96-7b6aeac58629.png'}
+ {id:'watcher',letter:'41',title:'WATCHER',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d6809b74-19f6-416e-ab96-7b6aeac58629.png'},
+ {id:'good-company',letter:'42',title:'GOOD COMPANY',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/15141352-f864-4e23-9c35-63ceaeb6face.jpg'},
+ {id:'below-beyond',letter:'43',title:'BELOW / BEYOND',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/e8b7b8b0-cbe7-4e28-8d7d-3bd7916f198e.jpg'},
+ {id:'freed-study',letter:'44',title:'FREED',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/f426d005-335f-4d74-93bc-7de414f583b5.jpg'},
+ {id:'the-magician',letter:'45',title:'THE MAGICIAN',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/475aacb2-971f-4a6f-b24d-1e553ac53fce.jpg'},
+ {id:'techops-night-shift',letter:'46',title:'NIGHT SHIFT / TECHOPS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/2d17e99a-bfae-4d8a-ab0c-8b8f455ba659.png'},
+ {id:'at-what-cost',letter:'47',title:'AT WHAT COST?',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/5069fa84-95b9-482f-8b1c-fffc86e2f7f4.jpg'},
+ {id:'weight-we-carry',letter:'48',title:'THE WEIGHT WE CARRY',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/90767247-4031-4af0-8823-da87f21f2e67.jpg'},
+ {id:'doomdude',letter:'49',title:'DOOMDUDE',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/8f048bdd-1306-456c-9aa5-5ee5325682d5.jpg'},
+ {id:'liminal-glass',letter:'50',title:'LIMINAL',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/e078e3a5-50b5-46e0-9fc8-b8ea876f01a0.jpg'}
 ];
 
 export const ART=[...LOCAL_ART,...ARCHIVE_ART];
