@@ -16,6 +16,7 @@ import Networking from './sections/Networking';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 import AsciiCityWorld from './sections/AsciiCityWorld';
+import KTerminal from './sections/KTerminal';
 import CaseStudy from './pages/CaseStudy';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
@@ -50,7 +51,7 @@ function App() {
   return <Routes>
     <Route path="/" element={<Portfolio />} />
     <Route path="/k/*" element={<AsciiCityWorld />} />
-    <Route path="/terminal" element={<Navigate to={`/k/terminal${location.search}`} replace />} />
+    <Route path="/terminal" element={<KTerminal />} />
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
