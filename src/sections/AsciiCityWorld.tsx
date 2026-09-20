@@ -473,77 +473,82 @@ export default function AsciiCityWorld(){
     }
     ctx.fillStyle='#04060c';ctx.fillRect(0,0,ww,hh);ctx.textBaseline='top';for(let y=0;y<rows;y++){let x=0;while(x<cols){const co=colors[y][x];let e=x+1;while(e<cols&&colors[y][e]===co)e++;const str=chars[y].slice(x,e).join('');if(str.trim()){ctx.fillStyle=co;ctx.fillText(str,x*cw,y*ch);}x=e;}}
     if(royal){
-      // Reference-matched salon wall. This deliberately renders the committed
-      // A–J atlas as a stable interior composition so the paintings cannot be
-      // hidden by raycast wall depth.
+      // Gallery presentation layer: keep the walkable raycast architecture behind
+      // it, but compose the art as a coherent room instead of giant floating cards.
       const atlas=artImagesRef.current.get(K_GALLERY_ART[0]?.id||'');
+      const portraits=portraitImageRef.current;
+      const pulse=audioEnergyRef.current;
+      ctx.save();
+
+      // Architectural proscenium — thin, dark, and subordinate to the art.
+      const gold=`rgba(191,145,76,${.62+.16*pulse})`;
+      const violet=`rgba(150,64,205,${.26+.12*pulse})`;
+      ctx.strokeStyle=gold;ctx.lineWidth=Math.max(1,ww*.0012);
+      ctx.beginPath();ctx.moveTo(ww*.045,hh*.10);ctx.lineTo(ww*.955,hh*.10);ctx.stroke();
+      // Twin bronze columns are narrow edge anchors, not screen-sized slabs.
+      for(const [px,label] of [[ww*.035,'JACHIN'],[ww*.945,'BOAZ']] as [number,string][]){
+        ctx.fillStyle='rgba(29,18,14,.82)';ctx.fillRect(px,hh*.18,ww*.012,hh*.55);
+        ctx.strokeStyle=gold;ctx.strokeRect(px,hh*.18,ww*.012,hh*.55);
+        ctx.fillStyle='#c69a52';ctx.fillRect(px-3,hh*.17,ww*.012+6,4);ctx.fillRect(px-3,hh*.73,ww*.012+6,4);
+        ctx.font=`${Math.max(6,ww*.004)}px ${FONT}`;ctx.fillStyle='#a77c42';ctx.fillText(label,px-5,hh*.755);
+      }
+      ctx.font=`${Math.max(7,ww*.005)}px ${FONT}`;ctx.textAlign='center';ctx.fillStyle='#9c7444';
+      ctx.fillText('❦  PALM · POMEGRANATE · CEDAR · GOLD  ❦',ww*.5,hh*.088);
+
+      // A–J: compact museum salon arrangement matching the reference proportions.
       if(atlas&&atlas.complete&&atlas.naturalWidth){
         const layout=[
-          [.055,.16,.13,.28],[.195,.18,.11,.25],[.315,.19,.18,.22],
-          [.055,.49,.17,.27],[.245,.50,.19,.22],[.455,.30,.13,.32],
-          [.595,.29,.14,.34],[.745,.24,.12,.23],[.875,.23,.11,.23],[.805,.53,.15,.25]
+          [.070,.18,.105,.235],[.185,.19,.090,.215],[.285,.20,.155,.195],
+          [.070,.445,.145,.215],[.225,.445,.165,.185],[.445,.275,.115,.285],
+          [.575,.265,.125,.295],[.720,.205,.105,.205],[.835,.205,.110,.205],[.790,.445,.145,.205]
         ];
-        const parallax=norm(cc.ang-RETURN.a)*ww*.035;
         K_GALLERY_ART.forEach((piece,i)=>{
           const l=layout[i];if(!l)return;
-          const px=l[0]*ww+parallax,py=l[1]*hh,pw=l[2]*ww,ph=l[3]*hh,pad=Math.max(3,ww*.0035);
+          const px=l[0]*ww,py=l[1]*hh,pw=l[2]*ww,ph=l[3]*hh;
+          const pad=Math.max(2,ww*.0022);
           ctx.save();
-          const lampX=px+pw*.5,lampY=Math.max(5,py-22);
-          const grad=ctx.createLinearGradient(lampX,lampY,lampX,py+ph);
-          grad.addColorStop(0,`rgba(255,226,188,${.12+.14*audioEnergy})`);grad.addColorStop(1,'rgba(255,226,188,0)');
-          ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(lampX-4,lampY);ctx.lineTo(px-pad,py+ph);ctx.lineTo(px+pw+pad,py+ph);ctx.closePath();ctx.fill();
-          ctx.shadowColor=piece.accent;ctx.shadowBlur=8+24*audioEnergy;
-          ctx.fillStyle='#050306';ctx.fillRect(px-pad*2,py-pad*2,pw+pad*4,ph+pad*4);
-          ctx.strokeStyle='#c09552';ctx.lineWidth=Math.max(2,pad*.65);ctx.strokeRect(px-pad*1.5,py-pad*1.5,pw+pad*3,ph+pad*3);
-          ctx.shadowBlur=0;ctx.drawImage(atlas,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
-          ctx.fillStyle='rgba(3,2,4,.9)';ctx.fillRect(px,py+ph-14,pw,14);
-          ctx.font=`${Math.max(7,ww*.006)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(piece.label+' // '+piece.title,px+4,py+ph-12);
+          // Local spotlight only; no huge neon bloom.
+          const lampX=px+pw*.5,lampY=py-14;
+          const cone=ctx.createLinearGradient(lampX,lampY,lampX,py+ph);
+          cone.addColorStop(0,`rgba(255,224,184,${.08+.08*pulse})`);cone.addColorStop(1,'rgba(255,224,184,0)');
+          ctx.fillStyle=cone;ctx.beginPath();ctx.moveTo(lampX-2,lampY);ctx.lineTo(px,py+ph);ctx.lineTo(px+pw,py+ph);ctx.closePath();ctx.fill();
+          ctx.fillStyle='#050405';ctx.fillRect(px-pad*2,py-pad*2,pw+pad*4,ph+pad*4);
+          ctx.strokeStyle='#8f6938';ctx.lineWidth=Math.max(1,pad*.7);ctx.strokeRect(px-pad*1.5,py-pad*1.5,pw+pad*3,ph+pad*3);
+          ctx.drawImage(atlas,piece.sx,piece.sy,piece.sw,piece.sh,px,py,pw,ph);
+          ctx.fillStyle='rgba(3,2,4,.88)';ctx.fillRect(px,py+ph-11,pw,11);
+          ctx.font=`${Math.max(6,ww*.0042)}px ${FONT}`;ctx.fillStyle='#c69a52';ctx.textAlign='left';ctx.fillText(piece.label+' / '+piece.title,px+3,py+ph-9);
           ctx.restore();
         });
       }
-      const portraits=portraitImageRef.current;
+
+      // ASCII self-portrait diptych: small archival works, not dominant panels.
       if(portraits&&portraits.complete&&portraits.naturalWidth){
-        const pw=ww*.115,ph=hh*.20,py=hh*.66;
-        [[ww*.055,0],[ww*.83,92]].forEach(([px,sx],i)=>{
-          ctx.save();ctx.shadowColor=i?'#00ffff':'#ff3bd4';ctx.shadowBlur=12+20*audioEnergy;
-          ctx.fillStyle='#030303';ctx.fillRect(px-5,py-5,pw+10,ph+10);ctx.strokeStyle='#c09552';ctx.lineWidth=2;ctx.strokeRect(px-5,py-5,pw+10,ph+10);
-          ctx.shadowBlur=0;ctx.drawImage(portraits,sx,0,90,90,px,py,pw,ph);
-          ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#c09552';ctx.fillText('K // ASCII SELF '+(i+1),px,py+ph+5);ctx.restore();
+        const pw=ww*.072,ph=hh*.12,py=hh*.685;
+        [[ww*.075,0],[ww*.853,92]].forEach(([px,sx],i)=>{
+          ctx.save();ctx.fillStyle='#040304';ctx.fillRect(px-3,py-3,pw+6,ph+6);
+          ctx.strokeStyle=i?'#3f8e92':'#7e3d79';ctx.lineWidth=1;ctx.strokeRect(px-3,py-3,pw+6,ph+6);
+          ctx.drawImage(portraits,sx,0,90,90,px,py,pw,ph);
+          ctx.font=`${Math.max(5,ww*.0036)}px ${FONT}`;ctx.fillStyle='#9c7444';ctx.textAlign='left';ctx.fillText('K / SELF '+(i+1),px,py+ph+8);ctx.restore();
         });
       }
-    }
-    if(royal){
-      // Foreground installations from the reference: central armillary/pedestal,
-      // side benches, CRT and hanging ART/SURVIVES/STILL banner.
-      const pulse=audioEnergyRef.current;
-      ctx.save();
-      // Temple-of-Solomon-inspired ceremonial grammar: twin bronze pillars,
-      // cedar/gold lintel and palm/pomegranate frieze around the art nave.
-      const pillarW=Math.max(16,ww*.025),pillarH=hh*.58;
-      [[ww*.025,'JACHIN'],[ww*.945,'BOAZ']].forEach(([x,label])=>{
-        const px=Number(x);ctx.fillStyle='#3b2515';ctx.fillRect(px,hh*.18,pillarW,pillarH);
-        ctx.strokeStyle='#d5a85a';ctx.lineWidth=2;ctx.strokeRect(px,hh*.18,pillarW,pillarH);
-        ctx.fillStyle='#d5a85a';ctx.fillRect(px-5,hh*.16,pillarW+10,8);ctx.fillRect(px-5,hh*.76,pillarW+10,8);
-        ctx.font=`${Math.max(7,ww*.005)}px ${FONT}`;ctx.fillStyle='#d5a85a';ctx.fillText(String(label),px-4,hh*.79);
-      });
-      ctx.fillStyle='#21140f';ctx.fillRect(ww*.03,hh*.105,ww*.94,hh*.045);ctx.strokeStyle='#d5a85a';ctx.strokeRect(ww*.03,hh*.105,ww*.94,hh*.045);
-      ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#b98649';ctx.textAlign='center';ctx.fillText('❦  ◉  ❦  PALM · POMEGRANATE · CEDAR · GOLD  ❦  ◉  ❦',ww*.5,hh*.128);
-      ctx.restore();
-      ctx.save();
-      ctx.textAlign='center';ctx.textBaseline='middle';
+
+      // Central altar/armillary and furniture sit in the lower third, leaving sightlines.
       const cx=ww*.50,baseY=hh*.82;
-      ctx.strokeStyle=`rgba(190,105,255,${.55+.35*pulse})`;ctx.lineWidth=1.5;
-      for(let r=22;r<=54;r+=16){ctx.beginPath();ctx.ellipse(cx,baseY-58,r,r*.48,(syncTime*.18)+(r*.01),0,Math.PI*2);ctx.stroke();}
-      ctx.fillStyle='#100a14';ctx.fillRect(cx-92,baseY-24,184,62);
-      ctx.strokeStyle='#7c526f';ctx.strokeRect(cx-92,baseY-24,184,62);
-      ctx.font=`${Math.max(9,ww*.008)}px ${FONT}`;ctx.fillStyle='#c48ce8';ctx.fillText('T H E   E M R L D',cx,baseY+1);
-      ctx.font=`${Math.max(7,ww*.0055)}px ${FONT}`;ctx.fillStyle='#805b91';ctx.fillText('SOME THINGS DECAY · SOME THINGS REMAIN · SOME THINGS TRANSCEND',cx,baseY+20);
-      ctx.textAlign='left';
-      ctx.fillStyle='#09070b';ctx.fillRect(ww*.08,hh*.78,ww*.17,18);ctx.strokeStyle='#57314f';ctx.strokeRect(ww*.08,hh*.78,ww*.17,18);
-      ctx.fillRect(ww*.73,hh*.78,ww*.17,18);ctx.strokeRect(ww*.73,hh*.78,ww*.17,18);
-      ctx.fillStyle='#030a08';ctx.fillRect(ww*.86,hh*.70,ww*.11,hh*.16);ctx.strokeStyle='#00ff66';ctx.strokeRect(ww*.86,hh*.70,ww*.11,hh*.16);
-      ctx.font=`${Math.max(7,ww*.006)}px ${FONT}`;ctx.fillStyle='#00ff66';ctx.fillText('> ART',ww*.87,hh*.73);ctx.fillText('> SURVIVES',ww*.87,hh*.76);ctx.fillText('> STILL',ww*.87,hh*.79);ctx.fillText('> _',ww*.87,hh*.82);
-      ctx.fillStyle='rgba(42,12,48,.88)';ctx.fillRect(ww*.77,hh*.08,ww*.09,hh*.25);ctx.font=`${Math.max(8,ww*.006)}px ${FONT}`;ctx.fillStyle='#b96eea';ctx.textAlign='center';ctx.fillText('ART',ww*.815,hh*.14);ctx.fillText('SURVIVES',ww*.815,hh*.20);ctx.fillText('STILL',ww*.815,hh*.26);
+      ctx.strokeStyle=violet;ctx.lineWidth=1;
+      for(let r=14;r<=36;r+=11){ctx.beginPath();ctx.ellipse(cx,baseY-43,r,r*.42,syncTime*.14+r*.02,0,Math.PI*2);ctx.stroke();}
+      ctx.fillStyle='rgba(10,7,12,.92)';ctx.fillRect(cx-72,baseY-15,144,43);
+      ctx.strokeStyle='#5c3c55';ctx.strokeRect(cx-72,baseY-15,144,43);
+      ctx.font=`${Math.max(8,ww*.006)}px ${FONT}`;ctx.fillStyle='#a86dbe';ctx.textAlign='center';ctx.fillText('T H E   E M R L D',cx,baseY+1);
+      ctx.font=`${Math.max(5,ww*.0036)}px ${FONT}`;ctx.fillStyle='#715277';ctx.fillText('SOME THINGS DECAY · SOME THINGS REMAIN · SOME THINGS TRANSCEND',cx,baseY+15);
+      // benches
+      ctx.fillStyle='rgba(8,6,9,.88)';ctx.fillRect(ww*.19,hh*.79,ww*.16,8);ctx.fillRect(ww*.65,hh*.79,ww*.16,8);
+      ctx.strokeStyle='#493242';ctx.strokeRect(ww*.19,hh*.79,ww*.16,8);ctx.strokeRect(ww*.65,hh*.79,ww*.16,8);
+      // compact CRT
+      ctx.fillStyle='rgba(1,8,6,.94)';ctx.fillRect(ww*.895,hh*.68,ww*.07,hh*.115);ctx.strokeStyle='#00a85b';ctx.strokeRect(ww*.895,hh*.68,ww*.07,hh*.115);
+      ctx.font=`${Math.max(5,ww*.0037)}px ${FONT}`;ctx.fillStyle='#00c86d';ctx.textAlign='left';ctx.fillText('> ART',ww*.902,hh*.705);ctx.fillText('> SURVIVES',ww*.902,hh*.73);ctx.fillText('> STILL',ww*.902,hh*.755);
+      // banner
+      ctx.fillStyle='rgba(28,8,33,.84)';ctx.fillRect(ww*.755,hh*.075,ww*.065,hh*.145);ctx.strokeStyle='#63306f';ctx.strokeRect(ww*.755,hh*.075,ww*.065,hh*.145);
+      ctx.font=`${Math.max(5,ww*.0038)}px ${FONT}`;ctx.fillStyle='#9c59b4';ctx.textAlign='center';ctx.fillText('ART',ww*.787,hh*.11);ctx.fillText('SURVIVES',ww*.787,hh*.15);ctx.fillText('STILL',ww*.787,hh*.19);
       ctx.restore();
     }
 
