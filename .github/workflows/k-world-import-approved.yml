@@ -1,0 +1,119 @@
+name: Import approved K World package
+
+on:
+  push:
+    branches: ['release/k-world-v6-ascii-default']
+    paths: ['.github/workflows/k-world-import-approved.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: k-world-approved-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && github.ref == 'refs/heads/release/k-world-v6-ascii-default'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Download and verify the user-approved immutable package
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = cf2ac30419b5249bca9dba57ca2922ec6e94f27d
+          curl --fail --location --retry 2 --max-time 120 'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/7217e6e9-8b15-4fd9-83db-9580f8fe4710.zip' --output "$RUNNER_TEMP/k-world-approved.zip"
+          echo "13bd268d492c83baef8b3ea391e55acfa5f986113ebe314274ac20df2cb53d8d  $RUNNER_TEMP/k-world-approved.zip" | sha256sum -c -
+      - name: Install exact runtime, artwork, tests, and preserve legacy songs
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path, PurePosixPath
+          import hashlib, json, os, runpy, shutil, tempfile, zipfile
+          repo=Path.cwd()
+          archive=Path(os.environ['RUNNER_TEMP'])/'k-world-approved.zip'
+          with tempfile.TemporaryDirectory() as d:
+              root=Path(d)
+              with zipfile.ZipFile(archive) as z:
+                  entries=z.infolist()
+                  assert len(entries)==44 and sum(x.file_size for x in entries)<8_000_000
+                  assert len({x.filename for x in entries})==len(entries)
+                  manifest=json.loads(z.read('APPROVED-FILE-HASHES.json'))
+                  assert len(manifest)==43
+                  for info in entries:
+                      name=info.filename
+                      assert not PurePosixPath(name).is_absolute() and '..' not in PurePosixPath(name).parts
+                      assert ((info.external_attr>>16)&0o170000) in (0,0o100000)
+                      if name=='APPROVED-FILE-HASHES.json': continue
+                      assert name.startswith(('public/k-world/','src/','docs/','tests/','scripts/')) or name in ('README.md','BUILD.json','package.json')
+                      data=z.read(name)
+                      assert hashlib.sha256(data).hexdigest()==manifest[name], name
+                      path=root/name; path.parent.mkdir(parents=True,exist_ok=True); path.write_bytes(data)
+              runtime=repo/'public/k-world'
+              assert not runtime.exists(), 'Refusing to overwrite an existing runtime'
+              shutil.copytree(root/'public/k-world',runtime)
+              host=repo/'src/sections/AsciiCityWorld.tsx'
+              shutil.copyfile(root/'src/sections/AsciiCityWorld.tsx',host)
+              installer=runpy.run_path(str(root/'scripts/install_into_repo.py'))
+              app=repo/'src/App.tsx'
+              app.write_text(installer['patch_app'](app.read_text()))
+              legacy=installer['extract_catalogue']((repo/'src/sections/KTerminal.tsx').read_text())
+              supplied=json.loads((runtime/'catalogue.json').read_text())
+              seen=set(); catalogue=[]
+              for t in [*legacy,*supplied]:
+                  if t['url'] not in seen:
+                      catalogue.append(t); seen.add(t['url'])
+              (runtime/'catalogue.json').write_text(json.dumps(catalogue,indent=2,ensure_ascii=False)+'\n')
+              docs=repo/'docs/k-world-v6'; docs.mkdir(parents=True,exist_ok=True)
+              for source in (root/'docs').glob('*.md'): shutil.copyfile(source,docs/source.name)
+              shutil.copyfile(root/'README.md',docs/'README.md')
+              shutil.copyfile(root/'BUILD.json',docs/'APPROVED-BUILD.json')
+              tests=repo/'tests'; tests.mkdir(exist_ok=True)
+              for source in (root/'tests').glob('*.test.mjs'):
+                  target=tests/('k-world-'+source.name)
+                  assert not target.exists()
+                  shutil.copyfile(source,target)
+              receipt={
+                  'schema':'k-world-approved-import/v1','version':'6.0.1',
+                  'approved_archive_sha256':'365772a186961cf355103a080d7cf1125a984ab59c3437127891fd5a5d9d3b5c',
+                  'transfer_archive_sha256':'13bd268d492c83baef8b3ea391e55acfa5f986113ebe314274ac20df2cb53d8d',
+                  'source_files':manifest,'legacy_songs_preserved':len(legacy),
+                  'catalogue_songs':len(catalogue),
+                  'only_runtime_delta':'catalogue.json preserves existing public song slots',
+                  'ascii_default':True,
+                  'scope':'Approved v6.0.1 only; historical KX markdown is not a release requirement'
+              }
+              for name,digest in manifest.items():
+                  if name.startswith('public/k-world/') and name!='public/k-world/catalogue.json':
+                      assert hashlib.sha256((repo/name).read_bytes()).hexdigest()==digest,name
+              assert 'ascii' in (runtime/'app.js').read_text()
+              (docs/'IMPORT-RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+              print('Imported exact approved runtime; legacy songs:',len(legacy),'total catalogue:',len(catalogue))
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test approved audio, world, assets and ASCII defaults
+        run: node --test tests/k-world-*.test.mjs
+      - name: Commit only approved release files to the integration branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/k-world src/App.tsx src/sections/AsciiCityWorld.tsx docs/k-world-v6 tests/k-world-*.test.mjs
+          git commit -m 'Install approved K World v6.0.1 with ASCII on by default'
+          AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $AUTH"
+          CURRENT=$(git ls-remote origin refs/heads/release/k-world-v6-ascii-default | cut -f1)
+          test "$CURRENT" = "$GITHUB_SHA"
+          git push origin HEAD:refs/heads/release/k-world-v6-ascii-default
