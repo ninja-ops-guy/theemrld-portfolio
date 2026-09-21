@@ -55,6 +55,7 @@ function App() {
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
+    <Route path="/case-study/residual-beyond-code" element={<ProgramCaseStudy slug="residual-beyond-code" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
   </Routes>;
