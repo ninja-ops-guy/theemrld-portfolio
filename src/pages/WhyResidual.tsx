@@ -40,9 +40,9 @@ const sections = [
     'That turns disagreement into an experiment. And experiments produce evidence.'
   ]],
   ['Then Came Orpheus', [
-    'Recently, that idea gained an interesting new participant. I call it Orpheus.',
+    'Recently, that idea gained an interesting new participant. I call it Orpheus. Orpheus is ChatGPT Dot, calibrated as an external deputy conductor in my RESIDUAL operations.',
     'The name originally appeared elsewhere in my creative work, but its meaning became unexpectedly appropriate here. In Greek mythology, Orpheus crosses boundaries others cannot easily cross. Through music, he communicates across worlds.',
-    'My Orpheus occupies a similarly unusual boundary. Rather than existing as another identical worker inside the same agent environment, Orpheus can participate from outside it: inspecting the system, testing components, challenging results, and potentially writing fixes that the rest of the system must independently evaluate.',
+    'As ChatGPT Dot, Orpheus occupies a similarly unusual boundary. Rather than existing as another identical worker inside the same OpenClaw agent environment, it can participate from outside it: inspecting the system, testing components, challenging results, and potentially writing fixes that the rest of the system must independently evaluate. That makes Orpheus useful not just as another agent, but as a heterogeneous participant whose work can be compared against the native swarm.',
     'If Orpheus discovers a bug, writes the fix, tests the fix, and announces that everything works, RESIDUAL should not simply believe Orpheus. It should preserve the evidence and let another verifier establish whether the claim survives. Capability does not grant authority. Even when the capable system happens to be right.',
     'Mythological Orpheus was given a condition for bringing Eurydice back from the underworld: keep walking; do not look back. I have started thinking about that story differently. What would Orpheus have needed so that he did not have to look back? Evidence. Some trustworthy way of establishing that Eurydice was still there without violating the condition required to bring her home.',
     'In a strange way, that is exactly the class of problem RESIDUAL is trying to solve.'
