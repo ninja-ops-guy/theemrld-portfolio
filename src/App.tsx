@@ -19,6 +19,7 @@ import AsciiCityWorld from './sections/AsciiCityWorld';
 import KTerminal from './sections/KTerminal';
 import CaseStudy from './pages/CaseStudy';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
+import WhyResidual from './pages/WhyResidual';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,6 +58,7 @@ function App() {
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
+    <Route path="/writing/why-i-called-it-residual" element={<WhyResidual />} />
   </Routes>;
 }
 
