@@ -7,6 +7,7 @@ import volumeFive from '../data/comic-volume-five.json';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
+const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
 const volumeFiveBase = base + 'volume-v/';
@@ -53,6 +54,18 @@ export default function TechOpsComic() {
     motion.addEventListener('change', stopIfReduced);
     return () => motion.removeEventListener('change', stopIfReduced);
   }, []);
+  const splash = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const dialog = splash.current;
+    if (!intro || page || !dialog) return;
+    dialog.showModal();
+    // Release the reader even if the panel sheet stalls on a slow connection.
+    const finish = window.setTimeout(() => setIntro(false), 8000);
+    return () => {
+      window.clearTimeout(finish);
+      dialog.close();
+    };
+  }, [intro, page]);
   const [zoom, setZoom] = useState(false);
   const [failedPage, setFailedPage] = useState(0);
   const stage = useRef<HTMLDivElement>(null);
@@ -90,6 +103,18 @@ export default function TechOpsComic() {
   }, [page, choosePage]);
 
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
+    {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
+      onCancel={() => setIntro(false)}>
+      <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet': `url("${splashArt}")`} as CSSProperties}
+        onAnimationEnd={event => { if (event.animationName === 'comic-reel-out') setIntro(false); }}>
+        <div className="comic-reel-gate">
+          <img className="comic-panel-sheet" src={splashArt} alt="" fetchPriority="high"
+            onLoad={event => event.currentTarget.dataset.ready = 'true'} onError={() => setIntro(false)} />
+        </div>
+        <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
+      </div>
+      <button type="button" className="comic-reel-toggle" onClick={() => setIntro(false)}>Skip intro</button>
+    </dialog>}
     <header className="comic-mast">
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
@@ -102,18 +127,8 @@ export default function TechOpsComic() {
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true" />
-        {intro && <div className="comic-reel" aria-label="Tech Ops Hero animated introduction"
-          onAnimationEnd={event => { if (event.animationName === 'comic-reel-out') setIntro(false); }}>
-          <div className="comic-reel-film" aria-hidden="true">
-            {volumes.map((v, index) => <img key={v.numeral} src={artworkUrl('volume-' + v.numeral)}
-              alt="" style={{ '--cut': index } as CSSProperties} />)}
-            <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
-          </div>
-        </div>}
-        <button type="button" className="comic-reel-toggle" onClick={() => setIntro(!intro)}>
-          {intro ? 'Skip intro' : 'Replay intro'}
-        </button>
-        <div className="comic-hero-copy" style={intro ? {visibility: 'hidden'} : undefined}>
+        <button type="button" className="comic-reel-toggle" onClick={() => setIntro(true)}>Replay intro</button>
+        <div className="comic-hero-copy">
           <p className="comic-overline"><span /> THE COLLECTED EDITION</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line, row) =>
             <span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i) =>
