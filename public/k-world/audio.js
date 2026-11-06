@@ -5,6 +5,8 @@ export class Sequencer extends EventTarget {
  constructor(port,playlists=PLAYLISTS){super();this.port=port;this.playlists=playlists;this.generation=0;this.finishedGeneration=-1;this.state={mode:'auto',zone:'gallery-deep',activeZone:null,pendingZone:null,current:null,index:0,status:'idle',position:0,duration:0,pausedByUser:false,armed:false,error:null,volume:55,rate:1};port.connect?.(this);}
  emit(){this.dispatchEvent(new CustomEvent('change',{detail:{...this.state}}));}
  arm(){this.state.armed=true;if(!this.state.current&&!this.state.pausedByUser)this.loadZone(this.state.zone,0);else this.resume();}
+ /** Start a playlist in response to a visitor gesture; no second player. */
+ startZone(zone){if(!this.playlists[zone]?.length)return false;this.state.mode='auto';this.state.zone=zone;this.state.armed=true;this.state.pausedByUser=false;this.loadZone(zone,0);return true;}
  setZone(zone){if(!this.playlists[zone])return;const s=this.state;s.zone=zone;if(s.mode==='auto'){if(s.current&&s.status!=='finished'&&s.status!=='idle'){s.pendingZone=zone===s.activeZone?null:zone;}else if(s.armed&&!s.pausedByUser)this.loadZone(zone,0);else s.pendingZone=zone;}this.emit();}
  loadZone(zone,index=0){const list=this.playlists[zone]||[];if(!list.length)return;const i=((index%list.length)+list.length)%list.length;this.state.activeZone=zone;this.state.index=i;this.state.pendingZone=null;this.load(list[i]);}
  load(track){const token=++this.generation;if(track.provider!=='local')this.state.rate=1;this.state.current=track;this.state.position=0;this.state.duration=0;this.state.status='loading';this.state.error=null;this.emit();try{Promise.resolve(this.port.load(track,token)).catch(e=>this.fail(token,e.message));}catch(e){this.fail(token,e.message);}return token;}
@@ -26,11 +28,23 @@ export class Sequencer extends EventTarget {
  destroy(){++this.generation;this.port.destroy?.();}
 }
 export function canonicalUrl(value){try{const u=new URL(value);if(u.protocol!=='https:'||!['soundcloud.com','www.soundcloud.com'].includes(u.hostname))return null;const parts=u.pathname.split('/').filter(Boolean);if(parts.length!==2||['sets','likes','tracks','reposts','popular-tracks'].includes(parts[1]))return null;return 'https://soundcloud.com/'+parts.join('/');}catch{return null;}}
+/** Freshest public uploads first; date ties retain SoundCloud's order. */
+export function newestProfileTracks(sounds){
+ if(!Array.isArray(sounds))return [];
+ const seen=new Set();
+ return sounds.map((s,order)=>({
+  id:String(s?.id||s?.permalink_url),url:canonicalUrl(s?.permalink_url),
+  title:s?.title||'Untitled',provider:'soundcloud',
+  createdAt:s?.display_date||s?.published_at||s?.created_at||null,order
+ })).filter(t=>{if(!t.url?.startsWith('https://soundcloud.com/raikouno/')||seen.has(t.url))return false;seen.add(t.url);return true;})
+ .sort((x,y)=>(Date.parse(y.createdAt)||0)-(Date.parse(x.createdAt)||0)||x.order-y.order)
+ .map(({order,...track})=>track);
+}
 let apiPromise;
 function api(){if(window.SC?.Widget)return Promise.resolve(window.SC);if(apiPromise)return apiPromise;apiPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://w.soundcloud.com/player/api.js';script.async=true;const timeout=setTimeout(()=>{apiPromise=null;reject(Error('SoundCloud did not respond. Check your connection and press Resume.'));},15000);script.onload=()=>{clearTimeout(timeout);if(window.SC?.Widget)resolve(window.SC);else{apiPromise=null;reject(Error('SoundCloud Widget API unavailable.'));}};script.onerror=()=>{clearTimeout(timeout);apiPromise=null;script.remove();reject(Error('SoundCloud is blocked or offline. Your world remains usable.'));};document.head.append(script);});return apiPromise;}
 /** Sole transport. One SC iframe; local audio explicitly pauses it before starting. */
 export class SoundCloudPort {
- constructor(slot,onCatalogue=()=>{}){this.slot=slot;this.onCatalogue=onCatalogue;this.widget=null;this.native=null;this.controller=null;this.token=0;this.loading=false;this.expected=null;this.disposed=false;this.duration=0;this.timers=new Set();this.bound=[];}
+ constructor(slot,onCatalogue=()=>{}){this.slot=slot;this.onCatalogue=onCatalogue;this.widget=null;this.native=null;this.controller=null;this.token=0;this.loading=false;this.expected=null;this.disposed=false;this.duration=0;this.timers=new Set();this.bound=[];this.profilePromise=null;}
  connect(controller){this.controller=controller;}
  later(fn,ms){const id=setTimeout(()=>{this.timers.delete(id);if(!this.disposed)fn();},ms);this.timers.add(id);return id;}
  async init(){if(this.widget)return this.widget;if(this.initializing)return this.initializing;this.initializing=(async()=>{
@@ -44,9 +58,17 @@ export class SoundCloudPort {
   bind('FINISH',event=>current((token,sound)=>{widget.getPosition(position=>{if(token!==this.token||this.loading)return;const duration=sound.duration||this.duration;const endPosition=Math.max(event?.currentPosition||0,position||0,this.controller.state.position||0);if(duration>0&&endPosition>=duration-600)this.controller.finish(token);});}));
   bind('ERROR',()=>{if(!this.loading&&this.expected?.provider!=='local')this.controller.fail(this.token,'SoundCloud could not play this track. Resume retries; choose another song to replace it.');});
   await new Promise((resolve,reject)=>{const timer=this.later(()=>reject(Error('SoundCloud player readiness timed out.')),15000);bind('READY',()=>{clearTimeout(timer);this.timers.delete(timer);resolve();});});
-  widget.getSounds(sounds=>{if(Array.isArray(sounds)&&sounds.length>1){const tracks=sounds.filter(s=>canonicalUrl(s.permalink_url)).sort((a,b)=>Date.parse(b.created_at||0)-Date.parse(a.created_at||0)).map(s=>({id:String(s.id),url:canonicalUrl(s.permalink_url),title:s.title||'Untitled',provider:'soundcloud',createdAt:s.created_at}));this.onCatalogue(tracks);}});
+  // Read the profile while the widget still points at @raikouno, before loading an individual track.
+  this.profilePromise=new Promise(resolve=>{
+   let settled=false;const finish=x=>{if(!settled){settled=true;resolve(x);}};
+   const timeout=this.later(()=>finish([]),4500);
+   try{widget.getSounds(sounds=>{clearTimeout(timeout);this.timers.delete(timeout);
+    const tracks=newestProfileTracks(sounds);if(tracks.length)this.onCatalogue(tracks);finish(tracks);
+   });}catch{clearTimeout(timeout);this.timers.delete(timeout);finish([]);}
+  });
   return widget;
  })();try{return await this.initializing;}catch(e){if(this.widget&&!this.disposed){for(const n of this.bound)this.widget.unbind(window.SC.Widget.Events[n]);this.bound=[];this.widget=null;this.iframe?.remove();}this.initializing=null;throw e;}}
+ async discoverTracks(){await this.init();return this.profilePromise?await this.profilePromise:[];}
  async load(track,token){this.token=token;this.expected=track;this.loading=true;this.native?.pause();this.widget?.pause();if(track.provider==='local'){await this.loadNative(track,token);return;}
   const widget=await this.init();if(token!==this.token||this.disposed)return;
   widget.pause();widget.load(track.url,{auto_play:false,single_active:true,show_comments:false,show_related:false,callback:()=>{if(token!==this.token||this.disposed)return;widget.getDuration(duration=>{if(token!==this.token||this.disposed)return;this.duration=duration||0;this.loading=false;widget.setVolume(this.controller.state.volume);this.controller.ready(token,this.duration);this.later(()=>{if(token===this.token&&!this.loading&&this.controller.state.status==='ready'){this.controller.providerPaused(token);}},2200);});}});

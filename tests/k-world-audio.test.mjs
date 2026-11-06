@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Sequencer,canonicalUrl,reactiveEnvelope} from '../public/k-world/audio.js';
+import {Sequencer,canonicalUrl,newestProfileTracks,reactiveEnvelope} from '../public/k-world/audio.js';
 const t=n=>({id:n,title:n,url:'https://soundcloud.com/raikouno/'+n,provider:'soundcloud'});
 const playlists={gallery:[t('g1'),t('g2')],city:[t('c1'),t('c2')],moon:[t('m1')],same:[t('g1')]};
 function setup(){const calls=[],port={load:(t,g)=>calls.push(['load',t.id,g]),play:()=>calls.push(['play']),pause:()=>calls.push(['pause']),seek:n=>calls.push(['seek',n]),rate:()=>false};const s=new Sequencer(port,playlists);s.setZone('gallery');return {s,calls,port};}
@@ -32,3 +32,28 @@ test('Paused reactive envelope is zero and never fake FFT',()=>{assert.deepEqual
 
 test('Changing from local audio to SoundCloud resets actual rate display to 1x',()=>{const {s,port}=setup();port.rate=()=>true;s.select({...t('local'),provider:'local'});s.rate(1.25);assert.equal(s.state.rate,1.25);s.select(t('remote'));assert.equal(s.state.rate,1);});
 test('Local-to-local playback preserves a valid speed preference',()=>{const {s,port}=setup();port.rate=()=>true;s.select({...t('local-one'),provider:'local'});s.rate(.8);s.select({...t('local-two'),provider:'local'});assert.equal(s.state.rate,.8);});
+
+test('SoundCloud profile releases sort newest first and exclude foreign or duplicate URLs',()=>{
+ const sounds=[
+  {id:1,permalink_url:'https://soundcloud.com/raikouno/older',title:'Older',created_at:'2026-06-01T00:00:00Z'},
+  {id:2,permalink_url:'https://soundcloud.com/raikouno/newest',title:'Newest',created_at:'2026-05-01T00:00:00Z',display_date:'2026-11-05T00:00:00Z'},
+  {id:3,permalink_url:'https://soundcloud.com/other-artist/not-mine',title:'Foreign',created_at:'2026-12-01T00:00:00Z'},
+  {id:4,permalink_url:'https://soundcloud.com/raikouno/newest',title:'Duplicate',created_at:'2026-11-05T00:00:00Z'}
+ ];
+ const tracks=newestProfileTracks(sounds);
+ assert.deepEqual(tracks.map(t=>t.title),['Newest','Older']);
+ assert.equal(tracks[0].createdAt,'2026-11-05T00:00:00Z');
+});
+test('Latest-first default progresses through uploads then queues the next room',()=>{
+ const calls=[],port={load:t=>calls.push(t.id),pause:()=>{},play:()=>{},volume:()=>{}};
+ const s=new Sequencer(port,{...playlists,latest:[t('new'),t('recent')]});
+ assert.equal(s.startZone('latest'),true);assert.equal(s.state.current.id,'new');
+ playing(s);s.finish(s.generation);assert.equal(s.state.current.id,'recent');
+ playing(s);s.setZone('city');assert.equal(s.state.current.id,'recent');
+ s.finish(s.generation);assert.equal(s.state.current.id,'c1');
+ assert.deepEqual(calls,['new','recent','c1']);
+});
+test('Empty latest playlist cannot displace the existing room soundtrack',()=>{
+ const calls=[],s=new Sequencer({load:t=>calls.push(t.id)}, {...playlists,latest:[]});
+ assert.equal(s.startZone('latest'),false);assert.deepEqual(calls,[]);
+});
