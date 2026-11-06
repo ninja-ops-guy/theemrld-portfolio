@@ -10,7 +10,8 @@ const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fa
 const write=(key,data)=>{try{localStorage.setItem(key,JSON.stringify(data));}catch{/* Privacy mode must not break controls. */}};
 const cleanTrack=t=>t&&typeof t.title==='string'&&canonicalUrl(t.url)?{id:String(t.id||t.url),title:t.title.slice(0,250),url:canonicalUrl(t.url),provider:'soundcloud',slot:Number.isInteger(t.slot)&&t.slot>0?t.slot:(Number.isInteger(t.id)&&t.id>0?t.id:null),createdAt:typeof t.createdAt==='string'?t.createdAt:null}:null;
 let stored=read(KEYS,read('k-terminal:tracks:v3',[])),library=(Array.isArray(stored)?stored:[]).map(cleanTrack).filter(Boolean),recent=read(RECENT,[]);if(!Array.isArray(recent))recent=[];
-let latestKnown=read(LATEST,[]);latestKnown=(Array.isArray(latestKnown)?latestKnown:[]).map(cleanTrack).filter(Boolean).slice(0,12);
+// Legacy cached lists did not carry release dates. Never present them as verified latest uploads.
+let latestKnown=read(LATEST,[]);latestKnown=(Array.isArray(latestKnown)?latestKnown:[]).map(cleanTrack).filter(t=>t?.createdAt&&Number.isFinite(Date.parse(t.createdAt))).slice(0,12);
 let preferences={ascii:DEFAULT_ASCII,volume:55,viz:true,vizStyle:'bars',vizBars:40,vizTheme:'emerald',band:true,...read(PREF,{})};preferences.ascii=resolveAsciiPreference(preferences.ascii);preferences.volume=clamp(Number.isFinite(Number(preferences.volume))?Number(preferences.volume):55,0,100);preferences.vizBars=clamp(Number(preferences.vizBars)||40,8,128);
 let renderer,assets,scene,activeId='gallery',camera={position:[0,1.7,11],yaw:0,pitch:0},target=null,flight=false,drive=false,flightHome=null,vy=0,lastTime=0,elapsed=0,lastIcons=0,lastUI=0,frameId=0,artIndex=0,arrivalTimer,toastTimer,modeBeforeInspect='',lastLookedArt=null;
 const galleryRotation=new Map();
@@ -20,10 +21,16 @@ const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
 const capture=(el,id)=>{try{el.setPointerCapture(id);}catch{/* Pointer may already have been cancelled by the OS. */}};
 const port=new SoundCloudPort($('soundcloud-slot'),tracks=>{mergeLibrary(tracks);syncLatest(tracks);});
 const music=new Sequencer(port);music.playlists.latest=latestKnown;music.volume(preferences.volume);
-function syncLatest(tracks){const ranked=tracks.map(cleanTrack).filter(Boolean).slice(0,12);if(!ranked.length)return;latestKnown=ranked;music.playlists.latest=ranked;write(LATEST,ranked);renderLibrary();}
+function syncLatest(tracks){
+ const ranked=tracks.map(cleanTrack).filter(t=>t?.createdAt&&Number.isFinite(Date.parse(t.createdAt)))
+ .sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt)).slice(0,12);
+ if(!ranked.length)return false;
+ latestKnown=ranked;music.playlists.latest=ranked;write(LATEST,ranked);renderLibrary();return true;
+}
 const savePrefs=()=>write(PREF,preferences);
 function mergeLibrary(tracks){const seen=new Set(library.map(t=>t.url));let next=Math.max(0,...library.map(t=>t.slot||0))+1;for(const raw of tracks){const t=cleanTrack(raw);if(!t||seen.has(t.url)){if(t?.createdAt){const prior=library.find(old=>old.url===t.url);if(prior){prior.createdAt=t.createdAt;prior.title=t.title;}}continue;}t.slot=next++;library.push(t);seen.add(t.url);}const used=new Set();for(const t of library){if(!t.slot||used.has(t.slot))t.slot=next++;used.add(t.slot);}write(KEYS,library);renderLibrary();}
 mergeLibrary(Object.values(TRACKS));
+// Legacy catalogue remains accessible as an archive; it is not the latest-releases source.
 function remember(track){if(!track||track.provider==='local')return;recent=[track.url,...recent.filter(x=>x!==track.url)].slice(0,8);write(RECENT,recent);renderLibrary();}
 function renderLibrary(){const filter=($('song-search')?.value||'').toLowerCase(),list=$('song-list');if(!list)return;list.replaceChildren();const current=music?.state?.current?.url;for(const t of library.filter(t=>t.title.toLowerCase().includes(filter)).sort((a,b)=>(Date.parse(b.createdAt)||0)-(Date.parse(a.createdAt)||0)||a.slot-b.slot)){const button=document.createElement('button');button.className='song'+(t.url===current?' current':'');button.type='button';button.title='Play '+t.title+'. Use pause or resume in K Terminal.';const number=document.createElement('span');number.className='number';number.textContent=String(t.slot).padStart(2,'0');const title=document.createElement('span');title.textContent=t.title;button.append(number,title);if(t.url===latestKnown[0]?.url){const tag=document.createElement('small');tag.className='tag';tag.textContent='LATEST';button.append(tag);}if(recent.includes(t.url)){const tag=document.createElement('small');tag.className='tag';tag.textContent='RECENT';button.append(tag);}button.addEventListener('click',()=>selectTrack(t));list.append(button);}if(!list.children.length){const empty=document.createElement('div');empty.className='song empty';empty.textContent='No matching tracks.';list.append(empty);}const box=$('recent-songs');box.replaceChildren();if(recent.length){const title=document.createElement('small');title.textContent='RECENT';box.append(title);for(const url of recent){const t=library.find(t=>t.url===url);if(!t)continue;const b=document.createElement('button');b.textContent=t.title;b.title='Play '+t.title;b.addEventListener('click',()=>selectTrack(t));box.append(b);}}}
 function selectTrack(track){remember(track);music.select(track);log('MANUAL / '+track.title+'\nScene changes will not replace this song. Type auto on to queue scene music again.');}
@@ -33,11 +40,17 @@ function startLatestMusic(force=false){
  const generation=music.generation,wasPaused=music.state.pausedByUser;
  latestCheck=(async()=>{
   try{const tracks=await port.discoverTracks();if(tracks.length)syncLatest(tracks);}
-  catch{log('SoundCloud profile unavailable. Trying cached releases or the current room soundtrack.','error');}
+  catch{log('Could not verify current @raikouno releases. Cached dated releases may be available.','error');}
   // The visitor's intervening manual selection or pause always wins.
   if(music.generation!==generation||(!force&&music.state.current)||(music.state.pausedByUser&&!wasPaused))return;
   if(music.startZone('latest'))log('LATEST / '+music.state.current.title+'\nNewest published tracks play first; room changes queue without interrupting.');
-  else{music.resume();log('No verified release list available. Starting this room soundtrack.');}
+  else{
+   // Never silently substitute a years-old room track and call it the latest release.
+   log('No dated @raikouno releases available. The archive remains selectable, but is not current. Open the SoundCloud profile to hear recent uploads.','error');
+   $('audio-next').textContent='Latest uploads unavailable — open @raikouno on SoundCloud.';
+   $('current-title').textContent='LATEST UPLOADS UNAVAILABLE';
+   toast('Latest uploads could not be verified. Use the SoundCloud profile link.');
+  }
  })().finally(()=>{latestCheck=null;});
  return latestCheck;
 }
@@ -124,7 +137,15 @@ function setView(ascii,persist=true){
  // Booting must not write a display choice the visitor did not make.
  if(persist)savePrefs();
 }
-async function refreshLibrary(){try{const response=globalThis.__K_EMBEDDED_CATALOGUE__?null:await fetch('catalogue.json',{cache:'no-store'});if(response&&!response.ok)throw Error('Published catalogue unavailable');const list=globalThis.__K_EMBEDDED_CATALOGUE__||await response.json();if(!Array.isArray(list))throw Error('Catalogue format invalid');const before=library.length;mergeLibrary(list);log(`Published library checked: ${library.length-before} new songs. Playback was not interrupted. The live SoundCloud profile also syncs when its player first opens.`);}catch{log('Published refresh unavailable. Your saved library is intact; playback was not interrupted.','error');}}
+async function refreshLibrary(){
+ // Refresh means the artist's live profile, not the bundled historical catalogue.
+ try{
+  const tracks=await port.discoverTracks();
+  if(!tracks.length||!syncLatest(tracks)){log('SoundCloud did not provide dated @raikouno uploads. Existing songs are an archive, not a current feed.','error');return;}
+  mergeLibrary(tracks);
+  log('Verified @raikouno releases: '+tracks.length+' · newest '+latestKnown[0].title+'. Current playback was preserved.');
+ }catch{log('Unable to refresh live @raikouno releases. Open the SoundCloud profile directly.','error');}
+}
 function updateMusicUI(){const s=music.state;$('audio-title').textContent=s.current?s.current.title:'Sound is off. Your world is ready.';$('audio-mode').textContent='K TERMINAL / '+s.mode.toUpperCase()+' / '+s.status.toUpperCase();$('audio-next').textContent=s.error|| (!s.current?'Tap Play for the newest published songs.':s.pendingZone?'NEXT / '+zoneLabel(s.pendingZone)+' — after this song':'Full songs. One player. No overlap.');$('audio-toggle').textContent=s.status==='playing'?'Ⅱ':'▶';$('audio-toggle').ariaLabel=s.status==='playing'?'Pause music':'Play or resume music';$('current-title').textContent=s.current?.title||'NO TRACK LOADED';$('current-time').textContent=timeLabel(s.position)+' / '+timeLabel(s.duration);$('progress').value=s.duration?s.position/s.duration:0;$('pending-title').textContent=s.error||(s.pendingZone?'QUEUED / '+zoneLabel(s.pendingZone)+' · waits for FINISH':'Location / '+zoneLabel(s.zone)+' · mode '+s.mode);$('transport-auto').textContent='AUTO DJ: '+(s.mode==='auto'?'ON':'OFF');$('terminal-zone').textContent=zoneLabel(s.zone);$('volume').value=s.volume;$('terminal-audio-status').textContent=s.status==='error'?'PROVIDER ERROR / RESUME TO RETRY':'ONE PLAYER / '+s.status.toUpperCase()+' / NO CROSSFADE';}
 const timeLabel=ms=>{const sec=Math.max(0,Math.floor((ms||0)/1000));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};
 let lastCurrent='',lastHeard='';on(music,'change',()=>{updateMusicUI();if(music.state.current?.url!==lastCurrent){lastCurrent=music.state.current?.url||'';renderLibrary();}if(music.state.status==='playing'&&music.state.current?.url!==lastHeard){lastHeard=music.state.current?.url||'';remember(music.state.current);}});
