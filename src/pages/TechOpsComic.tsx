@@ -6,9 +6,11 @@ import descriptions from '../data/comic-descriptions.json';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
-const pdfUrl = base + 'TechOps-Hero-Revision-11.pdf';
+const revision = '11.1';
+const pdfUrl = base + `TechOps-Hero-Revision-${revision}.pdf`;
 const total = descriptions.length;
-const imageUrl = (page: number) => base + String(page).padStart(3, '0') + '.webp';
+const artworkUrl = (name: string) => `${base}${name}.webp?rev=${revision}`;
+const imageUrl = (page: number) => artworkUrl(String(page).padStart(3, '0'));
 const volumes = [
   { numeral: 'I', title: 'The Human Connection', start: 1, end: 46, art: 12 },
   { numeral: 'II', title: 'The Vessel', start: 47, end: 81, art: 51 },
@@ -85,9 +87,9 @@ export default function TechOpsComic() {
         </div>
       </section>
       <section className="comic-library" aria-label="Volumes">
-        <div className="comic-library-heading"><h2>The volumes</h2><span>REVISION 11</span></div>
+        <div className="comic-library-heading"><h2>The volumes</h2><span>REVISION {revision}</span></div>
         <div className="comic-volumes">{volumes.map(v => <button key={v.start} onClick={() => choosePage(v.start)}>
-          <img src={base + 'volume-' + v.numeral + '.webp'} alt="" width="420" height="180" />
+          <img src={artworkUrl('volume-' + v.numeral)} alt="" width="420" height="180" />
           <div className="comic-vol-meta">VOL. {v.numeral}<span>PP. {v.start}–{v.end}</span></div>
           <div className="comic-vol-title">{v.title} <ArrowRight size={18}/></div>
         </button>)}</div>
