@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "project": "TechOps Hero",
+  "bible_version": "1.7",
+  "bible_sha256": "38a0fd866464daf26a036e0c2608cd8f95a879a5e1c7014b5c3ac407906b0d5f",
+  "medium": "reader-comic",
+  "volume": "Volume Two",
+  "chapter": "Scene placeholder",
+  "pages": [
+    {
+      "page_id": "v2-p001",
+      "width": 2000,
+      "height": 3000,
+      "asset_path": "assets/page-001.png",
+      "asset_sha256": "",
+      "visual_review": {
+        "status": "NOT_VERIFIED",
+        "reviewer": "",
+        "approved_reference_files": []
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "v2-s001",
+      "page_ids": [
+        "v2-p001"
+      ],
+      "story_phase": "post-ghost-fork",
+      "location": "Mike home",
+      "channel": "objective",
+      "style_register": "industrial-ink",
+      "cast": [
+        {
+          "actor_id": "k_red_el",
+          "name_used": "K",
+          "appearance": {
+            "hat": "black beanie",
+            "outfit": "dark techwear"
+          }
+        },
+        {
+          "actor_id": "mike",
+          "name_used": "Mike",
+          "appearance": {}
+        }
+      ],
+      "beats": [
+        "Mike introduces the couch; K processes strange familiarity"
+      ],
+      "facts_known_by": {
+        "mike": [],
+        "k_red_el": []
+      },
+      "reference_files": [],
+      "panels": [
+        {
+          "panel_id": "v2-p001-a",
+          "description": "K looks at the couch",
+          "camera_axis": "living-room doorway toward sofa",
+          "props": [
+            "couch"
+          ]
+        }
+      ]
+    }
+  ],
+  "approval": {
+    "canon_reviewer": "",
+    "visual_reviewer": "",
+    "owner_approved_retcons": [],
+    "status": "PROVISIONAL"
+  }
+}
