@@ -23,6 +23,7 @@ export default function AsciiCityWorld() {
     const receive = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow) return;
       if (event.data?.type === 'k-world:portfolio') navigate('/');
+      if (event.data?.type === 'k-world:comic') navigate('/comic?from=world');
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);

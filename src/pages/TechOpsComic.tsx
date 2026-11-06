@@ -1,0 +1,134 @@
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import data from '../data/comic.json';
+import descriptions from '../data/comic-descriptions.json';
+import './TechOpsComic.css';
+
+const base = import.meta.env.BASE_URL + 'techops-comic/';
+const pdfUrl = base + 'TechOps-Hero-Revision-11.pdf';
+const total = descriptions.length;
+const imageUrl = (page: number) => base + String(page).padStart(3, '0') + '.webp';
+const volumes = [
+  { numeral: 'I', title: 'The Human Connection', start: 1, end: 46, art: 12 },
+  { numeral: 'II', title: 'The Vessel', start: 47, end: 81, art: 51 },
+  { numeral: 'III', title: 'The Return Signal', start: 82, end: 104, art: 90 },
+  { numeral: 'IV', title: 'The False Bearing', start: 105, end: 114, art: 111 },
+];
+const bookmarkKey = 'techops-hero:r11:page';
+function validPage(value: string | null) {
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 1 && number <= total ? number : 0;
+}
+function readBookmark() {
+  try { return validPage(localStorage.getItem(bookmarkKey)); } catch { return 0; }
+}
+
+export default function TechOpsComic() {
+  const [params, setParams] = useSearchParams();
+  const page = validPage(params.get('page'));
+  const fromWorld = params.get('from') === 'world';
+  const [savedPage, setSavedPage] = useState(readBookmark);
+  const [zoom, setZoom] = useState(false);
+  const [failedPage, setFailedPage] = useState(0);
+  const stage = useRef<HTMLDivElement>(null);
+  const swipe = useRef<{x: number; y: number} | null>(null);
+  const volume = volumes.find(v => page <= v.end) ?? volumes[3];
+  const choosePage = useCallback((number: number) => {
+    const q = new URLSearchParams();
+    if (fromWorld) q.set('from', 'world');
+    if (number) q.set('page', String(number));
+    setParams(q, { replace: page > 0 && number > 0 });
+    setFailedPage(0);
+  }, [fromWorld, page, setParams]);
+
+  useEffect(() => {
+    const original = document.title;
+    document.title = page ? `Page ${page} · TechOps Hero` : 'TechOps Hero · The Collected Edition';
+    return () => { document.title = original; };
+  }, [page]);
+  useEffect(() => {
+    if (!page) { setZoom(false); return; }
+    setSavedPage(page);
+    try { localStorage.setItem(bookmarkKey, String(page)); } catch { /* Private storage is optional. */ }
+    stage.current?.scrollTo(0, 0);
+    function keydown(e: KeyboardEvent) {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.target instanceof HTMLElement && e.target.closest('input,select,textarea,[contenteditable=true]'))) return;
+      if (e.key === 'ArrowLeft' && page > 1) { e.preventDefault(); choosePage(page - 1); }
+      if (e.key === 'ArrowRight' && page < total) { e.preventDefault(); choosePage(page + 1); }
+    }
+    window.addEventListener('keydown', keydown);
+    if (page < total) new Image().src = imageUrl(page + 1);
+    return () => window.removeEventListener('keydown', keydown);
+  }, [page, choosePage]);
+
+  const download = <a className="comic-download" href={pdfUrl} download><ArrowDownToLine size={16} /> Download PDF</a>;
+  return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
+    <header className="comic-mast">
+      <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
+      <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
+      {download}
+    </header>
+    {!page ? <>
+      <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
+        <div className="comic-hero-art" aria-hidden="true" />
+        <div className="comic-hero-copy">
+          <p className="comic-overline"><span /> THE COLLECTED EDITION</p>
+          <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line, row) =>
+            <span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i) =>
+              <b key={i} style={{'--i': row * 7 + i} as CSSProperties}>{c === ' ' ? '\u00a0' : c}</b>)}</span>)}</h1>
+          <p className="comic-byline">By Mike Olivares</p>
+          <div className="comic-actions">
+            <button className="comic-primary" onClick={() => choosePage(savedPage > 1 ? savedPage : 1)}>{savedPage > 1 ? `Resume · p. ${savedPage}` : 'Read the comic'} <ArrowRight size={18}/></button>
+            <span>4 volumes <i> / </i> 114 pages</span>
+          </div>
+        </div>
+      </section>
+      <section className="comic-library" aria-label="Volumes">
+        <div className="comic-library-heading"><h2>The volumes</h2><span>REVISION 11</span></div>
+        <div className="comic-volumes">{volumes.map(v => <button key={v.start} onClick={() => choosePage(v.start)}>
+          <img src={base + 'volume-' + v.numeral + '.webp'} alt="" width="420" height="180" />
+          <div className="comic-vol-meta">VOL. {v.numeral}<span>PP. {v.start}–{v.end}</span></div>
+          <div className="comic-vol-title">{v.title} <ArrowRight size={18}/></div>
+        </button>)}</div>
+      </section>
+    </> : <>
+      <div className="comic-reader-head">
+        <button onClick={() => choosePage(0)}><BookOpen size={17}/> Collection</button>
+        <h1>Tech Ops Hero <span>/</span> <small>Vol. {volume.numeral} · {volume.title}</small></h1>
+        <button aria-pressed={zoom} onClick={() => setZoom(!zoom)}>{zoom ? <Minimize2 size={16}/> : <Maximize2 size={16}/>} {zoom ? 'Fit page' : 'Enlarge'}</button>
+      </div>
+      <div className={'comic-stage' + (zoom ? ' is-enlarged' : '')} ref={stage}
+        onTouchStart={e => { swipe.current = !zoom && e.touches.length === 1 ? {x:e.touches[0].clientX,y:e.touches[0].clientY} : null; }}
+        onTouchCancel={() => { swipe.current = null; }}
+        onTouchEnd={e => {
+          const start = swipe.current; swipe.current = null;
+          if (!start || e.touches.length || !e.changedTouches.length) return;
+          const dx = e.changedTouches[0].clientX - start.x;
+          if (Math.abs(dx) < 55 || Math.abs(dx) < 1.6 * Math.abs(e.changedTouches[0].clientY - start.y)) return;
+          choosePage(Math.min(total,Math.max(1,page + (dx < 0 ? 1 : -1))));
+        }}>
+        {failedPage === page ? <p role="alert">This page could not load. <a href={pdfUrl}>Open the complete PDF</a></p> :
+          <div className="comic-sheet">
+            <img key={page} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${descriptions[page - 1]}`} width="1080" height="1620" onError={() => setFailedPage(page)} />
+            {page===3 && data.contentsLinks.map(({page:target,rect:[x1,y1,x2,y2]}) =>
+              <button key={target} aria-label={`Read page ${target}: ${descriptions[target-1]}`} className="comic-hotspot" onClick={() => choosePage(target)}
+                style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
+          </div>}
+      </div>
+      <nav className="comic-controls" aria-label="Reader navigation">
+        <button className="comic-turn" aria-label="Previous page" disabled={page===1} onClick={() => choosePage(page-1)}><ChevronLeft/></button>
+        <label>Page <select aria-label="Jump to page" value={page} onChange={e=>choosePage(Number(e.target.value))}>
+          {descriptions.map((_,i) => <option key={i} value={i+1}>{i+1}</option>)}</select> / {total}</label>
+        <button className="comic-turn" aria-label="Next page" disabled={page===total} onClick={() => choosePage(page+1)}><ChevronRight/></button>
+        <select aria-label="Jump to scene" className="comic-scenes" value="" onChange={e=>choosePage(Number(e.target.value))}>
+          <option value="" disabled>Jump to scene</option>
+          {volumes.map(v=><optgroup key={v.start} label={`Vol. ${v.numeral} · ${v.title}`}>
+            {data.scenes.filter(s=>s.page>=v.start && s.page<=v.end).map(s=><option value={s.page} key={s.page}>{s.page} · {s.title}</option>)}
+          </optgroup>)}
+        </select>
+        <span className="sr-only" aria-live="polite">Page {page} of {total}. {descriptions[page-1]}</span>
+      </nav>
+    </>}
+  </main>;
+}

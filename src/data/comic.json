@@ -1,0 +1,376 @@
+{
+  "scenes": [
+    {
+      "title": "Volume One — Remastered",
+      "page": 1
+    },
+    {
+      "title": "The first encounter",
+      "page": 4
+    },
+    {
+      "title": "What Orpheus was",
+      "page": 13
+    },
+    {
+      "title": "The yard / K and Waldo before the escape",
+      "page": 17
+    },
+    {
+      "title": "Good Dogs / reciprocal rescue",
+      "page": 20
+    },
+    {
+      "title": "Warden NULL",
+      "page": 24
+    },
+    {
+      "title": "Earth return",
+      "page": 28
+    },
+    {
+      "title": "K and Mike",
+      "page": 30
+    },
+    {
+      "title": "Red and Iona / recollection",
+      "page": 33
+    },
+    {
+      "title": "The decision",
+      "page": 42
+    },
+    {
+      "title": "Open Network / The feed goes quiet",
+      "page": 43
+    },
+    {
+      "title": "Volume Two — The Vessel",
+      "page": 47
+    },
+    {
+      "title": "The raid and the car keys",
+      "page": 48
+    },
+    {
+      "title": "Iona jumps the dock gap",
+      "page": 51
+    },
+    {
+      "title": "Before the arrest / Orpheus observation",
+      "page": 53
+    },
+    {
+      "title": "Iona at the water",
+      "page": 55
+    },
+    {
+      "title": "The crossing / out of restraints",
+      "page": 56
+    },
+    {
+      "title": "The way to the control room",
+      "page": 57
+    },
+    {
+      "title": "The cost of closing the route",
+      "page": 58
+    },
+    {
+      "title": "Custody and conditioning",
+      "page": 60
+    },
+    {
+      "title": "Low Quarter recollection",
+      "page": 62
+    },
+    {
+      "title": "The awakening / what Orpheus wanted",
+      "page": 72
+    },
+    {
+      "title": "Another attempt / Cell 118",
+      "page": 73
+    },
+    {
+      "title": "The celestial encounter / Tea and regalia",
+      "page": 77
+    },
+    {
+      "title": "The return to Cell 118",
+      "page": 81
+    },
+    {
+      "title": "Volume Three — The Return Signal",
+      "page": 82
+    },
+    {
+      "title": "K confronts Orpheus",
+      "page": 85
+    },
+    {
+      "title": "K ends the connection",
+      "page": 86
+    },
+    {
+      "title": "The receiver build",
+      "page": 89
+    },
+    {
+      "title": "A narrower channel / The late pulse",
+      "page": 98
+    },
+    {
+      "title": "The voice returns",
+      "page": 99
+    },
+    {
+      "title": "Volume Four — The False Bearing",
+      "page": 105
+    },
+    {
+      "title": "The false bearing",
+      "page": 106
+    },
+    {
+      "title": "Staying in time",
+      "page": 111
+    }
+  ],
+  "contentsLinks": [
+    {
+      "page": 4,
+      "rect": [
+        24.0,
+        159.0,
+        208.0,
+        176.0
+      ]
+    },
+    {
+      "page": 10,
+      "rect": [
+        24.0,
+        181.0,
+        208.0,
+        198.0
+      ]
+    },
+    {
+      "page": 17,
+      "rect": [
+        24.0,
+        203.0,
+        208.0,
+        220.0
+      ]
+    },
+    {
+      "page": 20,
+      "rect": [
+        24.0,
+        225.0,
+        208.0,
+        242.0
+      ]
+    },
+    {
+      "page": 30,
+      "rect": [
+        24.0,
+        247.0,
+        208.0,
+        264.0
+      ]
+    },
+    {
+      "page": 33,
+      "rect": [
+        24.0,
+        269.0,
+        208.0,
+        286.0
+      ]
+    },
+    {
+      "page": 42,
+      "rect": [
+        24.0,
+        291.0,
+        208.0,
+        308.0
+      ]
+    },
+    {
+      "page": 45,
+      "rect": [
+        24.0,
+        313.0,
+        208.0,
+        330.0
+      ]
+    },
+    {
+      "page": 48,
+      "rect": [
+        225.0,
+        159.0,
+        409.0,
+        176.0
+      ]
+    },
+    {
+      "page": 53,
+      "rect": [
+        225.0,
+        181.0,
+        409.0,
+        198.0
+      ]
+    },
+    {
+      "page": 56,
+      "rect": [
+        225.0,
+        203.0,
+        409.0,
+        220.0
+      ]
+    },
+    {
+      "page": 60,
+      "rect": [
+        225.0,
+        225.0,
+        409.0,
+        242.0
+      ]
+    },
+    {
+      "page": 62,
+      "rect": [
+        225.0,
+        247.0,
+        409.0,
+        264.0
+      ]
+    },
+    {
+      "page": 73,
+      "rect": [
+        225.0,
+        269.0,
+        409.0,
+        286.0
+      ]
+    },
+    {
+      "page": 77,
+      "rect": [
+        225.0,
+        291.0,
+        409.0,
+        308.0
+      ]
+    },
+    {
+      "page": 81,
+      "rect": [
+        225.0,
+        313.0,
+        409.0,
+        330.0
+      ]
+    },
+    {
+      "page": 84,
+      "rect": [
+        24.0,
+        420.0,
+        208.0,
+        437.0
+      ]
+    },
+    {
+      "page": 85,
+      "rect": [
+        24.0,
+        442.0,
+        208.0,
+        459.0
+      ]
+    },
+    {
+      "page": 87,
+      "rect": [
+        24.0,
+        464.0,
+        208.0,
+        481.0
+      ]
+    },
+    {
+      "page": 89,
+      "rect": [
+        24.0,
+        486.0,
+        208.0,
+        503.0
+      ]
+    },
+    {
+      "page": 94,
+      "rect": [
+        24.0,
+        508.0,
+        208.0,
+        525.0
+      ]
+    },
+    {
+      "page": 98,
+      "rect": [
+        24.0,
+        530.0,
+        208.0,
+        547.0
+      ]
+    },
+    {
+      "page": 99,
+      "rect": [
+        24.0,
+        552.0,
+        208.0,
+        569.0
+      ]
+    },
+    {
+      "page": 106,
+      "rect": [
+        225.0,
+        420.0,
+        409.0,
+        437.0
+      ]
+    },
+    {
+      "page": 109,
+      "rect": [
+        225.0,
+        442.0,
+        409.0,
+        459.0
+      ]
+    },
+    {
+      "page": 111,
+      "rect": [
+        225.0,
+        464.0,
+        409.0,
+        481.0
+      ]
+    }
+  ]
+}

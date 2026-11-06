@@ -962,6 +962,7 @@ export default function KTerminal({
   <span class="tc-command">clearplaylist</span>     - Remove all tracks
   <span class="tc-command">artist</span>            - Open @raikouno profile
   <span class="tc-command">techopshero</span>       - Launch TechOps Hero inside K Terminal
+  <span class="tc-command">comic</span>             - Read the TechOps Hero comic
   <span class="tc-command">city</span>              - Exit terminal back to current city position
   <span class="tc-command">gallery</span>           - Return to gallery apse
   <span class="tc-command">auto on|off</span>       - Scene-synced K Terminal Auto DJ
@@ -1304,6 +1305,10 @@ Sequential Playback: ON (no overlap)`);
         break;
       }
 
+      case 'comic':
+        navigate('/comic');
+        break;
+
       case 'techopshero': {
         setGameOpen(true);
         addLine('<span class="tc-cyan">[GAME]</span> Mounting TechOps Hero in CRT viewport...');
@@ -1442,6 +1447,7 @@ Sequential Playback: ON (no overlap)`);
             K Terminal <span className="kt-artist-badge">THEEMRLD</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/comic" className="kt-status">[READ COMIC]</Link>
             {fromGallery && (
               <button
                 type="button"
