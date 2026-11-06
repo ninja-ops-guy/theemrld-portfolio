@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -21,6 +21,7 @@ import CaseStudy from './pages/CaseStudy';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
 gsap.registerPlugin(ScrollTrigger);
+const TechOpsComic = lazy(() => import('./pages/TechOpsComic'));
 
 function Portfolio() {
   const lenisRef = useRef<Lenis | null>(null);
@@ -52,6 +53,7 @@ function App() {
     <Route path="/" element={<Portfolio />} />
     <Route path="/k/*" element={<AsciiCityWorld />} />
     <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/comic" element={<Suspense fallback={<main>Opening TechOps Hero…</main>}><TechOpsComic /></Suspense>} />
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
