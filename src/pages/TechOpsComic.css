@@ -105,8 +105,20 @@ html:has(.comic-reel[open]) { overflow: hidden; }
 .comic-reel .comic-reel-toggle { top: max(16px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); }
 .comic-reel-film { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
 .comic-reel-gate {
-  position: absolute; left: 50%; top: 50%; width: max(100%, 177.78dvh); aspect-ratio: 16 / 9;
+  position: absolute; left: 50%; top: 50%; width: max(100%, 150dvh); aspect-ratio: 12 / 5;
   transform: translate(-50%, -50%); overflow: hidden;
+}
+@media (orientation: portrait) {
+  .comic-reel-gate { width: 165vw; }
+  /* Frame the moving panel with two stills, like gutters on a printed page. */
+  .comic-reel-film::before, .comic-reel-film::after {
+    content: ''; position: absolute; left: 50%; width: 165vw; aspect-ratio: 12 / 5;
+    transform: translateX(-50%); background-image: var(--panel-sheet); background-size: 400% 400%;
+    filter: brightness(.55);
+  }
+  .comic-reel-film::before { bottom: calc(50% + 34.375vw + 5px); background-position: 100% 0; }
+  .comic-reel-film::after { top: calc(50% + 34.375vw + 5px); background-position: 100% 66.6667%; }
+  .comic-reel-mask { z-index: 1; }
 }
 .comic-panel-sheet { display: block; width: 400%; height: 400%; max-width: none; }
 .comic-panel-sheet[data-ready] { animation: comic-panel-turns 2.45s steps(1, end) both; }
