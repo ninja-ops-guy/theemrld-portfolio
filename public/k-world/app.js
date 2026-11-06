@@ -19,7 +19,8 @@ let input={forward:false,back:false,left:false,right:false,up:false,down:false},
 const cache=new Map(),aborter=new AbortController(),signal=aborter.signal,objectUrls=new Set();
 const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
 const capture=(el,id)=>{try{el.setPointerCapture(id);}catch{/* Pointer may already have been cancelled by the OS. */}};
-const port=new SoundCloudPort($('soundcloud-slot'),tracks=>{mergeLibrary(tracks);syncLatest(tracks);});
+let publishedFeedActive=false;
+const port=new SoundCloudPort($('soundcloud-slot'),tracks=>{mergeLibrary(tracks);if(!publishedFeedActive)syncLatest(tracks);});
 const music=new Sequencer(port);music.playlists.latest=latestKnown;music.volume(preferences.volume);
 function syncLatest(tracks){
  const ranked=tracks.map(cleanTrack).filter(t=>t?.createdAt&&Number.isFinite(Date.parse(t.createdAt)))
@@ -44,7 +45,8 @@ async function loadPublishedReleases(){
   if(!verified.length)return false;
   verified.sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
   mergeLibrary(verified);
-  return syncLatest(verified);
+  publishedFeedActive=syncLatest(verified);
+  return publishedFeedActive;
  }catch{return false;}
 }
 let latestCheck=null;
@@ -53,7 +55,7 @@ function startLatestMusic(force=false){
  const generation=music.generation,wasPaused=music.state.pausedByUser;
  latestCheck=(async()=>{
   const published=await loadPublishedReleases();
-  if(!published)try{const tracks=await port.discoverTracks();if(tracks.length)syncLatest(tracks);}
+  if(!published)try{const tracks=await port.discoverTracks();if(tracks.length&&!publishedFeedActive)syncLatest(tracks);}
   catch{log('Could not verify current @raikouno releases. Cached dated releases may be available.','error');}
   // The visitor's intervening manual selection or pause always wins.
   if(music.generation!==generation||(!force&&music.state.current)||(music.state.pausedByUser&&!wasPaused))return;
