@@ -55,4 +55,4 @@ export const PLAYLISTS={
 };
 export function resolveWorld(id){if(id==='gallery'||id==='city')return id;return WORLDS.find(w=>w.id===id||w.legacy===id)?.id||'gallery';}
 export const zoneForWorld=id=>id==='gallery'?'gallery-deep':id==='city'?'city':WORLDS.find(w=>w.id===id)?.zone||'ambient';
-export const zoneLabel=id=>id==='gallery-deep'?'GALLERY / INNER NAVE':id==='gallery-turnaround'?'GALLERY / RETURN':id==='city'?'K//CITY':id==='car'?'K//DRIVE':id==='flight'?'K-01 / EVA':WORLDS.find(w=>w.zone===id)?.subtitle.toUpperCase()||'AMBIENT';
+export const zoneLabel=id=>id==='latest'?'LATEST / @RAIKOUNO':id==='gallery-deep'?'GALLERY / INNER NAVE':id==='gallery-turnaround'?'GALLERY / RETURN':id==='city'?'K//CITY':id==='car'?'K//DRIVE':id==='flight'?'K-01 / EVA':WORLDS.find(w=>w.zone===id)?.subtitle.toUpperCase()||'AMBIENT';
