@@ -6,7 +6,7 @@ import descriptions from '../data/comic-descriptions.json';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
-const revision = '11.1';
+const revision = '11.2';
 const pdfUrl = base + `TechOps-Hero-Revision-${revision}.pdf`;
 const total = descriptions.length;
 const artworkUrl = (name: string) => `${base}${name}.webp?rev=${revision}`;
