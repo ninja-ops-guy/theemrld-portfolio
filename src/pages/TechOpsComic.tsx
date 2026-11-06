@@ -31,12 +31,20 @@ export default function TechOpsComic() {
   const page = validPage(params.get('page'));
   const fromWorld = params.get('from') === 'world';
   const [savedPage, setSavedPage] = useState(readBookmark);
+  const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const stopIfReduced = () => { if (motion.matches) setIntro(false); };
+    motion.addEventListener('change', stopIfReduced);
+    return () => motion.removeEventListener('change', stopIfReduced);
+  }, []);
   const [zoom, setZoom] = useState(false);
   const [failedPage, setFailedPage] = useState(0);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x: number; y: number} | null>(null);
   const volume = volumes.find(v => page <= v.end) ?? volumes[3];
   const choosePage = useCallback((number: number) => {
+    setIntro(false);
     const q = new URLSearchParams();
     if (fromWorld) q.set('from', 'world');
     if (number) q.set('page', String(number));
@@ -74,7 +82,18 @@ export default function TechOpsComic() {
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true" />
-        <div className="comic-hero-copy">
+        {intro && <div className="comic-reel" aria-label="Tech Ops Hero animated introduction"
+          onAnimationEnd={event => { if (event.animationName === 'comic-reel-out') setIntro(false); }}>
+          <div className="comic-reel-film" aria-hidden="true">
+            {volumes.map((v, index) => <img key={v.numeral} src={artworkUrl('volume-' + v.numeral)}
+              alt="" style={{ '--cut': index } as CSSProperties} />)}
+            <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
+          </div>
+        </div>}
+        <button type="button" className="comic-reel-toggle" onClick={() => setIntro(!intro)}>
+          {intro ? 'Skip intro' : 'Replay intro'}
+        </button>
+        <div className="comic-hero-copy" style={intro ? {visibility: 'hidden'} : undefined}>
           <p className="comic-overline"><span /> THE COLLECTED EDITION</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line, row) =>
             <span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i) =>
