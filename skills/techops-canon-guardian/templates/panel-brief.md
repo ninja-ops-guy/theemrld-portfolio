@@ -1,0 +1,18 @@
+# Panel brief — TechOps Hero
+- Deliverable ID / page / panel / aspect: 
+- Canon source edition / hash: 
+- Medium + visual register + actual memory/communication channel: 
+- Volume/chapter and *relative* timeline; does this reveal something prematurely?:
+- Active POV and `facts_known_by`:
+- Cast actor IDs / scene-stage names / reference filenames and SHA256:
+- Face and hair *do-not-change* descriptions from approved model sheets:
+- Costume, accessories, body/hand orientation and pose:
+- Scene location, set dressing, prop coordinates and persistence:
+- Camera axis, screen direction, eyeline, foreground/background:
+- Emotional goal and exact physical action:
+- Dialogue speaker labels / speech tails / legible word limit:
+- Lighting, color accents, transition to next panel:
+- Negative prompts: no mismatched actors, erroneous limbs, premature reveals, invented songs, duplicate panels, mispositioned steering wheels:
+- Output path and SHA256:
+- QA: image reference compare / nearby page compare / text legibility / plot continuity:
+- Verdict: READY / PROVISIONAL / BLOCKED — reviewer + evidence:
