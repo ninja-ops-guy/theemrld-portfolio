@@ -1,0 +1,15 @@
+# TechOps Hero — Visual Canon Review
+- **Scope:** [volume, chapter, pages, panels, prompt, output files]
+- **Authority snapshot:** Story Bible v1.7 + source hash; supplemental addenda + blob/source hashes; accepted revision(s); page scene descriptions; any exact-scope creator approval.
+- **Artifacts reviewed:** [paths/revisions + SHA256; distinguish actual checked images from text metadata]
+- **References actually inspected:** [image/model sheets, accepted neighboring pages, provenance/approval status]
+- **Finding key:** `CONFIRMED_CANON_VIOLATION` / `UNCERTAIN_INTERPRETATION` / `MISSING_REFERENCE` / `STYLE_OR_CRAFT_DEVIATION` / `PASS_WITH_EVIDENCE`
+- **Character checks:** [identity, face, hair, costume, props/accessories; K, Mike, Iona, Waldo/Oz and other cast]
+- **Environment/panel checks:** [location layout, lighting, palette, camera axis, hands, screen direction, prop placement]
+- **Story checks:** [required beats/order, Cell 118 chronology, Waldo's Earth workshop, Iona's Low Quarter location, knowledge/memory source, recurring motifs]
+- **Duplication/completeness:** [expected and observed panel/page IDs; repeats/omissions]
+- **Findings:** [severity | taxonomy | page/panel | rule/reference | visual evidence | actionable correction]
+- **Open decisions or missing materials:** [specific reference or creator ruling needed]
+- **Verdict:** `READY` / `PROVISIONAL` / `BLOCKED`
+- **Certification limit:** [what was not inspected; no full canon certification unless all applicable references and actual rendered pages were checked]
+- **Approved by / date / proof:** [record actual approval; do not infer]
