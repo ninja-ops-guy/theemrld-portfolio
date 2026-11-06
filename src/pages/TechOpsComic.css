@@ -97,10 +97,13 @@
 
 /* The four published panel crops share one moving field of ink inside the title. */
 .comic-reel {
-  position: absolute; inset: 0; z-index: 2; overflow: hidden; background: #101014;
-  border-block: 6px solid #090b10;
+  position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
+  margin: 0; padding: 0; border: 0; overflow: hidden; background: #101014;
   animation: comic-reel-out .4s ease-in 3.4s both;
 }
+.comic-reel::backdrop { background: #090b10; }
+html:has(.comic-reel[open]) { overflow: hidden; }
+.comic-reel .comic-reel-toggle { top: max(16px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); }
 .comic-reel-film { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
 .comic-reel-film img {
   position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover;
@@ -133,5 +136,4 @@
 @keyframes comic-reel-out { from { opacity: 1; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .comic-reel-toggle, .comic-reel { display: none; }
-  .comic-hero-copy { visibility: visible !important; }
 }
