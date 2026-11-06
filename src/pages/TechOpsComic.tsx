@@ -2,21 +2,36 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import data from '../data/comic.json';
-import descriptions from '../data/comic-descriptions.json';
+import collectedDescriptions from '../data/comic-descriptions.json';
+import volumeFive from '../data/comic-volume-five.json';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
-const pdfUrl = base + `TechOps-Hero-Revision-${revision}.pdf`;
+const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
+const volumeFiveBase = base + 'volume-v/';
+const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
+const printPdf = volumeFiveBase + 'TechOps-Hero-Volume-5.pdf';
+const descriptions = [...collectedDescriptions, ...volumeFive.descriptions];
 const total = descriptions.length;
+const collectedPages = collectedDescriptions.length;
+const scenes = [...data.scenes, ...volumeFive.scenes.map(scene => ({
+  title: scene.title,
+  page: collectedPages + scene.page,
+}))];
 const artworkUrl = (name: string) => `${base}${name}.webp?rev=${revision}`;
-const imageUrl = (page: number) => artworkUrl(String(page).padStart(3, '0'));
+const volumeFiveArt = (name: string) => `${volumeFiveBase}${name}.webp?rev=${volumeFive.artRevision}`;
+function imageUrl(page: number) {
+  if (page > collectedPages) return volumeFiveArt(String(page - collectedPages).padStart(3, '0'));
+  return artworkUrl(String(page).padStart(3, '0'));
+}
 const volumes = [
-  { numeral: 'I', title: 'The Human Connection', start: 1, end: 46, art: 12 },
-  { numeral: 'II', title: 'The Vessel', start: 47, end: 81, art: 51 },
-  { numeral: 'III', title: 'The Return Signal', start: 82, end: 104, art: 90 },
-  { numeral: 'IV', title: 'The False Bearing', start: 105, end: 114, art: 111 },
+  { numeral: 'I', title: 'The Human Connection', start: 1, end: 46, cover: artworkUrl('volume-I') },
+  { numeral: 'II', title: 'The Vessel', start: 47, end: 81, cover: artworkUrl('volume-II') },
+  { numeral: 'III', title: 'The Return Signal', start: 82, end: 104, cover: artworkUrl('volume-III') },
+  { numeral: 'IV', title: 'The False Bearing', start: 105, end: collectedPages, cover: artworkUrl('volume-IV') },
+  { numeral: 'V', title: volumeFive.title, start: collectedPages + 1, end: total, cover: volumeFiveArt('cover') },
 ];
 const bookmarkKey = 'techops-hero:r11:page';
 function validPage(value: string | null) {
@@ -55,7 +70,9 @@ export default function TechOpsComic() {
   const [failedPage, setFailedPage] = useState(0);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x: number; y: number} | null>(null);
-  const volume = volumes.find(v => page <= v.end) ?? volumes[3];
+  const volume = volumes.find(v => page <= v.end) ?? volumes[0];
+  const readingVolumeFive = page > collectedPages;
+  const pdfUrl = readingVolumeFive ? mobilePdf : collectedPdf;
   const choosePage = useCallback((number: number) => {
     setIntro(false);
     const q = new URLSearchParams();
@@ -85,7 +102,6 @@ export default function TechOpsComic() {
     return () => window.removeEventListener('keydown', keydown);
   }, [page, choosePage]);
 
-  const download = <a className="comic-download" href={pdfUrl} download><ArrowDownToLine size={16} /> Download PDF</a>;
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
     {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
       onCancel={() => setIntro(false)}>
@@ -102,7 +118,11 @@ export default function TechOpsComic() {
     <header className="comic-mast">
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
-      {download}
+      <nav className="comic-downloads" aria-label="PDF downloads">
+        {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
+        {(!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
+        {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
+      </nav>
     </header>
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
@@ -116,14 +136,14 @@ export default function TechOpsComic() {
           <p className="comic-byline">By Mike Olivares</p>
           <div className="comic-actions">
             <button className="comic-primary" onClick={() => choosePage(savedPage > 1 ? savedPage : 1)}>{savedPage > 1 ? `Resume · p. ${savedPage}` : 'Read the comic'} <ArrowRight size={18}/></button>
-            <span>4 volumes <i> / </i> 114 pages</span>
+            <span>{volumes.length} volumes <i> / </i> {total} pages</span>
           </div>
         </div>
       </section>
       <section className="comic-library" aria-label="Volumes">
-        <div className="comic-library-heading"><h2>The volumes</h2><span>REVISION {revision}</span></div>
+        <div className="comic-library-heading"><h2>The volumes</h2><span>VOLS. I–IV · REV. {revision}</span></div>
         <div className="comic-volumes">{volumes.map(v => <button key={v.start} onClick={() => choosePage(v.start)}>
-          <img src={artworkUrl('volume-' + v.numeral)} alt="" width="420" height="180" />
+          <img src={v.cover} alt="" width="420" height="180" />
           <div className="comic-vol-meta">VOL. {v.numeral}<span>PP. {v.start}–{v.end}</span></div>
           <div className="comic-vol-title">{v.title} <ArrowRight size={18}/></div>
         </button>)}</div>
@@ -160,11 +180,15 @@ export default function TechOpsComic() {
         <select aria-label="Jump to scene" className="comic-scenes" value="" onChange={e=>choosePage(Number(e.target.value))}>
           <option value="" disabled>Jump to scene</option>
           {volumes.map(v=><optgroup key={v.start} label={`Vol. ${v.numeral} · ${v.title}`}>
-            {data.scenes.filter(s=>s.page>=v.start && s.page<=v.end).map(s=><option value={s.page} key={s.page}>{s.page} · {s.title}</option>)}
+            {scenes.filter(s=>s.page>=v.start && s.page<=v.end).map(s=><option value={s.page} key={s.page}>{s.page} · {s.title}</option>)}
           </optgroup>)}
         </select>
         <span className="sr-only" aria-live="polite">Page {page} of {total}. {descriptions[page-1]}</span>
       </nav>
+      {readingVolumeFive && <details key={page} className="comic-transcript">
+        <summary>Page transcript</summary>
+        <p>{volumeFive.transcripts[page - collectedPages - 1]}</p>
+      </details>}
     </>}
   </main>;
 }
