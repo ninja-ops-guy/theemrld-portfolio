@@ -6,6 +6,7 @@ import descriptions from '../data/comic-descriptions.json';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
+const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const pdfUrl = base + `TechOps-Hero-Revision-${revision}.pdf`;
 const total = descriptions.length;
@@ -88,10 +89,10 @@ export default function TechOpsComic() {
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
     {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
       onCancel={() => setIntro(false)}>
-      <div className="comic-reel-film" aria-hidden="true"
+      <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet': `url("${splashArt}")`} as CSSProperties}
         onAnimationEnd={event => { if (event.animationName === 'comic-reel-out') setIntro(false); }}>
         <div className="comic-reel-gate">
-          <img className="comic-panel-sheet" src={base + 'intro-panels.webp'} alt="" fetchPriority="high"
+          <img className="comic-panel-sheet" src={splashArt} alt="" fetchPriority="high"
             onLoad={event => event.currentTarget.dataset.ready = 'true'} onError={() => setIntro(false)} />
         </div>
         <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
