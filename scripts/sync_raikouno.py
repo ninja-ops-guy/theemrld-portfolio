@@ -59,7 +59,7 @@ def parse_feed(xml: bytes) -> list[dict]:
 def parse_profile_html(html: bytes) -> list[dict]:
     """Extract only public, artist-owned dated tracks from SoundCloud's hydration JSON."""
     page = html.decode("utf-8", errors="replace")
-    match = re.search(r"window\\.__sc_hydration\\s*=\\s*", page)
+    match = re.search(r"window\.__sc_hydration\s*=\s*", page)
     if not match:
         raise ValueError("No public SoundCloud track hydration found")
     hydration, _ = json.JSONDecoder().raw_decode(page[match.end():].lstrip())
