@@ -34,12 +34,26 @@ mergeLibrary(Object.values(TRACKS));
 function remember(track){if(!track||track.provider==='local')return;recent=[track.url,...recent.filter(x=>x!==track.url)].slice(0,8);write(RECENT,recent);renderLibrary();}
 function renderLibrary(){const filter=($('song-search')?.value||'').toLowerCase(),list=$('song-list');if(!list)return;list.replaceChildren();const current=music?.state?.current?.url;for(const t of library.filter(t=>t.title.toLowerCase().includes(filter)).sort((a,b)=>(Date.parse(b.createdAt)||0)-(Date.parse(a.createdAt)||0)||a.slot-b.slot)){const button=document.createElement('button');button.className='song'+(t.url===current?' current':'');button.type='button';button.title='Play '+t.title+'. Use pause or resume in K Terminal.';const number=document.createElement('span');number.className='number';number.textContent=String(t.slot).padStart(2,'0');const title=document.createElement('span');title.textContent=t.title;button.append(number,title);if(t.url===latestKnown[0]?.url){const tag=document.createElement('small');tag.className='tag';tag.textContent='LATEST';button.append(tag);}if(recent.includes(t.url)){const tag=document.createElement('small');tag.className='tag';tag.textContent='RECENT';button.append(tag);}button.addEventListener('click',()=>selectTrack(t));list.append(button);}if(!list.children.length){const empty=document.createElement('div');empty.className='song empty';empty.textContent='No matching tracks.';list.append(empty);}const box=$('recent-songs');box.replaceChildren();if(recent.length){const title=document.createElement('small');title.textContent='RECENT';box.append(title);for(const url of recent){const t=library.find(t=>t.url===url);if(!t)continue;const b=document.createElement('button');b.textContent=t.title;b.title='Play '+t.title;b.addEventListener('click',()=>selectTrack(t));box.append(b);}}}
 function selectTrack(track){remember(track);music.select(track);log('MANUAL / '+track.title+'\nScene changes will not replace this song. Type auto on to queue scene music again.');}
+async function loadPublishedReleases(){
+ try{
+  const response=await fetch('latest-releases.json',{cache:'no-store'});
+  if(!response.ok)throw Error('Release feed unavailable');
+  const entries=await response.json();
+  if(!Array.isArray(entries))throw Error('Release feed malformed');
+  const verified=entries.map(cleanTrack).filter(t=>t?.url?.startsWith('https://soundcloud.com/raikouno/')&&t.createdAt&&Number.isFinite(Date.parse(t.createdAt)));
+  if(!verified.length)return false;
+  verified.sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
+  mergeLibrary(verified);
+  return syncLatest(verified);
+ }catch{return false;}
+}
 let latestCheck=null;
 function startLatestMusic(force=false){
  if(latestCheck)return latestCheck;
  const generation=music.generation,wasPaused=music.state.pausedByUser;
  latestCheck=(async()=>{
-  try{const tracks=await port.discoverTracks();if(tracks.length)syncLatest(tracks);}
+  const published=await loadPublishedReleases();
+  if(!published)try{const tracks=await port.discoverTracks();if(tracks.length)syncLatest(tracks);}
   catch{log('Could not verify current @raikouno releases. Cached dated releases may be available.','error');}
   // The visitor's intervening manual selection or pause always wins.
   if(music.generation!==generation||(!force&&music.state.current)||(music.state.pausedByUser&&!wasPaused))return;
@@ -138,7 +152,11 @@ function setView(ascii,persist=true){
  if(persist)savePrefs();
 }
 async function refreshLibrary(){
- // Refresh means the artist's live profile, not the bundled historical catalogue.
+ // Prefer the scheduled, dated release manifest over SoundCloud's partial embed list.
+ if(await loadPublishedReleases()){
+  log('Verified published @raikouno releases: '+latestKnown.length+' · newest '+latestKnown[0].title+'. Playback was not interrupted.');
+  return;
+ }
  try{
   const tracks=await port.discoverTracks();
   if(!tracks.length||!syncLatest(tracks)){log('SoundCloud did not provide dated @raikouno uploads. Existing songs are an archive, not a current feed.','error');return;}
@@ -194,6 +212,8 @@ async function start(){try{renderer=new Renderer($('scene'));setView(preferences
  const requested=location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=requested==='terminal'?'gallery':requested;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
  $('load-state').textContent=`${assets.loaded.length} archive and sprite assets loaded${assets.errors.length?` · ${assets.errors.length} fallbacks`:''}.`;
  if(assets.errors.length)toast('Artwork missing: '+assets.errors.join(', ')+'. Named fallbacks are visible; nothing fails silently.');
+ // Populate the visible library from the scheduled release manifest before the visitor enters.
+ await loadPublishedReleases();
  if(qa){$('loading').hidden=true;if(requested==='terminal')openDialog('terminal');}
  else{$('load-state').textContent='Archive ready. Your art, music and worlds.';const enter=document.createElement('button'),quiet=document.createElement('button');enter.textContent='ENTER WORLD / SOUND ON';quiet.textContent='EXPLORE QUIETLY';const finish=(sound)=>{$('loading').hidden=true;if(sound)void startLatestMusic();else music.pause();if(requested==='terminal')openDialog('terminal');};on(enter,'click',()=>finish(true));on(quiet,'click',()=>finish(false));$('loading').append(enter,quiet);}
  if(qa)window.__K_WORLD_QA__={
