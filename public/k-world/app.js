@@ -28,14 +28,14 @@ function remember(track){if(!track||track.provider==='local')return;recent=[trac
 function renderLibrary(){const filter=($('song-search')?.value||'').toLowerCase(),list=$('song-list');if(!list)return;list.replaceChildren();const current=music?.state?.current?.url;for(const t of library.filter(t=>t.title.toLowerCase().includes(filter)).sort((a,b)=>(Date.parse(b.createdAt)||0)-(Date.parse(a.createdAt)||0)||a.slot-b.slot)){const button=document.createElement('button');button.className='song'+(t.url===current?' current':'');button.type='button';button.title='Play '+t.title+'. Use pause or resume in K Terminal.';const number=document.createElement('span');number.className='number';number.textContent=String(t.slot).padStart(2,'0');const title=document.createElement('span');title.textContent=t.title;button.append(number,title);if(t.url===latestKnown[0]?.url){const tag=document.createElement('small');tag.className='tag';tag.textContent='LATEST';button.append(tag);}if(recent.includes(t.url)){const tag=document.createElement('small');tag.className='tag';tag.textContent='RECENT';button.append(tag);}button.addEventListener('click',()=>selectTrack(t));list.append(button);}if(!list.children.length){const empty=document.createElement('div');empty.className='song empty';empty.textContent='No matching tracks.';list.append(empty);}const box=$('recent-songs');box.replaceChildren();if(recent.length){const title=document.createElement('small');title.textContent='RECENT';box.append(title);for(const url of recent){const t=library.find(t=>t.url===url);if(!t)continue;const b=document.createElement('button');b.textContent=t.title;b.title='Play '+t.title;b.addEventListener('click',()=>selectTrack(t));box.append(b);}}}
 function selectTrack(track){remember(track);music.select(track);log('MANUAL / '+track.title+'\nScene changes will not replace this song. Type auto on to queue scene music again.');}
 let latestCheck=null;
-function startLatestMusic(){
+function startLatestMusic(force=false){
  if(latestCheck)return latestCheck;
  const generation=music.generation,wasPaused=music.state.pausedByUser;
  latestCheck=(async()=>{
   try{const tracks=await port.discoverTracks();if(tracks.length)syncLatest(tracks);}
   catch{log('SoundCloud profile unavailable. Trying cached releases or the current room soundtrack.','error');}
   // The visitor's intervening manual selection or pause always wins.
-  if(music.generation!==generation||music.state.current||(music.state.pausedByUser&&!wasPaused))return;
+  if(music.generation!==generation||(!force&&music.state.current)||(music.state.pausedByUser&&!wasPaused))return;
   if(music.startZone('latest'))log('LATEST / '+music.state.current.title+'\nNewest published tracks play first; room changes queue without interrupting.');
   else{music.resume();log('No verified release list available. Starting this room soundtrack.');}
  })().finally(()=>{latestCheck=null;});
@@ -81,7 +81,7 @@ function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside 
 function manualNext(delta){if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[(index+delta+library.length)%library.length]);}
 function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map(s=>s.replace(/^['"]|['"]$/g,''))||[];if(!tokens.length)return;const [cmd,...args]=tokens;log('k@theemrld $ '+raw,'command-line');const key=cmd.toLowerCase();try{switch(key){
  case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nlatest · auto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero (game) · comic (read TechOps Hero) · clear\n\nChanging rooms queues music; only an explicit next/play command interrupts.');break;
- case 'latest':void startLatestMusic();break;
+ case 'latest':void startLatestMusic(true);break;
  case 'play':case 'song':case 'track':{if(!args.length){music.resume();break;}const value=args.join(' '),url=canonicalUrl(value),slot=Number(value);let t=url?library.find(t=>t.url===url):Number.isInteger(slot)?library.find(t=>t.slot===slot):library.find(t=>t.title.toLowerCase()===value.toLowerCase());if(!t&&!url){const matches=library.filter(t=>t.title.toLowerCase().includes(value.toLowerCase()));if(matches.length===1)t=matches[0];else throw Error(matches.length?'More than one song matches. Use its number.':'Song not found. Use songs or the library search.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
  case 'pause':music.pause();log('Paused. Walking into another room will not restart music.');break;
  case 'resume':music.resume();log('Resuming the current song.');break;
