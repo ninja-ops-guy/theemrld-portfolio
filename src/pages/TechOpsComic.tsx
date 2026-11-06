@@ -43,7 +43,8 @@ export default function TechOpsComic() {
     const dialog = splash.current;
     if (!intro || page || !dialog) return;
     dialog.showModal();
-    const finish = window.setTimeout(() => setIntro(false), 3800);
+    // Release the reader even if the panel sheet stalls on a slow connection.
+    const finish = window.setTimeout(() => setIntro(false), 8000);
     return () => {
       window.clearTimeout(finish);
       dialog.close();
@@ -87,9 +88,12 @@ export default function TechOpsComic() {
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
     {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
       onCancel={() => setIntro(false)}>
-      <div className="comic-reel-film" aria-hidden="true">
-        {volumes.map((v, index) => <img key={v.numeral} src={artworkUrl('volume-' + v.numeral)}
-          alt="" style={{ '--cut': index } as CSSProperties} />)}
+      <div className="comic-reel-film" aria-hidden="true"
+        onAnimationEnd={event => { if (event.animationName === 'comic-reel-out') setIntro(false); }}>
+        <div className="comic-reel-gate">
+          <img className="comic-panel-sheet" src={base + 'intro-panels.webp'} alt="" fetchPriority="high"
+            onLoad={event => event.currentTarget.dataset.ready = 'true'} onError={() => setIntro(false)} />
+        </div>
         <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
       </div>
       <button type="button" className="comic-reel-toggle" onClick={() => setIntro(false)}>Skip intro</button>
