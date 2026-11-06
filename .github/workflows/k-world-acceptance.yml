@@ -44,6 +44,11 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Validate release sync parser and live artist feed
+        run: |
+          python -m unittest discover -s tests -p 'test_raikouno_sync.py'
+          python scripts/sync_raikouno.py --output /tmp/raikouno-releases.json
+
       - name: Install Chromium acceptance runner
         run: |
           python -m pip install 'playwright==1.57.0'
