@@ -95,27 +95,31 @@
   .comic-hero-art, .comic-title-line b { animation: none; }
 }
 
-/* The four published panel crops share one moving field of ink inside the title. */
+/* One decoded sheet keeps rapid cuts synchronized even on a cold cache. */
 .comic-reel {
   position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none;
   margin: 0; padding: 0; border: 0; overflow: hidden; background: #101014;
-  animation: comic-reel-out .4s ease-in 3.4s both;
 }
 .comic-reel::backdrop { background: #090b10; }
 html:has(.comic-reel[open]) { overflow: hidden; }
 .comic-reel .comic-reel-toggle { top: max(16px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); }
 .comic-reel-film { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
-.comic-reel-film img {
-  position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover;
-  animation: comic-panel-cut 1.3s cubic-bezier(.17,.68,.24,1) both;
-  animation-delay: calc(var(--cut) * .55s);
+.comic-reel-gate {
+  position: absolute; left: 50%; top: 50%; width: max(100%, 177.78dvh); aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%); overflow: hidden;
 }
+.comic-panel-sheet { display: block; width: 400%; height: 400%; max-width: none; }
+.comic-panel-sheet[data-ready] { animation: comic-panel-turns 2.45s steps(1, end) both; }
+.comic-reel-film:has(.comic-panel-sheet[data-ready]) { animation: comic-reel-out .28s ease-in 3.08s both; }
 .comic-reel-mask {
   position: absolute; inset: -2px; display: grid; align-content: center; justify-items: center;
   background: #090b10; color: white; mix-blend-mode: multiply;
   font: italic 1000 clamp(54px, min(16vw, 25vh), 230px)/.84 Impact, 'Arial Black', system-ui, sans-serif;
   letter-spacing: -.065em; transform-origin: 47% 49%;
-  animation: comic-reel-pullback 1.45s cubic-bezier(.19,.75,.22,1) 1.55s both;
+  opacity: 0;
+}
+.comic-reel-film:has(.comic-panel-sheet[data-ready]) .comic-reel-mask {
+  animation: comic-reel-pullback 1.25s cubic-bezier(.19,.75,.22,1) 1.36s both;
 }
 .comic-reel-mask span { padding-inline: .1em; white-space: nowrap; }
 .comic-reel-toggle {
@@ -123,10 +127,23 @@ html:has(.comic-reel[open]) { overflow: hidden; }
   border: 1px solid #ffffff66; background: #090b10e0; color: var(--paper);
   font: 650 12px/1.2 system-ui, sans-serif;
 }
-@keyframes comic-panel-cut {
-  from { opacity: 0; transform: translateX(3%) scale(1.12); }
-  16% { opacity: 1; }
-  to { opacity: 1; transform: scale(1); }
+@keyframes comic-panel-turns {
+  0% { transform: translate(0%, 0%); }
+  10% { transform: translate(-25%, 0%); }
+  19% { transform: translate(-50%, 0%); }
+  27% { transform: translate(-75%, 0%); }
+  35% { transform: translate(0%, -25%); }
+  42% { transform: translate(-25%, -25%); }
+  49% { transform: translate(-50%, -25%); }
+  56% { transform: translate(-75%, -25%); }
+  62% { transform: translate(0%, -50%); }
+  68% { transform: translate(-25%, -50%); }
+  74% { transform: translate(-50%, -50%); }
+  80% { transform: translate(-75%, -50%); }
+  85% { transform: translate(0%, -75%); }
+  90% { transform: translate(-25%, -75%); }
+  95% { transform: translate(-50%, -75%); }
+  100% { transform: translate(-75%, -75%); }
 }
 @keyframes comic-reel-pullback {
   from { opacity: 0; transform: scale(7); }
