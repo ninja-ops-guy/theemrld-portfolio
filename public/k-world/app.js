@@ -216,7 +216,7 @@ async function start(){try{renderer=new Renderer($('scene'));setView(preferences
  $('load-state').textContent=`${assets.loaded.length} archive and sprite assets loaded${assets.errors.length?` · ${assets.errors.length} fallbacks`:''}.`;
  if(assets.errors.length)toast('Artwork missing: '+assets.errors.join(', ')+'. Named fallbacks are visible; nothing fails silently.');
  // Populate the visible library from the scheduled release manifest before the visitor enters.
- await loadPublishedReleases();
+ void loadPublishedReleases();
  if(qa){$('loading').hidden=true;if(requested==='terminal')openDialog('terminal');}
  else{$('load-state').textContent='Archive ready. Your art, music and worlds.';const enter=document.createElement('button'),quiet=document.createElement('button');enter.textContent='ENTER WORLD / SOUND ON';quiet.textContent='EXPLORE QUIETLY';const finish=(sound)=>{$('loading').hidden=true;if(sound)void startLatestMusic();else music.pause();if(requested==='terminal')openDialog('terminal');};on(enter,'click',()=>finish(true));on(quiet,'click',()=>finish(false));$('loading').append(enter,quiet);}
  if(qa)window.__K_WORLD_QA__={
