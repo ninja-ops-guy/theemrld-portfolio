@@ -46,7 +46,7 @@ jobs:
           out['rules_sha256']=hashlib.sha256(a).hexdigest()
           pathlib.Path('qa/see-world-linked/candidate-heads.json').write_text(json.dumps(out,indent=2))
           PY
-          node techops/scripts/assemble-linked-runtime.js --check
+          (cd techops && node scripts/assemble-linked-runtime.js --check)
       - name: Exhaustive narrative and linked progression contracts
         env:
           TECHOPS_SOURCE: ${{ github.workspace }}/techops/
