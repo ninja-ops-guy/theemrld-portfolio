@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [released, presentation]
-        process: [shared, isolated]
+        process: [isolated]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,12 +82,14 @@ jobs:
           replacement="p=ctx.new_page();p.on('crash',lambda:diagnostic('page-crash',label));p.on('close',lambda:diagnostic('page-close',label));pages.append((label,p));"
           assert source.count(needle)==1
           source=source.replace(needle,replacement,1)
+          # run() uses p as a local page-loop variable. Preserve a separate global
+          # Playwright alias for launching the next independent case process.
+          needle='with sync_playwright() as p:\n'
+          assert source.count(needle)==1
+          source=source.replace(needle,needle+'    diagnostic_playwright=p\n',1)
           boundary='    global contexts,pages,page_errors,observations\n'
           assert source.count(boundary)==1
-          change=boundary+"    diagnostic('case-start',name)\n"
-          if os.environ['CASE_PROCESS']=='isolated':
-              # No retry or skip; multi-tab tests stay inside their original case.
-              change="    global contexts,pages,page_errors,observations,browser\n    diagnostic('case-start',name)\n    browser.close()\n    browser=getattr(p,ENGINE).launch(headless=True)\n"
+          change="    global contexts,pages,page_errors,observations,browser\n    diagnostic('case-start',name)\n    browser.close()\n    browser=getattr(diagnostic_playwright,ENGINE).launch(headless=True)\n"
           source=source.replace(boundary,change,1)
           needle="        for c in contexts:\n"
           assert source.count(needle)==1
