@@ -1,0 +1,52 @@
+name: Ascended K Linked Review
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ascended-k-review-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  review:
+    if: github.head_ref == 'feature/see-world-ascended-k-linked' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 492706157fe4b31ff3550896d2247cc087b864d5
+          path: techops
+          persist-credentials: false
+      - name: Preserve exact tracked sources, without credentials or local saves
+        run: |
+          mkdir -p review
+          git -C portfolio rev-parse HEAD > review/portfolio-head.txt
+          git -C techops rev-parse HEAD > review/techops-head.txt
+          git -C portfolio archive --format=zip HEAD > review/portfolio-source.zip
+          git -C techops archive --format=zip HEAD > review/techops-source.zip
+          sha256sum review/* > review/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ascended-k-paired-source
+          path: review/
+          retention-days: 7
+          compression-level: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Portal contract tests when implemented
+        working-directory: portfolio
+        run: |
+          if test -f scripts/ascended-k-linked.test.mjs; then
+            node --test scripts/ascended-k-linked.test.mjs
+          else
+            echo 'Source acquisition stage; portal implementation and validation are not yet claimed.'
+          fi
