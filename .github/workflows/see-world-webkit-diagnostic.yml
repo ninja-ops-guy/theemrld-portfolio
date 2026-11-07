@@ -66,21 +66,16 @@ jobs:
         run: |
           python - <<'PY' 2>results/browser-process.log
           from pathlib import Path
-          import os,runpy,hashlib
+          import os,runpy,hashlib,ast,json
           runner=Path('portfolio/scripts/see-world-recovery-browser.py')
           text=runner.read_text()
-          end="runpy.run_path(str(expanded),run_name='__main__')"
-          assert text.count(end)==1
+          end="\nrunpy.run_path(str(expanded),run_name='__main__')"
+          assert text.count(end)==1, 'Expected one final standalone invocation'
           scope={'__file__':str(runner),'__name__':'diagnostic_setup'}
-          exec(compile(text.replace(end,'# defer execution only'),str(runner),'exec'),scope)
-          raw=scope['source']
-          source=raw
-          # Observability only: record native target crashes/closures and case boundaries.
+          exec(compile(text.replace(end,'\n# defer final execution only'),str(runner),'exec'),scope)
+          raw=scope['source'];source=raw
           needle='def context(browser,**kw):'
-          helper='''def diagnostic(event, detail=''):
-              with (OUT/'process-events.jsonl').open('a') as log:
-                  log.write(json.dumps({'time':time.time(),'event':event,'detail':str(detail)})+'\\n')
-          '''
+          helper="def diagnostic(event, detail=''):\n    with (OUT/'process-events.jsonl').open('a') as log:\n        log.write(json.dumps({'time':time.time(),'event':event,'detail':str(detail)})+'\\n')\n"
           assert source.count(needle)==1
           source=source.replace(needle,helper+'\n'+needle,1)
           needle="p=ctx.new_page();pages.append((label,p));"
@@ -91,19 +86,17 @@ jobs:
           assert source.count(boundary)==1
           change=boundary+"    diagnostic('case-start',name)\n"
           if os.environ['CASE_PROCESS']=='isolated':
-              # No retry or skip. Each independent case gets a fresh browser process.
-              # Multi-tab tests remain together inside their original case.
+              # No retry or skip; multi-tab tests stay inside their original case.
               change="    global contexts,pages,page_errors,observations,browser\n    diagnostic('case-start',name)\n    browser.close()\n    browser=getattr(p,ENGINE).launch(headless=True)\n"
           source=source.replace(boundary,change,1)
           needle="        for c in contexts:\n"
           assert source.count(needle)==1
           source=source.replace(needle,"        diagnostic('case-end',name+' '+row['status'])\n"+needle,1)
-          import ast
           original_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Assert)]
           changed_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(source)) if isinstance(n,ast.Assert)]
           assert original_asserts==changed_asserts,'Assertion matrix changed'
           out=Path(os.environ['QA_OUTPUT']);out.mkdir(parents=True,exist_ok=True)
-          (out/'assertion-parity.json').write_text(__import__('json').dumps({'count':len(original_asserts),'identical':True,'process':os.environ['CASE_PROCESS'],'original_sha256':hashlib.sha256(raw.encode()).hexdigest()},indent=2))
+          (out/'assertion-parity.json').write_text(json.dumps({'count':len(original_asserts),'identical':True,'process':os.environ['CASE_PROCESS'],'original_sha256':hashlib.sha256(raw.encode()).hexdigest()},indent=2))
           executed=out/'diagnostic-executed-test.py';executed.write_text(source)
           runpy.run_path(str(executed),run_name='__main__')
           PY
