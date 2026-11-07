@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "project": "TechOps Hero / See World linked progression",
+  "bible_version": "1.7",
+  "bible_sha256": "38a0fd866464daf26a036e0c2608cd8f95a879a5e1c7014b5c3ac407906b0d5f",
+  "source_hash_status": "DECLARED_BY_INSTALLED_CANON_PACK_NOT_REHASHED_IN_THIS_RUN",
+  "medium": "game",
+  "scenes": [
+    {
+      "scene_id": "felicia-signal",
+      "story_phase": "post-violinist-pre-duet",
+      "location": "Rooftop / grounded hangar",
+      "channel": "objective",
+      "style_register": "existing-game-pixel-art-and-native-casebook-ui",
+      "cast": [
+        {
+          "actor_id": "felicia",
+          "name_used": "Felicia",
+          "appearance": {
+            "status": "NO_NEW_CHARACTER_ART"
+          }
+        }
+      ],
+      "beats": [
+        "Signal behavior is bounded evidence; no origin claim; Mike has not received the record."
+      ],
+      "facts_known_by": {
+        "player": [
+          "Signal behavior is bounded evidence; no origin claim; Mike has not received the record."
+        ],
+        "mike": []
+      },
+      "reference_files": [
+        "canon-locks.md",
+        "creator-updates.md",
+        "TechOps-Hero-Iona-Script-and-Game-Decision.md (Iona scenes)"
+      ],
+      "visual_review": {
+        "status": "NOT_APPLICABLE_NO_NEW_LIKENESS"
+      }
+    },
+    {
+      "scene_id": "k-memory",
+      "story_phase": "post-good-dogs-return",
+      "location": "Post-return memory review",
+      "channel": "subjective-reviewed-against-observation",
+      "style_register": "existing-game-pixel-art-and-native-casebook-ui",
+      "cast": [
+        {
+          "actor_id": "k_red_el",
+          "name_used": "K",
+          "appearance": {
+            "status": "NO_NEW_CHARACTER_ART"
+          }
+        }
+      ],
+      "beats": [
+        "A physical mark supports only its observation; borrowed feeling is not identity proof."
+      ],
+      "facts_known_by": {
+        "player": [
+          "A physical mark supports only its observation; borrowed feeling is not identity proof."
+        ],
+        "mike": []
+      },
+      "reference_files": [
+        "canon-locks.md",
+        "creator-updates.md",
+        "TechOps-Hero-Iona-Script-and-Game-Decision.md (Iona scenes)"
+      ],
+      "visual_review": {
+        "status": "NOT_APPLICABLE_NO_NEW_LIKENESS"
+      }
+    },
+    {
+      "scene_id": "waldo-return",
+      "story_phase": "post-good-dogs-return",
+      "location": "Rescue debrief",
+      "channel": "objective",
+      "style_register": "existing-game-pixel-art-and-native-casebook-ui",
+      "cast": [
+        {
+          "actor_id": "waldo_oz",
+          "name_used": "Waldo / Oz",
+          "appearance": {
+            "status": "NO_NEW_CHARACTER_ART"
+          }
+        }
+      ],
+      "beats": [
+        "Dogs free K in 118; K/dogs free Oz in 1984; Warden and return follow."
+      ],
+      "facts_known_by": {
+        "player": [
+          "Dogs free K in 118; K/dogs free Oz in 1984; Warden and return follow."
+        ],
+        "mike": []
+      },
+      "reference_files": [
+        "canon-locks.md",
+        "creator-updates.md",
+        "TechOps-Hero-Iona-Script-and-Game-Decision.md (Iona scenes)"
+      ],
+      "visual_review": {
+        "status": "NOT_APPLICABLE_NO_NEW_LIKENESS"
+      }
+    },
+    {
+      "scene_id": "iona-disclosure",
+      "story_phase": "post-arrest-pre-voice-contact",
+      "location": "Low Quarter / player-only earlier interlude",
+      "channel": "objective-cutaway",
+      "style_register": "existing-game-pixel-art-and-native-casebook-ui",
+      "cast": [
+        {
+          "actor_id": "iona",
+          "name_used": "Iona",
+          "appearance": {
+            "status": "NO_NEW_CHARACTER_ART"
+          }
+        }
+      ],
+      "beats": [
+        "Discovered by player after Ghost Fork. This does not transfer private knowledge to Mike or identify the authorizer."
+      ],
+      "facts_known_by": {
+        "player": [
+          "Discovered by player after Ghost Fork. This does not transfer private knowledge to Mike or identify the authorizer."
+        ],
+        "mike": []
+      },
+      "reference_files": [
+        "canon-locks.md",
+        "creator-updates.md",
+        "TechOps-Hero-Iona-Script-and-Game-Decision.md (Iona scenes)"
+      ],
+      "visual_review": {
+        "status": "NOT_APPLICABLE_NO_NEW_LIKENESS"
+      }
+    },
+    {
+      "scene_id": "iona-followups",
+      "story_phase": "post-depot-choice-pre-voice-contact",
+      "location": "Freight route / workshop / witness venue",
+      "channel": "game-branch",
+      "style_register": "existing-game-pixel-art-and-native-casebook-ui",
+      "cast": [
+        {
+          "actor_id": "iona",
+          "name_used": "Iona",
+          "appearance": {
+            "status": "NO_NEW_CHARACTER_ART"
+          }
+        }
+      ],
+      "beats": [
+        "Exactly one depot fate per linked run; independent count and ledger precede fate."
+      ],
+      "facts_known_by": {
+        "player": [
+          "Exactly one depot fate per linked run; independent count and ledger precede fate."
+        ],
+        "mike": []
+      },
+      "reference_files": [
+        "canon-locks.md",
+        "creator-updates.md",
+        "TechOps-Hero-Iona-Script-and-Game-Decision.md (Iona scenes)"
+      ],
+      "visual_review": {
+        "status": "NOT_APPLICABLE_NO_NEW_LIKENESS"
+      }
+    }
+  ],
+  "pages": [],
+  "approval": {
+    "status": "PROVISIONAL",
+    "owner_approved_retcons": [],
+    "visual_reviewer": "No new likeness art produced"
+  },
+  "production_state": "IMPLEMENTED_CANDIDATE"
+}
