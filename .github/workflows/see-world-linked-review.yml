@@ -11,7 +11,7 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,35 +21,51 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ninja-ops-guy/techops-hero
-          ref: e85aa67a7fd2ec2827b100345483c2138d682dd0
+          ref: 8e3b498958d0f0a57c6edd546448e9bf1f99cfc2
           path: techops-hero
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Source provenance and existing story contracts
+      - name: Paired source and deterministic contracts
+        env:
+          TECHOPS_SOURCE: ../techops-hero
         run: |
           mkdir -p review
           git -C portfolio rev-parse HEAD > review/portfolio-head.txt
           git -C techops-hero rev-parse HEAD > review/techops-head.txt
-          node --test portfolio/scripts/see-world.test.mjs > review/narrative-tests.txt
-          cd techops-hero
+          cd portfolio
+          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs > ../review/story-tests.txt
+          cd ../techops-hero
           node test_campaign_story.js > ../review/native-story-tests.txt
-      - name: Retain reviewable source snapshot
+          node test_campaign_act2.js >> ../review/native-story-tests.txt
+          node test_good_dogs_bible_contract.js >> ../review/native-story-tests.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import tarfile
-          with tarfile.open('review/linked-source.tar.gz','w:gz') as t:
-            for root in ('portfolio','techops-hero'):
-              for p in Path(root).rglob('*'):
-                if not p.is_file() or '.git' in p.parts: continue
-                if p.suffix in ('.js','.mjs','.json','.html','.css','.tsx','.ts','.py','.md','.yml') and p.stat().st_size < 12000000:
-                  t.add(p)
-          PY
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Serve both real candidates on one origin
+        run: |
+          mkdir web
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > review/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Native save to See World choice to real Night objective completion
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:8765
+          LINKED_QA_DIR: review/browser
+        run: python portfolio/scripts/see-world-linked-browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: see-world-linked-source-review
+          name: see-world-linked-acceptance
           path: review/
-          retention-days: 7
+          retention-days: 14
