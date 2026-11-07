@@ -72,6 +72,10 @@ Production build:
 npm run build
 ```
 
+### Refresh the K World release catalogue
+
+Run `python scripts/sync_raikouno.py` to fetch @raikouno's public SoundCloud RSS feed and update `public/k-world/latest-releases.json`. Review the newest entries against the artist's Tracks page before publishing the snapshot. The feed includes public tracks selected for RSS, and the terminal shows when the snapshot was verified. The terminal's Refresh button reloads the published snapshot.
+
 ## Links
 
 - GitHub: https://github.com/ninja-ops-guy/

@@ -119,6 +119,28 @@ def main():
         page.evaluate("window.__K_WORLD_QA__.command('status')")
         status_log = page.locator("#console-output").inner_text()
         record("ONE-PLAYER-COMMAND-CONTRACT", "No crossfade, no second player." in status_log, status_log[-800:])
+        snapshot = context.request.get(BASE + "k-world/latest-releases.json").json()
+        titles = [track["title"] for track in snapshot["tracks"][:12]]
+        page.wait_for_function("document.querySelector('#release-status').textContent.startsWith('Last verified on')")
+        songs = page.locator("#song-list .song:not(.empty)")
+        listed = songs.locator("span:nth-child(2)").all_text_contents()
+        record("VERIFIED-RELEASE-ORDER", listed == titles, json.dumps(listed))
+
+        page.route("**/latest-releases.json", lambda route: route.fulfill(status=503))
+        page.locator("#library-refresh").click()
+        page.wait_for_function("document.querySelector('#release-status').textContent.includes('refresh unavailable')")
+        record("RELEASE-REFRESH-PRESERVES-SNAPSHOT", songs.locator("span:nth-child(2)").all_text_contents() == titles, page.locator("#release-status").inner_text())
+        page.locator("#archive-toggle").click()
+        record("ARCHIVE-SEPARATE-FROM-LATEST", songs.count() > len(titles) and not page.locator("#song-list .tag").get_by_text("LATEST", exact=True).count(), str(songs.count()))
+        page.locator("#archive-toggle").click()
+        record("RETURN-TO-VERIFIED-RELEASES", songs.locator("span:nth-child(2)").all_text_contents() == titles)
+
+        # Exercise the normal command and verify the selection independently of
+        # third-party audio availability in the runner.
+        page.route("https://w.soundcloud.com/**", lambda route: route.abort())
+        page.evaluate("window.__K_WORLD_QA__.command('latest')")
+        page.wait_for_function("(title) => window.__K_WORLD_QA__.state().audio.current?.title === title", arg=titles[0])
+        record("LATEST-COMMAND-SELECTS-NEWEST", page.locator("#current-title").inner_text() == titles[0], titles[0])
         page.evaluate("window.__K_WORLD_QA__.close()")
 
         page.screenshot(path=str(OUT / "gallery-desktop.png"), full_page=True)
