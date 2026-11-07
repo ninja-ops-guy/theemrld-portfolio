@@ -211,10 +211,40 @@ function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.
  const envelope=reactiveEnvelope(music.state,port.spectrum()),visualTime=music.state.current?music.state.position/1000:elapsed*.25,reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  if(!anyDialog()&&(renderer.backend!=='canvas'||!renderer.lastDraw||now-renderer.lastDraw>140)){renderer.lastDraw=now;renderer.render(scene,camera,reduced?0:visualTime,reduced?0:envelope.energy);}
  if(now-lastIcons>120){lastIcons=now;if($('terminal-dialog').open||$('atlas-dialog').open)for(const pre of document.querySelectorAll('[data-icon]'))pre.textContent=iconFrame(pre.dataset.icon,reduced?0:elapsed);}
- if($('terminal-dialog').open&&now-lastUI>60){lastUI=now;drawViz(envelope);animateBand();}
+ if($('terminal-dialog').open){
+  if(now-lastUI>60){lastUI=now;drawViz(envelope);}
+  animateBand(now,reduced);
+ }
 }
 function drawViz(envelope){if(!preferences.viz)return;const c=$('visualizer'),ctx=c.getContext('2d');const w=Math.max(1,c.clientWidth),h=Math.max(1,c.clientHeight);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}ctx.clearRect(0,0,w,h);const color=preferences.vizTheme==='violet'?'#b685e3':preferences.vizTheme==='amber'?'#e8b86a':'#59ccaa';ctx.strokeStyle=color;ctx.fillStyle=color;const time=music.state.position/1000,playing=music.state.status==='playing',n=preferences.vizBars;ctx.globalAlpha=.7;if(preferences.vizStyle==='ring'){ctx.beginPath();for(let i=0;i<128;i++){const a=i*Math.PI*2/127,r=14+(playing?envelope.energy*14+Math.sin(a*5+time*3)*5:0),x=w/2+Math.cos(a)*r*1.8,y=h/2+Math.sin(a)*r;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else if(preferences.vizStyle==='wave'){ctx.beginPath();for(let x=0;x<w;x+=2){const y=h/2+(playing?Math.sin(x*.04+time*4)*Math.sin(x*.011+time)*h*.30:0);if(x)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else{for(let i=0;i<n;i++){const level=playing?(.14+envelope.energy*.4+(Math.sin(i*.5+time*4)+1)*.14):.04;ctx.fillRect(i*w/n,h-level*h,w/n-2,level*h);}}ctx.globalAlpha=1;$('visualizer-source').textContent=envelope.source==='pcm'?'LIVE FFT / LOCAL AUDIO':'PLAYBACK-CLOCK SYNC / NOT FFT';}
-function animateBand(){if(!preferences.band)return;const t=music.state.position/1000,playing=music.state.status==='playing',step=Math.floor(t/.18),roles=[[0,1,0,21],[2,2,8,2],[3,3,14,3],[10,16,19,23]];[...document.querySelectorAll('.sprite')].forEach((el,i)=>{const cell=roles[i][playing?(step+i)%4:0],x=cell%6,y=Math.floor(cell/6);el.style.backgroundPosition=`${x*20}% ${y*100/3}%`;el.style.transform=playing&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches?`translateY(${-Math.abs(Math.sin(t*9+i))*5}px) rotate(${Math.sin(t*7+i)*2}deg)`:'none';});}
+const bandSprites = [...document.querySelectorAll('#k-band .sprite')];
+const bandPoses = [[0,1,0,21],[2,2,8,2],[3,3,14,3],[10,16,19,23]];
+const bandCells = [];
+let bandPosition = -1, bandSampleAt = 0, bandGeneration = -1;
+function animateBand(now,reduced){
+ const {position,status,current} = music.state;
+ const moving = status==='playing' && preferences.band && !reduced;
+ if(position!==bandPosition || music.generation!==bandGeneration || !moving){
+  bandPosition=position;
+  bandSampleAt=now;
+  bandGeneration=music.generation;
+ }
+ if(!preferences.band)return;
+ // Provider position arrives in batches. Advance between samples while the
+ // player is active, and cap the lead if buffering stalls those samples.
+ const rate = current?.provider==='local' ? (port.native?.playbackRate ?? 1) : 1;
+ const t=(position+Math.min(250,now-bandSampleAt)*rate)/1000;
+ const step=Math.floor(position/180);
+ bandSprites.forEach((el,i)=>{
+  const cell=bandPoses[i][moving?(step+i)%4:0];
+  if(bandCells[i]!==cell){
+   el.style.backgroundPosition=`${(cell%6)*20}% ${Math.floor(cell/6)*100/3}%`;
+   bandCells[i]=cell;
+  }
+  const lift=(1-Math.cos(t*18+i))*2.5;
+  el.style.transform=moving?`translateY(${-lift}px) rotate(${Math.sin(t*7+i)*2}deg)`:'';
+ });
+}
 async function start(){try{renderer=new Renderer($('scene'));setView(preferences.ascii,false);assets=new Assets(renderer);const assetTotal=ART.length+1;$('load-progress').max=assetTotal;const progressTimer=setInterval(()=>{const settled=assets.loaded.length+assets.errors.length;$('load-progress').value=settled;$('load-state').textContent=`Verifying your artwork… ${settled} / ${assetTotal}`;},100);await assets.load();clearInterval(progressTimer);$('load-progress').value=assetTotal;
  const requested=location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=requested==='terminal'?'gallery':requested;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
  $('load-state').textContent=`${assets.loaded.length} archive and sprite assets loaded${assets.errors.length?` · ${assets.errors.length} fallbacks`:''}.`;
