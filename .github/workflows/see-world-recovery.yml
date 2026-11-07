@@ -1,0 +1,107 @@
+name: See World Recovery Matrix
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'scripts/see-world*'
+      - '.github/workflows/see-world-recovery.yml'
+permissions:
+  contents: read
+jobs:
+  logic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 5cf178c62230af61cb7f1559dea17c8acc011f2b
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full story and recovery contracts
+        env:
+          TECHOPS_SOURCE: ../techops-hero
+        run: |
+          mkdir -p results
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > results/native-head.txt
+          cd portfolio
+          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs scripts/see-world-recovery.test.mjs > ../results/contracts.tap
+          cd ../techops-hero
+          node scripts/production_release_gate.js > ../results/native-production.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linked-recovery-logic
+          path: results/
+          retention-days: 14
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 5cf178c62230af61cb7f1559dea17c8acc011f2b
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/theemrld-portfolio
+          ref: 78bdb1a55d61cd1a9cf738da1f39ac9f8a4fd97c
+          path: qa-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install engine
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps ${{ matrix.engine }}
+      - name: Serve exact pair on one origin
+        run: |
+          mkdir -p results web
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > results/native-head.txt
+          git -C qa-source rev-parse HEAD > results/qa-head.txt
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Original adverse matrix plus repair scenarios
+        env:
+          QA_ENGINE: ${{ matrix.engine }}
+          QA_BASE: http://127.0.0.1:8765
+          QA_OUTPUT: results/browser
+          QA_SOURCE: qa-source
+          PORTFOLIO_HEAD: ${{ github.event.pull_request.head.sha }}
+          NATIVE_HEAD: 5cf178c62230af61cb7f1559dea17c8acc011f2b
+        run: python portfolio/scripts/see-world-recovery-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linked-recovery-${{ matrix.engine }}
+          path: results/
+          retention-days: 14

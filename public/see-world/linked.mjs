@@ -33,21 +33,42 @@ export function milestones(profile,campaign) {
   m.complete=act('epilogue')&&facts.campaign_complete===true;
   return m;
 }
-export function makeSnapshot(profileRaw,campaignRaw,previous=null) {
-  const profile=parse(profileRaw),campaign=parse(campaignRaw),id=sourceIdentity(profile,campaign);
-  const sig={profile:fingerprint(profileRaw),campaign:fingerprint(campaignRaw)};
-  if(previous&&same(previous,id)&&previous.source?.profile===sig.profile&&previous.source?.campaign===sig.campaign)return previous;
-  return {contract:CONTRACT,...id,sequence:same(previous,id)?previous.sequence+1:1,source:sig,milestones:milestones(profile,campaign),completedActs:campaign.story?.completedActs||[],updatedAt:new Date().toISOString()};
+const MILESTONE_KEYS=['violinist','alliance','duet','kSeen','kFreed','ozFreed','warden','returned','ghostFork','ionaAccount','complete'];
+const orderedActs=x=>Array.isArray(x)&&x.length<=ACTS.length&&x.every((v,i)=>v===ACTS[i]);
+const isoDate=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(x)&&Number.isFinite(Date.parse(x));
+const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+export function snapshotValid(x){
+ return record(x)&&x.contract===CONTRACT&&identityOK(x)&&Number.isSafeInteger(x.sequence)&&x.sequence>0&&x.sequence<Number.MAX_SAFE_INTEGER&&
+   record(x.source)&&['profile','campaign'].every(k=>typeof x.source[k]==='string'&&/^[a-f0-9]+:[0-9]+$/.test(x.source[k]))&&
+   record(x.milestones)&&Object.keys(x.milestones).length===MILESTONE_KEYS.length&&MILESTONE_KEYS.every(k=>typeof x.milestones[k]==='boolean')&&
+   orderedActs(x.completedActs)&&isoDate(x.updatedAt);
 }
-export function context(storage=localStorage) {
-  try {const s=parse(storage.getItem(NATIVE_KEY),50000);if(s.contract!==CONTRACT||!identityOK(s)||!Number.isSafeInteger(s.sequence)||s.sequence<1)throw Error('Unsupported linked snapshot.');
-    const active=storage.getItem(ACTIVE_KEY);if(active&&!same(parse(active,1000),s))throw Error('A new playthrough is active.');
-    const pr=storage.getItem(PROFILE_KEY),cr=storage.getItem(CAMPAIGN_KEY);
-    if(s.source.profile!==fingerprint(pr)||s.source.campaign!==fingerprint(cr))throw Error('Return to TechOps Hero to synchronize the latest native save.');
-    const p=parse(pr),c=parse(cr);if(!same(s,sourceIdentity(p,c)))throw Error('The active playthrough changed.');
-    const m=milestones(p,c);if(JSON.stringify(m)!==JSON.stringify(s.milestones))throw Error('Snapshot does not match native story milestones.');
-    return {ok:true,snapshot:s};
-  } catch(error){return{ok:false,error:error.message||'Open TechOps Hero and link a story run.'};}
+export function retainRecovery(storage,key,raw){
+ // One bounded recovery slot per affected record, never overwrite source saves.
+ if(typeof raw!=='string'||raw.length>200000)throw Error('Recovery record exceeds the safe bound; original was not replaced.');
+ const recovery=key+':recovery';storage.setItem(recovery,raw);
+ if(storage.getItem(recovery)!==raw)throw Error('Recovery copy could not be verified; original was not replaced.');
+}
+export function makeSnapshot(profileRaw,campaignRaw,previous=null) {
+ const profile=parse(profileRaw),campaign=parse(campaignRaw),id=sourceIdentity(profile,campaign);
+ const sig={profile:fingerprint(profileRaw),campaign:fingerprint(campaignRaw)};
+ const derived=milestones(profile,campaign),completedActs=campaign.story?.completedActs||[];
+ const reusable=snapshotValid(previous)&&same(previous,id);
+ if(reusable&&equal(previous.source,sig)&&equal(previous.milestones,derived)&&equal(previous.completedActs,completedActs))return previous;
+ // A disposable corrupted cache must not poison the counter of its replacement.
+ return {contract:CONTRACT,...id,sequence:reusable?previous.sequence+1:1,source:sig,milestones:derived,completedActs,updatedAt:new Date().toISOString()};
+}
+export function context(storage) {
+ try {
+   storage=storage||globalThis.localStorage;
+   const s=parse(storage.getItem(NATIVE_KEY),50000);if(!snapshotValid(s))throw Error('Unsupported linked snapshot.');
+   const active=storage.getItem(ACTIVE_KEY);if(active&&!same(parse(active,1000),s))throw Error('A new playthrough is active.');
+   const pr=storage.getItem(PROFILE_KEY),cr=storage.getItem(CAMPAIGN_KEY);
+   if(s.source.profile!==fingerprint(pr)||s.source.campaign!==fingerprint(cr))throw Error('Return to TechOps Hero to synchronize the latest native save.');
+   const p=parse(pr),c=parse(cr);if(!same(s,sourceIdentity(p,c)))throw Error('The active playthrough changed.');
+   if(!equal(milestones(p,c),s.milestones)||!equal(c.story?.completedActs||[],s.completedActs))throw Error('Snapshot does not match native story milestones.');
+   return {ok:true,snapshot:s};
+ } catch(error){return{ok:false,error:error.message||'Open TechOps Hero and link a story run.'};}
 }
 const reasons={violinist:'Complete the next character reveal in TechOps Hero.',alliance:'Continue the main investigation and establish the partnership.',duet:'Continue the main campaign to the orbital investigation.',kSeen:'Reach and identify the prisoner in the main campaign.',kFreed:'Complete the first cell release in TechOps Hero.',ozFreed:'Complete the second cell release in TechOps Hero.',warden:'Finish the custody-barrier encounter in TechOps Hero.',returned:'Complete the return journey in TechOps Hero.',ghostFork:'Complete the post-return meeting in TechOps Hero.',ionaAccount:'Read the earlier-perspective account in TechOps Hero’s Linked Story journal.'};
 export function requirement(id,node) {
@@ -86,4 +107,45 @@ export const SECTION_DEFS = [
 ];
 export function sections(progress,snapshot){return SECTION_DEFS.map(d=>{let run=null;try{if(progress.runs[d.actor])run=legalReplay(d.actor,progress.runs[d.actor],snapshot);}catch{}const earned=!!run&&run.history.some(x=>x.node===d.checkpoint)&&(!d.depot||run.flags.depot===d.depot);return{...d,earned,available:earned&&snapshot.milestones[d.requires]===true};});}
 export const nightKey=s=>'techops:linked:night:v1:'+s.profileId+':'+s.runId;
+// Both applications consume this validator; truthiness is never completion.
+export function validNightReceipt(receipt,sectionId,snapshot,progress){
+ try{
+  const def=SECTION_DEFS.find(d=>d.id===sectionId);
+  if(!def||!record(receipt)||![1,2].includes(receipt.version)||!same(progress,snapshot)||progress.contract!==CONTRACT||progress.revision!==REVISION)return false;
+  if(!Number.isSafeInteger(receipt.sourceSequence)||receipt.sourceSequence<1||receipt.sourceSequence>progress.sequence||!isoDate(receipt.at))return false;
+  if(!Array.isArray(receipt.answers)||receipt.answers.length!==def.steps.length||!receipt.answers.every((a,i)=>record(a)&&a.step===i&&a.choice===0&&Object.keys(a).length===2))return false;
+  if(!sections(progress,snapshot).some(d=>d.id===sectionId&&d.available))return false;
+  if(receipt.version===1){
+   // Compatibility: v1 binds the section and run through the validated envelope
+   // and map key. Require every original field; never promote malformed entries.
+   return Object.keys(receipt).sort().join(',')==='answers,at,sourceSequence,version';
+  }
+  if(receipt.sectionId!==sectionId||!same(receipt,snapshot)||receipt.revision!==REVISION||!Array.isArray(receipt.sourceHistory))return false;
+  const current=progress.runs[def.actor]||[];
+  if(receipt.sourceHistory.length>current.length||!equal(current.slice(0,receipt.sourceHistory.length),receipt.sourceHistory))return false;
+  const recorded={...progress,runs:{[def.actor]:receipt.sourceHistory}};
+  return sections(recorded,snapshot).some(d=>d.id===sectionId&&d.available);
+ }catch{return false;}
+}
+export function loadNight(storage,snapshot,progress){
+ const empty={contract:CONTRACT,profileId:snapshot.profileId,runId:snapshot.runId,sequence:0,completed:{}};
+ const raw=storage.getItem(nightKey(snapshot));if(raw===null)return{record:empty,invalid:[],raw};
+ let value;
+ try{
+  value=parse(raw,100000);
+  if(value.contract!==CONTRACT||!same(value,snapshot)||!Number.isSafeInteger(value.sequence)||value.sequence<0||value.sequence>=Number.MAX_SAFE_INTEGER||!record(value.completed))throw Error('Invalid envelope');
+ }catch{return{record:empty,invalid:['envelope'],raw};}
+ const completed={},invalid=[];
+ for(const [sectionId,receipt]of Object.entries(value.completed)){
+  if(validNightReceipt(receipt,sectionId,snapshot,progress))completed[sectionId]=receipt;else invalid.push(sectionId);
+ }
+ return{record:{...empty,sequence:value.sequence,completed},invalid,raw};
+}
+export function makeNightReceipt(sectionId,answers,snapshot,progress){
+ const def=SECTION_DEFS.find(d=>d.id===sectionId);if(!def)throw Error('Unknown Night Walker section.');
+ const receipt={version:2,sectionId,profileId:snapshot.profileId,runId:snapshot.runId,revision:REVISION,
+  sourceSequence:progress.sequence,sourceHistory:structuredClone(progress.runs[def.actor]||[]),answers:structuredClone(answers),at:new Date().toISOString()};
+ if(!validNightReceipt(receipt,sectionId,snapshot,progress))throw Error('Invalid or unearned Night Walker completion.');
+ return receipt;
+}
 export function timeline(s,p){return CAMPAIGNS.map(c=>{const open=gate(c.id,c.start,s),run=p.runs[c.id]?legalReplay(c.id,p.runs[c.id],s):null;return{id:c.id,title:open.allowed?c.name+' — '+c.title:'Undiscovered perspective',state:!open.allowed?'Locked':run?.ended?'Completed':run?.history.length?'In progress':'Available',placement:open.allowed?(c.id==='iona'?'Earlier interlude: after Red’s arrest, before the voice-window contact.':c.chronology):'Continue the main story to reveal this perspective.',next:open.allowed&&run?gate(c.id,run.node,s).reason:open.reason};});}
