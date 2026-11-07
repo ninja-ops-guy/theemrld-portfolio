@@ -2,11 +2,30 @@
 const help = document.getElementById('player-help');
 document.getElementById('help-open').onclick = () => help.showModal();
 document.getElementById('help-close').onclick = () => help.close();
+// Native dialog provides modal semantics; explicitly wrap keyboard focus so Tab
+// does not leave the guide for browser chrome on engines with different behavior.
+help.addEventListener('keydown', event => {
+  if (event.key !== 'Tab') return;
+  const controls = [...help.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(e => e.getClientRects().length);
+  const first = controls[0], last = controls.at(-1);
+  if (!first) return;
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 // Keep loading recovery separate from the authority-owning linked application.
 try {
   await import('./linked-app.mjs');
-  try { await import('./presentation.mjs'); }
-  catch (error) { console.warn('Presentation enhancement unavailable; the story reader remains active.', error); }
+  try {
+    await import('./presentation.mjs');
+    // A missing first-use cache is onboarding, not a damaged-save warning.
+    const clarifyFirstVisit = () => {
+      for (const p of document.querySelectorAll('.connection-card > p')) {
+        if (p.textContent === 'Missing or oversized record.') p.textContent = 'Your game has not been connected in this browser yet.';
+      }
+    };
+    new MutationObserver(clarifyFirstVisit).observe(document.getElementById('content'), {childList:true});
+    clarifyFirstVisit();
+  } catch (error) { console.warn('Presentation enhancement unavailable; the story reader remains active.', error); }
 } catch (error) {
   const main = document.getElementById('content');
   main.replaceChildren();
