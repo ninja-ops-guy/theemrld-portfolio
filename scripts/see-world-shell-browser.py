@@ -12,7 +12,7 @@ with sync_playwright() as p:
     page=context.new_page();page.on('pageerror',lambda e:report['page_errors'].append(str(e)))
     try:
         page.goto(root+'/theemrld-portfolio/#/see-world')
-        frame=page.frame_locator('iframe[title="See World — Iona, Felicia, K and Waldo story campaigns"]')
+        frame=page.frame_locator('iframe[title^="See World —"]')
         expect(frame.locator('main')).to_contain_text('FOLLOW THE STORY.')
         frame.locator('a.native-link').first.click()
         page.wait_for_url(root+'/techops-hero/',timeout=30000)
@@ -25,7 +25,7 @@ with sync_playwright() as p:
         page.locator('#btn-universe').click()
         page.locator('#dlg-options button').filter(has_text='Open See World').click()
         page.wait_for_url(root+'/theemrld-portfolio/#/see-world',timeout=30000)
-        frame=page.frame_locator('iframe[title="See World — Iona, Felicia, K and Waldo story campaigns"]')
+        frame=page.frame_locator('iframe[title^="See World —"]')
         expect(frame.locator('main')).to_contain_text('FOLLOW THE STORY.')
         assert page.locator('iframe[title^="See World —"]').count()==1
         report['steps'].append('Native successful save returns to the real React See World route with one shell')
