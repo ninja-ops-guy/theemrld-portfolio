@@ -1,0 +1,94 @@
+name: See World Public Presentation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'src/pages/MediaLinks.tsx'
+      - 'src/pages/media-links*.css'
+      - 'src/pages/SeeWorld.tsx'
+      - 'scripts/see-world-presentation*'
+      - '.github/workflows/see-world-presentation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  presentation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the actual public application
+        working-directory: portfolio
+        run: |
+          # Match Pages: no npm lockfile is committed in this repository.
+          npm install --no-audit --no-fund
+          npm run build
+          node --check public/see-world/player.mjs
+          node --check public/see-world/presentation.mjs
+      - name: Confirm unchanged story and save authority
+        run: |
+          mkdir -p evidence/source web
+          git -C portfolio rev-parse HEAD > evidence/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > evidence/native-head.txt
+          cp portfolio/package-lock.json evidence/build-package-lock.json
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          expected = {'linked-app.mjs':'574a9c45675843d2c14f8b663a639b5c5c4ab5c0','linked.mjs':'d869c3812967aa813e74b5f1a8b8709ba6317470','engine.mjs':'5a7277029cb64971428be9b9f99a03c41024b947','campaigns.mjs':'3e5355c353dab98b6eaea786192937f698de919f'}
+          for name,want in expected.items():
+              b=(Path('portfolio/public/see-world')/name).read_bytes()
+              got=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+              assert got==want,(name,got,want)
+          Path('evidence/authority-unchanged.txt').write_text('PASS: linked application, save contract, transition engine and story content match released source bytes.\n')
+          PY
+          cp portfolio/public/see-world/{index.html,player.mjs,presentation.mjs,presentation.css,presentation-base.css} evidence/source/
+          cp portfolio/src/pages/{MediaLinks.tsx,media-links.css,media-links-base.css,SeeWorld.tsx} evidence/source/
+          cp portfolio/scripts/see-world-presentation*.py evidence/source/
+          cp portfolio/docs/SEE_WORLD_PUBLIC_PRESENTATION.md evidence/source/
+          ln -s "$PWD/portfolio/dist" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > evidence/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/theemrld-portfolio/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Install browser
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps ${{ matrix.engine }}
+      - name: Public onboarding, reading, fallback and mobile acceptance
+        env:
+          PRESENTATION_BASE: http://127.0.0.1:8765
+          PRESENTATION_ENGINE: ${{ matrix.engine }}
+          PRESENTATION_OUTPUT: evidence/browser
+        run: |
+          python portfolio/scripts/see-world-presentation-layout.py
+          python portfolio/scripts/see-world-presentation-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-presentation-${{ matrix.engine }}
+          path: evidence/
+          retention-days: 14

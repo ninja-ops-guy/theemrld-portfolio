@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-/** One campaign host. Its optional world iframe owns the only audio session. */
+/** One story reader; only its optional gallery owns world audio. */
 export default function SeeWorld() {
   const frame = useRef<HTMLIFrameElement>(null);
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function SeeWorld() {
     return () => window.removeEventListener('message', receive);
   }, [navigate]);
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}see-world/index.html`}
-    title="See World — linked campaign review"
+    title="See World — interactive stories"
     allow="autoplay; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
-    style={{ position: 'fixed', inset: 0, width: '100%', height: '100dvh', border: 0, background: '#0a1115', zIndex: 20 }} />;
+    style={{ position: 'fixed', inset: 0, width: '100%', height: '100dvh', border: 0, background: '#091310', zIndex: 20 }} />;
 }

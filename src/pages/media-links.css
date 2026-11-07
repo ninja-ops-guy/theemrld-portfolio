@@ -1,0 +1,4 @@
+@import './media-links-base.css';
+/* Fit the decorative mark and headline, not a hidden-overflow mask on the page. */
+@media(max-width:700px){.media-orbit{transform:none;right:12px}.media-section-label{min-width:0}}
+@media(max-width:360px){.media-intro h1{font-size:44px}.media-masthead>span{font-size:7px;max-width:86px}}

@@ -144,7 +144,11 @@ with sync_playwright() as p:
         assert resumed.evaluate('save()') is False
         assert native.evaluate('async()=>{try{await TechOpsLinked.bindExisting();return false}catch{return true}}') is True
         assert native_snapshot(newer)['runId']==new_id
-        see.reload();assert see.get_by_role('button',name='Locked in this playthrough',exact=True).count()==4
+        see.reload()
+        # The loader now imports the reader asynchronously. The document load
+        # event is not UI readiness. Preserve the exact four-locked-cards claim
+        # but wait for that visible state instead of inspecting an empty boot DOM.
+        expect(see.get_by_role('button',name='Locked in this playthrough',exact=True)).to_have_count(4)
         passed('new-game identity reset; previous native tab cannot overwrite the new run; See World gates reset')
         REPORT['page_errors']=observed
         assert not observed,observed
