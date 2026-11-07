@@ -129,12 +129,14 @@ with sync_playwright() as p:
         resumed.wait_for_function('(()=>{try{return !!TechOpsLinked.context()}catch{return false}})()',timeout=10000)
         assert resumed.evaluate('TechOpsLinked.context().runId')==old_id
         assert native.evaluate('save()') is False
+        assert native.evaluate('async()=>{try{await TechOpsLinked.bindExisting();return false}catch{return true}}') is True
         passed('Continue preserves run identity and transfers the native writer lease; previous tab cannot overwrite the same run')
         # A second real New Game retires the old active binding; old tab cannot overwrite it.
         newer=ctx.new_page();newer.on('pageerror',lambda e:observed.append({'page':'newer','error':str(e)}));newer.goto(BASE+'/techops-hero/',wait_until='domcontentloaded');start(newer)
         new_id=newer.evaluate('TechOpsLinked.context().runId');assert new_id!=old_id
         old_write=native.evaluate('save()');assert old_write is False
         assert resumed.evaluate('save()') is False
+        assert native.evaluate('async()=>{try{await TechOpsLinked.bindExisting();return false}catch{return true}}') is True
         assert newer.evaluate('TechOpsLinked.context().runId')==new_id
         see.reload();assert see.get_by_role('button',name='Locked in this playthrough',exact=True).count()==4
         passed('new-game identity reset; previous native tab cannot overwrite the new run; See World gates reset')

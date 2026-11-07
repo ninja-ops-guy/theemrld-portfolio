@@ -47,4 +47,5 @@ $('import').onchange=async e=>{const f=e.target.files?.[0];e.target.value='';if(
 $('home').onclick=home;$('campaigns-nav').onclick=home;$('collection-nav').onclick=collection;$('world-nav').onclick=explore;$('comic-nav').onclick=()=>navigate('comic');$('portfolio-nav').onclick=()=>navigate('portfolio');
 function onExternal(){const before=snap?.runId,oldSeq=progress?.sequence;refresh();if(before!==snap?.runId||oldSeq!==progress?.sequence||!snap||view!=='story'){if($('confirm-dialog').open){pending=null;$('confirm-dialog').close();}render();}else if(view==='story')render();}
 window.addEventListener('storage',e=>{if([NATIVE_KEY,PROFILE_KEY,CAMPAIGN_KEY].includes(e.key)||e.key?.startsWith('techops:linked:'))onExternal();});window.addEventListener('focus',onExternal);window.addEventListener('pageshow',onExternal);
-refresh();const requested=location.hash.slice(1);if(campaignById(requested)&&snap&&gate(requested,campaignById(requested).start,snap).allowed){selected=requested;view='story';}render();
+function applyHash(){refresh();const requested=location.hash.slice(1);if(campaignById(requested)&&snap&&gate(requested,campaignById(requested).start,snap).allowed){selected=requested;view='story';last='';}else{selected='';view='hub';}render();}
+window.addEventListener('hashchange',()=>{leaveWorld();applyHash();});applyHash();
