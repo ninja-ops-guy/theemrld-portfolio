@@ -1,6 +1,8 @@
 """Adversarial tests of unchanged paired product heads. Failures are retained, not retried away.
 Canonical API fixtures establish later story prerequisites. Night movement is real keyboard
 input; enemies are cleared ONLY for section traversal isolation, not combat certification.
+Revision 2 fixes a TEST fixture: all-section setup no longer completes the epilogue and
+triggers its unrelated final cinematic. Product heads and assertions are unchanged.
 """
 from playwright.sync_api import sync_playwright, expect
 from pathlib import Path
@@ -8,7 +10,7 @@ import os, json, time, traceback
 ENGINE=os.getenv('QA_ENGINE','chromium');BASE=os.getenv('QA_BASE','http://127.0.0.1:8765')
 OUT=Path(os.getenv('QA_OUTPUT','results/browser'));OUT.mkdir(parents=True,exist_ok=True)
 URL=BASE+'/theemrld-portfolio/see-world/index.html';NATIVE=BASE+'/techops-hero/'
-REPORT={'engine':ENGINE,'productHeads':{'portfolio':'0a6f9bf6481f321b52d7a496da02cf62cc193820','native':'b8b2378f3cf0b84bfc94e1472b8e26d7043a7445'},'scope':'Canonical prerequisite fixtures; real UIs, saves, objective movement. No full main-story playthrough or physical-device certification.','results':[]}
+REPORT={'engine':ENGINE,'runnerRevision':2,'productHeads':{'portfolio':'0a6f9bf6481f321b52d7a496da02cf62cc193820','native':'b8b2378f3cf0b84bfc94e1472b8e26d7043a7445'},'scope':'Minimal canonical prerequisite fixtures; real UIs, saves, objective movement. No full main-story playthrough or physical-device certification.','results':[]}
 contexts=[];pages=[];page_errors=[];observations={}
 
 def context(browser,**kw):
@@ -29,7 +31,7 @@ def boot(browser):
     n.evaluate('''async()=>{closeDlg();const c=TechOpsCampaign.load(localStorage);TechOpsCampaign.save(c,localStorage);if(!save())throw Error(__techopsSaveError);await TechOpsLinked.publish();}''')
     snap(n);return ctx,n
 
-def advance(n,last='epilogue',disclose=True):
+def advance(n,last='interlude',disclose=False):
     n.evaluate('''async ({last,disclose})=>{const C=TechOpsCampaign,T=TechOpsStory,c=C.load(localStorage);for(const act of T.ACTS){if(!c.story?.completedActs?.includes(act.id)){if(act.id==='act_4')c.story.facts.trust_investigation_reported=true;T.completeAct(c,act.id);}if(act.id===last)break;}if(disclose)c.seeWorldDisclosures={redArrestAccount:{version:1,audience:'player'}};C.save(c,localStorage);await TechOpsLinked.publish();}''',{'last':last,'disclose':disclose})
     return snap(n)
 
@@ -37,8 +39,10 @@ def see(ctx,actor=''):
     p=page(ctx,'see');p.goto(URL+('#'+actor if actor else ''),wait_until='domcontentloaded');p.locator('#content h1').wait_for();return p
 
 def earn(ctx,n,section):
-    advance(n);p=see(ctx)
-    plan=p.evaluate('''async id=>{const L=await import('./linked.mjs'),E=await import('./engine.mjs'),D=await import('./campaigns.mjs'),s=L.context(localStorage).snapshot,def=L.SECTION_DEFS.find(d=>d.id===id);const q=[E.newRun(def.actor)];while(q.length){const r=q.shift();const found=L.sections({...L.emptyProgress(s),runs:{[def.actor]:r.history}},s).find(d=>d.id===id);if(found.available)return{actor:def.actor,history:r.history,definition:def};for(const o of D.nodeById(D.campaignById(def.actor),r.node).choices){try{q.push(E.choose(r,o.id));}catch{}}}throw Error('No eligible path');}''',section)
+    # Minimal fixture avoids the unrelated auto-playing epilogue ending.
+    last='act_4' if section=='signal-check' else 'act_7' if section.startswith('low-quarter-') else 'interlude'
+    advance(n,last,section.startswith('low-quarter-'));n.evaluate('S.paused=true');n.wait_for_timeout(800);snap(n);p=see(ctx)
+    plan=p.evaluate('''async id=>{const L=await import('./linked.mjs'),E=await import('./engine.mjs'),D=await import('./campaigns.mjs');let ctx;for(let i=0;i<40;i++){ctx=L.context(localStorage);if(ctx.ok)break;await new Promise(r=>setTimeout(r,50));}if(!ctx.ok)throw Error(ctx.error);const s=ctx.snapshot,def=L.SECTION_DEFS.find(d=>d.id===id);const q=[E.newRun(def.actor)];while(q.length){const r=q.shift();const found=L.sections({...L.emptyProgress(s),runs:{[def.actor]:r.history}},s).find(d=>d.id===id);if(found.available)return{actor:def.actor,history:r.history,definition:def};for(const o of D.nodeById(D.campaignById(def.actor),r.node).choices){try{q.push(E.choose(r,o.id));}catch{}}}throw Error('No eligible path');}''',section)
     p.goto(URL+'#'+plan['actor'])
     for step in plan['history']:
         p.locator('[data-choice="'+step['choice']+'"]').click()
@@ -48,7 +52,7 @@ def earn(ctx,n,section):
 
 def night(n):
     n.evaluate('()=>{closeDlg();S.inDialog=false;S.inBattle=false;S.paused=false;enterNight();}')
-    n.wait_for_function('window.S?.nightMode && window.TechOpsNightRuntime.active(S.nightMode)')
+    n.wait_for_function('window.S?.nightMode && window.TechOpsNightRuntime.active(S.nightMode)',timeout=10000)
 
 def begin(n,definition):
     n.locator('#see-world-linked-button').click();n.get_by_role('button',name='Enter: '+definition['title'],exact=True).click()
@@ -73,6 +77,7 @@ def run(name,fn):
             try:
                 dest=OUT/(name+'-'+label+'-'+str(i)+'.png');p.screenshot(path=str(dest),full_page=True,timeout=5000)
                 row.setdefault('screenshots',[]).append(dest.name);row.setdefault('body',{})[label]=p.locator('body').inner_text(timeout=2000)[-16000:]
+                if label=='native':row['nativeDiagnostics']=p.evaluate('({night:!!S?.nightMode,mode:S?.meta?._standaloneMode,paused:S?.paused,dialog:S?.inDialog,mission:window.TechOpsLinked?.mission(),link:window.TechOpsLinked?.health(),active:window.TechOpsNightRuntime?.active(S?.nightMode)})')
             except Exception:pass
     finally:
         row.update(seconds=round(time.monotonic()-start,2),page_errors=page_errors,observations=observations);REPORT['results'].append(row)
