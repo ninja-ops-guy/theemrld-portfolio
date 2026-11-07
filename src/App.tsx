@@ -18,6 +18,7 @@ import Footer from './sections/Footer';
 import AsciiCityWorld from './sections/AsciiCityWorld';
 import KTerminal from './sections/KTerminal';
 import CaseStudy from './pages/CaseStudy';
+import MediaLinks from './pages/MediaLinks';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -53,6 +54,7 @@ function App() {
     <Route path="/" element={<Portfolio />} />
     <Route path="/k/*" element={<AsciiCityWorld />} />
     <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/links" element={<MediaLinks />} />
     <Route path="/comic" element={<Suspense fallback={<main>Opening TechOps Hero…</main>}><TechOpsComic /></Suspense>} />
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
