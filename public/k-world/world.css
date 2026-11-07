@@ -30,3 +30,30 @@ dialog header,dialog footer{border-color:#00ff4124}dialog header small,dialog fo
 .band-members{background:radial-gradient(ellipse at bottom,#06200b,transparent)}
 .music-title h3,.song.current{color:#00ff41}.current-song strong{color:#b7ff00}.song{color:#8fcf99}.song:hover{background:#061408;color:#caffd2}.song.current{background:#08230d;border-left-color:#00ff41}
 #atlas-dialog .hub-cards button,.hub-cards button:nth-child(2){background:linear-gradient(115deg,#061408,#020602)}.hub-cards strong{color:#b7ff00}.hub-cards span,.portal-description{color:#84a98a}
+
+/* Painting reward / calm blue-violet encounter. */
+#painting-dialog{width:min(960px,96vw);background:#0d101dee;border-color:#696799;color:#e6eafb}
+.painting-detail{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:26px;padding:24px;align-items:center}
+#painting-image{width:100%;height:auto;object-fit:contain;display:block;border:1px solid #70634f}
+.painting-detail p{font-size:13px;line-height:1.8;color:#bdc8dc}
+.painting-detail .painting-credit{font-size:10px;color:#a7a8c3}
+#painting-status{font-size:16px;color:#ecf2ff}
+.painting-actions{display:grid;gap:10px;margin-top:24px}
+#painting-dialog button,#ascended-dialog button{min-height:48px}
+#painting-enter:not(:disabled){background:#bbebd1;color:#0a1c17;border-color:#bbebd1}
+#painting-enter:disabled{opacity:.5;cursor:not-allowed}
+#chamber-actions{position:absolute;z-index:4;top:86px;right:24px;display:flex;gap:6px}
+#chamber-actions[hidden]{display:none}
+#chamber-actions button{min-height:44px;background:#101526df;border-color:#8fa5ca;color:#e0eaff;font-size:10px}
+#ascended-dialog{width:min(650px,96vw);background:#0d101df5;border-color:#66658e;color:#e6eafb}
+.ascended-conversation{padding:24px 30px 30px}
+.ascended-stage{font-size:12px;line-height:1.8;color:#aab9d1}
+#ascended-line{font:clamp(20px,3vw,27px)/1.65 Georgia,serif;margin:24px 0 32px;border-left:2px solid #71a69c;padding-left:20px;min-height:90px;color:#e9f2ef}
+.ascended-questions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ascended-questions button{min-height:48px;text-align:left;font-size:12px;line-height:1.5;letter-spacing:0;background:#151d2c;border-color:#46596b;color:#e4ecf7}
+#painting-dialog button:focus-visible,#ascended-dialog button:focus-visible,#chamber-actions button:focus-visible{outline:3px solid #cce7ff;outline-offset:3px}
+@media(max-width:600px){.painting-detail{grid-template-columns:1fr;padding:16px;gap:12px}#painting-dialog{max-height:94dvh;overflow:auto}#painting-image{max-height:42dvh}#painting-status{font-size:14px}#painting-dialog header,#ascended-dialog header{flex-wrap:wrap;gap:10px}.ascended-conversation{padding:18px}.ascended-questions{grid-template-columns:1fr}#chamber-actions{top:75px;right:12px}#chamber-actions button{font-size:8px}#touch-controls{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}#interact{min-height:44px}}
+
+#painting-transition{position:absolute;inset:0;z-index:3;pointer-events:none;background:#090d20;opacity:0}
+#painting-transition.crossing{animation:painting-reveal 700ms ease-out}
+@keyframes painting-reveal{from{opacity:1}to{opacity:0}}

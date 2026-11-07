@@ -24,6 +24,7 @@ export default function AsciiCityWorld() {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow) return;
       if (event.data?.type === 'k-world:portfolio') navigate('/');
       if (event.data?.type === 'k-world:comic') navigate('/comic?from=world');
+      if (event.data?.type === 'k-world:campaign') navigate('/see-world');
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);

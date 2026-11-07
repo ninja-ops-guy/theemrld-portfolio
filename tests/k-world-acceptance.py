@@ -4,7 +4,7 @@
 Scopes the P0/P1 checks that can be made deterministically in CI:
 - original K Terminal is preserved and `gallery` hands off to K//WORLD
 - ASCII is the fresh default
-- expanded archive loads, twelve physical frames remain, and look-away rotation
+- expanded archive loads, twelve physical works remain (eleven rotating + one fixed portal), and look-away rotation
   changes content without duplicating visible works when alternatives exist
 - inspector metadata follows the rotated work
 - dynamic art addressing reaches the full archive and rejects out-of-range values
@@ -69,8 +69,9 @@ def main():
         archive = page.evaluate("window.__K_WORLD_QA__.archive()")
         frames = page.evaluate("window.__K_WORLD_QA__.frameState()")
         record("ARCHIVE-SIZE", len(archive) >= 41, str(len(archive)))
-        record("TWELVE-PHYSICAL-FRAMES", len(frames) == 12, str(len(frames)))
-        record("INITIAL-FRAMES-UNIQUE", len({f["art"] for f in frames}) == 12, json.dumps(frames))
+        fixed_paintings = page.evaluate("window.__K_WORLD_QA__.scene().interactions.filter(x=>x.type==='ascended-painting').length")
+        record("TWELVE-PHYSICAL-WORKS", len(frames) == 11 and fixed_paintings == 1, str(len(frames)) + " rotating / " + str(fixed_paintings) + " fixed")
+        record("INITIAL-FRAMES-UNIQUE", len({f["art"] for f in frames}) == 11, json.dumps(frames))
 
         # Repeatedly rotate every frame. This is a deterministic harness entry to the
         # same production function that fires when the visitor looks away.
