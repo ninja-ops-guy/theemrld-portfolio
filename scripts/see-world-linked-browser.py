@@ -12,6 +12,12 @@ REPORT={'passed':[],'errors':[],'scope':'Native prerequisite fixtures, actual li
 def passed(name):
     REPORT['passed'].append(name); print('PASS',name,flush=True)
 
+def native_snapshot(page):
+    # Retain the object returned by one successful poll. A later evaluate could
+    # race the next legitimate native save, which correctly invalidates a snapshot.
+    handle=page.wait_for_function('(()=>{try{return TechOpsLinked.context()}catch{return null}})()',timeout=10000)
+    return handle.json_value()
+
 def advance(page,target):
     result=page.evaluate('''async target=>{
       const C=TechOpsCampaign,T=TechOpsStory,s=C.load(localStorage);
@@ -51,8 +57,8 @@ with sync_playwright() as p:
         passed('fresh state and direct-hash spoiler masking')
         native.goto(BASE+'/techops-hero/',wait_until='domcontentloaded')
         start(native)
-        old_id=native.evaluate('TechOpsLinked.context().runId')
-        assert native.evaluate('TechOpsLinked.context().milestones.violinist') is False
+        old_id=native_snapshot(native)['runId']
+        assert native_snapshot(native)['milestones']['violinist'] is False
         passed('real main New Game creates shared playthrough identity')
         advance(native,'act_3')
         assert native.evaluate('TechOpsStoryAuthority.canPlayFelicia()') is True
@@ -75,7 +81,7 @@ with sync_playwright() as p:
         native.wait_for_function('TechOpsLinked.mission()?.id==="signal-check"')
         # Remove combat enemies only in this browser fixture to isolate movement/interaction.
         native.evaluate('NM.enemies=[];NM.hp=10000;S.inDialog=false;S.paused=false')
-        assert native.evaluate('TechOpsLinked.context().runId')==old_id
+        assert native_snapshot(native)['runId']==old_id
         answers=['Record the quiet baseline','Preserve the disagreement','Let another operator enforce the stop']
         for i,answer in enumerate(answers):
             target=[420,820,1220][i]
@@ -109,7 +115,7 @@ with sync_playwright() as p:
         mobilectx.close()
         native.get_by_role('button',name='Return to Night Walker',exact=True).click()
         advance(native,'act_7')
-        assert native.evaluate('TechOpsLinked.context().milestones.ionaAccount') is False
+        assert native_snapshot(native)['milestones']['ionaAccount'] is False
         native.locator('#see-world-linked-button').click()
         native.get_by_role('button',name='Read an earlier perspective',exact=True).click()
         native.get_by_role('button',name='Record this account and reveal the interlude',exact=True).click()
@@ -127,17 +133,17 @@ with sync_playwright() as p:
         resumed.wait_for_function('window.TechOpsLinked && window.__productionTitleReadiness?.ready===true',timeout=30000)
         resumed.locator('#btn-continue').click()
         resumed.wait_for_function('(()=>{try{return !!TechOpsLinked.context()}catch{return false}})()',timeout=10000)
-        assert resumed.evaluate('TechOpsLinked.context().runId')==old_id
+        assert native_snapshot(resumed)['runId']==old_id
         assert native.evaluate('save()') is False
         assert native.evaluate('async()=>{try{await TechOpsLinked.bindExisting();return false}catch{return true}}') is True
         passed('Continue preserves run identity and transfers the native writer lease; previous tab cannot overwrite the same run')
         # A second real New Game retires the old active binding; old tab cannot overwrite it.
         newer=ctx.new_page();newer.on('pageerror',lambda e:observed.append({'page':'newer','error':str(e)}));newer.goto(BASE+'/techops-hero/',wait_until='domcontentloaded');start(newer)
-        new_id=newer.evaluate('TechOpsLinked.context().runId');assert new_id!=old_id
+        new_id=native_snapshot(newer)['runId'];assert new_id!=old_id
         old_write=native.evaluate('save()');assert old_write is False
         assert resumed.evaluate('save()') is False
         assert native.evaluate('async()=>{try{await TechOpsLinked.bindExisting();return false}catch{return true}}') is True
-        assert newer.evaluate('TechOpsLinked.context().runId')==new_id
+        assert native_snapshot(newer)['runId']==new_id
         see.reload();assert see.get_by_role('button',name='Locked in this playthrough',exact=True).count()==4
         passed('new-game identity reset; previous native tab cannot overwrite the new run; See World gates reset')
         REPORT['page_errors']=observed
