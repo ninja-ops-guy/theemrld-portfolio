@@ -3,7 +3,8 @@ import { ArrowUpRight, BookOpen, Gamepad2, Github, Instagram, Music2, Terminal, 
 
 const destinations = [
   { title: 'READ TECHOPS HERO', detail: 'The comic archive — start reading', href: '#/comic', icon: BookOpen, internal: true },
-  { title: 'EXPLORE K WORLD', detail: 'Walk through the interactive 3D gallery', href: '#/k/gallery', icon: Gamepad2, internal: true },
+  { title: 'SEE WORLD / CAMPAIGNS', detail: 'Four lives. Your choices. Playable story drafts.', href: '#/see-world', icon: Gamepad2, internal: true },
+  { title: 'EXPLORE THE 3D WORLD', detail: 'Walk through the interactive gallery', href: '#/k/gallery', icon: Gamepad2, internal: true },
   { title: 'K TERMINAL', detail: 'Music, experiments and the interactive terminal', href: '#/terminal', icon: Terminal, internal: true },
   { title: 'MUSIC / GHOST BENDS', detail: 'Listen to original tracks and discover more', href: 'https://soundcloud.com/raikouno/tracks', icon: Music2 },
   { title: '@MIKESNINJA', detail: 'Art and comic updates', href: 'https://www.instagram.com/mikesninja/', icon: Instagram },
