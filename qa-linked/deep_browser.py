@@ -1,8 +1,8 @@
-"""Adversarial tests of unchanged paired product heads. Failures are retained, not retried away.
-Canonical API fixtures establish later story prerequisites. Night movement is real keyboard
-input; enemies are cleared ONLY for section traversal isolation, not combat certification.
-Revision 2 fixes a TEST fixture: all-section setup no longer completes the epilogue and
-triggers its unrelated final cinematic. Product heads and assertions are unchanged.
+"""Adversarial tests of unchanged paired product heads. Failures are retained.
+Minimal canonical fixtures establish prerequisites. Traversal uses keyboard input;
+enemies are cleared only to isolate movement. Revision 3 brings the native tab to
+front and deliberately skips authored entry cutscenes with their supported E key.
+The first two runner revisions and their fixture limitations remain in CI history.
 """
 from playwright.sync_api import sync_playwright, expect
 from pathlib import Path
@@ -10,7 +10,7 @@ import os, json, time, traceback
 ENGINE=os.getenv('QA_ENGINE','chromium');BASE=os.getenv('QA_BASE','http://127.0.0.1:8765')
 OUT=Path(os.getenv('QA_OUTPUT','results/browser'));OUT.mkdir(parents=True,exist_ok=True)
 URL=BASE+'/theemrld-portfolio/see-world/index.html';NATIVE=BASE+'/techops-hero/'
-REPORT={'engine':ENGINE,'runnerRevision':2,'productHeads':{'portfolio':'0a6f9bf6481f321b52d7a496da02cf62cc193820','native':'b8b2378f3cf0b84bfc94e1472b8e26d7043a7445'},'scope':'Minimal canonical prerequisite fixtures; real UIs, saves, objective movement. No full main-story playthrough or physical-device certification.','results':[]}
+REPORT={'engine':ENGINE,'runnerRevision':3,'productHeads':{'portfolio':'0a6f9bf6481f321b52d7a496da02cf62cc193820','native':'b8b2378f3cf0b84bfc94e1472b8e26d7043a7445'},'scope':'Minimal canonical prerequisite fixtures; real UIs, saves, keyboard cutscene controls and objective movement. No full main-story playthrough or physical-device certification.','results':[]}
 contexts=[];pages=[];page_errors=[];observations={}
 
 def context(browser,**kw):
@@ -39,7 +39,6 @@ def see(ctx,actor=''):
     p=page(ctx,'see');p.goto(URL+('#'+actor if actor else ''),wait_until='domcontentloaded');p.locator('#content h1').wait_for();return p
 
 def earn(ctx,n,section):
-    # Minimal fixture avoids the unrelated auto-playing epilogue ending.
     last='act_4' if section=='signal-check' else 'act_7' if section.startswith('low-quarter-') else 'interlude'
     advance(n,last,section.startswith('low-quarter-'));n.evaluate('S.paused=true');n.wait_for_timeout(800);snap(n);p=see(ctx)
     plan=p.evaluate('''async id=>{const L=await import('./linked.mjs'),E=await import('./engine.mjs'),D=await import('./campaigns.mjs');let ctx;for(let i=0;i<40;i++){ctx=L.context(localStorage);if(ctx.ok)break;await new Promise(r=>setTimeout(r,50));}if(!ctx.ok)throw Error(ctx.error);const s=ctx.snapshot,def=L.SECTION_DEFS.find(d=>d.id===id);const q=[E.newRun(def.actor)];while(q.length){const r=q.shift();const found=L.sections({...L.emptyProgress(s),runs:{[def.actor]:r.history}},s).find(d=>d.id===id);if(found.available)return{actor:def.actor,history:r.history,definition:def};for(const o of D.nodeById(D.campaignById(def.actor),r.node).choices){try{q.push(E.choose(r,o.id));}catch{}}}throw Error('No eligible path');}''',section)
@@ -51,8 +50,18 @@ def earn(ctx,n,section):
     return p,plan['definition']
 
 def night(n):
+    n.bring_to_front()
     n.evaluate('()=>{closeDlg();S.inDialog=false;S.inBattle=false;S.paused=false;enterNight();}')
+    # Native Night Drive is an intentional transition, not an immediately active map.
+    # Both existing v722 and v725 expose E as their deliberate skip control.
+    for _ in range(20):
+        active=n.evaluate('!!S?.nightMode && TechOpsNightRuntime.active(S.nightMode)')
+        blocked=n.evaluate('!!(document.getElementById("v722-cine")||document.getElementById("v725-cine"))')
+        if active and not blocked:break
+        if blocked:n.keyboard.press('e')
+        n.wait_for_timeout(200)
     n.wait_for_function('window.S?.nightMode && window.TechOpsNightRuntime.active(S.nightMode)',timeout=10000)
+    snap(n)
 
 def begin(n,definition):
     n.locator('#see-world-linked-button').click();n.get_by_role('button',name='Enter: '+definition['title'],exact=True).click()
