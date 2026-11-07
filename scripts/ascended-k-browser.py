@@ -21,7 +21,7 @@ def done(s):receipt['checks'].append(s);print('PASS',s,flush=True)
 def ready(page,suffix='?qa=1'):
  page.goto(url+suffix,wait_until='domcontentloaded');page.wait_for_function('window.__K_WORLD_QA__',timeout=60000)
 def pose(page,position,yaw=0):
- page.evaluate('(p)=>{__K_WORLD_QA__.close();__K_WORLD_QA__.camera(p.position,p.yaw);}',{'position':position,'yaw':yaw});page.locator('#scene').focus()
+ page.evaluate('(p)=>{__K_WORLD_QA__.close();__K_WORLD_QA__.camera(p.position,p.yaw);}',{'position':position,'yaw':yaw});page.locator('#scene').focus();page.wait_for_timeout(150)
 def state(page):return page.evaluate('__K_WORLD_QA__.state()')
 def native_saves(page):return page.evaluate("[localStorage.getItem('techops_hero_campaign_v1'),localStorage.getItem('techops_save'),localStorage.getItem('theemrld:universe:source:v1')]")
 def screenshot(page,name):page.screenshot(path=str(out/name),full_page=True)
@@ -37,7 +37,10 @@ with sync_playwright() as p:
   world.evaluate('__K_WORLD_QA__.inspect(6)');expect(world.locator('#painting-enter')).to_be_disabled()
   assert world.locator('#art-image').evaluate('(i)=>i.complete&&i.naturalWidth===732&&i.naturalHeight===732')
   screenshot(world,'painting-locked.png')
-  pose(world,[4.4,1.7,-15.5]);world.keyboard.down('w');world.wait_for_timeout(700);world.keyboard.up('w');assert state(world)['activeId']=='gallery'
+  pose(world,[4.4,1.7,-15.5]);world.keyboard.down('w')
+  try:world.wait_for_function("__K_WORLD_QA__.state().camera.position[2]<=-16.0",timeout=15000)
+  finally:world.keyboard.up('w')
+  assert state(world)['activeId']=='gallery'
   done('Fresh save: hash navigation, inspect action and physical crossing remain locked; original square archive artwork loaded')
   assert world.evaluate("__K_WORLD_QA__.rotateFrame('cathedral').after")=='cathedral'
   done('Painting remains pinned during look-away rotation')
@@ -61,8 +64,9 @@ with sync_playwright() as p:
   world.locator('#ascended-return').click();assert state(world)['activeId']=='gallery';assert state(world)['camera']['position']==[4.4,1.7,-13.4]
   assert native_saves(world)==before
   done('Enter, converse, exit: safe return and byte-unchanged native saves; no extra grants')
-  pose(world,[4.4,1.7,-15.5]);world.keyboard.down('w');world.wait_for_timeout(750);world.keyboard.up('w')
-  world.wait_for_function("__K_WORLD_QA__.state().activeId==='ascended'")
+  pose(world,[4.4,1.7,-15.5]);world.keyboard.down('w')
+  try:world.wait_for_function("__K_WORLD_QA__.state().activeId==='ascended'",timeout=15000)
+  finally:world.keyboard.up('w')
   done('Physical forward movement through the painted aperture opens the chamber')
   world.reload();world.wait_for_function("window.__K_WORLD_QA__?.state().activeId==='ascended'")
   done('Earned entry survives reload without a fabricated completion switch')
@@ -103,6 +107,8 @@ with sync_playwright() as p:
   receipt['status']='PASS'
  except Exception as e:
   receipt['status']='FAIL';receipt['error']=str(e);receipt['traceback']=traceback.format_exc()
+  try:receipt['world_state']=state(world)
+  except Exception:pass
   for label,page in [('native',native),('see',view),('world',world)]:
    try:screenshot(page,label+'-failure.png')
    except Exception:pass
