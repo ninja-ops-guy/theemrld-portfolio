@@ -4,6 +4,7 @@ import {buildScene,moveCamera,findInteraction,isFree} from './scenes.js';
 import {WORLDS,ART,TRACKS,resolveWorld,zoneForWorld,zoneLabel} from './data.js';
 import {SoundCloudPort,Sequencer,reactiveEnvelope,canonicalUrl} from './audio.js';
 import {iconFrame} from './icons.js';
+import {paintingAccess,crossesPainting,sameVisit,RETURN_POSE} from './ascended-access.mjs';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),qa=params.get('qa')==='1'||globalThis.__K_QA__===true;
 const KEYS='k-world:library:v6',RECENT='k-world:recent:v6',PREF='k-world:prefs:v6',LATEST='k-world:latest:v1';
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -14,6 +15,32 @@ let latestKnown=read(LATEST,[]);latestKnown=(Array.isArray(latestKnown)?latestKn
 let preferences={ascii:DEFAULT_ASCII,volume:55,viz:true,vizStyle:'bars',vizBars:40,vizTheme:'emerald',band:true,...read(PREF,{})};preferences.ascii=resolveAsciiPreference(preferences.ascii);preferences.volume=clamp(Number.isFinite(Number(preferences.volume))?Number(preferences.volume):55,0,100);preferences.vizBars=clamp(Number(preferences.vizBars)||40,8,128);
 let renderer,assets,scene,activeId='gallery',camera={position:[0,1.7,11],yaw:0,pitch:0},target=null,flight=false,drive=false,flightHome=null,vy=0,lastTime=0,elapsed=0,lastIcons=0,lastUI=0,frameId=0,artIndex=0,arrivalTimer,toastTimer,modeBeforeInspect='',lastLookedArt=null;
 const galleryRotation=new Map();
+let portalAccess={allowed:false,reason:'Checking linked progress…'},visitBinding=null,portalCheckAt=0;
+const portalPreview=params.get('preview')==='1';
+function refreshPainting(){
+ try{portalAccess=paintingAccess(localStorage,{preview:portalPreview});}catch{portalAccess={allowed:false,reason:'Browser storage is unavailable. The painting remains closed.'};}
+ if(portalAccess.allowed&&!assets?.images.has('cathedral'))portalAccess={allowed:false,reason:'The painting could not load. Reload to retry; your progress is unchanged.'};
+ $('painting-status').textContent=portalAccess.reason;$('painting-enter').disabled=!portalAccess.allowed;
+ if(activeId==='ascended'&&!sameVisit(portalAccess,visitBinding)){
+   returnPainting();toast('Linked playthrough changed or became unavailable. Returned safely to the gallery.');
+ }
+ return portalAccess;
+}
+function enterPainting(){if(!refreshPainting().allowed){toast(portalAccess.reason);return false;}navigate('ascended');return activeId==='ascended';}
+function returnPainting(){visitBinding=null;navigate('gallery',{position:[...RETURN_POSE.position],yaw:RETURN_POSE.yaw});}
+function talkToAscended(){
+ if(!refreshPainting().allowed||activeId!=='ascended')return;
+ const say=text=>{$('ascended-line').textContent=text;};
+ say('You made it through. You do not have to turn what happened into a purpose before you are allowed to rest.');
+ const choices=$('ascended-choices');choices.replaceChildren();
+ for(const [question,answer] of [
+  ['What am I supposed to keep?','Whatever you can carry without pretending it answers everything. A mark can be real without explaining the hand that made it.'],
+  ['And what do I leave behind?','The demand to make every missing thing agree. You can choose what happens next without calling the gaps a failure.'],
+  ['Can I come back?','The frame is still there. Nothing in this room asks you to stop living outside it.']
+ ]){const b=document.createElement('button');b.type='button';b.textContent=question;b.onclick=()=>{if(refreshPainting().allowed&&activeId==='ascended')say(answer);};choices.append(b);}
+ openDialog('ascended');
+}
+
 let input={forward:false,back:false,left:false,right:false,up:false,down:false},keyState=new Set(),history=[],historyIndex=0,drag=null;
 const cache=new Map(),aborter=new AbortController(),signal=aborter.signal,objectUrls=new Set();
 const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
@@ -48,7 +75,12 @@ function anyDialog(){return [...document.querySelectorAll('dialog')].some(d=>d.o
 function openDialog(id){clearInput();for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();$(id+'-dialog').showModal();if(id==='terminal')setTimeout(()=>$('command').focus(),30);}
 function closeDialog(id){$(id+'-dialog').close();clearInput();$('scene').focus({preventScroll:true});}
 function navigate(id,{returning=false,arm=false,position=null,yaw=null}={}){
- id=resolveWorld(id);if(!renderer||!assets)return;for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();clearInput();flight=false;drive=false;vy=0;flightHome=null;activeId=id;
+ id=resolveWorld(id);if(!renderer||!assets)return;
+ if(id==='ascended'){
+   const access=refreshPainting();if(!access.allowed){toast(access.reason);id='gallery';position=[...RETURN_POSE.position];yaw=0;}else visitBinding=access.binding;
+ }else visitBinding=null;
+ $('painting-exit').hidden=id!=='ascended';target=null;lastLookedArt=null;
+ for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();clearInput();flight=false;drive=false;vy=0;flightHome=null;activeId=id;
  if(!cache.has(id))cache.set(id,buildScene(assets,id));scene=cache.get(id);
  camera.position=[...(position||scene.spawn)];camera.yaw=yaw??scene.yaw;camera.pitch=.025;
  if(returning&&id==='city'){camera.position=[0,1.7,14];camera.yaw=0;}
@@ -58,14 +90,15 @@ function navigate(id,{returning=false,arm=false,position=null,yaw=null}={}){
  historyReplace();$('scene').focus({preventScroll:true});updateMusicUI();
 }
 function historyReplace(){const hash=activeId;try{window.history.replaceState(null,'','#'+hash);}catch{}}
-function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
+function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='ascended-k')talkToAscended();else if(target.type==='painting-return')returnPainting();else if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
 function rotateArtworkWhenUnseen(interaction){
  if(activeId!=='gallery'||!interaction?.art||ART.length<2)return;
  const slot=interaction.id.replace(/^art-/,'');
+ if(slot==='cathedral')return; // The reward painting never rotates away.
  const current=galleryRotation.get(slot)||interaction.art;
  const visible=new Set((scene?.interactions||[]).filter(x=>x.type==='art'&&x!==interaction).map(x=>x.art));
- const pool=ART.filter(p=>p.id!==current&&assets.images.has(p.id)&&!visible.has(p.id));
- const fallback=ART.filter(p=>p.id!==current&&assets.images.has(p.id));
+ const pool=ART.filter(p=>p.id!=='cathedral'&&p.id!==current&&assets.images.has(p.id)&&!visible.has(p.id));
+ const fallback=ART.filter(p=>p.id!=='cathedral'&&p.id!==current&&assets.images.has(p.id));
  const choices=pool.length?pool:fallback;
  const next=choices[Math.floor(Math.random()*choices.length)];
  if(!next)return;
@@ -76,7 +109,7 @@ function rotateArtworkWhenUnseen(interaction){
  galleryRotation.set(slot,next.id);
  interaction.art=next.id;interaction.title=next.title;
 }
-function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=ART[artIndex];$('art-title').textContent=piece.letter+' / '+piece.title;$('art-image').src=globalThis.__K_EMBEDDED_ASSETS__?.[piece.src]||piece.src;$('art-image').alt=piece.title+' — user supplied artwork';if(!$('art-dialog').open)openDialog('art');}
+function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=ART[artIndex];$('painting-panel').hidden=piece.id!=='cathedral';if(piece.id==='cathedral')refreshPainting();$('art-title').textContent=piece.letter+' / '+piece.title;$('art-image').src=globalThis.__K_EMBEDDED_ASSETS__?.[piece.src]||piece.src;$('art-image').alt=piece.title+' — user supplied artwork';if(!$('art-dialog').open)openDialog('art');}
 function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside K-01 Orbital.');return;}clearInput();if(!flight){flightHome={position:[...camera.position],yaw:camera.yaw};flight=true;camera.position[1]=Math.max(2.4,camera.position[1]);music.setZone('flight');toast('EVA engaged. Space / + climbs; C / − descends. F lands safely.');}else{flight=false;camera.position=[...flightHome.position];camera.yaw=flightHome.yaw;flightHome=null;music.setZone('light');toast('Airlock reentry. Position restored safely.');}$('special-toggle').textContent=flight?'F / LAND':'F / EVA';}
 function manualNext(delta){if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[(index+delta+library.length)%library.length]);}
 function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map(s=>s.replace(/^['"]|['"]$/g,''))||[];if(!tokens.length)return;const [cmd,...args]=tokens;log('k@theemrld $ '+raw,'command-line');const key=cmd.toLowerCase();try{switch(key){
@@ -131,6 +164,8 @@ let lastCurrent='',lastHeard='';on(music,'change',()=>{updateMusicUI();if(music.
 function portals(container,detailed=false){for(const w of WORLDS){const button=document.createElement('button');button.className='portal';button.dataset.destination=w.id;button.style.setProperty('--color',w.color);button.setAttribute('aria-label','Enter '+w.subtitle);const pre=document.createElement('pre');pre.dataset.icon=w.icon;pre.setAttribute('aria-hidden','true');pre.textContent=iconFrame(w.icon,0);const name=document.createElement('strong');name.className='portal-name';name.textContent=w.name;const sub=document.createElement('span');sub.className='portal-sub';sub.textContent=w.subtitle.toUpperCase();button.append(pre,name,sub);if(detailed){const p=document.createElement('p');p.className='portal-description';p.textContent=w.description;const tag=document.createElement('small');tag.className='portal-tag';tag.textContent=w.tag;button.append(p,tag);}on(button,'click',()=>navigate(w.id,{arm:true}));container.append(button);}}
 portals($('terminal-portals'));portals($('atlas-portals'),true);
 for(const b of document.querySelectorAll('.hub-cards [data-destination]'))on(b,'click',()=>navigate(b.dataset.destination,{arm:true}));
+on($('painting-enter'),'click',enterPainting);on($('painting-exit'),'click',returnPainting);on($('ascended-return'),'click',returnPainting);
+for(const event of ['storage','focus','pageshow'])on(window,event,()=>{if(renderer&&assets)refreshPainting();});
 for(const b of document.querySelectorAll('[data-close]'))on(b,'click',()=>closeDialog(b.dataset.close));
 for(const d of document.querySelectorAll('dialog'))on(d,'close',clearInput);
 on($('terminal-button'),'click',()=>openDialog('terminal'));on($('map-button'),'click',()=>openDialog('atlas'));on($('brand'),'click',()=>openDialog('atlas'));on($('help-button'),'click',()=>openDialog('help'));on($('view-button'),'click',()=>setView(!preferences.ascii));on($('interact'),'click',interact);on($('special-toggle'),'click',toggleFlight);
@@ -151,9 +186,11 @@ on($('scene'),'pointerdown',e=>{if(anyDialog()||e.button>0)return;drag={id:e.poi
 for(const button of document.querySelectorAll('[data-move]')){on(button,'pointerdown',e=>{e.preventDefault();input[button.dataset.move]=true;capture(button,e.pointerId);});for(const event of ['pointerup','pointercancel','lostpointercapture'])on(button,event,()=>input[button.dataset.move]=false);}
 on(window,'message',e=>{if(e.origin!==location.origin||e.source!==window.parent||window.parent===window)return;if(e.data?.type==='k-world:navigate'){if(e.data.scene==='terminal')openDialog('terminal');else navigate(e.data.scene)};});
 function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.045,(now-(lastTime||now))/1000);lastTime=now;elapsed+=dt;if(!scene||document.hidden)return;
- if(!anyDialog()&&$('loading').hidden){let fw=(keyState.has('w')||keyState.has('arrowup')||input.forward?1:0)-(keyState.has('s')||keyState.has('arrowdown')||input.back?1:0),st=(keyState.has('d')||input.right?1:0)-(keyState.has('a')||input.left?1:0);if(keyState.has('arrowleft'))camera.yaw-=dt*1.6;if(keyState.has('arrowright'))camera.yaw+=dt*1.6;if(drive){camera.yaw+=st*dt*1.15;st=0;}const len=Math.max(1,Math.hypot(fw,st)),speed=drive?7:flight?5:keyState.has('shift')?4.0:2.55;fw/=len;st/=len;const dx=(Math.sin(camera.yaw)*fw+Math.cos(camera.yaw)*st)*dt*speed,dz=(-Math.cos(camera.yaw)*fw+Math.sin(camera.yaw)*st)*dt*speed;
+ if(now-portalCheckAt>1000){portalCheckAt=now;refreshPainting();}
+ if(!anyDialog()&&$('loading').hidden){const beforeMove=[...camera.position];let fw=(keyState.has('w')||keyState.has('arrowup')||input.forward?1:0)-(keyState.has('s')||keyState.has('arrowdown')||input.back?1:0),st=(keyState.has('d')||input.right?1:0)-(keyState.has('a')||input.left?1:0);if(keyState.has('arrowleft'))camera.yaw-=dt*1.6;if(keyState.has('arrowright'))camera.yaw+=dt*1.6;if(drive){camera.yaw+=st*dt*1.15;st=0;}const len=Math.max(1,Math.hypot(fw,st)),speed=drive?7:flight?5:keyState.has('shift')?4.0:2.55;fw/=len;st/=len;const dx=(Math.sin(camera.yaw)*fw+Math.cos(camera.yaw)*st)*dt*speed,dz=(-Math.cos(camera.yaw)*fw+Math.sin(camera.yaw)*st)*dt*speed;
   if(flight){camera.position[0]=clamp(camera.position[0]+dx,-11,11);camera.position[2]=clamp(camera.position[2]+dz,-20,14);camera.position[1]=clamp(camera.position[1]+((keyState.has(' ')||input.up?1:0)-(keyState.has('c')||keyState.has('control')||input.down?1:0))*dt*2.3,1.7,6.2);}
   else{moveCamera(scene,camera,dx,dz);const base=(scene.ground?.(camera.position[0],camera.position[2])||0)+(drive?1.35:1.7);if(activeId==='moon'&&(vy||camera.position[1]>base+.02)){vy-=dt*1.62;camera.position[1]+=vy*dt;if(camera.position[1]<=base){camera.position[1]=base;vy=0;}}else camera.position[1]=base;}
+  if(activeId==='gallery'&&crossesPainting(beforeMove,camera.position))enterPainting();
   const previousArt=lastLookedArt;
   target=findInteraction(scene,camera);
   const currentArt=target?.type==='art'?target:null;

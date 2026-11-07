@@ -50,7 +50,7 @@ function explore() {
   exploring = true; document.body.classList.add('exploring'); $('world-stage').hidden = false; $('world-nav').textContent = 'Return to story';
   if (!worldFrame) {
     worldFrame = document.createElement('iframe'); worldFrame.title = 'See World — existing walkable environment'; worldFrame.allow = 'autoplay; fullscreen'; worldFrame.referrerPolicy = 'strict-origin-when-cross-origin';
-    worldFrame.src = `../k-world/index.html?entry=${encodeURIComponent(worldScene)}`;
+    worldFrame.src = `../k-world/index.html?entry=${encodeURIComponent(worldScene)}${preview?'&preview=1':''}`;
     worldFrame.addEventListener('load', () => { setScene(worldScene, true); $('world-note').textContent = 'Existing-world staging, not new mission geometry. Use Return to story to continue. Movement does not advance choices. The world owns music playback.'; });
     $('world-stage').append(worldFrame);
   }
@@ -188,7 +188,9 @@ function renderStory() {
     }); story.append(choices);
   } else {
     const result = make('section','','result'); result.append(make('small','PERSISTENT OUTCOME'),make('h2',current.worldState),make('small','DOSSIER DISCOVERED'),make('p',campaign.reward.title+' — '+campaign.reward.text)); story.append(result);
-    const actions=make('div','','result-actions'); actions.append(button('Open collection',showCollection,'primary'),button('Choose another life',showHub,'secondary')); story.append(actions);
+    const actions=make('div','','result-actions'); actions.append(button('Open collection',showCollection,'primary'),button('Choose another life',showHub,'secondary'));
+    if(!preview&&selected==='k')actions.append(button('Visit the painting →',()=>{setScene('gallery',true);explore();},'primary'));
+    story.append(actions);
   }
   const side = make('aside','','sidebar'); side.setAttribute('aria-label','Campaign state'); side.append(make('h2','YOUR CONSEQUENCES'));
   for (const [key,value] of Object.entries(run.stats)) {

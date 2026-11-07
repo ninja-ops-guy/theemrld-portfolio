@@ -1,5 +1,6 @@
 import {Geometry, hex, TAU, modelMatrix, clamp} from './renderer.js';
 import {ART,WORLDS} from './data.js';
+import {buildAscendedChamber} from './ascended-scene.js';
 const GOLD='#a17c45', BRONZE='#604424', STONE='#2f2939', CEDAR='#2b1e24', GREEN='#59ecab', VIOLET='#a476dc';
 function label(g,a,text,x,y,z,w,h,color,yaw=0,opts={}){g.plane(x,y,z,w,h,yaw,'#ffffff',{texture:a.label(Array.isArray(text)?text:[text],color,opts),emission:opts.emission??.8});}
 function frame(g,a,id,x,y,z,w,h,yaw=0){
@@ -72,7 +73,8 @@ export function buildGallery(a){const g=new Geometry();
  frame(g,a,'wolf',-11.69,2.85,4.9,2.65,2.65,Math.PI/2);
  frame(g,a,'garden',-11.69,3,9.2,3.0,2.65,Math.PI/2);
  frame(g,a,'meteor',-4.9,3.6,-16.65,3.1,4.12,0);
- frame(g,a,'cathedral',4.4,3.6,-16.65,3.8,3.8,0);
+ frame(g,a,'cathedral',4.4,2.3,-16.65,3.8,3.8,0);
+ label(g,a,['THE PAINTED THRESHOLD','COMPLETE THE LINKED K CAMPAIGN'],4.4,4.7,-16.58,4.5,.5,'#85a8dd',0,{fontSize:32,width:1024,height:128,border:false});
  frame(g,a,'blue-relic',11.69,3.5,-10.0,2.9,2.95,-Math.PI/2);
  frame(g,a,'neon-cosmos',11.69,3.5,-5.4,3.05,3.05,-Math.PI/2);
  frame(g,a,'equations',11.69,3.0,.1,3.6,3.1,-Math.PI/2);
@@ -193,7 +195,7 @@ export function buildRealm(a,id){const g=new Geometry(),w=WORLDS.find(w=>w.id===
  }
  return g.finish(config);
 }
-export const buildScene=(a,id)=>id==='gallery'?buildGallery(a):id==='city'?buildCity(a):buildRealm(a,id);
+export const buildScene=(a,id)=>id==='gallery'?buildGallery(a):id==='city'?buildCity(a):id==='ascended'?buildAscendedChamber(a):buildRealm(a,id);
 export function isFree(scene,x,z,radius=.28,y=1.7){const [minX,maxX,minZ,maxZ]=scene.bounds;if(x-radius<minX||x+radius>maxX||z-radius<minZ||z+radius>maxZ)return false;return !scene.colliders.some(b=>y>b.minY&&y<b.maxY+1.4&&x+radius>b.minX&&x-radius<b.maxX&&z+radius>b.minZ&&z-radius<b.maxZ);}
 export function moveCamera(scene,camera,dx,dz){const stepCount=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.16));for(let i=0;i<stepCount;i++){if(isFree(scene,camera.position[0]+dx/stepCount,camera.position[2],.28,camera.position[1]))camera.position[0]+=dx/stepCount;if(isFree(scene,camera.position[0],camera.position[2]+dz/stepCount,.28,camera.position[1]))camera.position[2]+=dz/stepCount;}}
 export function findInteraction(scene,camera){let best=null,score=Infinity;for(const item of scene.interactions){const dx=item.position[0]-camera.position[0],dz=item.position[2]-camera.position[2],dist=Math.hypot(dx,dz);const facing=dist<.25?1:(dx*Math.sin(camera.yaw)-dz*Math.cos(camera.yaw))/dist;if(dist<item.radius&&facing>.52&&dist<score){best=item;score=dist;}}return best;}
