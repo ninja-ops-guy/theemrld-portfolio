@@ -1,0 +1,55 @@
+name: See World Linked Review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'scripts/see-world*'
+      - '.github/workflows/see-world-linked-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: e85aa67a7fd2ec2827b100345483c2138d682dd0
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source provenance and existing story contracts
+        run: |
+          mkdir -p review
+          git -C portfolio rev-parse HEAD > review/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > review/techops-head.txt
+          node --test portfolio/scripts/see-world.test.mjs > review/narrative-tests.txt
+          cd techops-hero
+          node test_campaign_story.js > ../review/native-story-tests.txt
+      - name: Retain reviewable source snapshot
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          with tarfile.open('review/linked-source.tar.gz','w:gz') as t:
+            for root in ('portfolio','techops-hero'):
+              for p in Path(root).rglob('*'):
+                if not p.is_file() or '.git' in p.parts: continue
+                if p.suffix in ('.js','.mjs','.json','.html','.css','.tsx','.ts','.py','.md','.yml') and p.stat().st_size < 12000000:
+                  t.add(p)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: see-world-linked-source-review
+          path: review/
+          retention-days: 7
