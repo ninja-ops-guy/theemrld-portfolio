@@ -1,0 +1,115 @@
+name: See World WebKit Baseline Comparison
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/see-world-webkit-diagnostic.yml']
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [released, presentation]
+        process: [shared, isolated]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/theemrld-portfolio
+          ref: ${{ matrix.target == 'released' && '14a3df8e1a77ca2ad3329b43828671f69226ce77' || '0ea5cb27e8ce9be003921535b760f7d28a7f1b45' }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/theemrld-portfolio
+          ref: 78bdb1a55d61cd1a9cf738da1f39ac9f8a4fd97c
+          path: qa-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact engine
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps webkit
+      - name: Serve exact sources
+        run: |
+          mkdir -p results web
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > results/native-head.txt
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Execute the full unchanged assertion matrix once per condition
+        env:
+          QA_ENGINE: webkit
+          QA_BASE: http://127.0.0.1:8765
+          QA_OUTPUT: results/browser
+          QA_SOURCE: qa-source
+          CASE_PROCESS: ${{ matrix.process }}
+          PORTFOLIO_HEAD: ${{ matrix.target == 'released' && '14a3df8e1a77ca2ad3329b43828671f69226ce77' || '0ea5cb27e8ce9be003921535b760f7d28a7f1b45' }}
+          NATIVE_HEAD: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          DEBUG: pw:browser
+        run: |
+          python - <<'PY' 2>results/browser-process.log
+          from pathlib import Path
+          import os,runpy,hashlib
+          runner=Path('portfolio/scripts/see-world-recovery-browser.py')
+          text=runner.read_text()
+          end="runpy.run_path(str(expanded),run_name='__main__')"
+          assert text.count(end)==1
+          scope={'__file__':str(runner),'__name__':'diagnostic_setup'}
+          exec(compile(text.replace(end,'# defer execution only'),str(runner),'exec'),scope)
+          raw=scope['source']
+          source=raw
+          # Observability only: record native target crashes/closures and case boundaries.
+          needle='def context(browser,**kw):'
+          helper='''def diagnostic(event, detail=''):
+              with (OUT/'process-events.jsonl').open('a') as log:
+                  log.write(json.dumps({'time':time.time(),'event':event,'detail':str(detail)})+'\\n')
+          '''
+          assert source.count(needle)==1
+          source=source.replace(needle,helper+'\n'+needle,1)
+          needle="p=ctx.new_page();pages.append((label,p));"
+          replacement="p=ctx.new_page();p.on('crash',lambda:diagnostic('page-crash',label));p.on('close',lambda:diagnostic('page-close',label));pages.append((label,p));"
+          assert source.count(needle)==1
+          source=source.replace(needle,replacement,1)
+          boundary='    global contexts,pages,page_errors,observations\n'
+          assert source.count(boundary)==1
+          change=boundary+"    diagnostic('case-start',name)\n"
+          if os.environ['CASE_PROCESS']=='isolated':
+              # No retry or skip. Each independent case gets a fresh browser process.
+              # Multi-tab tests remain together inside their original case.
+              change="    global contexts,pages,page_errors,observations,browser\n    diagnostic('case-start',name)\n    browser.close()\n    browser=getattr(p,ENGINE).launch(headless=True)\n"
+          source=source.replace(boundary,change,1)
+          needle="        for c in contexts:\n"
+          assert source.count(needle)==1
+          source=source.replace(needle,"        diagnostic('case-end',name+' '+row['status'])\n"+needle,1)
+          import ast
+          original_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Assert)]
+          changed_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(source)) if isinstance(n,ast.Assert)]
+          assert original_asserts==changed_asserts,'Assertion matrix changed'
+          out=Path(os.environ['QA_OUTPUT']);out.mkdir(parents=True,exist_ok=True)
+          (out/'assertion-parity.json').write_text(__import__('json').dumps({'count':len(original_asserts),'identical':True,'process':os.environ['CASE_PROCESS'],'original_sha256':hashlib.sha256(raw.encode()).hexdigest()},indent=2))
+          executed=out/'diagnostic-executed-test.py';executed.write_text(source)
+          runpy.run_path(str(executed),run_name='__main__')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webkit-${{ matrix.target }}-${{ matrix.process }}
+          path: results/
+          retention-days: 14
