@@ -92,6 +92,12 @@ jobs:
           LINKED_BASE_URL: http://127.0.0.1:8765
           LINKED_QA_DIR: qa/see-world-linked
         run: python portfolio/scripts/see-world-linked-browser.py
+      - name: Real portfolio shell and native navigation
+        if: ${{ !cancelled() }}
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:8765
+          LINKED_QA_DIR: qa/see-world-linked
+        run: python portfolio/scripts/see-world-shell-browser.py
       - name: Retain candidate receipts and actual screenshots
         if: always()
         uses: actions/upload-artifact@v4
