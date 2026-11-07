@@ -1,0 +1,51 @@
+name: See World Linked Candidate Evidence
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'scripts/see-world*'
+      - '.github/workflows/see-world-linked.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: e85aa67a7fd2ec2827b100345483c2138d682dd0
+          path: techops
+          persist-credentials: false
+      - name: Retain pinned source inputs (not an integration PASS)
+        run: |
+          mkdir -p evidence
+          python - <<'PY'
+          import pathlib, subprocess, json, tarfile, hashlib
+          manifest={"status":"SOURCE_INPUTS_ONLY_NOT_INTEGRATION_QUALIFICATION","repositories":{}}
+          with tarfile.open('evidence/source-inputs.tar.gz','w:gz') as archive:
+            for name in ('portfolio','techops'):
+              root=pathlib.Path(name)
+              sha=subprocess.check_output(['git','-C',name,'rev-parse','HEAD'],text=True).strip()
+              entries={}
+              for filename in subprocess.check_output(['git','-C',name,'ls-files'],text=True).splitlines():
+                p=root/filename
+                if p.is_file() and p.suffix.lower() in ('.js','.mjs','.cjs','.ts','.tsx','.html','.css','.json','.md','.py','.yml','.yaml'):
+                  archive.add(p,arcname=str(p),recursive=False)
+                  entries[filename]=hashlib.sha256(p.read_bytes()).hexdigest()
+              manifest['repositories'][name]={"commit":sha,"files":entries}
+          pathlib.Path('evidence/source-manifest.json').write_text(json.dumps(manifest,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: see-world-linked-source-evidence
+          path: evidence/
+          retention-days: 7
