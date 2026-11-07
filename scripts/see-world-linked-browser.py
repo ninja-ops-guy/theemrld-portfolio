@@ -141,6 +141,7 @@ with sync_playwright() as p:
         expect(native.locator('#dlg-options')).to_contain_text('Return to See World')
         assert 'felicia_signal' in check_source(native)['milestones']['completedSections']
         assert not check_source(native)['milestones']['duet']
+        native.screenshot(path=str(out/'native-signal-section-complete.png'),full_page=True)
         done('Actual native signal section rejects a false conclusion, saves completion, and does not complete Duet')
         view.bring_to_front()
         expect(view.locator('[data-choice="wait-sweep"]')).to_be_enabled(timeout=20000)
@@ -160,6 +161,7 @@ with sync_playwright() as p:
         assert not check_source(native)['milestones']['iona']
         click_option(native,'Read an earlier interlude')
         click_option(native,'Record this viewpoint')
+        native.wait_for_function("TechOpsUniverseCore.readSource(localStorage).milestones?.iona === true")
         assert check_source(native)['milestones']['iona']
         done('Iona remains locked until the explicit native player-only cutaway is read')
         # K and Waldo retain independent histories and require their earned native sections.
