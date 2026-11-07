@@ -1,0 +1,75 @@
+name: Linked Story Deep QA
+on:
+  pull_request:
+    paths: ['qa-linked/**', '.github/workflows/linked-deep-qa.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-and-logic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.event.pull_request.head.sha }}', path: qa, persist-credentials: false}
+      - uses: actions/checkout@v4
+        with: {ref: 0a6f9bf6481f321b52d7a496da02cf62cc193820, path: portfolio, persist-credentials: false}
+      - uses: actions/checkout@v4
+        with: {repository: ninja-ops-guy/techops-hero, ref: b8b2378f3cf0b84bfc94e1472b8e26d7043a7445, path: techops-hero, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Baseline and full native gate
+        run: |
+          mkdir -p results
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > results/native-head.txt
+          set +e
+          (cd portfolio; TECHOPS_SOURCE=../techops-hero node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs) > results/baseline.tap 2>&1
+          echo "baseline=$?" >> results/exit-codes.txt
+          (cd techops-hero; node scripts/production_release_gate.js) > results/native-release-gate.log 2>&1
+          echo "native=$?" >> results/exit-codes.txt
+          node qa/qa-linked/semantic-probes.mjs > results/semantic-probes.json 2> results/semantic-errors.txt
+          echo "semantic=$?" >> results/exit-codes.txt
+          cat results/exit-codes.txt
+          ! grep -Eq '=[1-9][0-9]*' results/exit-codes.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: linked-deep-logic, path: results/, retention-days: 14}
+  browsers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.event.pull_request.head.sha }}', path: qa, persist-credentials: false}
+      - uses: actions/checkout@v4
+        with: {ref: 0a6f9bf6481f321b52d7a496da02cf62cc193820, path: portfolio, persist-credentials: false}
+      - uses: actions/checkout@v4
+        with: {repository: ninja-ops-guy/techops-hero, ref: b8b2378f3cf0b84bfc94e1472b8e26d7043a7445, path: techops-hero, persist-credentials: false}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install engine
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.engine }}
+      - name: Serve pinned paired sources
+        run: |
+          mkdir -p web results
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > results/native-head.txt
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do curl -fs http://127.0.0.1:8765/techops-hero/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Independent adverse and all-section tests
+        env:
+          QA_ENGINE: '${{ matrix.engine }}'
+          QA_OUTPUT: results/browser
+        run: python qa/qa-linked/deep_browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: 'linked-deep-${{ matrix.engine }}', path: results/, retention-days: 14}
