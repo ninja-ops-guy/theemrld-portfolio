@@ -18,10 +18,12 @@ import Footer from './sections/Footer';
 import AsciiCityWorld from './sections/AsciiCityWorld';
 import KTerminal from './sections/KTerminal';
 import CaseStudy from './pages/CaseStudy';
+import MediaLinks from './pages/MediaLinks';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
 
 gsap.registerPlugin(ScrollTrigger);
 const TechOpsComic = lazy(() => import('./pages/TechOpsComic'));
+const SeeWorld = lazy(() => import('./pages/SeeWorld'));
 
 function Portfolio() {
   const lenisRef = useRef<Lenis | null>(null);
@@ -53,6 +55,8 @@ function App() {
     <Route path="/" element={<Portfolio />} />
     <Route path="/k/*" element={<AsciiCityWorld />} />
     <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/links" element={<MediaLinks />} />
+    <Route path="/see-world" element={<Suspense fallback={<main role="status">Opening See World…</main>}><SeeWorld /></Suspense>} />
     <Route path="/comic" element={<Suspense fallback={<main>Opening TechOps Hero…</main>}><TechOpsComic /></Suspense>} />
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />

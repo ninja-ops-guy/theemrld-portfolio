@@ -1,0 +1,55 @@
+name: See World Campaign Acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'scripts/see-world*'
+      - 'src/pages/SeeWorld.tsx'
+      - 'src/App.tsx'
+      - '.github/workflows/see-world-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  campaign-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all campaign paths and save histories
+        run: node --test scripts/see-world.test.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser runner
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Serve exact candidate
+        run: |
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory public > /tmp/see-world-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/see-world/index.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/see-world-preview.log
+          exit 1
+      - name: Desktop and touch narrative smoke
+        env:
+          SEE_WORLD_BASE_URL: http://127.0.0.1:8765/see-world/index.html
+          SEE_WORLD_QA_DIR: qa/see-world
+        run: python scripts/see-world-browser.py
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: see-world-narrative-acceptance
+          path: qa/see-world/
+          if-no-files-found: warn
+          retention-days: 14
