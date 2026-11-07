@@ -217,9 +217,15 @@ with sync_playwright() as p:
         startup(native)
         native.wait_for_function("TechOpsUniverseCore.readSource(localStorage).status==='ready'")
         assert check_source(native)['binding']['playthroughId']!=old_run
-        view.bring_to_front();view.goto(see_url+'#iona')
+        view.bring_to_front()
+        expect(view.locator('main')).not_to_contain_text('The World He Left Running')
+        expect(view.locator('#announcement')).to_have_text('')
+        assert 'The count survives the fire' not in view.locator('body').inner_text()
+        # The timeline can retain the same #iona fragment. Same-fragment goto
+        # does not reload a document, so explicitly reload to test a direct URL.
+        view.goto(see_url+'#iona');view.reload(wait_until='domcontentloaded')
         expect(view.locator('main')).to_contain_text('A story still unfolding.')
-        assert 'The World He Left Running' not in view.locator('main').inner_text()
+        assert 'The World He Left Running' not in view.locator('body').inner_text()
         done('Actual New Game invalidates old run access without deleting archived See World histories')
         assert not receipt['page_errors'],receipt['page_errors']
         receipt['status']='PASS'

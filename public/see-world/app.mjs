@@ -10,9 +10,18 @@ const sectionTitles={felicia_signal:'The missing interval',felicia_stop:'A stop 
 const entryAllowed=id=>preview||U.gate(id,U.ENTRIES[id],nativeSource).allowed;
 function nativeHref(section=''){const url=new URL('../../techops-hero/',location.href);if(section)url.searchParams.set('linkedSection',section);return url.href;}
 function refreshLinked(){
- if(preview)return;nativeSource=linkedStore?linkedStore.source():{status:'unavailable',reason:'Browser storage is unavailable.'};
+ if(preview)return;
+ const priorBinding=nativeSource?.binding;
+ nativeSource=linkedStore?linkedStore.source():{status:'unavailable',reason:'Browser storage is unavailable.'};
+ if(!U.same(priorBinding,nativeSource.binding)){
+   // No previous-run consequence, live announcement or pending choice may
+   // remain visible when New Game/reset changes the authoritative binding.
+   lastConsequence='';announce('');pending=null;
+   if($('confirm-dialog').open)$('confirm-dialog').close();
+   $('confirm-title').textContent='';$('confirm-body').textContent='';
+ }
  linkedRecord=null;runs={};
- if(U.validateSource(nativeSource)){try{linkedRecord=linkedStore.read(nativeSource);runs=linkedRecord.runs;}catch(e){message('Linked save protected: '+e.message+' No progress has been overwritten.');}}
+ if(U.validateSource(nativeSource)){try{linkedRecord=linkedStore.read(nativeSource);runs=linkedRecord.runs;$('storage-status').replaceChildren();}catch(e){message('Linked save protected: '+e.message+' No progress has been overwritten.');}}
  else message(nativeSource.reason||'Start or continue TechOps Hero to connect this browser’s story progress.');
 }
 
