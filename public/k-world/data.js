@@ -53,6 +53,6 @@ export const PLAYLISTS={
  'gallery-turnaround':[TRACKS.turnaround,TRACKS.gallery], 'gallery-deep':[TRACKS.gallery],
  city:[TRACKS.city,TRACKS.ambient1,TRACKS.ambient2], spring:[TRACKS.spring,TRACKS.ambient1],summer:[TRACKS.summer1,TRACKS.summer2,TRACKS.summer3],autumn:[TRACKS.autumn1,TRACKS.autumn2],winter:[TRACKS.winter1,TRACKS.winter2,TRACKS.dreamer],light:[TRACKS.ambient1,TRACKS.ambient2],dark:[TRACKS.dark,TRACKS.ambient2],car:[TRACKS.car],flight:[TRACKS.flight],ambient:[TRACKS.ambient1,TRACKS.ambient2]
 };
-export function resolveWorld(id){if(id==='gallery'||id==='city')return id;return WORLDS.find(w=>w.id===id||w.legacy===id)?.id||'gallery';}
-export const zoneForWorld=id=>id==='gallery'?'gallery-deep':id==='city'?'city':WORLDS.find(w=>w.id===id)?.zone||'ambient';
+export function resolveWorld(id){if(id==='gallery'||id==='city'||id==='ascended')return id;return WORLDS.find(w=>w.id===id||w.legacy===id)?.id||'gallery';}
+export const zoneForWorld=id=>(id==='gallery'||id==='ascended')?'gallery-deep':id==='city'?'city':WORLDS.find(w=>w.id===id)?.zone||'ambient';
 export const zoneLabel=id=>id==='latest'?'LATEST / @RAIKOUNO':id==='gallery-deep'?'GALLERY / INNER NAVE':id==='gallery-turnaround'?'GALLERY / RETURN':id==='city'?'K//CITY':id==='car'?'K//DRIVE':id==='flight'?'K-01 / EVA':WORLDS.find(w=>w.zone===id)?.subtitle.toUpperCase()||'AMBIENT';

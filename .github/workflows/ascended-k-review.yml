@@ -1,0 +1,87 @@
+name: Ascended K Linked Review
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ascended-k-review-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  review:
+    if: github.head_ref == 'feature/see-world-ascended-k-linked' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 83d20ad7c412abdc1d27efa36f80fecba8877991
+          path: techops
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bind paired source and unchanged artwork
+        run: |
+          mkdir -p qa/ascended-k
+          git -C portfolio rev-parse HEAD > qa/ascended-k/portfolio-head.txt
+          git -C techops rev-parse HEAD > qa/ascended-k/techops-head.txt
+          sha256sum portfolio/public/k-world/assets/cathedral.webp > qa/ascended-k/artwork.sha256
+          cmp portfolio/public/see-world/universe-core.js techops/see-world/universe-core.js
+          (cd techops && node scripts/assemble-linked-runtime.js --check)
+      - name: All narrative, linked and portal contracts
+        working-directory: portfolio
+        env:
+          TECHOPS_SOURCE: ${{ github.workspace }}/techops/
+        run: |
+          set -o pipefail
+          node --test tests/*.test.mjs scripts/see-world.test.mjs scripts/see-world-linked.test.mjs scripts/ascended-k-linked.test.mjs 2>&1 | tee ../qa/ascended-k/logic.log
+      - name: Native production regression
+        working-directory: techops
+        run: |
+          set -o pipefail
+          node scripts/production_release_gate.js 2>&1 | tee ../qa/ascended-k/native-regression.log
+      - name: Build full portfolio
+        working-directory: portfolio
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Install browser runner
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Serve both candidates at production-relative paths
+        run: |
+          mkdir -p site
+          ln -s "$PWD/techops" site/techops-hero
+          ln -s "$PWD/portfolio/dist" site/theemrld-portfolio
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory site > qa/ascended-k/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Play linked K, native memory section and painting encounter
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:8765
+          ASCENDED_QA_DIR: qa/ascended-k/browser
+          LINKED_QA_DIR: qa/ascended-k/helpers
+        run: python portfolio/scripts/ascended-k-browser.py
+      - name: Retain exact-head receipts and actual browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascended-k-linked-review
+          path: qa/ascended-k/
+          retention-days: 14
+          if-no-files-found: error

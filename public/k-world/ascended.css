@@ -1,0 +1,12 @@
+/* Earned painting portal. Keep touch controls, image and exit available. */
+#painting-panel{padding:16px 24px;border-top:1px solid #355345;color:#b6d5ce}
+#painting-panel p{line-height:1.5;margin:8px 0}
+#painting-panel button,#ascended-choices button,#ascended-return,#painting-exit{min-height:44px;min-width:44px}
+#painting-enter:disabled{opacity:.55;cursor:not-allowed}
+#painting-exit{position:fixed;left:50%;bottom:155px;transform:translateX(-50%);z-index:12;background:#091c1c;border:1px solid #87b7b1;padding:12px 18px;white-space:nowrap}
+#painting-exit[hidden],#painting-panel[hidden]{display:none}
+#ascended-dialog{max-width:760px;max-height:85dvh;overflow:auto}
+#ascended-line{font-size:clamp(17px,2.2vw,23px);line-height:1.65;min-height:6em}
+#ascended-choices{display:grid;gap:10px}#ascended-choices button{text-align:left;padding:12px 16px}
+.encounter-note{font-size:12px;opacity:.7;margin-top:22px}
+@media(max-width:600px){#painting-exit{bottom:145px}#painting-panel{padding:12px}#ascended-dialog header{flex-wrap:wrap;gap:10px}}

@@ -1,18 +1,22 @@
-name: See World Linked Candidate Evidence
+name: See World Linked Integration
 on:
   pull_request:
     branches: [main]
     paths:
       - 'public/see-world/**'
       - 'scripts/see-world*'
+      - 'src/pages/SeeWorld.tsx'
       - '.github/workflows/see-world-linked.yml'
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: see-world-linked-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  source-evidence:
+  linked-integration:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,30 +26,77 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ninja-ops-guy/techops-hero
-          ref: e85aa67a7fd2ec2827b100345483c2138d682dd0
+          ref: 83d20ad7c412abdc1d27efa36f80fecba8877991
           path: techops
           persist-credentials: false
-      - name: Retain pinned source inputs (not an integration PASS)
-        run: |
-          mkdir -p evidence
-          python - <<'PY'
-          import pathlib, subprocess, json, tarfile, hashlib
-          manifest={"status":"SOURCE_INPUTS_ONLY_NOT_INTEGRATION_QUALIFICATION","repositories":{}}
-          with tarfile.open('evidence/source-inputs.tar.gz','w:gz') as archive:
-            for name in ('portfolio','techops'):
-              root=pathlib.Path(name)
-              sha=subprocess.check_output(['git','-C',name,'rev-parse','HEAD'],text=True).strip()
-              entries={}
-              for filename in subprocess.check_output(['git','-C',name,'ls-files'],text=True).splitlines():
-                p=root/filename
-                if p.is_file() and p.suffix.lower() in ('.js','.mjs','.cjs','.ts','.tsx','.html','.css','.json','.md','.py','.yml','.yaml'):
-                  archive.add(p,arcname=str(p),recursive=False)
-                  entries[filename]=hashlib.sha256(p.read_bytes()).hexdigest()
-              manifest['repositories'][name]={"commit":sha,"files":entries}
-          pathlib.Path('evidence/source-manifest.json').write_text(json.dumps(manifest,indent=2))
-          PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: see-world-linked-source-evidence
-          path: evidence/
-          retention-days: 7
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bind evidence to both candidate heads
+        run: |
+          mkdir -p qa/see-world-linked
+          python - <<'PY'
+          import pathlib,subprocess,json,hashlib
+          out={"repositories":{},"verification_scope":"Native story prerequisites are fixture-assisted through native APIs; reciprocal section/See World decisions use production UI. Not a full natural campaign playthrough."}
+          for name in ('portfolio','techops'):
+            out['repositories'][name]=subprocess.check_output(['git','-C',name,'rev-parse','HEAD'],text=True).strip()
+          a=pathlib.Path('portfolio/public/see-world/universe-core.js').read_bytes()
+          b=pathlib.Path('techops/see-world/universe-core.js').read_bytes()
+          assert a==b,'Rules drift across the repositories'
+          out['rules_sha256']=hashlib.sha256(a).hexdigest()
+          pathlib.Path('qa/see-world-linked/candidate-heads.json').write_text(json.dumps(out,indent=2))
+          PY
+          (cd techops && node scripts/assemble-linked-runtime.js --check)
+      - name: Exhaustive narrative and linked progression contracts
+        env:
+          TECHOPS_SOURCE: ${{ github.workspace }}/techops/
+        run: |
+          set -o pipefail
+          node --test portfolio/scripts/see-world.test.mjs portfolio/scripts/see-world-linked.test.mjs 2>&1 | tee qa/see-world-linked/logic-tests.log
+      - name: Native production regression gate with complete repository assets
+        working-directory: techops
+        run: |
+          set -o pipefail
+          node scripts/production_release_gate.js 2>&1 | tee ../qa/see-world-linked/native-release-tests.log
+      - name: Build full portfolio candidate
+        if: ${{ !cancelled() }}
+        working-directory: portfolio
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Install browser runner
+        if: ${{ !cancelled() }}
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Serve paired candidates on their production-relative paths
+        if: ${{ !cancelled() }}
+        run: |
+          test -f portfolio/dist/see-world/index.html
+          mkdir -p site
+          ln -s "$PWD/techops" site/techops-hero
+          ln -s "$PWD/portfolio/dist" site/theemrld-portfolio
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory site > qa/see-world-linked/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat qa/see-world-linked/server.log
+          exit 1
+      - name: Native save to See World to native Night section to See World
+        if: ${{ !cancelled() }}
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:8765
+          LINKED_QA_DIR: qa/see-world-linked
+        run: python portfolio/scripts/see-world-linked-browser.py
+      - name: Retain candidate receipts and actual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: see-world-linked-integration
+          path: qa/see-world-linked/
+          if-no-files-found: warn
+          retention-days: 14

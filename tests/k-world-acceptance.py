@@ -72,13 +72,16 @@ def main():
         record("TWELVE-PHYSICAL-FRAMES", len(frames) == 12, str(len(frames)))
         record("INITIAL-FRAMES-UNIQUE", len({f["art"] for f in frames}) == 12, json.dumps(frames))
 
-        # Repeatedly rotate every frame. This is a deterministic harness entry to the
-        # same production function that fires when the visitor looks away.
+        # Repeatedly exercise every frame: eleven rotate, the earned painting stays
+        # fixed. This calls the same production function used on looking away.
         for round_no in range(5):
             slots = [f["slot"] for f in page.evaluate("window.__K_WORLD_QA__.frameState()")]
             for slot in slots:
                 changed = page.evaluate("(slot)=>window.__K_WORLD_QA__.rotateFrame(slot)", slot)
-                record(f"ROTATE-{round_no+1}-{slot}", bool(changed) and changed["after"] != changed["before"], json.dumps(changed))
+                if slot == "art-cathedral":
+                    record(f"PINNED-{round_no+1}-{slot}", bool(changed) and changed["before"] == changed["after"] == "cathedral", json.dumps(changed))
+                else:
+                    record(f"ROTATE-{round_no+1}-{slot}", bool(changed) and changed["after"] != changed["before"] and changed["after"] != "cathedral", json.dumps(changed))
                 visible = page.evaluate("window.__K_WORLD_QA__.frameState()")
                 record(f"VISIBLE-UNIQUE-{round_no+1}-{slot}", len({x["art"] for x in visible}) == len(visible), json.dumps(visible))
 
