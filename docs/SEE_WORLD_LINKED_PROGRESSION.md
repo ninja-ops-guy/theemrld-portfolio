@@ -100,3 +100,51 @@ The original v1 standalone preview saves remain an archive/sandbox. Do not silen
 ## Release disposition
 
 PR #45 remains DRAFT. Previous green checks establish the unlinked narrative implementation only; they do not establish this requirement. The old independent preview must not be deployed as the completed linked experience. Required implementation remains: native publisher/run IDs, chapter-specific See World guard and timeline, versioned migration, actual Night Walker section consumer/content, and cross-repository acceptance. No merge or deployment is authorized by this specification.
+
+## Local bridge candidate
+
+The linked mode is the default See World route. The explicit standalone preview
+continues to use the original archive key. The archive cannot award linked
+progress. Native New Game creates a new playthrough ID within the browser's
+existing profile slot. Continue preserves both IDs. Existing unbound saves
+remain playable and require a new playthrough to participate in the link.
+
+A versioned active record commits the current snapshot sequence and both native
+save revisions. TechOps owns all snapshots and only the native publisher reads
+the two original saves. Night Walker checks the active runtime against the
+durable profile, recomputes the milestone view, and asks the same-origin See World
+engine to replay its committed decisions. It independently checks the section's
+native prerequisites. Writes from competing See World tabs use a Web Lock and
+compare the prior history and snapshot sequence. Linked exports carry the
+decision record and derived grant provenance. A file can verify a matching local
+record. It cannot create a grant, overwrite a branch, or restore a missing local
+record. Missing or denied storage leaves linked play unavailable.
+
+The linked Night Walker journal lists eligible checkpoint follow-ups as awaiting
+content. These include Felicia's rooftop signal and Hangar Three preparation,
+K's memory and boundary, Waldo's companion and recovery scenes, and Iona's
+coordination, ledger, and branch-specific Low Quarter follow-ups. There is no
+launch action for these entries. Iona remains undiscovered until the native game
+has an authored player-facing arrest disclosure. The current native publisher
+has no such mapping. The browser has one native profile slot, so the link isolates
+profile IDs without adding a profile-selection screen. Alternate campaign replay
+is available through the separate standalone preview.
+
+The native consumer expects the portfolio's GitHub Pages path on the same
+origin. The browser harness mounts both sites at their Pages paths without
+deploying. A different production origin requires a different transport.
+
+From the portfolio checkout, run:
+
+```sh
+node --test scripts/see-world*.test.mjs
+node scripts/see-world-native-bridge.mjs ../techops-hero
+python scripts/see-world-linked-browser.py ../techops-hero
+```
+
+The Node bridge harness runs the actual reducers, publisher, replay and Night
+validation with fixture storage and a simulated profile write. The Chromium
+harness exercises both actual browser apps. It seeds prerequisites up to the
+rooftop, uses the authored reveal and See World choice controls, then checks the
+Night Walker journal and native save lifecycle. Browser launch and completion
+of a new destination remain separate acceptance requirements.

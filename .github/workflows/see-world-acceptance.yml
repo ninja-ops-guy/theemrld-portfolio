@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate all campaign paths and save histories
-        run: node --test scripts/see-world.test.mjs
+        run: node --test scripts/see-world*.test.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

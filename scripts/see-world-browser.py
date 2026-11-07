@@ -3,8 +3,9 @@ from pathlib import Path
 import json, os
 out=Path(os.environ.get('SEE_WORLD_QA_DIR', 'qa/see-world')); out.mkdir(parents=True, exist_ok=True)
 base=os.environ.get('SEE_WORLD_BASE_URL', 'http://127.0.0.1:8765/see-world/index.html')
+base += ('&' if '?' in base else '?') + 'mode=standalone'
 with sync_playwright() as p:
-    browser=p.chromium.launch(headless=True,args=['--no-sandbox'])
+    browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH'),headless=True,args=['--no-sandbox'])
     page=browser.new_page(viewport={'width':1440,'height':1050},device_scale_factor=1)
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
