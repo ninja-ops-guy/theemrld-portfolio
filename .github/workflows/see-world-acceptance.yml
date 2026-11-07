@@ -35,14 +35,14 @@ jobs:
         run: |
           nohup python -m http.server 8765 --bind 127.0.0.1 --directory public > /tmp/see-world-preview.log 2>&1 &
           for i in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:8765/see-world/index.html >/dev/null; then exit 0; fi
+            if curl --fail --silent http://127.0.0.1:8765/see-world/preview.html >/dev/null; then exit 0; fi
             sleep 1
           done
           cat /tmp/see-world-preview.log
           exit 1
       - name: Desktop and touch narrative smoke
         env:
-          SEE_WORLD_BASE_URL: http://127.0.0.1:8765/see-world/index.html
+          SEE_WORLD_BASE_URL: http://127.0.0.1:8765/see-world/preview.html
           SEE_WORLD_QA_DIR: qa/see-world
         run: python scripts/see-world-browser.py
       - name: Retain evidence

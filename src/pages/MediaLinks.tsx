@@ -3,12 +3,12 @@ import { ArrowRight, ArrowUpRight, BookOpen, Gamepad2, Github, Instagram, Music2
 
 const destinations = [
   { title: 'READ TECHOPS HERO', detail: 'The comic archive — start reading', href: '#/comic', icon: BookOpen, internal: true },
-  { title: 'SEE WORLD / CAMPAIGN PREVIEW', detail: 'Four playable story drafts. Progress stays in See World. TechOps Hero sync and Night Walker unlocks are pending.', href: '#/see-world', icon: Gamepad2, internal: true },
+  { title: 'SEE WORLD / LINKED STORY', detail: 'Chronological character perspectives and earned Night Walker sections. Requires the matching TechOps Hero build.', href: '#/see-world', icon: Gamepad2, internal: true },
   { title: 'K WORLD / 3D GALLERY', detail: 'Walk through the existing interactive art gallery', href: '#/k/gallery', icon: Palette, internal: true },
   { title: 'K TERMINAL', detail: 'Music, experiments and the interactive terminal', href: '#/terminal', icon: Terminal, internal: true },
   { title: 'MUSIC / GHOST BENDS', detail: 'Listen to original tracks and discover more', href: 'https://soundcloud.com/raikouno/tracks', icon: Music2 },
   { title: '@MIKESNINJA', detail: 'Art and comic updates · Instagram profile unverified', href: 'https://www.instagram.com/mikesninja/', icon: Instagram },
-  { title: '@KIND.DREAD', detail: 'Original artwork · Instagram profile unverified', href: 'https://www.instagram.com/kind.dread/', icon: Instagram },
+  { title: '@KIND.DREAD', detail: 'Original artwork · Instagram profile unverified', href: 'https://www.instagram.com/kind.dread/', icon: Palette },
   { title: '@DEFIED_STARS', detail: 'Creative projects · Instagram profile unverified', href: 'https://www.instagram.com/defied_stars/', icon: Instagram },
   { title: 'GITHUB', detail: 'Projects, code and research', href: 'https://github.com/ninja-ops-guy', icon: Github },
 ];

@@ -1,0 +1,15 @@
+{
+  "medium":"game narrative and native pixel-world side operations",
+  "status":"PROVISIONAL — functional review candidate; new scene staging not creator-approved",
+  "source":{"edition":"Story Bible v1.7","sha256":"38a0fd866464daf26a036e0c2608cd8f95a879a5e1c7014b5c3ac407906b0d5f","creator_direction":"TechOps completion gates See World chronology; See World advancement unlocks Night Walker sections."},
+  "actors":[{"id":"k_red_el","aliases":["K","Red","El"]},{"id":"waldo_oz","aliases":["Waldo","Oz"]},{"id":"iona"},{"id":"felicia"},{"id":"mike"},{"id":"katrin"},{"id":"manchez"}],
+  "scenes":[
+    {"id":"linked-iona-disclosure-v1","pov":"player","chronology":"Discovered after Ghost Fork; depicts an earlier interlude after Red arrest and before voice-window contact; no exact elapsed date.","channel":"explicit player-facing recap","learners":["player"],"not_learners":["mike"],"locked_unknowns":["research authorizer","original Mike origin","exact interval"],"visual_reference":"No new character image","likeness":"NOT_APPLICABLE"},
+    {"id":"signal-check","pov":"felicia-linked objective","chronology":"Native alliance and See World evidence handoff established; formal Duet is not auto-completed.","channel":"objective local evidence check","location":"Existing industrial district used as playable staging","actors":["felicia","mike"],"visual_reference":"Existing native pixel renderer, no new likeness","likeness":"NOT_APPLICABLE"},
+    {"id":"memory-anchor","pov":"k_red_el-linked objective","chronology":"After actual native orbital return","channel":"physical anchor; memory origin remains uncertain","location":"Existing home district","actors":["k_red_el"],"likeness":"NOT_APPLICABLE"},
+    {"id":"return-route","pov":"waldo_oz-linked objective","chronology":"After actual native orbital return","channel":"companion observations; not identity certification","location":"Existing home district","actors":["waldo_oz","katrin","manchez"],"likeness":"NOT_APPLICABLE"},
+    {"id":"low-quarter-branch","pov":"iona-linked objective","chronology":"Earlier-interlude aftermath; exactly one of Burn, Workshop, Witness custody","channel":"objective records and bounded follow-up","location":"Existing industrial map is staging, not a newly authored Low Quarter map","actors":["iona"],"likeness":"NOT_APPLICABLE"}
+  ],
+  "guardrails":["Iona is not Felicia","K/Red/El is one continuing person","Waldo/Oz is one person","Evidence is distinct from Trust","No early full MORNINGSTAR clearance","No deterministic El powers","No original-Mike or Evan reveal","No sponsor invented","Main comic stays public","Side-operation completion does not complete native story acts"],
+  "open_production_items":["Creator review of recap and new objective wording","Dedicated location art, character animations and cinematic direction","Full touchscreen and screen-reader certification beyond bounded browser smoke"]
+}

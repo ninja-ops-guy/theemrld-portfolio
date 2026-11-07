@@ -1,0 +1,71 @@
+name: See World Linked Review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/see-world/**'
+      - 'scripts/see-world*'
+      - '.github/workflows/see-world-linked-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 5cf178c62230af61cb7f1559dea17c8acc011f2b
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Paired source and deterministic contracts
+        env:
+          TECHOPS_SOURCE: ../techops-hero
+        run: |
+          mkdir -p review
+          git -C portfolio rev-parse HEAD > review/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > review/techops-head.txt
+          cd portfolio
+          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs > ../review/story-tests.txt
+          cd ../techops-hero
+          node test_campaign_story.js > ../review/native-story-tests.txt
+          node test_campaign_act2.js >> ../review/native-story-tests.txt
+          node test_good_dogs_bible_contract.js >> ../review/native-story-tests.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Serve both real candidates on one origin
+        run: |
+          mkdir web
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > review/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Native save to See World choice to real Night objective completion
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:8765
+          LINKED_QA_DIR: review/browser
+        run: python portfolio/scripts/see-world-linked-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: see-world-linked-acceptance
+          path: review/
+          retention-days: 14
