@@ -41,7 +41,8 @@ jobs:
       - name: Build the actual public application
         working-directory: portfolio
         run: |
-          npm ci --no-audit --no-fund
+          # Match the existing Pages pipeline; this repository has no committed npm lockfile.
+          npm install --no-audit --no-fund
           npm run build
           node --check public/see-world/player.mjs
           node --check public/see-world/presentation.mjs
@@ -50,6 +51,7 @@ jobs:
           mkdir -p evidence/source web
           git -C portfolio rev-parse HEAD > evidence/portfolio-head.txt
           git -C techops-hero rev-parse HEAD > evidence/native-head.txt
+          cp portfolio/package-lock.json evidence/build-package-lock.json
           python - <<'PY'
           import hashlib
           from pathlib import Path

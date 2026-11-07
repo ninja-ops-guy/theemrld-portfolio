@@ -1,3 +1,7 @@
+// Help remains usable even when the optional enhancement or reader cannot load.
+const help = document.getElementById('player-help');
+document.getElementById('help-open').onclick = () => help.showModal();
+document.getElementById('help-close').onclick = () => help.close();
 // Keep loading recovery separate from the authority-owning linked application.
 try {
   await import('./linked-app.mjs');
