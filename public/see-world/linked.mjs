@@ -56,7 +56,7 @@ export function makeSnapshot(profileRaw,campaignRaw,previous=null) {
  const reusable=snapshotValid(previous)&&same(previous,id);
  if(reusable&&equal(previous.source,sig)&&equal(previous.milestones,derived)&&equal(previous.completedActs,completedActs))return previous;
  // A disposable corrupted cache must not poison the counter of its replacement.
- return {contract:CONTRACT,...id,sequence:reusable?previous.sequence+1:1,source:sig,milestones:derived,completedActs,updatedAt:new Date().toISOString()};
+ return {contract:CONTRACT,...id,sequence:reusable&&previous.sequence<Number.MAX_SAFE_INTEGER-1?previous.sequence+1:1,source:sig,milestones:derived,completedActs,updatedAt:new Date().toISOString()};
 }
 export function context(storage) {
  try {
@@ -89,14 +89,33 @@ export function loadProgress(storage,s) {
 }
 export const runsFrom=(p,s)=>Object.fromEntries(Object.entries(p.runs).map(([id,h])=>[id,legalReplay(id,h,s)]));
 export async function locked(fn,locks=globalThis.navigator?.locks){if(!locks?.request)throw Error('Safe linked saving requires Web Locks. This browser is read-only; use a supported browser.');return locks.request(LOCK,{mode:'exclusive'},fn);}
-export async function saveRuns(storage,expected,nextRuns,snapshot,locks){return locked(()=>{
- const c=context(storage);if(!c.ok||!same(c.snapshot,snapshot))throw Error('Native playthrough changed. Reload the linked view.');
- const current=loadProgress(storage,c.snapshot);if(current.sequence!==expected.sequence)throw Error('Another tab advanced this run. Reload before choosing.');
- const histories={};for(const id of Object.keys(nextRuns)){if(!IDS.includes(id))throw Error('Unknown campaign.');const h=nextRuns[id].history;legalReplay(id,h,c.snapshot);const old=current.runs[id]||[];
- if(h.length<old.length||JSON.stringify(h.slice(0,old.length))!==JSON.stringify(old))throw Error('Linked choices are append-only. Alternate replay cannot replace this run.');histories[id]=h;}
- if(Object.keys(current.runs).some(id=>!Object.hasOwn(histories,id)))throw Error('A linked campaign cannot be erased by import.');
- const next={...current,sequence:current.sequence+1,runs:histories};const raw=JSON.stringify(next);storage.setItem(progressKey(c.snapshot),raw);if(storage.getItem(progressKey(c.snapshot))!==raw)throw Error('Linked save verification failed.');return next;
- },locks);}
+export async function saveRuns(storage,expected,nextRuns,snapshot,locks){
+ // Snapshot publication follows native persistence under the same Web Lock.
+ // A choice already submitted must not be discarded merely because it queues
+ // between those two writes. Release the lock while waiting; never write using
+ // an unvalidated cache or adopt a different run / newer choice history.
+ for(let attempt=0;attempt<30;attempt++){
+  const result=await locked(()=>{
+   const c=context(storage);
+   if(!c.ok){
+    const active=parse(storage.getItem(ACTIVE_KEY),1000);
+    const profile=parse(storage.getItem(PROFILE_KEY)),campaign=parse(storage.getItem(CAMPAIGN_KEY));
+    if(!same(active,snapshot)||!same(sourceIdentity(profile,campaign),snapshot))throw Error('Native playthrough changed. Reload the linked view.');
+    milestones(profile,campaign); // Broken authoritative sources are not retryable.
+    return null;
+   }
+   if(!same(c.snapshot,snapshot))throw Error('Native playthrough changed. Reload the linked view.');
+   const current=loadProgress(storage,c.snapshot);if(current.sequence!==expected.sequence)throw Error('Another tab advanced this run. Reload before choosing.');
+   const histories={};for(const id of Object.keys(nextRuns)){if(!IDS.includes(id))throw Error('Unknown campaign.');const h=nextRuns[id].history;legalReplay(id,h,c.snapshot);const old=current.runs[id]||[];
+    if(h.length<old.length||JSON.stringify(h.slice(0,old.length))!==JSON.stringify(old))throw Error('Linked choices are append-only. Alternate replay cannot replace this run.');histories[id]=h;}
+   if(Object.keys(current.runs).some(id=>!Object.hasOwn(histories,id)))throw Error('A linked campaign cannot be erased by import.');
+   const next={...current,sequence:current.sequence+1,runs:histories};const raw=JSON.stringify(next);storage.setItem(progressKey(c.snapshot),raw);if(storage.getItem(progressKey(c.snapshot))!==raw)throw Error('Linked save verification failed.');return next;
+  },locks);
+  if(result)return result;
+  await new Promise(resolve=>setTimeout(resolve,50));
+ }
+ throw Error('Native synchronization is still pending. This choice was not saved; retry after the main game synchronizes.');
+}
 export const SECTION_DEFS = [
  {id:'signal-check',actor:'felicia',title:'Signal / Independent Check',district:'industrial',requires:'alliance',checkpoint:'handoff',placement:'After the handoff; before or after Duet as a bounded retest.',steps:[['Observe the relay baseline','Record the quiet baseline','Interpret a response before measuring'],['Compare the source record','Preserve the disagreement','Discard the inconvenient comparison'],['Verify with a second operator','Let another operator enforce the stop','Accept the controller’s self-report']]},
  {id:'memory-anchor',actor:'k',title:'K / Physical Anchor',district:'home',requires:'returned',checkpoint:'alcove',placement:'After the orbital return; no origin revelation.',steps:[['Inspect the physical mark','Describe only what is visible','Treat familiarity as a verified memory'],['Separate feeling from evidence','Keep the origin uncertain','Declare the memory documentary proof'],['Choose the record’s boundary','Keep the account private by choice','Make disclosure the price of help']]},

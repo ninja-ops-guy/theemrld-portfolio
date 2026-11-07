@@ -32,11 +32,23 @@ function renderSections(){if(!snap)return;const earned=sections(progress,snap).f
  for(const s of earned){const done=!!night.record.completed[s.id];
  box.append(make('h3',s.title),make('p',done?'Completed in Night Walker.':s.available?'Available. Enter Night Walker in the linked main run, then open Linked Story.':'Earned here; continue TechOps Hero to meet the native entry prerequisite.'),make('p',s.placement));}
  box.append(nativeLink('Return to Night Walker ↗'));content.append(box);}
-async function commit(option,node){if(busy)return;actionError='';busy=true;try{const before=runs[selected]||newRun(selected),oldProgress=progress,oldSnap=snap;
- const live=context(storage);if(!live.ok||!same(live.snapshot,oldSnap))throw Error('Active playthrough changed. Reload before choosing.');
- const next=choose(before,option.id,node);if(!gate(selected,before.node,live.snapshot).allowed||!gate(selected,next.node,live.snapshot).allowed)throw Error('Complete the corresponding native story checkpoint first.');
- const result=await saveRuns(storage,oldProgress,{...runs,[selected]:next},oldSnap);progress=result;snap=live.snapshot;runs=runsFrom(progress,snap);last=consequence(campaignById(selected),before,next);render();$('announcement').textContent=last;
- }finally{busy=false;render();}}
+async function commit(option,node){
+ if(busy)return;actionError='';busy=true;
+ const actor=selected,oldSnap=snap,oldProgress=progress,oldRuns={...runs};
+ try{
+  if(!oldSnap||!oldProgress)throw Error('Native synchronization is pending. Retry when the chapter is available.');
+  const before=oldRuns[actor]||newRun(actor),next=choose(before,option.id,node);
+  if(!gate(actor,before.node,oldSnap).allowed||!gate(actor,next.node,oldSnap).allowed)throw Error('Complete the corresponding native story checkpoint first.');
+  // saveRuns revalidates the native source and choice prefix under the lock;
+  // temporary same-run publication is retried, never mistaken for a reset.
+  const result=await saveRuns(storage,oldProgress,{...oldRuns,[actor]:next},oldSnap);
+  const live=context(storage);
+  if(live.ok&&same(live.snapshot,oldSnap)){
+   progress=result;snap=live.snapshot;lastIdentity=snap;runs=runsFrom(progress,snap);
+   if(selected===actor){last=consequence(campaignById(actor),before,next);$('announcement').textContent=last;}
+  }else refresh();
+ }finally{busy=false;render();}
+}
 function story(){const c=campaignById(selected);if(!snap){content.append(make('h1','Synchronizing story progress'),make('p',loadError||'Waiting for the matching native save.'),nativeLink());return;}if(!gate(selected,c.start,snap).allowed){content.append(make('h1','Continue the main story'),make('p','This perspective is not available in the current playthrough.'),button('Story timeline',home));return;}const run=runs[selected]||newRun(selected),n=nodeById(c,run.node),access=gate(c.id,n.id,snap);if(!access.allowed){content.append(make('h1','Continue the main story'),make('p',access.reason),nativeLink());return;}
  content.style.setProperty('--tone',c.color);const top=make('div','','story-top');top.append(button('← Story timeline',home),make('small',c.name+' / LINKED PLAYTHROUGH'));content.append(top);
  const layout=make('div','','story-grid'),body=make('section','','story');body.append(make('p',c.id==='iona'?'EARLIER INTERLUDE / PLAYER VIEWPOINT':'CHRONOLOGICAL CHARACTER VIEWPOINT','chapter-label'));const title=make('h1',n.title);title.id='scene-title';title.tabIndex=-1;body.append(title,make('p',n.place,'location'));if(last)body.append(make('p',last,'after-choice'));const t=make('div','','story-text');n.text.forEach(p=>t.append(make('p',p)));body.append(t);const quote=make('blockquote','','dialogue');quote.append(make('small',n.speaker||c.name),make('p','“'+n.quote+'”'));body.append(quote);

@@ -35,7 +35,7 @@ jobs:
           git -C portfolio rev-parse HEAD > results/portfolio-head.txt
           git -C techops-hero rev-parse HEAD > results/native-head.txt
           cd portfolio
-          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs scripts/see-world-recovery.test.mjs > ../results/contracts.tap
+          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs scripts/see-world-recovery.test.mjs scripts/see-world-publication.test.mjs > ../results/contracts.tap
           cd ../techops-hero
           node scripts/production_release_gate.js > ../results/native-production.log
       - uses: actions/upload-artifact@v4
