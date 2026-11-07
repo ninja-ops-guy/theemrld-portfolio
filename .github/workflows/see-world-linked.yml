@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'public/see-world/**'
+      - 'public/k-world/**'
+      - 'tests/ascended-scene.test.mjs'
       - 'scripts/see-world*'
       - 'src/pages/SeeWorld.tsx'
       - '.github/workflows/see-world-linked.yml'
@@ -26,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ninja-ops-guy/techops-hero
-          ref: 492706157fe4b31ff3550896d2247cc087b864d5
+          ref: 0585182948b7307a2b4ad27b941ea983a25716d8
           path: techops
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -55,7 +57,7 @@ jobs:
           TECHOPS_SOURCE: ${{ github.workspace }}/techops/
         run: |
           set -o pipefail
-          node --test portfolio/scripts/see-world.test.mjs portfolio/scripts/see-world-linked.test.mjs 2>&1 | tee qa/see-world-linked/logic-tests.log
+          node --test portfolio/scripts/see-world.test.mjs portfolio/scripts/see-world-linked.test.mjs portfolio/tests/ascended-scene.test.mjs 2>&1 | tee qa/see-world-linked/logic-tests.log
       - name: Native production regression gate with complete repository assets
         working-directory: techops
         run: |

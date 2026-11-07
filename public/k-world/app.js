@@ -4,6 +4,8 @@ import {buildScene,moveCamera,findInteraction,isFree} from './scenes.js';
 import {WORLDS,ART,TRACKS,resolveWorld,zoneForWorld,zoneLabel} from './data.js';
 import {SoundCloudPort,Sequencer,reactiveEnvelope,canonicalUrl} from './audio.js';
 import {iconFrame} from './icons.js';
+import {paintingGate,readPaintingGate,paintingProgressChanged} from '../see-world/painting-progress.mjs';
+import {ASCENDED_PAINTING} from './ascended-scene.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),qa=params.get('qa')==='1'||globalThis.__K_QA__===true;
 const KEYS='k-world:library:v6',RECENT='k-world:recent:v6',PREF='k-world:prefs:v6',LATEST='k-world:latest:v1';
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -17,6 +19,45 @@ const galleryRotation=new Map();
 let input={forward:false,back:false,left:false,right:false,up:false,down:false},keyState=new Set(),history=[],historyIndex=0,drag=null;
 const cache=new Map(),aborter=new AbortController(),signal=aborter.signal,objectUrls=new Set();
 const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
+const standalone=params.get('preview')==='1'||params.get('mode')==='standalone';
+let worldReady=false,paintingState=paintingGate(null),paintingRequested=['cathedral','ascended-k'].includes(params.get('painting'));
+const paintingApproach={position:ASCENDED_PAINTING.approach,yaw:0};
+const paintingReturn={position:ASCENDED_PAINTING.returnPosition,yaw:ASCENDED_PAINTING.returnYaw};
+function buildCurrentScene(id){
+ const next=buildScene(assets,id,{paintingUnlocked:paintingState.unlocked});
+ if(id==='gallery')for(const item of next.interactions){if(item.type!=='art')continue;const rotated=ART.find(p=>p.id===galleryRotation.get(item.id.replace(/^art-/,'')));if(rotated){item.art=rotated.id;item.title=rotated.title;}}
+ return next;
+}
+function refreshPaintingGate(){
+ let next=paintingGate(null);
+ if(!standalone){try{next=readPaintingGate(localStorage);}catch{/* Storage unavailable. */}}
+ const switched=next.binding!==paintingState.binding,changed=next.unlocked!==paintingState.unlocked;
+ paintingState=next;
+ if(changed){cache.delete('gallery');if(activeId==='gallery'&&assets&&scene){scene=buildCurrentScene('gallery');cache.set('gallery',scene);lastLookedArt=null;}}
+ if(activeId==='ascended-k'&&(!next.unlocked||switched)&&assets){navigate('gallery',paintingReturn);toast('Painting access changed. You are safely back in the gallery.');}
+ if($('painting-dialog').open)updatePaintingDialog();
+ return next;
+}
+function updatePaintingDialog(){
+ const available=!!assets?.images.has('ascended-k-painting');
+ $('painting-title').textContent=paintingState.unlocked?'Ascended K':'Stair / Cathedral';
+ $('painting-status').textContent=available?paintingState.message:'The painting could not load. Return to the gallery and reload to try again. Your campaign progress is safe.';
+ $('painting-enter').disabled=!paintingState.unlocked||!available;
+ $('painting-enter').textContent=paintingState.unlocked?'ENTER PAINTING':'STORY PROGRESS REQUIRED';
+ $('painting-campaign').hidden=paintingState.unlocked;
+}
+function showPainting(){refreshPaintingGate();updatePaintingDialog();openDialog('painting');}
+function visitPainting(){paintingRequested=true;if(!worldReady||!scene)return;navigate('gallery',paintingApproach);paintingRequested=false;toast(paintingState.message);}
+function enterPainting(){
+ if(!refreshPaintingGate().unlocked){showPainting();return;}
+ if(!assets?.images.has('ascended-k-painting')){showPainting();return;}
+ if(activeId!=='gallery')return;
+ try{navigate('ascended-k');}catch(error){navigate('gallery',paintingReturn);toast('The chamber could not open. You can try the painting again.');console.error(error);}
+}
+function returnFromPainting(){navigate('gallery',paintingReturn);}
+function encounterAscendedK(){
+ if(activeId==='ascended-k'&&refreshPaintingGate().unlocked)openDialog('ascended');
+}
 const capture=(el,id)=>{try{el.setPointerCapture(id);}catch{/* Pointer may already have been cancelled by the OS. */}};
 const port=new SoundCloudPort($('soundcloud-slot'),tracks=>{mergeLibrary(tracks);syncLatest(tracks);});
 const music=new Sequencer(port);music.playlists.latest=latestKnown;music.volume(preferences.volume);
@@ -48,24 +89,29 @@ function anyDialog(){return [...document.querySelectorAll('dialog')].some(d=>d.o
 function openDialog(id){clearInput();for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();$(id+'-dialog').showModal();if(id==='terminal')setTimeout(()=>$('command').focus(),30);}
 function closeDialog(id){$(id+'-dialog').close();clearInput();$('scene').focus({preventScroll:true});}
 function navigate(id,{returning=false,arm=false,position=null,yaw=null}={}){
- id=resolveWorld(id);if(!renderer||!assets)return;for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();clearInput();flight=false;drive=false;vy=0;flightHome=null;activeId=id;
- if(!cache.has(id))cache.set(id,buildScene(assets,id));scene=cache.get(id);
+ id=resolveWorld(id);if(!renderer||!assets||!worldReady)return;
+ if(id==='ascended-k'&&(!refreshPaintingGate().unlocked||!assets.images.has('ascended-k-painting'))){id='gallery';position=paintingApproach.position;yaw=paintingApproach.yaw;toast(paintingState.message);}
+ if(!cache.has(id))cache.set(id,buildCurrentScene(id));const destination=cache.get(id);
+ const crossedPainting=activeId==='ascended-k'||id==='ascended-k';
+ for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();clearInput();target=null;$('interact').hidden=true;flight=false;drive=false;vy=0;flightHome=null;activeId=id;scene=destination;lastLookedArt=null;
  camera.position=[...(position||scene.spawn)];camera.yaw=yaw??scene.yaw;camera.pitch=.025;
  if(returning&&id==='city'){camera.position=[0,1.7,14];camera.yaw=0;}
- music.setZone(zoneForWorld(id));if(arm&&!music.state.armed&&!music.state.pausedByUser)music.arm();
+ if(id!=='ascended-k'&&!(crossedPainting&&id==='gallery'))music.setZone(zoneForWorld(id));if(arm&&!music.state.armed&&!music.state.pausedByUser)music.arm();
  $('room-title').textContent=scene.title;$('room-subtitle').textContent=scene.subtitle;$('arrival-title').textContent=scene.title;$('arrival-kicker').textContent=id==='gallery'?'AN ARCHIVE YOU CAN WALK THROUGH':id==='city'?'THE SYSTEMS BEHIND THE WORK':'PORTAL WORLD / ALWAYS RETURN';$('arrival-detail').textContent=scene.subtitle;$('arrival').classList.remove('faded');clearTimeout(arrivalTimer);arrivalTimer=setTimeout(()=>$('arrival').classList.add('faded'),7000);
  $('special-controls').hidden=id!=='station';$('drive-dash').hidden=true;document.title=scene.title+' — K // THE EMRLD';
+ $('chamber-actions').hidden=id!=='ascended-k';
+ if(crossedPainting){const fade=$('painting-transition');fade.classList.remove('crossing');void fade.offsetWidth;fade.classList.add('crossing');}
  historyReplace();$('scene').focus({preventScroll:true});updateMusicUI();
 }
 function historyReplace(){const hash=activeId;try{window.history.replaceState(null,'','#'+hash);}catch{}}
-function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
+function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='ascended-painting')showPainting();else if(target.type==='ascended-k')encounterAscendedK();else if(target.type==='ascended-return')returnFromPainting();else if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
 function rotateArtworkWhenUnseen(interaction){
  if(activeId!=='gallery'||!interaction?.art||ART.length<2)return;
  const slot=interaction.id.replace(/^art-/,'');
  const current=galleryRotation.get(slot)||interaction.art;
  const visible=new Set((scene?.interactions||[]).filter(x=>x.type==='art'&&x!==interaction).map(x=>x.art));
- const pool=ART.filter(p=>p.id!==current&&assets.images.has(p.id)&&!visible.has(p.id));
- const fallback=ART.filter(p=>p.id!==current&&assets.images.has(p.id));
+ const pool=ART.filter(p=>!p.permanent&&p.id!==current&&assets.images.has(p.id)&&!visible.has(p.id));
+ const fallback=ART.filter(p=>!p.permanent&&p.id!==current&&assets.images.has(p.id));
  const choices=pool.length?pool:fallback;
  const next=choices[Math.floor(Math.random()*choices.length)];
  if(!next)return;
@@ -141,25 +187,34 @@ function openComic(){
  else location.href='../#/comic?from=world';
 }
 on($('comic-button'),'click',openComic);
+on($('painting-enter'),'click',enterPainting);on($('chamber-encounter'),'click',encounterAscendedK);on($('chamber-exit'),'click',returnFromPainting);on($('ascended-return'),'click',returnFromPainting);
+on($('painting-campaign'),'click',()=>{if(window.parent!==window)window.parent.postMessage({type:'k-world:campaign'},location.origin);else location.href='../see-world/index.html';});
+on(window,'storage',e=>{if(paintingProgressChanged(e.key))refreshPaintingGate();});
+on(window,'focus',()=>refreshPaintingGate());
+
 on($('portfolio-button'),'click',()=>{music.pause();if(window.parent!==window)window.parent.postMessage({type:'k-world:portfolio'},location.origin);else location.href=location.protocol==='file:'||location.protocol==='about:'?'https://ninja-ops-guy.github.io/theemrld-portfolio/':'../';});
 on($('local-audio'),'change',e=>{const file=e.target.files?.[0];if(!file)return;const url=URL.createObjectURL(file);objectUrls.add(url);music.select({id:'local-'+Date.now(),title:file.name,url,provider:'local'});log('Local file opened. Real FFT and playback-rate controls are available. Nothing was uploaded.');});
 on($('console-form'),'submit',e=>{e.preventDefault();const raw=$('command').value;if(!raw.trim())return;history.push(raw);history=history.slice(-100);historyIndex=history.length;$('command').value='';command(raw);});
 on($('command'),'keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeDialog('terminal');}else if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);$('command').value=history[historyIndex]||'';}else if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(history.length,historyIndex+1);$('command').value=history[historyIndex]||'';}});
 const editable=e=>e.composedPath().some(el=>el?.matches?.('input,textarea,select,[contenteditable="true"]'));
-on(window,'keydown',e=>{if(editable(e)||anyDialog())return;const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keyState.add(k);if(e.repeat)return;if(k==='e')interact();if(k==='t'||k==='`')openDialog('terminal');if(k==='m')openDialog('atlas');if(k==='v')setView(!preferences.ascii);if(k==='f')toggleFlight();if(k===' '&&activeId==='moon'&&!flight&&Math.abs(vy)<.01)vy=2.3;});on(window,'keyup',e=>keyState.delete(e.key.toLowerCase()));on(window,'blur',clearInput);on(document,'visibilitychange',()=>{if(document.hidden)clearInput();});
+on(window,'keydown',e=>{if(editable(e)||anyDialog())return;const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keyState.add(k);if(e.repeat)return;if(k==='e')interact();if(k==='escape'&&activeId==='ascended-k')returnFromPainting();if(k==='t'||k==='`')openDialog('terminal');if(k==='m')openDialog('atlas');if(k==='v')setView(!preferences.ascii);if(k==='f')toggleFlight();if(k===' '&&activeId==='moon'&&!flight&&Math.abs(vy)<.01)vy=2.3;});on(window,'keyup',e=>keyState.delete(e.key.toLowerCase()));on(window,'blur',clearInput);on(document,'visibilitychange',()=>{if(document.hidden)clearInput();});
 on($('scene'),'pointerdown',e=>{if(anyDialog()||e.button>0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};capture($('scene'),e.pointerId);$('scene').focus();});on($('scene'),'pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;camera.yaw+=(e.clientX-drag.x)*.004;camera.pitch=clamp(camera.pitch-(e.clientY-drag.y)*.003,-.95,.95);drag.x=e.clientX;drag.y=e.clientY;});for(const event of ['pointerup','pointercancel','lostpointercapture'])on($('scene'),event,()=>drag=null);
 for(const button of document.querySelectorAll('[data-move]')){on(button,'pointerdown',e=>{e.preventDefault();input[button.dataset.move]=true;capture(button,e.pointerId);});for(const event of ['pointerup','pointercancel','lostpointercapture'])on(button,event,()=>input[button.dataset.move]=false);}
-on(window,'message',e=>{if(e.origin!==location.origin||e.source!==window.parent||window.parent===window)return;if(e.data?.type==='k-world:navigate'){if(e.data.scene==='terminal')openDialog('terminal');else navigate(e.data.scene)};});
+on(window,'message',e=>{
+ if(e.origin!==location.origin||e.source!==window.parent||window.parent===window)return;
+ if(e.data?.type==='k-world:painting')visitPainting();
+ if(e.data?.type==='k-world:navigate'){if(e.data.scene==='terminal')openDialog('terminal');else if(resolveWorld(e.data.scene)!=='ascended-k')navigate(e.data.scene);}
+});
 function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.045,(now-(lastTime||now))/1000);lastTime=now;elapsed+=dt;if(!scene||document.hidden)return;
  if(!anyDialog()&&$('loading').hidden){let fw=(keyState.has('w')||keyState.has('arrowup')||input.forward?1:0)-(keyState.has('s')||keyState.has('arrowdown')||input.back?1:0),st=(keyState.has('d')||input.right?1:0)-(keyState.has('a')||input.left?1:0);if(keyState.has('arrowleft'))camera.yaw-=dt*1.6;if(keyState.has('arrowright'))camera.yaw+=dt*1.6;if(drive){camera.yaw+=st*dt*1.15;st=0;}const len=Math.max(1,Math.hypot(fw,st)),speed=drive?7:flight?5:keyState.has('shift')?4.0:2.55;fw/=len;st/=len;const dx=(Math.sin(camera.yaw)*fw+Math.cos(camera.yaw)*st)*dt*speed,dz=(-Math.cos(camera.yaw)*fw+Math.sin(camera.yaw)*st)*dt*speed;
   if(flight){camera.position[0]=clamp(camera.position[0]+dx,-11,11);camera.position[2]=clamp(camera.position[2]+dz,-20,14);camera.position[1]=clamp(camera.position[1]+((keyState.has(' ')||input.up?1:0)-(keyState.has('c')||keyState.has('control')||input.down?1:0))*dt*2.3,1.7,6.2);}
-  else{moveCamera(scene,camera,dx,dz);const base=(scene.ground?.(camera.position[0],camera.position[2])||0)+(drive?1.35:1.7);if(activeId==='moon'&&(vy||camera.position[1]>base+.02)){vy-=dt*1.62;camera.position[1]+=vy*dt;if(camera.position[1]<=base){camera.position[1]=base;vy=0;}}else camera.position[1]=base;}
+  else{const previousZ=camera.position[2];moveCamera(scene,camera,dx,dz);if(activeId==='gallery'&&paintingState.unlocked&&Math.abs(camera.position[0]-ASCENDED_PAINTING.center[0])<ASCENDED_PAINTING.halfWidth&&previousZ>ASCENDED_PAINTING.triggerZ&&camera.position[2]<=ASCENDED_PAINTING.triggerZ)enterPainting();const base=(scene.ground?.(camera.position[0],camera.position[2])||0)+(drive?1.35:1.7);if(activeId==='moon'&&(vy||camera.position[1]>base+.02)){vy-=dt*1.62;camera.position[1]+=vy*dt;if(camera.position[1]<=base){camera.position[1]=base;vy=0;}}else camera.position[1]=base;}
   const previousArt=lastLookedArt;
   target=findInteraction(scene,camera);
   const currentArt=target?.type==='art'?target:null;
   if(previousArt&&(!currentArt||currentArt.id!==previousArt.id))rotateArtworkWhenUnseen(previousArt);
   lastLookedArt=currentArt;
-  $('interact').hidden=!target&&!drive;$('interact').textContent=drive?'E / EXIT K // DRIVE':target?'E / '+(target.type==='art'?'INSPECT ':target.type==='gate'?'ENTER ':'')+target.title:'';
+  $('interact').hidden=!target&&!drive;$('interact').textContent=drive?'E / EXIT K // DRIVE':target?'E / '+(target.type==='art'?'INSPECT ':target.type==='gate'?'ENTER ':target.type==='ascended-painting'?'VIEW ':'')+target.title:'';
   if(drive)$('drive-speed').textContent=fw?'88':'00';
  }
  const envelope=reactiveEnvelope(music.state,port.spectrum()),visualTime=music.state.current?music.state.position/1000:elapsed*.25,reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -169,8 +224,9 @@ function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.
 }
 function drawViz(envelope){if(!preferences.viz)return;const c=$('visualizer'),ctx=c.getContext('2d');const w=Math.max(1,c.clientWidth),h=Math.max(1,c.clientHeight);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}ctx.clearRect(0,0,w,h);const color=preferences.vizTheme==='violet'?'#b685e3':preferences.vizTheme==='amber'?'#e8b86a':'#59ccaa';ctx.strokeStyle=color;ctx.fillStyle=color;const time=music.state.position/1000,playing=music.state.status==='playing',n=preferences.vizBars;ctx.globalAlpha=.7;if(preferences.vizStyle==='ring'){ctx.beginPath();for(let i=0;i<128;i++){const a=i*Math.PI*2/127,r=14+(playing?envelope.energy*14+Math.sin(a*5+time*3)*5:0),x=w/2+Math.cos(a)*r*1.8,y=h/2+Math.sin(a)*r;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else if(preferences.vizStyle==='wave'){ctx.beginPath();for(let x=0;x<w;x+=2){const y=h/2+(playing?Math.sin(x*.04+time*4)*Math.sin(x*.011+time)*h*.30:0);if(x)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else{for(let i=0;i<n;i++){const level=playing?(.14+envelope.energy*.4+(Math.sin(i*.5+time*4)+1)*.14):.04;ctx.fillRect(i*w/n,h-level*h,w/n-2,level*h);}}ctx.globalAlpha=1;$('visualizer-source').textContent=envelope.source==='pcm'?'LIVE FFT / LOCAL AUDIO':'PLAYBACK-CLOCK SYNC / NOT FFT';}
 function animateBand(){if(!preferences.band)return;const t=music.state.position/1000,playing=music.state.status==='playing',step=Math.floor(t/.18),roles=[[0,1,0,21],[2,2,8,2],[3,3,14,3],[10,16,19,23]];[...document.querySelectorAll('.sprite')].forEach((el,i)=>{const cell=roles[i][playing?(step+i)%4:0],x=cell%6,y=Math.floor(cell/6);el.style.backgroundPosition=`${x*20}% ${y*100/3}%`;el.style.transform=playing&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches?`translateY(${-Math.abs(Math.sin(t*9+i))*5}px) rotate(${Math.sin(t*7+i)*2}deg)`:'none';});}
-async function start(){try{renderer=new Renderer($('scene'));setView(preferences.ascii,false);assets=new Assets(renderer);const assetTotal=ART.length+1;$('load-progress').max=assetTotal;const progressTimer=setInterval(()=>{const settled=assets.loaded.length+assets.errors.length;$('load-progress').value=settled;$('load-state').textContent=`Verifying your artwork… ${settled} / ${assetTotal}`;},100);await assets.load();clearInterval(progressTimer);$('load-progress').value=assetTotal;
- const requested=location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=requested==='terminal'?'gallery':requested;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
+async function start(){try{renderer=new Renderer($('scene'));setView(preferences.ascii,false);assets=new Assets(renderer);const assetTotal=ART.length+2;$('load-progress').max=assetTotal;const progressTimer=setInterval(()=>{const settled=assets.loaded.length+assets.errors.length;$('load-progress').value=settled;$('load-state').textContent=`Verifying your artwork… ${settled} / ${assetTotal}`;},100);await assets.load();worldReady=true;clearInterval(progressTimer);$('load-progress').value=assetTotal;
+ refreshPaintingGate();
+ const requested=location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=['terminal','ascended-k'].includes(requested)?'gallery':requested;if(requested==='ascended-k')paintingRequested=true;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});if(paintingRequested)visitPainting();if(window.parent!==window){window.parent.postMessage({type:'k-world:ready'},location.origin);}requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
  $('load-state').textContent=`${assets.loaded.length} archive and sprite assets loaded${assets.errors.length?` · ${assets.errors.length} fallbacks`:''}.`;
  if(assets.errors.length)toast('Artwork missing: '+assets.errors.join(', ')+'. Named fallbacks are visible; nothing fails silently.');
  if(qa){$('loading').hidden=true;if(requested==='terminal')openDialog('terminal');}
@@ -178,8 +234,10 @@ async function start(){try{renderer=new Renderer($('scene'));setView(preferences
  if(qa)window.__K_WORLD_QA__={
  navigate:(id,pose)=>navigate(id,pose||{}),
  camera:(position,yaw=0,pitch=0)=>{camera.position=[...position];camera.yaw=yaw;camera.pitch=pitch;},
- state:()=>({activeId,ascii:renderer.ascii,camera:JSON.parse(JSON.stringify(camera)),assets:[...assets.loaded],errors:[...assets.errors],meshCount:scene.meshes.length,drawCalls:renderer.drawCalls,backend:renderer.backend,audio:music.state,interaction:target?.id,flight,drive}),
+ state:()=>({activeId,ascii:renderer.ascii,camera:JSON.parse(JSON.stringify(camera)),assets:[...assets.loaded],errors:[...assets.errors],meshCount:scene.meshes.length,drawCalls:renderer.drawCalls,backend:renderer.backend,audio:music.state,interaction:target?.id,flight,drive,painting:{...paintingState}}),
  scene:()=>scene,
+ painting:()=>showPainting(),
+ refreshProgress:()=>refreshPaintingGate(),
  terminal:()=>openDialog('terminal'),
  inspect:i=>showArt(i),
  setView,

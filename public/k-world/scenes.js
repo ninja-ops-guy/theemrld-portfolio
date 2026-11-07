@@ -1,5 +1,6 @@
 import {Geometry, hex, TAU, modelMatrix, clamp} from './renderer.js';
 import {ART,WORLDS} from './data.js';
+import {addAscendedPainting,buildAscendedChamber} from './ascended-scene.js';
 const GOLD='#a17c45', BRONZE='#604424', STONE='#2f2939', CEDAR='#2b1e24', GREEN='#59ecab', VIOLET='#a476dc';
 function label(g,a,text,x,y,z,w,h,color,yaw=0,opts={}){g.plane(x,y,z,w,h,yaw,'#ffffff',{texture:a.label(Array.isArray(text)?text:[text],color,opts),emission:opts.emission??.8});}
 function frame(g,a,id,x,y,z,w,h,yaw=0){
@@ -35,7 +36,7 @@ function gate(g,a,id,x,z,title,color,to,meta={}){
  g.interactions.push({id,type:'gate',to,title,position:[x,1.55,z+1.15],radius:2.9,...meta});
 }
 const BASE={background:hex('#090912'),ambient:[.53,.49,.62],fog:.011,spawn:[0,1.7,11],yaw:0,bounds:[-11,11,-16,16],lights:[{position:[-7,5,1],color:[.42,.16,.55],reactive:.04},{position:[7,5,-6],color:[.05,.39,.40],reactive:.04},{position:[0,7,-10],color:[.55,.33,.13],reactive:.04},{position:[0,6,10],color:[.40,.28,.19]}]};
-export function buildGallery(a){const g=new Geometry();
+export function buildGallery(a,{paintingUnlocked=false}={}){const g=new Geometry();
  g.floor(0,0,24,34,'#19141e',{kind:1});
  g.box(-12,5.5,0,.5,11,34,CEDAR,{solid:true});g.box(12,5.5,0,.5,11,34,CEDAR,{solid:true});g.box(0,5.5,-17,24,11,.5,CEDAR,{solid:true});
  // Doorway wall is physically open in the center, never a giant overlay.
@@ -72,7 +73,7 @@ export function buildGallery(a){const g=new Geometry();
  frame(g,a,'wolf',-11.69,2.85,4.9,2.65,2.65,Math.PI/2);
  frame(g,a,'garden',-11.69,3,9.2,3.0,2.65,Math.PI/2);
  frame(g,a,'meteor',-4.9,3.6,-16.65,3.1,4.12,0);
- frame(g,a,'cathedral',4.4,3.6,-16.65,3.8,3.8,0);
+ // The cathedral artwork is promoted into the fixed Ascended K portal below.
  frame(g,a,'blue-relic',11.69,3.5,-10.0,2.9,2.95,-Math.PI/2);
  frame(g,a,'neon-cosmos',11.69,3.5,-5.4,3.05,3.05,-Math.PI/2);
  frame(g,a,'equations',11.69,3.0,.1,3.6,3.1,-Math.PI/2);
@@ -96,6 +97,7 @@ export function buildGallery(a){const g=new Geometry();
  for(const x of [-8.8,8.8])for(let z=-12;z<14;z+=5.5){g.cylinder(x,.85,z,.055,1.7,GOLD,6);g.box(x,1.73,z,.08,.25,.08,'#f2bd70',{emission:1});}
  label(g,a,['K // LIVING ARCHIVE','LOOK AWAY · RETURN CHANGED'],0,4.15,16.72,3.8,.62,'#00ff41',0,{fontSize:38,width:1024,height:192,border:false,background:'#010401'});
  gate(g,a,'gallery-exit',0,16.1,'K // CITY',GREEN,'city');
+ addAscendedPainting(g,a,paintingUnlocked);
  return g.finish({...BASE,id:'gallery',title:'K // GALLERY',subtitle:'Art · memory · sacred systems',spawn:[0,1.7,10.5],yaw:0,bounds:[-11.5,11.5,-16.5,16.5]});
 }
 function shop(g,a,x,z,width,height,title,sub,color){const side=x<0?-1:1,faceX=x-side*width/2;g.box(x,height/2,z,width,height,7,'#242639',{solid:true});
@@ -193,7 +195,7 @@ export function buildRealm(a,id){const g=new Geometry(),w=WORLDS.find(w=>w.id===
  }
  return g.finish(config);
 }
-export const buildScene=(a,id)=>id==='gallery'?buildGallery(a):id==='city'?buildCity(a):buildRealm(a,id);
+export const buildScene=(a,id,options={})=>id==='gallery'?buildGallery(a,options):id==='city'?buildCity(a):id==='ascended-k'?buildAscendedChamber(a):buildRealm(a,id);
 export function isFree(scene,x,z,radius=.28,y=1.7){const [minX,maxX,minZ,maxZ]=scene.bounds;if(x-radius<minX||x+radius>maxX||z-radius<minZ||z+radius>maxZ)return false;return !scene.colliders.some(b=>y>b.minY&&y<b.maxY+1.4&&x+radius>b.minX&&x-radius<b.maxX&&z+radius>b.minZ&&z-radius<b.maxZ);}
 export function moveCamera(scene,camera,dx,dz){const stepCount=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.16));for(let i=0;i<stepCount;i++){if(isFree(scene,camera.position[0]+dx/stepCount,camera.position[2],.28,camera.position[1]))camera.position[0]+=dx/stepCount;if(isFree(scene,camera.position[0],camera.position[2]+dz/stepCount,.28,camera.position[1]))camera.position[2]+=dz/stepCount;}}
 export function findInteraction(scene,camera){let best=null,score=Infinity;for(const item of scene.interactions){const dx=item.position[0]-camera.position[0],dz=item.position[2]-camera.position[2],dist=Math.hypot(dx,dz);const facing=dist<.25?1:(dx*Math.sin(camera.yaw)-dz*Math.cos(camera.yaw))/dist;if(dist<item.radius&&facing>.52&&dist<score){best=item;score=dist;}}return best;}

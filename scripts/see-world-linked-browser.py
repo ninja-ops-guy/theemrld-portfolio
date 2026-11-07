@@ -8,6 +8,7 @@ import json, os, traceback
 root=os.environ.get('LINKED_BASE_URL','http://127.0.0.1:8765').rstrip('/')
 native_url=root+'/techops-hero/'
 see_url=root+'/theemrld-portfolio/see-world/index.html'
+world_url=root+'/theemrld-portfolio/k-world/index.html'
 out=Path(os.environ.get('LINKED_QA_DIR','qa/see-world-linked'));out.mkdir(parents=True,exist_ok=True)
 receipt={'status':'RUNNING','steps':[],'page_errors':[],'fixture_scope':'Main story progression is seeded through native campaign APIs, not a full natural playthrough. Native section choices and See World decisions are exercised through the actual UI.','limitations':['Desktop/touch browser emulation, not physical-device testing.','No new 3D maps, combat animation, voice or cloud synchronization.']}
 
@@ -110,7 +111,7 @@ def check_source(page):
     return page.evaluate('TechOpsUniverseCore.readSource(localStorage)')
 
 with sync_playwright() as p:
-    browser=p.chromium.launch(headless=True,args=['--no-sandbox'])
+    browser=p.chromium.launch(headless=True,executable_path=os.environ.get('CHROMIUM_PATH'),args=['--no-sandbox','--enable-unsafe-swiftshader'])
     context=browser.new_context(viewport={'width':1440,'height':1000},device_scale_factor=1)
     context.set_default_timeout(20000)
     context.route('**/*',lambda r:r.continue_() if r.request.url.startswith(root) else r.abort())
@@ -168,9 +169,33 @@ with sync_playwright() as p:
         see_campaign(view,'k')
         decisions(view,['mark-wall','test-anchor','answer-plain','give-space','free-oz','accept-water','cycle'])
         expect(view.locator('[data-choice="keep-log"]')).to_be_disabled()
+        gallery=context.new_page()
+        gallery.on('pageerror',lambda e:receipt['page_errors'].append(str(e)))
+        gallery.goto(world_url+'?qa=1&unlocked=true#ascended-k')
+        gallery.locator('#interact').click()
+        expect(gallery.locator('#painting-title')).to_have_text('Stair / Cathedral')
+        expect(gallery.locator('#painting-enter')).to_be_disabled()
+        expect(view.get_by_role('heading',name='Meet Ascended K')).to_have_count(0)
         play_native(native,'What the mark can prove',['recorded a specific observed mark','separate columns','Keep the detailed record private'])
         view.bring_to_front();expect(view.locator('[data-choice="keep-log"]')).to_be_enabled();decisions(view,['keep-log'])
         expect(view.locator('#scene-title')).to_have_text('The name in the margin')
+        expect(view.get_by_role('heading',name='Meet Ascended K')).to_be_visible()
+        view.reload()
+        expect(view.get_by_role('heading',name='Meet Ascended K')).to_be_visible()
+        gallery.bring_to_front()
+        gallery.goto(world_url+'?qa=1&painting=cathedral#gallery')
+        gallery.locator('#interact').click()
+        expect(gallery.locator('#painting-enter')).to_be_enabled()
+        gallery.locator('#painting-enter').click()
+        expect(gallery.locator('#chamber-encounter')).to_be_visible()
+        gallery.locator('#chamber-encounter').click()
+        expect(gallery.locator('#ascended-line')).to_contain_text('Ascended K stands in silence')
+        gallery.locator('#ascended-dialog [data-close]').last.click()
+        if gallery.locator('#view-button').get_attribute('aria-pressed')=='true':
+            gallery.locator('#view-button').click()
+        gallery.locator('#painting-transition').evaluate('(el) => Promise.all(el.getAnimations().map(a => a.finished))')
+        gallery.screenshot(path=str(out/'ascended-k-chamber.png'))
+        done('Native return and actual Night Walker memory completion gate the K ending and gallery portal')
         see_campaign(view,'waldo')
         decisions(view,['listen-dogs','prioritize-k','give-space','leave-cell','share-water','inspect-shutter','interval-cross','roll-call'])
         expect(view.locator('[data-choice="shelter"]')).to_be_disabled()
@@ -197,7 +222,7 @@ with sync_playwright() as p:
         snapshot=view.evaluate('Object.fromEntries(Object.entries(localStorage))')
         receipt['native_source']=check_source(native)
         # Snapshot is a test fixture for responsive inspection, NOT a product cloud-sync feature.
-        mobile_context=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,is_mobile=True,has_touch=True)
+        mobile_context=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,is_mobile=True,has_touch=True,reduced_motion='reduce')
         mobile_context.route('**/*',lambda r:r.continue_() if r.request.url.startswith(root) else r.abort())
         mobile_context.add_init_script('const data='+json.dumps(snapshot)+';for(const [k,v] of Object.entries(data))localStorage.setItem(k,v);')
         mobile=mobile_context.new_page();mobile.on('pageerror',lambda e:receipt['page_errors'].append(str(e)))
@@ -205,7 +230,18 @@ with sync_playwright() as p:
         assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
         mobile.screenshot(path=str(out/'shared-story-timeline-mobile.png'),full_page=True)
         mobile.set_viewport_size({'width':320,'height':740});assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
-        done('390px and 320px linked timelines fit without horizontal overflow')
+        mobile.set_viewport_size({'width':390,'height':844})
+        mobile.goto(see_url+'?journey=painting#k')
+        mobile.get_by_role('button',name='Visit the painting →').tap()
+        mobile_world=mobile.frame_locator('#world-stage iframe')
+        mobile_world.get_by_role('button',name='EXPLORE QUIETLY').tap()
+        mobile_world.locator('#interact').tap()
+        mobile_world.locator('#painting-enter').tap()
+        expect(mobile_world.locator('#chamber-encounter')).to_be_visible()
+        assert mobile_world.locator('#painting-transition').evaluate('(el)=>getComputedStyle(el).animationName')=='none'
+        mobile_world.locator('#chamber-exit').tap()
+        expect(mobile_world.locator('#chamber-encounter')).to_be_hidden()
+        done('390px and 320px linked timelines fit; portrait touch controls enter and leave the chamber')
         # A legacy preview never becomes a native award.
         before=view.evaluate("localStorage.getItem('techops_hero_campaign_v1')")
         sandbox=context.new_page();sandbox.goto(see_url+'?preview=1')
@@ -217,10 +253,12 @@ with sync_playwright() as p:
         startup(native)
         native.wait_for_function("TechOpsUniverseCore.readSource(localStorage).status==='ready'")
         assert check_source(native)['binding']['playthroughId']!=old_run
-        view.bring_to_front();view.goto(see_url+'#iona')
+        expect(gallery.locator('#chamber-encounter')).to_be_hidden()
+        expect(gallery.locator('#room-title')).to_have_text('K // GALLERY')
+        view.bring_to_front();view.goto(see_url+'?reset-check=1#iona')
         expect(view.locator('main')).to_contain_text('A story still unfolding.')
         assert 'The World He Left Running' not in view.locator('main').inner_text()
-        done('Actual New Game invalidates old run access without deleting archived See World histories')
+        done('Actual New Game publishes a fresh run, closes the occupied portal, and hides old rewards')
         assert not receipt['page_errors'],receipt['page_errors']
         receipt['status']='PASS'
     except Exception as exc:

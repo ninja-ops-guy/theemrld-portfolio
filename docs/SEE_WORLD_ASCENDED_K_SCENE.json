@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "project": "TechOps Hero / See World",
+  "bible_version": "1.7",
+  "reference_scope": "Canon Guardian indexed canon locks, visual direction and creator updates through 2026-11-06; latest explicit creator painting instruction 2026-11-07",
+  "medium": "game",
+  "volume": null,
+  "chapter": "Optional gallery reward after K campaign",
+  "scenes": [
+    {
+      "scene_id": "see-world-ascended-k-painting",
+      "story_phase": "post-campaign reward; exact comic chronology not asserted",
+      "location": "Gallery and chamber beyond the painting",
+      "channel": "game encounter",
+      "style_register": "existing geometric 3D world with intact creator artwork",
+      "cast": [{"actor_id": "k_red_el", "name_used": "Ascended K", "appearance": {"outfit": "green hooded silhouette", "face": "concealed; definitive likeness NOT_VERIFIED"}}],
+      "beats": ["Complete any legal K campaign ending", "Approach the permanent painting", "Walk through the unlocked frame", "Approach the silent encounter or open its text description", "Return to the gallery and revisit"],
+      "facts_known_by": {"k_red_el": [], "mike": [], "player": ["K campaign completed"]},
+      "reference_files": ["public/k-world/assets/ascended-k-painting.png"],
+      "regalia_continuity": {"state": "green", "areas_changed": [], "decision_causing_transition": "none", "staging_status": "DRAFT_GAME_REPRESENTATION"},
+      "protected_reveals": "No original-Mike/Evan reveal, research authorizer, final celestial chronology, route home or later powers",
+      "progression_scope": "issue #97 native active profile and playthrough; validated native milestones and K decision history"
+    }
+  ],
+  "art_reference_manifest": {
+    "source": "Creator-uploaded image.png, 2026-11-07",
+    "asset_path": "public/k-world/assets/ascended-k-painting.png",
+    "asset_sha256": "735f9c9af1f549e79d94c8de15c0adf9318ca2678189a5f9466acfb84c58ca0a",
+    "width": 732,
+    "height": 732,
+    "pixel_edits": false,
+    "scope": "Exact gallery image and environmental/color reference; not a definitive character model sheet"
+  },
+  "approval": {
+    "owner_approved_direction": "Use supplied painting as a walk-in gallery encounter with Ascended K after K campaign completion",
+    "owner_approved_retcons": [],
+    "encounter_staging_and_geometry": "PROVISIONAL",
+    "likeness": "NOT_VERIFIED",
+    "status": "PROVISIONAL"
+  },
+  "production_state": "LINKED_REVIEW_CANDIDATE"
+}

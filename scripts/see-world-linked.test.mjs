@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {readPaintingGate} from '../public/see-world/painting-progress.mjs';
 import vm from 'node:vm';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
@@ -105,4 +107,42 @@ test('The graph is acyclic across native earned sections and See World chapter g
  // The only reverse edges enter after the checkpoint that earned the section.
  const edges=[['violinist','felicia.relay'],['felicia.relay','felicia_signal'],['felicia_signal','felicia.hangar'],['felicia.hangar','felicia.swarm'],['felicia.swarm','felicia_stop'],['returned','k_anchor'],['k.alcove','k_anchor'],['k_anchor','k.ending'],['returned','waldo_route'],['waldo.alcove','waldo_route'],['waldo_route','waldo.ending'],['ghostFork','iona.disclosure'],['iona.disclosure','iona.fate'],['iona.fate','iona.branch'],['iona.branch','iona.ending']];
  const visiting=new Set(),done=new Set();function visit(x){assert.ok(!visiting.has(x),'cycle at '+x);if(done.has(x))return;visiting.add(x);for(const [a,b]of edges)if(a===x)visit(b);visiting.delete(x);done.add(x);}for(const [x]of edges)visit(x);
+});
+
+
+test('Ascended K requires the native return, native memory section, and a linked K ending',async()=>{
+ const f=await allSource(),st=createStore(f.st,f.q);
+ f.st.setItem('see-world:campaigns:v1',encode({k:completedPath('k')}));
+ assert.equal(readPaintingGate(f.st).unlocked,false,'standalone ending');
+ let r=await st.begin('k',expectedFrom(st.read()));
+ for(const choice of ['mark-wall','test-anchor','answer-plain','give-space','free-oz','accept-water','cycle'])
+  r=await st.decide('k',choice,r.runs.k.node,expectedFrom(r));
+ await assert.rejects(st.decide('k','keep-log','shuttle',expectedFrom(r)),/memory investigation/);
+ assert.equal(readPaintingGate(f.st).unlocked,false);
+ await grantAllSource(f);r=st.read();
+ assert.equal(readPaintingGate(f.st).unlocked,false,'native section alone');
+ r=await st.decide('k','keep-log','shuttle',expectedFrom(r));
+ assert.equal(readPaintingGate(f.st).binding,r.source.binding.profileId+'/'+r.source.binding.playthroughId);
+ const old=st.exportSave(),oldBinding=r.source.binding;
+ const profile=f.st.getItem(U.KEYS.game);
+ f.st.setItem(U.KEYS.game,profile+' ');
+ assert.equal(readPaintingGate(f.st).unlocked,false,'stale native source');
+ f.st.setItem(U.KEYS.game,profile);
+ assert.equal(readPaintingGate(f.st).unlocked,true,'same-run reread');
+ f.C.reset(f.st);f.st.removeItem(U.KEYS.game);f.root.S={day:1,meta:{}};
+ assert.equal(readPaintingGate(f.st).unlocked,false);
+ await f.init();
+ assert.notEqual(st.read().source.binding.playthroughId,oldBinding.playthroughId);
+ await assert.rejects(st.importSave(old,expectedFrom(st.read())),/wrong-playthrough/);
+ assert.equal(readPaintingGate(f.st).unlocked,false,'native New Game');
+});
+
+test('Ascended K gate preserves a corrupt record, fails closed without storage, and uses the original PNG',async()=>{
+ const f=await allSource(),s=U.readSource(f.st),key=U.KEYS.see+s.binding.playthroughId;
+ f.st.setItem(key,'{bad');
+ assert.equal(readPaintingGate(f.st).unlocked,false);
+ assert.equal(f.st.getItem(key),'{bad');
+ assert.equal(readPaintingGate({getItem(){throw Error('storage denied');}}).unlocked,false);
+ const png=readFileSync(new URL('../public/k-world/assets/ascended-k-painting.png',import.meta.url));
+ assert.equal(createHash('sha256').update(png).digest('hex'),'735f9c9af1f549e79d94c8de15c0adf9318ca2678189a5f9466acfb84c58ca0a');
 });

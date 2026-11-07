@@ -1,5 +1,6 @@
 import { CAMPAIGNS, CAMPAIGN_IDS, SCENES, campaignById, nodeById } from './campaigns.mjs';
 import {createStore, expectedFrom, U} from './linked-store.mjs';
+import { paintingGate } from './painting-progress.mjs';
 import { SAVE_KEY, newRun, choose, availability, encode, decode, consequence } from './engine.mjs';
 const $ = id => document.getElementById(id);
 const content = $('content');
@@ -18,7 +19,7 @@ function refreshLinked(){
 
 const make = (tag, text = '', className = '') => { const element = document.createElement(tag); element.textContent = text; if (className) element.className = className; return element; };
 const button = (label, action, className = '') => { const element = make('button', label, className); element.type = 'button'; element.addEventListener('click', action); return element; };
-let runs = {}, selected = '', view = 'hub', lastConsequence = '', pending = null, worldFrame = null, worldScene = 'city', exploring = false, blockedSave = false, recoveryRaw = '';
+let runs = {}, selected = '', view = 'hub', lastConsequence = '', pending = null, worldFrame = null, worldScene = 'city', exploring = false, blockedSave = false, recoveryRaw = '', paintingRequested = false;
 function announce(text) { $('announcement').textContent = text; }
 function message(text) { $('storage-status').replaceChildren(make('span', text)); }
 function download(text, filename) { const url = URL.createObjectURL(new Blob([text], { type: 'application/json' })); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
@@ -49,11 +50,27 @@ function explore() {
   if (exploring) { leaveWorld(); render(); return; }
   exploring = true; document.body.classList.add('exploring'); $('world-stage').hidden = false; $('world-nav').textContent = 'Return to story';
   if (!worldFrame) {
+    const requestedPainting = paintingRequested;
     worldFrame = document.createElement('iframe'); worldFrame.title = 'See World — existing walkable environment'; worldFrame.allow = 'autoplay; fullscreen'; worldFrame.referrerPolicy = 'strict-origin-when-cross-origin';
-    worldFrame.src = `../k-world/index.html?entry=${encodeURIComponent(worldScene)}`;
-    worldFrame.addEventListener('load', () => { setScene(worldScene, true); $('world-note').textContent = 'Existing-world staging, not new mission geometry. Use Return to story to continue. Movement does not advance choices. The world owns music playback.'; });
+    worldFrame.src = `../k-world/index.html?entry=${encodeURIComponent(worldScene)}${preview ? '&preview=1' : ''}${requestedPainting ? '&painting=cathedral' : ''}`;
+    worldFrame.addEventListener('load', () => { if (!requestedPainting) setScene(worldScene, true); $('world-note').hidden = true; });
     $('world-stage').append(worldFrame);
   }
+}
+function visitPainting() {
+  refreshLinked();
+  if (!paintingGate(linkedRecord).unlocked) { render(); return; }
+  worldScene = 'gallery';
+  paintingRequested = true;
+  if (!exploring) explore();
+  worldFrame?.contentWindow?.postMessage({ type: 'k-world:painting' }, location.origin);
+}
+function paintingInvitation() {
+  const invitation = make('section', '', 'painting-invitation');
+  invitation.append(make('p', 'A PAINTING HAS OPENED', 'eyebrow'), make('h2', 'Meet Ascended K'),
+    make('p', 'The blue-window painting is waiting for you in the gallery.'),
+    button('Visit the painting →', visitPainting, 'primary'));
+  return invitation;
 }
 function navigate(to) {
   if (!['comic', 'links', 'terminal', 'portfolio'].includes(to)) return;
@@ -62,6 +79,11 @@ function navigate(to) {
 }
 window.addEventListener('message', event => {
   if (event.origin !== location.origin || !worldFrame || event.source !== worldFrame.contentWindow) return;
+  if (event.data?.type === 'k-world:ready' && paintingRequested) {
+    worldFrame.contentWindow.postMessage({ type: 'k-world:painting' }, location.origin);
+    paintingRequested = false;
+  }
+  if (event.data?.type === 'k-world:campaign') showTimeline();
   if (event.data?.type === 'k-world:comic') navigate('comic');
   if (event.data?.type === 'k-world:portfolio') navigate('portfolio');
 });
@@ -166,7 +188,7 @@ function renderStory() {
   if(!runs[selected])return renderLocked();
   if(!preview&&!U.gate(selected,runs[selected].node,nativeSource).allowed)return renderLocked();
   const campaign = campaignById(selected), run = runs[selected], current = nodeById(campaign,run.node);
-  content.style.setProperty('--tone',campaign.color); setScene(current.scene);
+  content.style.setProperty('--tone',campaign.color); if (!exploring) setScene(current.scene);
   const top = make('div', '', 'story-top'); top.append(button('← All campaigns',showHub),make('small', campaign.name + ' / ' + campaign.motif)); content.append(top);
   const layout = make('div', '', 'story-grid'), story = make('section', '', 'story'); story.setAttribute('aria-labelledby','scene-title');
   story.append(make('p', `${current.ending ? 'EPISODE COMPLETE' : 'ACT '+String(current.chapter).padStart(2,'0')+' / 05'} · ${campaign.title}`, 'chapter-label'));
@@ -189,6 +211,7 @@ function renderStory() {
   } else {
     const result = make('section','','result'); result.append(make('small','PERSISTENT OUTCOME'),make('h2',current.worldState),make('small','DOSSIER DISCOVERED'),make('p',campaign.reward.title+' — '+campaign.reward.text)); story.append(result);
     const actions=make('div','','result-actions'); actions.append(button('Open collection',showCollection,'primary'),button('Choose another life',showHub,'secondary')); story.append(actions);
+    if (selected === 'k' && paintingGate(linkedRecord).unlocked) story.append(paintingInvitation());
   }
   const side = make('aside','','sidebar'); side.setAttribute('aria-label','Campaign state'); side.append(make('h2','YOUR CONSEQUENCES'));
   for (const [key,value] of Object.entries(run.stats)) {
@@ -210,6 +233,7 @@ function renderStory() {
 }
 function renderCollection() {
   content.append(make('p','THE ARCHIVE / EARNED THROUGH PLAY','eyebrow'),make('h1','What you carry.'),make('p','These are in-game text dossiers, not new comic pages or unreleased recordings. Alternate replay stays in a separate sandbox. It cannot overwrite linked decisions or grant native rewards.'));
+  if (paintingGate(linkedRecord).unlocked) content.append(paintingInvitation());
   const grid=make('div','','collection');
   for(const campaign of CAMPAIGNS) { if(!entryAllowed(campaign.id)){const locked=make('article','','card');locked.append(make('h2','Undiscovered perspective'),make('p','Continue the main story.'));grid.append(locked);continue;} const unlocked=runs[campaign.id]?.ended,card=make('article','','card');card.style.setProperty('--tone',campaign.color);card.append(make('p',campaign.name+' / '+(unlocked?'DISCOVERED':'UNDISCOVERED'),'eyebrow'),make('h2',unlocked?campaign.reward.title:'An unopened record'),make('p',unlocked?campaign.reward.text:'Complete this character’s episode to reveal the dossier.'),launchButton(campaign));grid.append(card); }
   content.append(grid);

@@ -1,9 +1,9 @@
 const LOCAL_ART = [
  ['cope','A','COPE'],['fear','B','FEAR'],['death-eater','C','DEATH EATER'],['wolf','D','SIGNAL HOUND'],['garden','E','ORCHARD SIGNAL'],['meteor','F','METEOR / RABBIT'],['cathedral','G','STAIR / CATHEDRAL'],['blue-relic','H','BLUE RELIC'],['neon-cosmos','I','NEON COSMOS'],['equations','J','EQUATION STUDY'],['self-i','K','K // SELF I'],['self-ii','L','K // SELF II']
-].map(([id,letter,title])=>({id,letter,title,src:`assets/${id}.webp`}));
+].map(([id,letter,title])=>({id,letter,title,src:`assets/${id}.webp`,permanent:id==='cathedral'}));
 
-// Extended user-supplied archive. The gallery has twelve physical frames; these
-// works rotate through those frames only after the visitor looks away.
+// Extended user-supplied archive. The gallery has eleven rotating frames and one fixed painting portal; these
+// works rotate through the ordinary frames only after the visitor looks away.
 const ARCHIVE_ART = [
  {id:'end-for-us',letter:'13',title:'THIS WILL NOT BE THE END FOR US',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/4d7a0c35-fb1f-4164-a415-12571dc689d5.jpg'},
  {id:'k-hand-portrait',letter:'14',title:'THE HAND REMEMBERS',src:'https://d2ol7oe51mr4n9.cloudfront.net/user_35RBEXAM1O9RfdpYhaXNJJroZk3/d0282f7f-70c2-4283-ab6e-9e51af1e4667.jpg'},
@@ -37,6 +37,8 @@ const ARCHIVE_ART = [
 ];
 
 export const ART=[...LOCAL_ART,...ARCHIVE_ART];
+// This owner-supplied work is a permanent portal, outside the rotating archive.
+export const ASCENDED_ART={id:'ascended-k-painting',title:'ASCENDED K',src:'assets/ascended-k-painting.png'};
 export const WORLDS=[
  {id:'sol',legacy:'spring',icon:'sun',name:'SOL',subtitle:'Tropical temple',color:'#ffbc52',tag:'PARADISE AWAITS',zone:'spring',description:'Amber sunlight, basalt steps, palms and a turquoise lagoon.'},
  {id:'torus',legacy:'summer',icon:'torus',name:'TORUS',subtitle:'Emerald halo',color:'#42efa0',tag:'GROW FOREVER',zone:'summer',description:'Concentric bridges, a living ring garden and green reservoirs.'},
@@ -53,6 +55,6 @@ export const PLAYLISTS={
  'gallery-turnaround':[TRACKS.turnaround,TRACKS.gallery], 'gallery-deep':[TRACKS.gallery],
  city:[TRACKS.city,TRACKS.ambient1,TRACKS.ambient2], spring:[TRACKS.spring,TRACKS.ambient1],summer:[TRACKS.summer1,TRACKS.summer2,TRACKS.summer3],autumn:[TRACKS.autumn1,TRACKS.autumn2],winter:[TRACKS.winter1,TRACKS.winter2,TRACKS.dreamer],light:[TRACKS.ambient1,TRACKS.ambient2],dark:[TRACKS.dark,TRACKS.ambient2],car:[TRACKS.car],flight:[TRACKS.flight],ambient:[TRACKS.ambient1,TRACKS.ambient2]
 };
-export function resolveWorld(id){if(id==='gallery'||id==='city')return id;return WORLDS.find(w=>w.id===id||w.legacy===id)?.id||'gallery';}
+export function resolveWorld(id){if(id==='gallery'||id==='city'||id==='ascended-k')return id;return WORLDS.find(w=>w.id===id||w.legacy===id)?.id||'gallery';}
 export const zoneForWorld=id=>id==='gallery'?'gallery-deep':id==='city'?'city':WORLDS.find(w=>w.id===id)?.zone||'ambient';
 export const zoneLabel=id=>id==='latest'?'LATEST / @RAIKOUNO':id==='gallery-deep'?'GALLERY / INNER NAVE':id==='gallery-turnaround'?'GALLERY / RETURN':id==='city'?'K//CITY':id==='car'?'K//DRIVE':id==='flight'?'K-01 / EVA':WORLDS.find(w=>w.zone===id)?.subtitle.toUpperCase()||'AMBIENT';

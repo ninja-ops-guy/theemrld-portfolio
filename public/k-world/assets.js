@@ -1,7 +1,7 @@
-import {ART} from './data.js';
+import {ART,ASCENDED_ART} from './data.js';
 export class Assets {
  constructor(renderer){this.renderer=renderer;this.images=new Map();this.labels=new Map();this.errors=[];this.loaded=[];}
- async load(){await Promise.all([...ART,{id:'k-band',src:'assets/k-band.webp'}].map(async p=>{try{
+ async load(){await Promise.all([...ART,ASCENDED_ART,{id:'k-band',src:'assets/k-band.webp'}].map(async p=>{try{
  const image=new Image(),source=globalThis.__K_EMBEDDED_ASSETS__?.[p.src]||p.src;
  // The expanded archive uses confirmed HTTPS media URLs. WebGL textures require
  // anonymous CORS for cross-origin image uploads.
