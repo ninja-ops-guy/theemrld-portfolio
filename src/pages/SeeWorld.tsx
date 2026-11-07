@@ -17,7 +17,7 @@ export default function SeeWorld() {
     return () => window.removeEventListener('message', receive);
   }, [navigate]);
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}see-world/index.html`}
-    title="See World — Iona, Felicia, K and Waldo story campaigns"
+    title="See World — playable campaign preview"
     allow="autoplay; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
     style={{ position: 'fixed', inset: 0, width: '100%', height: '100dvh', border: 0, background: '#0a1115', zIndex: 20 }} />;
 }

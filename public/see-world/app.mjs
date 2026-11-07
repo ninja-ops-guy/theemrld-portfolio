@@ -142,6 +142,7 @@ function render() {
   window.scrollTo(0,0); (document.getElementById('scene-title') || content).focus({preventScroll:true});
 }
 $('home').onclick=showHub;$('campaigns-nav').onclick=showHub;$('collection-nav').onclick=showCollection;$('world-nav').onclick=explore;$('comic-nav').onclick=()=>navigate('comic');$('portfolio-nav').onclick=()=>navigate('portfolio');
+$('links-nav').onclick = () => navigate('links');
 $('export').onclick=()=>{download(encode(runs),'see-world-progress.json');announce('Progress exported.');};
 $('import').addEventListener('change', async event=>{
   const file=event.target.files?.[0];event.target.value='';if(!file)return;
