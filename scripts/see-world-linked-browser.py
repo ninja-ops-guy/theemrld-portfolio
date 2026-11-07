@@ -100,6 +100,7 @@ with sync_playwright() as p:
         # Mobile reads the same real persisted linked records, not arbitrary all-complete flags.
         mobilectx=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,storage_state=ctx.storage_state())
         mobile=mobilectx.new_page();mobile.goto(BASE+'/theemrld-portfolio/see-world/index.html')
+        assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
         mobile.get_by_role('button',name='Continue this perspective',exact=True).click()
         assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
         for box in mobile.locator('button[data-choice]').all():assert box.bounding_box()['height']>=44
@@ -112,7 +113,7 @@ with sync_playwright() as p:
         native.locator('#see-world-linked-button').click()
         native.get_by_role('button',name='Read an earlier perspective',exact=True).click()
         native.get_by_role('button',name='Record this account and reveal the interlude',exact=True).click()
-        native.wait_for_function('TechOpsLinked.context().milestones.ionaAccount===true')
+        native.wait_for_function('(()=>{try{return TechOpsLinked.context().milestones.ionaAccount===true}catch{return false}})()')
         see.goto(BASE+'/theemrld-portfolio/see-world/index.html#iona')
         expect(see.get_by_role('heading',name='The empty mic',exact=True)).to_be_visible()
         passed('Iona disclosure is explicit, after Ghost Fork, and earlier-interlude labeled')
@@ -120,10 +121,20 @@ with sync_playwright() as p:
         see.locator('#import').set_input_files({'name':'preview.json','mimeType':'application/json','buffer':b'{"schema":1,"revision":"2026-11-07-a","runs":{}}'})
         expect(see.locator('#storage-status')).to_contain_text('unlinked preview')
         passed('unlinked preview import rejected')
+        # Continue in another native tab transfers write ownership without changing the run.
+        resumed=ctx.new_page();resumed.on('pageerror',lambda e:observed.append({'page':'resumed','error':str(e)}))
+        resumed.goto(BASE+'/techops-hero/',wait_until='domcontentloaded')
+        resumed.wait_for_function('window.TechOpsLinked && window.__productionTitleReadiness?.ready===true',timeout=30000)
+        resumed.locator('#btn-continue').click()
+        resumed.wait_for_function('(()=>{try{return !!TechOpsLinked.context()}catch{return false}})()',timeout=10000)
+        assert resumed.evaluate('TechOpsLinked.context().runId')==old_id
+        assert native.evaluate('save()') is False
+        passed('Continue preserves run identity and transfers the native writer lease; previous tab cannot overwrite the same run')
         # A second real New Game retires the old active binding; old tab cannot overwrite it.
-        newer=ctx.new_page();newer.goto(BASE+'/techops-hero/',wait_until='domcontentloaded');start(newer)
+        newer=ctx.new_page();newer.on('pageerror',lambda e:observed.append({'page':'newer','error':str(e)}));newer.goto(BASE+'/techops-hero/',wait_until='domcontentloaded');start(newer)
         new_id=newer.evaluate('TechOpsLinked.context().runId');assert new_id!=old_id
         old_write=native.evaluate('save()');assert old_write is False
+        assert resumed.evaluate('save()') is False
         assert newer.evaluate('TechOpsLinked.context().runId')==new_id
         see.reload();assert see.get_by_role('button',name='Locked in this playthrough',exact=True).count()==4
         passed('new-game identity reset; previous native tab cannot overwrite the new run; See World gates reset')
