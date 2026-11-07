@@ -1,0 +1,121 @@
+name: See World Live Release Verification
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/see-world-live-release.yml']
+permissions:
+  contents: read
+jobs:
+  live-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: native
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact deployed source bytes
+        run: |
+          mkdir -p evidence
+          git -C portfolio rev-parse HEAD > evidence/portfolio-merge.txt
+          git -C native rev-parse HEAD > evidence/native-merge.txt
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          from hashlib import sha256
+          import json, time
+          base='https://ninja-ops-guy.github.io'
+          files=[]
+          for p in sorted(Path('portfolio/public/see-world').rglob('*')):
+              if p.is_file(): files.append((p, '/theemrld-portfolio/'+p.relative_to('portfolio/public').as_posix()))
+          for name in ['dogs.js','v732_hooks.js','see_world_linked_native.mjs','campaign_act1.js','campaign_act2.js','campaign_story.js','good_dogs_campaign_state.js']:
+              files.append((Path('native')/name, '/techops-hero/'+name))
+          result={'origin':base,'portfolio':'14a3df8e1a77ca2ad3329b43828671f69226ce77','native':'053ee3948170ac972bc1af44eacfa4857fc32a0f','assets':[]}
+          for local,route in files:
+              expected=sha256(local.read_bytes()).hexdigest()
+              row={'path':route,'expected_sha256':expected,'attempts':[]}
+              for attempt in range(1,13):
+                  try:
+                      request=Request(base+route,headers={'Cache-Control':'no-cache','User-Agent':'SeeWorld-Release-Verification'})
+                      with urlopen(request,timeout=30) as response:
+                          data=response.read(); actual=sha256(data).hexdigest()
+                          entry={'attempt':attempt,'status':response.status,'bytes':len(data),'sha256':actual,'url':response.geturl()}
+                      row['attempts'].append(entry)
+                      if actual==expected:
+                          row['pass']=True
+                          break
+                  except Exception as error: row['attempts'].append({'attempt':attempt,'error':str(error)})
+                  if attempt<12: time.sleep(5)
+              result['assets'].append(row)
+              Path('evidence/live-asset-identity.json').write_text(json.dumps(result,indent=2))
+              assert row.get('pass'), 'Deployed bytes do not match: '+route
+              print('MATCH',route,expected,flush=True)
+          result['status']='PASS'; result['verified_count']=len(files)
+          Path('evidence/live-asset-identity.json').write_text(json.dumps(result,indent=2))
+          PY
+      - name: Install isolated browser
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Public navigation and deployed cross-game loop
+        env:
+          LINKED_BASE_URL: https://ninja-ops-guy.github.io
+          LINKED_QA_DIR: evidence/browser
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import os, runpy, json
+          from playwright.sync_api import sync_playwright, expect
+          base=os.environ['LINKED_BASE_URL']; out=Path('evidence/browser'); out.mkdir(parents=True,exist_ok=True)
+          def public_only(route):
+              if route.request.url.startswith(base+'/') and route.request.method in ('GET','HEAD'): route.continue_()
+              else: route.abort()
+          # Fresh isolated context: never use an owner's browser profile or saved state.
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True,args=['--no-sandbox'])
+              context=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
+              context.route('**/*',public_only)
+              page=context.new_page(); errors=[]; page.on('pageerror',lambda e:errors.append(str(e)))
+              page.goto(base+'/theemrld-portfolio/#/links',wait_until='domcontentloaded')
+              expect(page.locator('a[href="#/see-world"]')).to_be_visible(timeout=30000)
+              expect(page.locator('a[href="#/comic"]')).to_be_visible()
+              assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+              page.screenshot(path=str(out/'live-media-links.png'),full_page=True)
+              page.locator('a[href="#/see-world"]').click()
+              iframe=page.frame_locator('iframe[title="See World — linked campaign review"]')
+              expect(iframe.get_by_role('button',name='Locked in this playthrough',exact=True)).to_have_count(4,timeout=30000)
+              page.screenshot(path=str(out/'live-portfolio-linked-shell.png'),full_page=True)
+              assert not errors,errors
+              (out/'public-navigation.json').write_text(json.dumps({'status':'PASS','checks':['live media links routes','390px media hub overflow','React See World host','fresh linked cards remain locked'],'page_errors':errors},indent=2))
+              browser.close()
+          # Reuse every assertion in the verified 11-scenario linked review.
+          # Only adapt its localhost-only external request rule for the live HTTPS origin.
+          source=Path('portfolio/scripts/see-world-linked-browser.py').read_text()
+          old="ctx.route('https://**/*',lambda r:r.abort())"
+          new="ctx.route('**/*',lambda r:r.continue_() if r.request.url.startswith(BASE+'/') and r.request.method in ('GET','HEAD') else r.abort())"
+          assert source.count(old)==1, 'Unexpected linked harness drift'
+          source=source.replace(old,new,1)
+          old2='mobile=mobilectx.new_page();mobile.goto('
+          new2="mobilectx.route('**/*',lambda r:r.continue_() if r.request.url.startswith(BASE+'/') and r.request.method in ('GET','HEAD') else r.abort());mobile=mobilectx.new_page();mobile.goto("
+          assert source.count(old2)==1
+          source=source.replace(old2,new2,1)
+          executed=out/'live-executed-linked-test.py';executed.write_text(source)
+          runpy.run_path(str(executed),run_name='__main__')
+          PY
+      - name: Retain deployment identity and live test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: see-world-live-release-verification
+          path: evidence/
+          retention-days: 30
