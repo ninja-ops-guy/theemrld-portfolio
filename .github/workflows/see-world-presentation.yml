@@ -46,7 +46,7 @@ jobs:
           npm run build
           node --check public/see-world/player.mjs
           node --check public/see-world/presentation.mjs
-      - name: Confirm unchanged story and save authority
+      - name: Confirm reviewed reader and unchanged story/save authority
         run: |
           mkdir -p evidence/source web
           git -C portfolio rev-parse HEAD > evidence/portfolio-head.txt
@@ -55,12 +55,12 @@ jobs:
           python - <<'PY'
           import hashlib
           from pathlib import Path
-          expected = {'linked-app.mjs':'574a9c45675843d2c14f8b663a639b5c5c4ab5c0','linked.mjs':'d869c3812967aa813e74b5f1a8b8709ba6317470','engine.mjs':'5a7277029cb64971428be9b9f99a03c41024b947','campaigns.mjs':'3e5355c353dab98b6eaea786192937f698de919f'}
+          expected = {'linked-app.mjs':'0610ca21a538fa36305c3187c3e1f62001c1dc4d','linked.mjs':'d869c3812967aa813e74b5f1a8b8709ba6317470','engine.mjs':'5a7277029cb64971428be9b9f99a03c41024b947','campaigns.mjs':'3e5355c353dab98b6eaea786192937f698de919f'}
           for name,want in expected.items():
               b=(Path('portfolio/public/see-world')/name).read_bytes()
               got=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
               assert got==want,(name,got,want)
-          Path('evidence/authority-unchanged.txt').write_text('PASS: linked application, save contract, transition engine and story content match released source bytes.\n')
+          Path('evidence/authority-unchanged.txt').write_text('PASS: reader matches reviewed portal integration; save contract, transition engine and story content match released source bytes.\n')
           PY
           cp portfolio/public/see-world/{index.html,player.mjs,presentation.mjs,presentation.css,presentation-base.css} evidence/source/
           cp portfolio/src/pages/{MediaLinks.tsx,media-links.css,media-links-base.css,SeeWorld.tsx} evidence/source/

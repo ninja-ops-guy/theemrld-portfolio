@@ -1,0 +1,13 @@
+{
+  "public/see-world/linked.mjs": "d869c3812967aa813e74b5f1a8b8709ba6317470",
+  "public/see-world/engine.mjs": "5a7277029cb64971428be9b9f99a03c41024b947",
+  "public/see-world/campaigns.mjs": "3e5355c353dab98b6eaea786192937f698de919f",
+  "public/see-world/index.html": "fb9686342e849863a2f06238271a20815629d865",
+  "public/see-world/player.mjs": "6c098eac37064191fedbf4550693ecf0406264f0",
+  "public/see-world/presentation.mjs": "590c37d002152d8b2325fbed58a0ff10f74d46b4",
+  "public/see-world/presentation.css": "216b0f1139ab5013fc8379ad0ad17729c0489425",
+  "public/see-world/presentation-base.css": "0a2fa63b6444c57f6bdc005529473f5a8bab42f3",
+  "src/pages/SeeWorld.tsx": "5c30114821c775a6e9a40b794f2bb65a994082de",
+  "public/k-world/assets/cathedral.webp": "000e6bfeaff085b5c0200e02d2b1e204993462ca",
+  "public/k-world/latest-releases.json": "32cdca5c65e841866fa3b6e76099f053338cc70f"
+}
