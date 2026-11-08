@@ -9,6 +9,9 @@ def process_sample():
         for process in children:
             try:
                 m=process.memory_info()
+                if os.environ.get('QA_CAPTURE_GRAPHICS_ENV') == '1' and process.name() in ('MiniBrowser', 'WPEWebProcess', 'WPENetworkProcess'):
+                    graphics_environment = process.environ()
+                    diagnostic('graphics-process-environment', json.dumps({'pid':process.pid,'name':process.name(),'values':{key:graphics_environment.get(key) for key in ('WEBKIT_SKIA_ENABLE_CPU_RENDERING','WEBKIT_SKIA_GPU_PAINTING_THREADS','WEBKIT_SKIA_CPU_PAINTING_THREADS')}}))
                 rows.append({'pid':process.pid,'ppid':process.ppid(),'name':process.name(),'rss':m.rss,'threads':process.num_threads(),'fds':process.num_fds(),'status':process.status(),'cpu':process.cpu_times()._asdict()})
             except (psutil.NoSuchProcess,psutil.AccessDenied): pass
         cgroup={}
