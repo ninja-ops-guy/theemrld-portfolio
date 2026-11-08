@@ -8,6 +8,7 @@
 | `k_red_el` | Red → K the EMRLD → El; *El Mago Rojo* is the former public persona | **One continuous person**, not clones. Present K: black beanie, dark techwear; reference-specific glasses/headphones where applicable. Red/El Mago Rojo: Black man with tied locs, red star, broad-brimmed hat, red performance coat. Emerald geometry is ability, **not separate identity**. Never give Red the Waldo/Oz mask. Final El design requires approved references; do not invent it. |
 | `iona` | Iona | Tan Vietnamese woman, **short precise black bowl cut**, dark eyes, subtle piercings, practical workshop/stage apparel. GHOST BENDS cofounder, engineer, bassist/vocalist/producer, Red's creative equal and partner in Low Quarter. **Not** Felicia's long curls, gold embroidery or violin silhouette. |
 | `felicia` | Felicia Cruz | Security Research in Systems Integrations. Company promotional identity is teasingly called “Marketing”; musician/violinist, aircraft/swarm developer. Long curls and gold-embroidered/violin look belongs to Felicia, not Iona; use approved visual reference for actual face. |
+| `claudia` | Claudia | Mike's mother on Earth; distinct from Mara. Use the creator-approved portrait identified in the [November 8 scoped addendum](../../../docs/techops-hero-claudia-addendum-2026-11-08.md). This later creator direction supplements the bundled Bible. The intended visit is future development with placement and consequences open. |
 | `mike` | Mike | TechOps operator; grounded competence, empathy, verification and delegation. Use approved likeness for face/hair. Never infer his face from Red/K or other actors. |
 | `waldo_oz` | Waldo (Mike's name) / Oz (K's name) | **One stocky human**; red/black lucha mask, black leather, heavy boots, chain. Already imprisoned in Cell 1984 when Good Dogs begins. |
 | `katrin` | Katrin | Small cream-colored dog; **black knit beanie**, blue harness/identifier. Distinct cautious behavior. |
@@ -34,3 +35,6 @@ ORPHEUS full sponsor/authorization chain, specific roots of Felicia's discovery,
 - Sector 04 anomaly: Mike's identity; `MON 02:13:47`; accepted access with no corroborating physical camera. Do not invent a surname or absolute year.
 - GHOST BENDS is predominantly metal. Real-world songs are reference materials, not automatic plot facts. Credit, lyrics, collaborators, songs and album continuity require actual discography evidence.
 - No standalone lore-explanation pages inside a finished reader volume. Use physical action and evidence. Bible §17.
+
+## Claudia memory-boundary supplement — November 8
+Mike ≠ K; Claudia ≠ Mara. Preserve K's lived Mara memories separately from Mike-origin memories. Emotional confusion is not proof of shared identity. Apply the [scoped addendum](../../../docs/techops-hero-claudia-addendum-2026-11-08.md) without assigning unapproved chronology or revelations.
