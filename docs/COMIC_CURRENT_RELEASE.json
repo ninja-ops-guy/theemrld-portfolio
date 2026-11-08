@@ -1,16 +1,16 @@
 {
   "recorded_on": "2026-11-08",
-  "edition": "Revision F - Waldo continuity",
+  "edition": "Revision F - Waldo unmasking and shaving",
   "pages": 316,
-  "output_sha256": "d02606c61e41ef33a121b0750c32cdc6979828897185c34810cc261d810c0516",
-  "output_bytes": 137744952,
+  "output_sha256": "939b90bb8f597fc1601ad90ea02f33cad59dd6bb95a48ac652055b130525ce48",
+  "output_bytes": 142160430,
   "parts": [
     "print-source/revision-f.part0",
     "print-source/revision-f.part1"
   ],
   "pdf_asset": "techops-comic/TechOps-Hero-Revision-F-Complete.pdf",
-  "reader_revision": "waldo-continuity-hq-d02606c6",
-  "previous_master_sha256": "badf8bb6d4b68f2739ffcd00cf95d46f84fdf5a17f036eca8ef3aedc4eefbb6f",
+  "reader_revision": "waldo-unmask-hq-939b90bb",
+  "previous_master_sha256": "d02606c61e41ef33a121b0750c32cdc6979828897185c34810cc261d810c0516",
   "inserted_page": 34,
   "printed_folio": "31A",
   "inserted_scene": "Waldo / Before the knock",
@@ -307,8 +307,8 @@
       },
       "34": {
         "path": "public/techops-comic/revision-f/034.webp",
-        "sha256": "1d6d81625f914e79e6b1e0375a73032776fb37e008138252f9c2a9e728125856",
-        "bytes": 1245470
+        "sha256": "17e7f4325ec4bba4ceafdc14e7509d4b09b1280dbbe6bbfd6f388dea8e0829a0",
+        "bytes": 1089616
       },
       "35": {
         "path": "public/techops-comic/revision-f/035.webp",
@@ -1722,5 +1722,7 @@
       }
     }
   },
-  "publication_authorization": "User requested publishing the corrections, high-resolution reader, and an added Waldo shaving scene in the same ongoing task."
+  "publication_authorization": "User requested publishing the corrections, high-resolution reader, and an added Waldo shaving scene in the same ongoing task.",
+  "revision_scope": "Revised existing page 34 top panel to show mask removal before shaving and before K first meets Mike. Page order unchanged.",
+  "guide_number_reference_edition_pages": 315
 }

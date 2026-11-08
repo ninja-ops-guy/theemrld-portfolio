@@ -23,9 +23,10 @@ Recorded 2026-11-08 (America/New_York). These are publishing locators and operat
 
 ## Current edition and large PDF storage
 
-The November 8 Waldo continuity master is 137,744,952 bytes, SHA-256 d02606c61e41ef33a121b0750c32cdc6979828897185c34810cc261d810c0516. The build preserves it byte-for-byte without recompression.
+The November 8 Waldo continuity master is 142,160,430 bytes, SHA-256 939b90bb8f597fc1601ad90ea02f33cad59dd6bb95a48ac652055b130525ce48. The build preserves it byte-for-byte without recompression.
 
-- Added PDF/web page 34, printed folio 31A, titled Before the Knock: Waldo shaves after removing his mask, before joining Mike and Felicia. The existing reunion moved from page 34 to 35.
+- Added PDF/web page 34, printed folio 31A, titled Before the Knock: Waldo visibly removes his mask, then shaves, immediately before K meets Mike and Felicia. The existing reunion moved from page 34 to 35.
+- The creator clarified that no mask-removal scene existed yet. The current page 34 explicitly depicts removing the mask in its top panel. The earlier version began with the mask already off; that staging is superseded. This revision keeps 316 pages and all navigation positions unchanged.
 - Earlier approved-scope annotation repairs moved from PDF pages 118, 120, 132, 136 to 119, 121, 133, 137. Printed folios remain unchanged. Do not confuse PDF position with printed folio.
 - The preceding 315-page v2 master SHA-256 was badf8bb6d4b68f2739ffcd00cf95d46f84fdf5a17f036eca8ef3aedc4eefbb6f. docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json remains historical.
 - Git tracks print-source/revision-f.part0 and revision-f.part1, split at 75,000,000 bytes. Keep every tracked part below GitHub's 100 MiB file limit. Future masters may require a different number of parts.

@@ -12,7 +12,7 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-const revisionFArtRevision = 'waldo-continuity-hq-d02606c6';
+const revisionFArtRevision = 'waldo-unmask-hq-939b90bb';
 const revisionFPdf = base + `TechOps-Hero-Revision-F-Complete.pdf?rev=${revisionFArtRevision}`;
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
@@ -73,7 +73,7 @@ const books = {
     cards: revisionFVolumes.map(section => ({ ...section, cover: revisionFImageUrl(section.start) })),
     scenes: revisionF.scenes,
     links: revisionF.links as Record<number, { page: number; rect: number[] }[]>,
-    describe: (page: number) => page === 34 ? 'Waldo shaves before welcoming Mike and Felicia' : revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
+    describe: (page: number) => page === 34 ? 'Waldo removes his mask and shaves before K meets Mike' : revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
     imageUrl: revisionFImageUrl,
     bookmarkKey: 'techops-hero:revision-f:waldo-continuity:page',
   },

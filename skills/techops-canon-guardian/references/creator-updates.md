@@ -33,3 +33,11 @@ These instructions supplement Story Bible v1.7. Scope matters: do not replace or
 **Implemented staging, not separate creator likeness approval:** a four-panel “Before the Knock” bridge at Waldo's house shows the removed mask beside the sink, trimming the fuller beard, cleaning up to the shorter reunion beard, and returning toward the workshop. It is inserted as Revision F PDF/web page 34, printed folio 31A, before the existing reunion (now page 35). Neighboring arrival, reunion and workshop images were the appearance references. The exact new composition has been visually checked by the editor; do not label it CREATOR_APPROVED without explicit acceptance.
 
 **Publication direction:** the creator explicitly asked for the corrected comic on https://ninja-ops-guy.github.io/theemrld-portfolio/#/comic, high-resolution website images, and this publishing workflow saved for future TechOps Hero work. See live-site-publishing.md for the repository, current receipt, image export requirements, page-insertion checks and deployment verification. This direction does not approve unrelated changes to canon or other sites.
+
+## 2026-11-08 — Clarification: show mask removal before K meets Mike
+
+**Creator-confirmed clarification:** Waldo does not already have a scene taking his mask off. Show that action explicitly immediately before K meets Mike. Do not refer to an earlier on-page unmasking as an established event.
+
+**Implemented staging:** the opening panel of the existing page 34 now shows Waldo lifting off his red-and-black lucha mask, revealing the fuller beard. The following panels show trimming, the shorter beard matching the reunion, and his return toward the workshop. This supersedes the prior opening with the mask already sitting on the counter. K's first meeting with Mike remains on the next page, 35. The edition remains 316 pages; other pages, folios, links and bookmarks stay in place.
+
+**Verification scope:** the edited page was visually checked against the preceding masked arrival and following reunion. The remaining 315 pages retain their content/artwork streams. Publication authorization continues from the creator's instruction to update the live comic. This is implemented direction and editorial visual review, not a separate claim of creator-approved likeness.
