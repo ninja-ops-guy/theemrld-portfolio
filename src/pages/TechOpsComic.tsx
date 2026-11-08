@@ -12,7 +12,7 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-const revisionFPdf = base + 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf';
+const revisionFPdf = base + 'TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf';
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
 const printPdf = volumeFiveBase + 'TechOps-Hero-Volume-5.pdf';
@@ -36,7 +36,7 @@ const legacyVolumes = [
   { numeral: 'IV', title: 'The False Bearing', start: 105, end: collectedPages, cover: artworkUrl('volume-IV') },
   { numeral: 'V', title: volumeFive.title, start: collectedPages + 1, end: legacyTotal, cover: volumeFiveArt('cover') },
 ];
-const revisionFImageUrl = (page: number) => `${base}revision-f/${String(page).padStart(3, '0')}.webp`;
+const revisionFImageUrl = (page: number) => `${base}revision-f/${String(page).padStart(3, '0')}.webp?rev=final-annotations`;
 const revisionFVolumes = revisionF.sections.filter(section => section.kind !== 'guide');
 type CoverArt = { page: number; crop: { x: number; y: number; size: number }; color: string; chapters?: string };
 const illustratedCovers: Partial<Record<number, CoverArt>> = coverArt;
