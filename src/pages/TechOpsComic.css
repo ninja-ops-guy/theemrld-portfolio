@@ -94,7 +94,8 @@
   .comic-byline { margin-bottom: 20px; }
   .comic-volumes { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .comic-reader-head h1 { text-align: center; font-size: 15px; }
-  .comic-reader-head small, .comic-reader-head h1 span { display: none; }
+  .comic-reader-head h1 span { display: none; }
+  .comic-reader-head small { display: block; font-size: 11px; }
   .comic-controls { flex-wrap: wrap; gap: 6px; padding: 5px 4px max(5px,env(safe-area-inset-bottom)); }
   .comic-controls .comic-scenes { max-width: 116px; }
   .comic-stage { padding: 3px; }
@@ -177,3 +178,6 @@ html:has(.comic-reel[open]) { overflow: hidden; }
 .comic-transcript { width: min(100%, 52rem); margin: 1rem auto; padding: 0 1rem; color: #f1e9d9; }
 .comic-transcript summary { cursor: pointer; padding: .75rem 0; }
 .comic-transcript p { white-space: pre-line; line-height: 1.55; }
+
+.comic-volumes-complete img { aspect-ratio: 2/3; object-fit: contain; }
+.comic-edition-link { display: inline-block; margin-top: 22px; color: var(--gold); text-decoration: underline; }

@@ -1,0 +1,680 @@
+{
+  "pageCount": 315,
+  "sections": [
+    {
+      "start": 1,
+      "label": "Guide",
+      "title": "Full collection index",
+      "kind": "guide",
+      "end": 2
+    },
+    {
+      "start": 3,
+      "label": "Vol. I",
+      "title": "Engineering the Human Connection",
+      "kind": "volume",
+      "end": 50
+    },
+    {
+      "start": 51,
+      "label": "Vol. II",
+      "title": "The Vessel",
+      "kind": "volume",
+      "end": 85
+    },
+    {
+      "start": 86,
+      "label": "Interlude",
+      "title": "Iona · The World He Left Running",
+      "kind": "interlude",
+      "end": 140
+    },
+    {
+      "start": 141,
+      "label": "Vol. III",
+      "title": "The Return Signal",
+      "kind": "volume",
+      "end": 163
+    },
+    {
+      "start": 164,
+      "label": "Vol. IV",
+      "title": "The False Bearing",
+      "kind": "volume",
+      "end": 173
+    },
+    {
+      "start": 174,
+      "label": "Vol. V",
+      "title": "The House That Didn’t Ask",
+      "kind": "volume",
+      "end": 217
+    },
+    {
+      "start": 218,
+      "label": "Guide",
+      "title": "Later collection index",
+      "kind": "guide",
+      "end": 218
+    },
+    {
+      "start": 219,
+      "label": "Vol. VI",
+      "title": "The Stolen Teaching",
+      "kind": "volume",
+      "end": 231
+    },
+    {
+      "start": 232,
+      "label": "Vol. VII",
+      "title": "The Wanting Mind",
+      "kind": "volume",
+      "end": 244
+    },
+    {
+      "start": 245,
+      "label": "Vol. VIII",
+      "title": "The Better Prison",
+      "kind": "volume",
+      "end": 257
+    },
+    {
+      "start": 258,
+      "label": "Vol. IX",
+      "title": "The Name Before",
+      "kind": "volume",
+      "end": 270
+    },
+    {
+      "start": 271,
+      "label": "Vol. X",
+      "title": "Evan's K",
+      "kind": "volume",
+      "end": 286
+    },
+    {
+      "start": 287,
+      "label": "Guide",
+      "title": "XI-XII continuation cover and reader note",
+      "kind": "guide",
+      "end": 288
+    },
+    {
+      "start": 289,
+      "label": "Vol. XI",
+      "title": "The Room He Returns To",
+      "kind": "volume",
+      "end": 301
+    },
+    {
+      "start": 302,
+      "label": "Vol. XII",
+      "title": "What He Stays For",
+      "kind": "volume",
+      "end": 315
+    }
+  ],
+  "scenes": [
+    {
+      "page": 1,
+      "title": "Full collection index"
+    },
+    {
+      "page": 2,
+      "title": "Reader key"
+    },
+    {
+      "page": 3,
+      "title": "Volume I / Engineering the Human Connection"
+    },
+    {
+      "page": 21,
+      "title": "The Way In / restored arrival"
+    },
+    {
+      "page": 22,
+      "title": "Sector 4 crash"
+    },
+    {
+      "page": 23,
+      "title": "Found by the Dogs / Cell 118 then Cell 1984"
+    },
+    {
+      "page": 24,
+      "title": "Through the vents"
+    },
+    {
+      "page": 51,
+      "title": "Volume II / The Vessel"
+    },
+    {
+      "page": 86,
+      "title": "Iona / The World He Left Running / After Volume II"
+    },
+    {
+      "page": 141,
+      "title": "Volume III / The Return Signal"
+    },
+    {
+      "page": 148,
+      "title": "Iona / The archive choice"
+    },
+    {
+      "page": 164,
+      "title": "Volume IV / The False Bearing"
+    },
+    {
+      "page": 174,
+      "title": "Volume V / The House That Didn’t Ask"
+    },
+    {
+      "page": 218,
+      "title": "Later collection index"
+    },
+    {
+      "page": 219,
+      "title": "Volume VI / The Stolen Teaching"
+    },
+    {
+      "page": 232,
+      "title": "Volume VII / The Wanting Mind"
+    },
+    {
+      "page": 245,
+      "title": "Volume VIII / The Better Prison"
+    },
+    {
+      "page": 258,
+      "title": "Volume IX / The Name Before"
+    },
+    {
+      "page": 271,
+      "title": "Volume X / Evan's K"
+    },
+    {
+      "page": 287,
+      "title": "XI-XII continuation cover and reader note"
+    },
+    {
+      "page": 289,
+      "title": "Volume XI / The Room He Returns To / continuation"
+    },
+    {
+      "page": 290,
+      "title": "Chapter 21"
+    },
+    {
+      "page": 293,
+      "title": "Chapter 22"
+    },
+    {
+      "page": 296,
+      "title": "Chapter 23"
+    },
+    {
+      "page": 299,
+      "title": "Chapter 24"
+    },
+    {
+      "page": 302,
+      "title": "Volume XII / What He Stays For"
+    },
+    {
+      "page": 303,
+      "title": "Chapter 25"
+    },
+    {
+      "page": 306,
+      "title": "Chapter 26"
+    },
+    {
+      "page": 309,
+      "title": "Chapter 27"
+    },
+    {
+      "page": 312,
+      "title": "Chapter 28"
+    }
+  ],
+  "links": {
+    "1": [
+      {
+        "page": 3,
+        "rect": [
+          23.0,
+          116.0,
+          407.0,
+          145.0
+        ]
+      },
+      {
+        "page": 51,
+        "rect": [
+          23.0,
+          147.0,
+          407.0,
+          176.0
+        ]
+      },
+      {
+        "page": 86,
+        "rect": [
+          23.0,
+          178.0,
+          407.0,
+          207.0
+        ]
+      },
+      {
+        "page": 141,
+        "rect": [
+          23.0,
+          209.0,
+          407.0,
+          238.0
+        ]
+      },
+      {
+        "page": 164,
+        "rect": [
+          23.0,
+          240.0,
+          407.0,
+          269.0
+        ]
+      },
+      {
+        "page": 174,
+        "rect": [
+          23.0,
+          271.0,
+          407.0,
+          300.0
+        ]
+      },
+      {
+        "page": 219,
+        "rect": [
+          23.0,
+          302.0,
+          407.0,
+          331.0
+        ]
+      },
+      {
+        "page": 232,
+        "rect": [
+          23.0,
+          333.0,
+          407.0,
+          362.0
+        ]
+      },
+      {
+        "page": 245,
+        "rect": [
+          23.0,
+          364.0,
+          407.0,
+          393.0
+        ]
+      },
+      {
+        "page": 258,
+        "rect": [
+          23.0,
+          395.0,
+          407.0,
+          424.0
+        ]
+      },
+      {
+        "page": 271,
+        "rect": [
+          23.0,
+          426.0,
+          407.0,
+          455.0
+        ]
+      },
+      {
+        "page": 289,
+        "rect": [
+          23.0,
+          457.0,
+          407.0,
+          486.0
+        ]
+      },
+      {
+        "page": 302,
+        "rect": [
+          23.0,
+          488.0,
+          407.0,
+          517.0
+        ]
+      }
+    ],
+    "2": [
+      {
+        "page": 3,
+        "rect": [
+          28.0,
+          122.0,
+          212.0,
+          169.0
+        ]
+      },
+      {
+        "page": 51,
+        "rect": [
+          220.0,
+          122.0,
+          404.0,
+          169.0
+        ]
+      },
+      {
+        "page": 86,
+        "rect": [
+          28.0,
+          177.0,
+          212.0,
+          224.0
+        ]
+      },
+      {
+        "page": 141,
+        "rect": [
+          220.0,
+          177.0,
+          404.0,
+          224.0
+        ]
+      },
+      {
+        "page": 164,
+        "rect": [
+          28.0,
+          232.0,
+          212.0,
+          279.0
+        ]
+      },
+      {
+        "page": 174,
+        "rect": [
+          220.0,
+          232.0,
+          404.0,
+          279.0
+        ]
+      },
+      {
+        "page": 1,
+        "rect": [
+          28.0,
+          287.0,
+          212.0,
+          334.0
+        ]
+      }
+    ],
+    "5": [
+      {
+        "page": 6,
+        "rect": [
+          25.0,
+          140.0,
+          405.0,
+          160.0
+        ]
+      },
+      {
+        "page": 9,
+        "rect": [
+          25.0,
+          167.0,
+          405.0,
+          187.0
+        ]
+      },
+      {
+        "page": 14,
+        "rect": [
+          25.0,
+          194.0,
+          405.0,
+          214.0
+        ]
+      },
+      {
+        "page": 18,
+        "rect": [
+          25.0,
+          221.0,
+          405.0,
+          241.0
+        ]
+      },
+      {
+        "page": 19,
+        "rect": [
+          25.0,
+          248.0,
+          405.0,
+          268.0
+        ]
+      },
+      {
+        "page": 21,
+        "rect": [
+          25.0,
+          275.0,
+          405.0,
+          295.0
+        ]
+      },
+      {
+        "page": 25,
+        "rect": [
+          25.0,
+          302.0,
+          405.0,
+          322.0
+        ]
+      },
+      {
+        "page": 28,
+        "rect": [
+          25.0,
+          329.0,
+          405.0,
+          349.0
+        ]
+      },
+      {
+        "page": 31,
+        "rect": [
+          25.0,
+          356.0,
+          405.0,
+          376.0
+        ]
+      },
+      {
+        "page": 34,
+        "rect": [
+          25.0,
+          383.0,
+          405.0,
+          403.0
+        ]
+      },
+      {
+        "page": 37,
+        "rect": [
+          25.0,
+          410.0,
+          405.0,
+          430.0
+        ]
+      },
+      {
+        "page": 42,
+        "rect": [
+          25.0,
+          437.0,
+          405.0,
+          457.0
+        ]
+      },
+      {
+        "page": 43,
+        "rect": [
+          25.0,
+          464.0,
+          405.0,
+          484.0
+        ]
+      },
+      {
+        "page": 45,
+        "rect": [
+          25.0,
+          491.0,
+          405.0,
+          511.0
+        ]
+      },
+      {
+        "page": 47,
+        "rect": [
+          25.0,
+          518.0,
+          405.0,
+          538.0
+        ]
+      },
+      {
+        "page": 49,
+        "rect": [
+          25.0,
+          545.0,
+          405.0,
+          565.0
+        ]
+      }
+    ],
+    "85": [
+      {
+        "page": 86,
+        "rect": [
+          80.0,
+          620.0,
+          352.0,
+          642.0
+        ]
+      }
+    ],
+    "140": [
+      {
+        "page": 141,
+        "rect": [
+          11.0,
+          628.0,
+          373.0,
+          645.0
+        ]
+      }
+    ],
+    "213": [
+      {
+        "page": 219,
+        "rect": [
+          23.0,
+          567.0,
+          218.0,
+          616.0
+        ]
+      }
+    ],
+    "218": [
+      {
+        "page": 219,
+        "rect": [
+          28.0,
+          128.0,
+          212.0,
+          175.0
+        ]
+      },
+      {
+        "page": 232,
+        "rect": [
+          220.0,
+          128.0,
+          404.0,
+          175.0
+        ]
+      },
+      {
+        "page": 245,
+        "rect": [
+          28.0,
+          185.0,
+          212.0,
+          232.0
+        ]
+      },
+      {
+        "page": 258,
+        "rect": [
+          220.0,
+          185.0,
+          404.0,
+          232.0
+        ]
+      },
+      {
+        "page": 271,
+        "rect": [
+          28.0,
+          242.0,
+          212.0,
+          289.0
+        ]
+      },
+      {
+        "page": 1,
+        "rect": [
+          220.0,
+          242.0,
+          404.0,
+          289.0
+        ]
+      }
+    ],
+    "288": [
+      {
+        "page": 289,
+        "rect": [
+          25.0,
+          142.0,
+          405.0,
+          214.0
+        ]
+      },
+      {
+        "page": 302,
+        "rect": [
+          25.0,
+          257.0,
+          405.0,
+          329.0
+        ]
+      }
+    ]
+  }
+}

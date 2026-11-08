@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import data from '../data/comic.json';
 import collectedDescriptions from '../data/comic-descriptions.json';
+import revisionF from '../data/comic-revision-f.json';
 import volumeFive from '../data/comic-volume-five.json';
 import './TechOpsComic.css';
 
@@ -10,45 +11,77 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-// Publication of the complete review PDF is independent of the legacy illustrated reader.
 const revisionFPdf = base + 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf';
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
 const printPdf = volumeFiveBase + 'TechOps-Hero-Volume-5.pdf';
-const descriptions = [...collectedDescriptions, ...volumeFive.descriptions];
-const total = descriptions.length;
+const legacyDescriptions = [...collectedDescriptions, ...volumeFive.descriptions];
+const legacyTotal = legacyDescriptions.length;
 const collectedPages = collectedDescriptions.length;
-const scenes = [...data.scenes, ...volumeFive.scenes.map(scene => ({
+const legacyScenes = [...data.scenes, ...volumeFive.scenes.map(scene => ({
   title: scene.title,
   page: collectedPages + scene.page,
 }))];
 const artworkUrl = (name: string) => `${base}${name}.webp?rev=${revision}`;
 const volumeFiveArt = (name: string) => `${volumeFiveBase}${name}.webp?rev=${volumeFive.artRevision}`;
-function imageUrl(page: number) {
+function legacyImageUrl(page: number) {
   if (page > collectedPages) return volumeFiveArt(String(page - collectedPages).padStart(3, '0'));
   return artworkUrl(String(page).padStart(3, '0'));
 }
-const volumes = [
+const legacyVolumes = [
   { numeral: 'I', title: 'The Human Connection', start: 1, end: 46, cover: artworkUrl('volume-I') },
   { numeral: 'II', title: 'The Vessel', start: 47, end: 81, cover: artworkUrl('volume-II') },
   { numeral: 'III', title: 'The Return Signal', start: 82, end: 104, cover: artworkUrl('volume-III') },
   { numeral: 'IV', title: 'The False Bearing', start: 105, end: collectedPages, cover: artworkUrl('volume-IV') },
-  { numeral: 'V', title: volumeFive.title, start: collectedPages + 1, end: total, cover: volumeFiveArt('cover') },
+  { numeral: 'V', title: volumeFive.title, start: collectedPages + 1, end: legacyTotal, cover: volumeFiveArt('cover') },
 ];
-const bookmarkKey = 'techops-hero:r11:page';
-function validPage(value: string | null) {
+const revisionFImageUrl = (page: number) => `${base}revision-f/${String(page).padStart(3, '0')}.webp`;
+const revisionFVolumes = revisionF.sections.filter(section => section.kind !== 'guide');
+const books = {
+  f: {
+    total: revisionF.pageCount,
+    sections: revisionF.sections,
+    cards: revisionFVolumes.map(section => ({ ...section, cover: revisionFImageUrl(section.start) })),
+    scenes: revisionF.scenes,
+    links: revisionF.links as Record<number, { page: number; rect: number[] }[]>,
+    describe: (page: number) => revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
+    imageUrl: revisionFImageUrl,
+    bookmarkKey: 'techops-hero:revision-f:page',
+  },
+  legacy: {
+    total: legacyTotal,
+    sections: legacyVolumes.map(volume => ({ ...volume, label: `Vol. ${volume.numeral}` })),
+    cards: legacyVolumes.map(volume => ({ ...volume, label: `Vol. ${volume.numeral}` })),
+    scenes: legacyScenes,
+    links: { 3: data.contentsLinks } as Record<number, { page: number; rect: number[] }[]>,
+    describe: (page: number) => legacyDescriptions[page - 1],
+    imageUrl: legacyImageUrl,
+    bookmarkKey: 'techops-hero:r11:page',
+  },
+};
+
+function validPage(value: string | null, total: number) {
   const number = Number(value);
   return Number.isInteger(number) && number >= 1 && number <= total ? number : 0;
 }
-function readBookmark() {
-  try { return validPage(localStorage.getItem(bookmarkKey)); } catch { return 0; }
+function readBookmark(book: (typeof books)[keyof typeof books]) {
+  try { return validPage(localStorage.getItem(book.bookmarkKey), book.total); } catch { return 0; }
 }
 
 export default function TechOpsComic() {
   const [params, setParams] = useSearchParams();
-  const page = validPage(params.get('page'));
+  const requestedEdition = params.get('edition');
+  // Old URLs used page numbers from a different edition.
+  const edition = requestedEdition === 'f' || (!params.has('page') && requestedEdition !== 'legacy') ? 'f' : 'legacy';
+  const isRevisionF = edition === 'f';
+  const { total, sections, cards, scenes, links, describe, imageUrl, bookmarkKey } = books[edition];
+  const page = validPage(params.get('page'), total);
   const fromWorld = params.get('from') === 'world';
-  const [savedPage, setSavedPage] = useState(readBookmark);
+  const [bookmarks, setBookmarks] = useState(() => ({ f: readBookmark(books.f), legacy: readBookmark(books.legacy) }));
+  const savedPage = bookmarks[edition];
+  const alternateEdition = new URLSearchParams();
+  if (fromWorld) alternateEdition.set('from', 'world');
+  if (isRevisionF) alternateEdition.set('edition', 'legacy');
   const [revisionFReady, setRevisionFReady] = useState(false);
   useEffect(() => {
     let active = true;
@@ -81,17 +114,19 @@ export default function TechOpsComic() {
   const [failedPage, setFailedPage] = useState(0);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x: number; y: number} | null>(null);
-  const volume = volumes.find(v => page <= v.end) ?? volumes[0];
-  const readingVolumeFive = page > collectedPages;
-  const pdfUrl = readingVolumeFive ? mobilePdf : collectedPdf;
+  const section = sections.find(item => page >= item.start && page <= item.end) ?? sections[0];
+  const readingVolumeFive = page > 0 && section.label === 'Vol. V';
+  const pdfUrl = isRevisionF ? `${revisionFPdf}#page=${page}` : readingVolumeFive ? mobilePdf : collectedPdf;
   const choosePage = useCallback((number: number) => {
     setIntro(false);
     const q = new URLSearchParams();
     if (fromWorld) q.set('from', 'world');
+    if (isRevisionF && number) q.set('edition', 'f');
+    if (!isRevisionF && !number) q.set('edition', 'legacy');
     if (number) q.set('page', String(number));
     setParams(q, { replace: page > 0 && number > 0 });
     setFailedPage(0);
-  }, [fromWorld, page, setParams]);
+  }, [fromWorld, isRevisionF, page, setParams]);
 
   useEffect(() => {
     const original = document.title;
@@ -100,7 +135,7 @@ export default function TechOpsComic() {
   }, [page]);
   useEffect(() => {
     if (!page) { setZoom(false); return; }
-    setSavedPage(page);
+    setBookmarks(previous => previous[edition] === page ? previous : { ...previous, [edition]: page });
     try { localStorage.setItem(bookmarkKey, String(page)); } catch { /* Private storage is optional. */ }
     stage.current?.scrollTo(0, 0);
     function keydown(e: KeyboardEvent) {
@@ -111,7 +146,7 @@ export default function TechOpsComic() {
     window.addEventListener('keydown', keydown);
     if (page < total) new Image().src = imageUrl(page + 1);
     return () => window.removeEventListener('keydown', keydown);
-  }, [page, choosePage]);
+  }, [page, choosePage, edition, bookmarkKey, total, imageUrl]);
 
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
     {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
@@ -148,22 +183,27 @@ export default function TechOpsComic() {
           <p className="comic-byline">By Mike Olivares</p>
           <div className="comic-actions">
             <button className="comic-primary" onClick={() => choosePage(savedPage > 1 ? savedPage : 1)}>{savedPage > 1 ? `Resume · p. ${savedPage}` : 'Read the comic'} <ArrowRight size={18}/></button>
-            <span>{volumes.length} volumes <i> / </i> {total} pages</span>
+            <span>{isRevisionF ? 12 : legacyVolumes.length} volumes <i> / </i> {total} pages</span>
           </div>
         </div>
       </section>
       <section className="comic-library" aria-label="Volumes">
-        <div className="comic-library-heading"><h2>The volumes</h2><span>VOLS. I–IV · REV. {revision}</span></div>
-        <div className="comic-volumes">{volumes.map(v => <button key={v.start} onClick={() => choosePage(v.start)}>
-          <img src={v.cover} alt="" width="420" height="180" />
-          <div className="comic-vol-meta">VOL. {v.numeral}<span>PP. {v.start}–{v.end}</span></div>
-          <div className="comic-vol-title">{v.title} <ArrowRight size={18}/></div>
+        <div className="comic-library-heading">
+          <h2>The volumes</h2><span>{isRevisionF ? 'VOLS. I–XII · REVISION F' : 'VOLS. I–V · EARLIER EDITION'}</span>
+        </div>
+        <div className={'comic-volumes' + (isRevisionF ? ' comic-volumes-complete' : '')}>{cards.map(item => <button key={item.start} onClick={() => choosePage(item.start)}>
+          <img src={item.cover} alt="" loading="lazy" width={isRevisionF ? 1080 : 420} height={isRevisionF ? 1620 : 180} />
+          <div className="comic-vol-meta">{item.label}<span>PP. {item.start}–{item.end}</span></div>
+          <div className="comic-vol-title">{item.title} <ArrowRight size={18}/></div>
         </button>)}</div>
+        <Link className="comic-edition-link" to={{ pathname: '/comic', search: alternateEdition.toString() }}>
+          {isRevisionF ? 'Earlier Volumes I–V reader' : 'Read the complete Revision F collection'}
+        </Link>
       </section>
     </> : <>
       <div className="comic-reader-head">
         <button onClick={() => choosePage(0)}><BookOpen size={17}/> Collection</button>
-        <h1>Tech Ops Hero <span>/</span> <small>Vol. {volume.numeral} · {volume.title}</small></h1>
+        <h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1>
         <button aria-pressed={zoom} onClick={() => setZoom(!zoom)}>{zoom ? <Minimize2 size={16}/> : <Maximize2 size={16}/>} {zoom ? 'Fit page' : 'Enlarge'}</button>
       </div>
       <div className={'comic-stage' + (zoom ? ' is-enlarged' : '')} ref={stage}
@@ -178,26 +218,26 @@ export default function TechOpsComic() {
         }}>
         {failedPage === page ? <p role="alert">This page could not load. <a href={pdfUrl}>Open the complete PDF</a></p> :
           <div className="comic-sheet">
-            <img key={page} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${descriptions[page - 1]}`} width="1080" height="1620" onError={() => setFailedPage(page)} />
-            {page===3 && data.contentsLinks.map(({page:target,rect:[x1,y1,x2,y2]}) =>
-              <button key={target} aria-label={`Read page ${target}: ${descriptions[target-1]}`} className="comic-hotspot" onClick={() => choosePage(target)}
+            <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />
+            {links[page]?.map(({page:target,rect:[x1,y1,x2,y2]}, i) =>
+              <button key={i} aria-label={`Read page ${target}: ${describe(target)}`} className="comic-hotspot" onClick={() => choosePage(target)}
                 style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
           </div>}
       </div>
       <nav className="comic-controls" aria-label="Reader navigation">
         <button className="comic-turn" aria-label="Previous page" disabled={page===1} onClick={() => choosePage(page-1)}><ChevronLeft/></button>
         <label>Page <select aria-label="Jump to page" value={page} onChange={e=>choosePage(Number(e.target.value))}>
-          {descriptions.map((_,i) => <option key={i} value={i+1}>{i+1}</option>)}</select> / {total}</label>
+          {Array.from({ length: total }, (_, i) => <option key={i} value={i+1}>{i+1}</option>)}</select> / {total}</label>
         <button className="comic-turn" aria-label="Next page" disabled={page===total} onClick={() => choosePage(page+1)}><ChevronRight/></button>
         <select aria-label="Jump to scene" className="comic-scenes" value="" onChange={e=>choosePage(Number(e.target.value))}>
           <option value="" disabled>Jump to scene</option>
-          {volumes.map(v=><optgroup key={v.start} label={`Vol. ${v.numeral} · ${v.title}`}>
+          {sections.map(v=><optgroup key={v.start} label={`${v.label} · ${v.title}`}>
             {scenes.filter(s=>s.page>=v.start && s.page<=v.end).map(s=><option value={s.page} key={s.page}>{s.page} · {s.title}</option>)}
           </optgroup>)}
         </select>
-        <span className="sr-only" aria-live="polite">Page {page} of {total}. {descriptions[page-1]}</span>
+        <span className="sr-only" aria-live="polite">Page {page} of {total}. {describe(page)}</span>
       </nav>
-      {readingVolumeFive && <details key={page} className="comic-transcript">
+      {!isRevisionF && readingVolumeFive && <details key={page} className="comic-transcript">
         <summary>Page transcript</summary>
         <p>{volumeFive.transcripts[page - collectedPages - 1]}</p>
       </details>}
