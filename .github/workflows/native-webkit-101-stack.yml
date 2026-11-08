@@ -1,0 +1,105 @@
+name: Native WebKit issue 101 stack capture
+on:
+  push:
+    branches: [qa/native-webkit-101-stack-capture]
+permissions:
+  contents: read
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        condition: [telemetry-on, telemetry-off]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: diagnostics
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/theemrld-portfolio
+          ref: 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: native
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned engine and telemetry
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdb binutils
+          python -m pip install 'playwright==1.57.0' 'psutil==7.0.0'
+          python -m playwright install --with-deps webkit
+      - name: Verify sources and serve
+        run: |
+          mkdir -p results web
+          test "$(git -C native rev-parse HEAD)" = 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          test "$(git -C portfolio rev-parse HEAD)" = 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          git -C native rev-parse HEAD > results/native-head.txt
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C diagnostics rev-parse HEAD > results/diagnostic-head.txt
+          cp /etc/os-release results/os-release.txt
+          python -m pip freeze > results/python-packages.txt
+          sha256sum diagnostics/scripts/issue-101/* > results/source-sha256.txt
+          cp -r diagnostics/scripts/issue-101 results/source
+          ln -s "$PWD/native" web/techops-hero
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Configure bounded core capture
+        run: |
+          mkdir -p cores results
+          sudo sysctl -w kernel.core_pattern="$PWD/cores/core.%e.%p.%t"
+          cat /proc/sys/kernel/core_pattern > results/core-pattern.txt
+          df -h > results/disk-before.txt
+      - name: Execute native-only reproducer once
+        timeout-minutes: 9
+        env:
+          CONDITION: ${{ matrix.condition }}
+          QA_ENGINE: webkit
+          QA_BASE: http://127.0.0.1:8765
+          QA_OUTPUT: results/browser
+          DEBUG: pw:browser
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+        run: |
+          ulimit -c 2097152
+          ulimit -a > results/limits.txt
+          set +e
+          timeout --signal=TERM --kill-after=15s 480s python diagnostics/scripts/issue-101/startup.py --count 24 --telemetry "${CONDITION#telemetry-}" > results/case-output.log 2>results/browser-process.log
+          rc=$?
+          echo "$rc" > results/command-exit.txt
+          exit "$rc"
+      - name: Extract bounded postmortem stacks
+        if: always()
+        timeout-minutes: 4
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+        run: |
+          bash diagnostics/scripts/issue-101/collect-stacks.sh
+          df -h > results/disk-after.txt
+      - name: Retain available kernel evidence
+        if: always()
+        run: |
+          mkdir -p results
+          dmesg > results/dmesg.txt 2>&1 || true
+          journalctl -k --no-pager > results/kernel-journal.txt 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-webkit-101-stack-${{ matrix.condition }}
+          path: results/
+          retention-days: 30
+          if-no-files-found: error
