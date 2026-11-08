@@ -10,6 +10,8 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
+// Publication of the complete review PDF is independent of the legacy illustrated reader.
+const revisionFPdf = base + 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf';
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
 const printPdf = volumeFiveBase + 'TechOps-Hero-Volume-5.pdf';
@@ -47,6 +49,15 @@ export default function TechOpsComic() {
   const page = validPage(params.get('page'));
   const fromWorld = params.get('from') === 'world';
   const [savedPage, setSavedPage] = useState(readBookmark);
+  const [revisionFReady, setRevisionFReady] = useState(false);
+  useEffect(() => {
+    let active = true;
+    // Never advertise a download until its actual PDF asset is on the public site.
+    fetch(revisionFPdf, { method: 'HEAD' }).then(response => {
+      if (active) setRevisionFReady(response.ok && /application\/pdf/i.test(response.headers.get('content-type') ?? ''));
+    }).catch(() => { if (active) setRevisionFReady(false); });
+    return () => { active = false; };
+  }, []);
   const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -119,6 +130,7 @@ export default function TechOpsComic() {
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
       <nav className="comic-downloads" aria-label="PDF downloads">
+        {revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete 315-page Revision F PDF</a>}
         {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
         {(!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
