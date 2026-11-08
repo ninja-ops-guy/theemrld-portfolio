@@ -1,0 +1,91 @@
+name: Native WebKit issue 101 approved experiment
+on:
+  push:
+    branches: [qa/native-webkit-101-approved-batch]
+permissions:
+  contents: read
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        condition: [shared, isolated, reverse, native-only, blank, objective]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: diagnostics
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/theemrld-portfolio
+          ref: 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: native
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned engine and telemetry
+        run: |
+          python -m pip install 'playwright==1.57.0' 'psutil==7.0.0'
+          python -m playwright install --with-deps webkit
+      - name: Verify sources and serve
+        run: |
+          mkdir -p results web
+          test "$(git -C native rev-parse HEAD)" = 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          test "$(git -C portfolio rev-parse HEAD)" = 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          git -C native rev-parse HEAD > results/native-head.txt
+          git -C portfolio rev-parse HEAD > results/portfolio-head.txt
+          git -C diagnostics rev-parse HEAD > results/diagnostic-head.txt
+          cp /etc/os-release results/os-release.txt
+          python -m pip freeze > results/python-packages.txt
+          sha256sum diagnostics/scripts/issue-101/* > results/source-sha256.txt
+          cp -r diagnostics/scripts/issue-101 results/source
+          ln -s "$PWD/native" web/techops-hero
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Execute declared condition without retries
+        env:
+          CONDITION: ${{ matrix.condition }}
+          QA_ENGINE: webkit
+          QA_BASE: http://127.0.0.1:8765
+          QA_OUTPUT: results/browser
+          DEBUG: pw:browser
+          PORTFOLIO_HEAD: 14a3df8e1a77ca2ad3329b43828671f69226ce77
+          NATIVE_HEAD: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+        run: |
+          case "$CONDITION" in
+            shared) python diagnostics/scripts/issue-101/probe.py --lifecycle shared 2>results/browser-process.log ;;
+            isolated) python diagnostics/scripts/issue-101/probe.py --lifecycle isolated 2>results/browser-process.log ;;
+            reverse) python diagnostics/scripts/issue-101/probe.py --order reverse 2>results/browser-process.log ;;
+            native-only) python diagnostics/scripts/issue-101/startup.py --count 24 2>results/browser-process.log ;;
+            blank) python diagnostics/scripts/issue-101/startup.py --payload blank --count 24 2>results/browser-process.log ;;
+            objective) python diagnostics/scripts/issue-101/probe.py --select 19-invalid-receipt-real-recompletion-preserves-evidence --lifecycle isolated --repeat 6 2>results/browser-process.log ;;
+            *) exit 2 ;;
+          esac
+      - name: Retain available kernel evidence
+        if: always()
+        run: |
+          mkdir -p results
+          dmesg > results/dmesg.txt 2>&1 || true
+          journalctl -k --no-pager > results/kernel-journal.txt 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-webkit-101-${{ matrix.condition }}
+          path: results/
+          retention-days: 30
+          if-no-files-found: error
