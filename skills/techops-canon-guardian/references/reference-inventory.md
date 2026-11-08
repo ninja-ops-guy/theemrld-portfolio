@@ -27,3 +27,7 @@ This inventory records items located during the November 6, 2026 skill update. I
 - Library search results and thumbnails establish candidate assets exist, not their approval or exact current version.
 - No claim is made here that every Revision 11 page has been checked against the November 6 addendum.
 - Environment details can be confirmed from accepted pages and creator direction; where no accepted establishing image exists, label new staging as `PROPOSED` and do not invent it as established canon.
+
+## November 8 supplement — Claudia
+
+The [Claudia addendum](../../../docs/techops-hero-claudia-addendum-2026-11-08.md) records the creator-approved `IMG_3331.jpeg`, version 0, retrieved and visually inspected on November 8. SHA-256: `81b0f03b41bc653ab8621f310b169681ac0c24ed91a0497a7d873d6b42818099`. It is an Earth likeness reference, not a full-body model sheet or fixed wardrobe. The access-controlled source and current Bible version 2 are linked there; neither binary is republished or substituted for the bundled Bible. Future users must inspect the actual image before certifying likeness; inaccessible pixels remain `MISSING_REFERENCE`.
