@@ -48,7 +48,7 @@
 .comic-library h2 { font: 500 clamp(28px,3vw,43px)/1.2 Georgia,serif; }
 .comic-library-heading span, .comic-vol-meta span { color: #b9b4af; }
 .comic-volumes { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: clamp(12px,1.7vw,28px); }
-.comic-volumes button { text-align: left; min-width: 0; border-top: 1px solid var(--line); padding: 8px 0 12px; }
+.comic-volumes button { display: flex; flex-direction: column; align-items: stretch; text-align: left; min-width: 0; border-top: 1px solid var(--line); padding: 8px 0 12px; }
 .comic-volumes img { display: block; width: 100%; aspect-ratio: 7/3; object-fit: cover; border: 1px solid #524b46; }
 .comic-vol-meta { margin: 12px 0 4px; color: var(--gold); font-size: 10px; }
 .comic-vol-title { font: 600 clamp(16px,1.5vw,24px)/1.2 Georgia,serif; }
@@ -181,3 +181,67 @@ html:has(.comic-reel[open]) { overflow: hidden; }
 
 .comic-volumes-complete img { aspect-ratio: 2/3; object-fit: contain; }
 .comic-edition-link { display: inline-block; margin-top: 22px; color: var(--gold); text-decoration: underline; }
+
+.comic-illustrated-cover {
+  position: relative;
+  container-type: inline-size;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 2/3;
+  border: 1px solid color-mix(in srgb, var(--cover-accent) 55%, #121821);
+  background: radial-gradient(ellipse at top, #1b2631, #090f16 80%);
+  color: var(--paper);
+  text-align: center;
+}
+.comic-cover-mast {
+  position: absolute;
+  inset: 4% 6% auto;
+  display: grid;
+  gap: 2cqw;
+}
+.comic-cover-mast span, .comic-cover-credit {
+  font: 700 4.1cqw/1.2 ui-monospace, Consolas, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cover-accent);
+}
+.comic-cover-mast strong {
+  font: 850 10cqw/1 Inter, system-ui, sans-serif;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+.comic-cover-panel {
+  position: absolute;
+  inset: 21% 9% auto;
+  aspect-ratio: 1;
+  overflow: hidden;
+  outline: 1px solid var(--cover-accent);
+}
+.comic-illustrated-cover .comic-cover-panel img {
+  position: absolute;
+  display: block;
+  height: auto;
+  max-width: none;
+  aspect-ratio: 2/3;
+  object-fit: fill;
+  border: 0;
+}
+.comic-cover-title {
+  position: absolute;
+  inset: 77% 6% 9%;
+  display: grid;
+  place-items: center;
+  font: 650 8cqw/1.04 Georgia, serif;
+  text-wrap: balance;
+}
+.comic-cover-credit {
+  position: absolute;
+  inset: auto 9% 3.5%;
+  display: flex;
+  justify-content: space-between;
+  gap: 1ch;
+  border-top: 1px solid color-mix(in srgb, var(--cover-accent) 45%, transparent);
+  padding-top: 2cqw;
+  font-size: 3.5cqw;
+}

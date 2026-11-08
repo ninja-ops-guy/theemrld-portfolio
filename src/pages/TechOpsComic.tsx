@@ -4,6 +4,7 @@ import { ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronR
 import data from '../data/comic.json';
 import collectedDescriptions from '../data/comic-descriptions.json';
 import revisionF from '../data/comic-revision-f.json';
+import coverArt from '../data/comic-revision-f-covers.json';
 import volumeFive from '../data/comic-volume-five.json';
 import './TechOpsComic.css';
 
@@ -37,6 +38,33 @@ const legacyVolumes = [
 ];
 const revisionFImageUrl = (page: number) => `${base}revision-f/${String(page).padStart(3, '0')}.webp`;
 const revisionFVolumes = revisionF.sections.filter(section => section.kind !== 'guide');
+type CoverArt = { page: number; crop: { x: number; y: number; size: number }; color: string; chapters?: string };
+const illustratedCovers: Partial<Record<number, CoverArt>> = coverArt;
+
+function IllustratedCover({ art, label, title, inReader = false, onError }: {
+  art: CoverArt;
+  label: string;
+  title: string;
+  inReader?: boolean;
+  onError?: () => void;
+}) {
+  const { x, y, size } = art.crop;
+  return <div className="comic-illustrated-cover" style={{ '--cover-accent': art.color } as CSSProperties}
+    aria-hidden={inReader ? undefined : true} role={inReader ? 'img' : undefined}
+    aria-label={inReader ? `TechOps Hero. ${label}, ${title}. Chapters ${art.chapters}. By Mike Olivares.` : undefined}>
+    <div className="comic-cover-mast"><span>{label}</span><strong>TechOps Hero</strong></div>
+    <div className="comic-cover-panel">
+      <img src={revisionFImageUrl(art.page)} alt="" loading={inReader ? 'eager' : 'lazy'}
+        width="1080" height="1620" onError={onError}
+        style={{ width: `${108000 / size}%`, left: `${-100 * x / size}%`, top: `${-100 * y / size}%` }} />
+    </div>
+    <div className="comic-cover-title">{title}</div>
+    <div className="comic-cover-credit">
+      <span>Mike Olivares</span>{art.chapters && <span>Ch. {art.chapters}</span>}
+    </div>
+  </div>;
+}
+
 const books = {
   f: {
     total: revisionF.pageCount,
@@ -115,6 +143,9 @@ export default function TechOpsComic() {
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x: number; y: number} | null>(null);
   const section = sections.find(item => page >= item.start && page <= item.end) ?? sections[0];
+  // Only replace plain volume title pages. Iona’s first page contains the story.
+  const openingCover = isRevisionF && page === section.start && section.label !== 'Interlude'
+    ? illustratedCovers[page] : undefined;
   const readingVolumeFive = page > 0 && section.label === 'Vol. V';
   const pdfUrl = isRevisionF ? `${revisionFPdf}#page=${page}` : readingVolumeFive ? mobilePdf : collectedPdf;
   const choosePage = useCallback((number: number) => {
@@ -191,11 +222,16 @@ export default function TechOpsComic() {
         <div className="comic-library-heading">
           <h2>The volumes</h2><span>{isRevisionF ? 'VOLS. I–XII · REVISION F' : 'VOLS. I–V · EARLIER EDITION'}</span>
         </div>
-        <div className={'comic-volumes' + (isRevisionF ? ' comic-volumes-complete' : '')}>{cards.map(item => <button key={item.start} onClick={() => choosePage(item.start)}>
-          <img src={item.cover} alt="" loading="lazy" width={isRevisionF ? 1080 : 420} height={isRevisionF ? 1620 : 180} />
-          <div className="comic-vol-meta">{item.label}<span>PP. {item.start}–{item.end}</span></div>
-          <div className="comic-vol-title">{item.title} <ArrowRight size={18}/></div>
-        </button>)}</div>
+        <div className={'comic-volumes' + (isRevisionF ? ' comic-volumes-complete' : '')}>{cards.map(item => {
+          const art = isRevisionF ? illustratedCovers[item.start] : undefined;
+          return <button key={item.start} onClick={() => choosePage(item.start)}>
+            {art
+              ? <IllustratedCover art={art} label={item.label} title={item.title} />
+              : <img src={item.cover} alt="" loading="lazy" width={isRevisionF ? 1080 : 420} height={isRevisionF ? 1620 : 180} />}
+            <div className="comic-vol-meta">{item.label}<span>PP. {item.start}–{item.end}</span></div>
+            <div className="comic-vol-title">{item.title} <ArrowRight size={18}/></div>
+          </button>;
+        })}</div>
         <Link className="comic-edition-link" to={{ pathname: '/comic', search: alternateEdition.toString() }}>
           {isRevisionF ? 'Earlier Volumes I–V reader' : 'Read the complete Revision F collection'}
         </Link>
@@ -218,7 +254,10 @@ export default function TechOpsComic() {
         }}>
         {failedPage === page ? <p role="alert">This page could not load. <a href={pdfUrl}>Open the complete PDF</a></p> :
           <div className="comic-sheet">
-            <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />
+            {openingCover
+              ? <IllustratedCover key={page} art={openingCover} label={section.label} title={section.title}
+                  inReader onError={() => setFailedPage(page)} />
+              : <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />}
             {links[page]?.map(({page:target,rect:[x1,y1,x2,y2]}, i) =>
               <button key={i} aria-label={`Read page ${target}: ${describe(target)}`} className="comic-hotspot" onClick={() => choosePage(target)}
                 style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
