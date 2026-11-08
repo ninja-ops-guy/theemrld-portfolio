@@ -1,0 +1,10 @@
+{
+  "source_sha256": "3578f6030238e6a89c3e267a2825079b8575fc91cdc2267a40296c5eb0b94a73",
+  "output_sha256": "228f6966cef780fba3a0c1f0637bd900901bf7cc285092077fa137a31a66ba04",
+  "output_bytes": 104265835,
+  "pages_pixel_identical": 315,
+  "text_identical": true,
+  "links": 47,
+  "bookmarks": 30,
+  "compression": "Lossless JPEG coefficient transcoding, optimized Huffman tables"
+}

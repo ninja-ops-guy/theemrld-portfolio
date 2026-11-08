@@ -11,9 +11,9 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "public" / "techops-comic"
-SOURCE = ASSETS / "TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf"
+SOURCE = ASSETS / "TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf"
 OUTPUT = ASSETS / "revision-f"
-SHA256 = "85c46dcd1c0233d341fa6ba03ad60b42dc4b5ef50fce26d0430de611b55b6d6d"
+SHA256 = "228f6966cef780fba3a0c1f0637bd900901bf7cc285092077fa137a31a66ba04"
 
 
 def render(index):
