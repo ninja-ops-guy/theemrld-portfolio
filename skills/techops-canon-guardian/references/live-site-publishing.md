@@ -1,6 +1,6 @@
 # Publishing the TechOps Hero comic
 
-Recorded 2026-11-08 (America/New_York). These are deployment locators and operating steps, not automatic canon or likeness approval. Inspect the current repository before each release.
+Recorded 2026-11-08 (America/New_York). These are publishing locators and operating steps, not automatic canon or likeness approval. Inspect the current repository before each release.
 
 ## Correct destination
 
@@ -9,43 +9,54 @@ Recorded 2026-11-08 (America/New_York). These are deployment locators and operat
 - Production branch: main.
 - GitHub Pages workflow: .github/workflows/pages.yml, named Deploy portfolio to GitHub Pages. A push to main builds with npm and deploys dist.
 - The user supplied this exact comic URL. The separate ninja-ops-guy/techops-hero repository hosts the game; it is not the comic publishing destination. Production Atlas and Branching Story Sites are separate production tools.
-- Direct Revision F page links must include the edition: #/comic?edition=f&page=120. A bare page query can select the legacy edition.
+- Direct Revision F page links must include the edition: #/comic?edition=f&page=34. A bare page query can select the legacy edition.
 
 ## Source and assets
 
 - Reader component: src/pages/TechOpsComic.tsx.
-- Page/section/hotspot manifest: src/data/comic-revision-f.json. Revision F currently has 315 pages, twelve volumes, an Iona interlude, 47 PDF links and 30 bookmarks. Preserve these unless the requested edit changes them.
-- Reader artwork: public/techops-comic/revision-f/001.webp through 315.webp, 2160 x 3240 (2:3), exported from the corrected master at 360 dpi.
-- Public PDF path: public/techops-comic/TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf.
-- Render helper: scripts/render-revision-f.py (PyMuPDF and Pillow); it checks the current receipt's SHA-256. Build the PDF first. High-resolution WebP settings are quality 92, method 4, with a PyMuPDF Matrix(5, 5) or Poppler at 360 dpi. Do not overwrite high-resolution pages with the earlier 1080 x 1620 exports. Preserve the reader's existing logical cover-crop and hotspot coordinate systems; source-image resolution and layout coordinates serve different purposes.
-- For a bounded repair, replace only the affected page artwork and preserve all other page files and navigation data.
+- Current release receipt: docs/COMIC_CURRENT_RELEASE.json. Read it for current page count, PDF path, ordered parts, hashes, links, bookmarks, and reader revision. Historical receipts are evidence of earlier releases only.
+- Page/section/hotspot manifest: src/data/comic-revision-f.json. The Waldo continuity edition has 316 pages, twelve volumes, an Iona interlude, 47 PDF links and 31 bookmarks.
+- Reader artwork: public/techops-comic/revision-f/001.webp through 316.webp, 2160 x 3240 (2:3), exported directly from the corrected master at 360 dpi.
+- Public PDF path: public/techops-comic/TechOps-Hero-Revision-F-Complete.pdf. The page count is deliberately absent from this stable name.
+- Render helper: scripts/render-revision-f.py (PyMuPDF and Pillow); it checks the current receipt's SHA-256. Build the PDF first. WebP settings are quality 92, method 4, with a PyMuPDF Matrix(5, 5) or Poppler at 360 dpi. Do not overwrite high-resolution pages with the earlier 1080 x 1620 exports. Preserve the reader's logical cover-crop and hotspot coordinate systems; source-image resolution and layout coordinates serve different purposes.
+- For a bounded repair, replace only affected artwork and preserve other page files and navigation data. Export dimensions do not establish native source detail. The new Waldo scene's native generated art is 1024 x 1536; its reader export is 2160 x 3240. Do not describe enlargement as newly recovered detail.
 
-## Large PDF storage
+## Current edition and large PDF storage
 
-The November 8 corrected v2 PDF is 133,222,088 bytes, SHA-256 badf8bb6d4b68f2739ffcd00cf95d46f84fdf5a17f036eca8ef3aedc4eefbb6f. It is preserved byte-for-byte, without recompression.
+The November 8 Waldo continuity master is 137,744,952 bytes, SHA-256 d02606c61e41ef33a121b0750c32cdc6979828897185c34810cc261d810c0516. The build preserves it byte-for-byte without recompression.
 
-- Git tracks print-source/revision-f.part0 and revision-f.part1, split at 75,000,000 bytes. Keep every tracked part below GitHub's 100 MiB file limit. A future master may need a different number of parts.
-- docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json owns the ordered parts list, master byte count and SHA-256, corrected pages and page-image hashes. Inspect/update the current receipt rather than assuming this old fingerprint applies to a new revision.
-- scripts/assemble-revision-f.mjs concatenates those parts, checks length and SHA-256, and writes the public PDF at its stable download path. package.json runs this from prebuild and predev alongside the existing Volume V assembler.
-- The assembled PDF is ignored by Git. Do not accidentally commit an oversized master or use a Git LFS pointer as the public download. The workflow publishes the assembled file in dist.
-- For the next master, update all parts and receipt together. Confirm the assembled PDF hash matches the reviewed master exactly.
+- Added PDF/web page 34, printed folio 31A, titled Before the Knock: Waldo shaves after removing his mask, before joining Mike and Felicia. The existing reunion moved from page 34 to 35.
+- Earlier approved-scope annotation repairs moved from PDF pages 118, 120, 132, 136 to 119, 121, 133, 137. Printed folios remain unchanged. Do not confuse PDF position with printed folio.
+- The preceding 315-page v2 master SHA-256 was badf8bb6d4b68f2739ffcd00cf95d46f84fdf5a17f036eca8ef3aedc4eefbb6f. docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json remains historical.
+- Git tracks print-source/revision-f.part0 and revision-f.part1, split at 75,000,000 bytes. Keep every tracked part below GitHub's 100 MiB file limit. Future masters may require a different number of parts.
+- scripts/assemble-revision-f.mjs reads the current receipt, concatenates the parts, checks length and SHA-256, and writes the public PDF. package.json runs it from prebuild and predev alongside the existing Volume V assembler.
+- The assembled PDF is ignored by Git. Do not commit an oversized master or publish a Git LFS pointer as the download. The workflow publishes the assembled file in dist.
+- Update parts and receipt together, and confirm the assembled PDF hash matches the reviewed master exactly.
+
+## Inserting a scene
+
+- Follow the creator's actual continuity direction and use neighboring panels as visual references. For Waldo, match his face, short swept dark hair, leather jacket, silver chain and shorter reunion beard. Keep him distinct from K, Mike and Felicia. Generated art is not automatically creator-approved likeness.
+- Insert the page at the correct story position without replacing accepted adjacent panels. Retain existing printed folios where practical; page 34 uses 31A.
+- Update numbered index text, PDF outline destinations, internal link targets, manifest sections/scenes/hotspots, cover keys, image filenames, page count, download label and reader descriptions together. Validate destinations and page order, not just counts.
+- Migrate stored reading positions: the Waldo release uses techops-hero:revision-f:waldo-continuity:page. A valid old techops-hero:revision-f:page value of 34 or later shifts by one; earlier values stay unchanged. Explicit new page links address the new numbering.
+- Compare every untouched page's content and image resources with its mapped original. Re-render edited guide pages as well as new artwork.
 
 ## Publish and verify
 
-1. Confirm the user's requested scope and publication authorization; an explicit instruction to put the corrected edition on this live site authorizes the routine update. Preserve audience, repository identity and unrelated portfolio/game features.
-2. Inspect current main, relevant repository instructions, the reader component, receipt and Pages workflow. Use an isolated checkout and check for concurrent changes before pushing. Never force-push over unrelated work.
-3. Prepare the actual corrected PDF and page images, inspect them with adjacent reference panels, and verify page count, geometry, text, links and bookmarks. The November 8 v2 edits affect PDF pages 118, 120, 132 and 136; these are PDF indices, not printed folios (118 = Iona folio 33, 120 = 35, 132 = 47).
-4. Update the master parts, receipt, affected WebP files and revisionFArtRevision in TechOpsComic.tsx. Both reader images and the PDF URL carry that revision query so returning visitors receive the new assets. Preserve the canonical PDF path and edition-aware reader links.
-5. Install existing dependencies and run npm run build with GITHUB_ACTIONS=true so Vite builds with /theemrld-portfolio/ as its base. Verify dist contains the exact PDF and all 315 Revision F page images at 2160 x 3240; inspect the diff for unrelated changes.
-6. Commit the complete coherent change and push to main only when the user has requested publication. Wait for the Pages workflow for that exact commit to finish successfully; a successful push alone is not a live release.
-7. Fetch the public site and its current JavaScript bundle. Confirm the new revision token, successful PDF content type and expected byte count. Download/hash the served PDF and all changed page assets against the local receipt, checking decoded image dimensions as well. For a collection-wide resolution upgrade, verify all 315 images. Inspect the deployed reader when browser tools are available, including page navigation and the PDF link. Distinguish HTTP/hash verification from browser interaction if browser access is unavailable.
-8. Record the deployed commit, workflow URL/conclusion and public asset checks. Report the live comic link and any real limitation. Do not claim browser checks that did not run.
+1. Confirm the requested scope and publication authorization. An explicit instruction to put the corrected edition on this live site authorizes the routine update. Preserve audience, repository identity and unrelated portfolio/game features.
+2. Inspect current main, repository instructions, reader component, receipt and Pages workflow. Use an isolated checkout and check for concurrent changes before pushing. Never force-push over unrelated work.
+3. Prepare the corrected PDF and images, inspect them with adjacent reference panels, and verify count, geometry, text, links, bookmarks and untouched pages.
+4. Update master parts, receipt, affected WebP files and revisionFArtRevision in TechOpsComic.tsx. Reader images and PDF URL carry that revision query so returning visitors receive the new assets. Preserve edition-aware links.
+5. Run npm run build with GITHUB_ACTIONS=true so Vite builds with /theemrld-portfolio/ as its base. Verify dist contains the exact PDF and the receipt's full page set at 2160 x 3240. Remove obsolete generated PDF downloads from the build, and check the final deployment size against the host's current limit.
+6. Commit the coherent change and push main when publication is authorized. Wait for the Pages workflow for that exact commit to succeed; a successful push alone is not a live release.
+7. Fetch the public site and current JavaScript bundle. Confirm the revision token, PDF content type and byte count. Download/hash the served PDF and changed images against the receipt, checking decoded dimensions. After collection-wide export or renumbering, verify every image (316 in this edition). Inspect reader navigation and PDF download in a browser when available. Distinguish HTTP/hash verification from browser interaction.
+8. Record deployed commit, workflow URL/conclusion and public asset checks. Report the live link and real limitations. Do not claim checks that did not run.
 
 ## Access and repair lessons
 
-- Prefer the connected GitHub tools for repository discovery/reads. They support text-file edits but do not upload local binary PDF/WebP files; the authenticated Git CLI is suitable for the complete asset commit.
-- A restricted-network DNS error can make gh auth status misleading. When the environment permits an approved network retry, test connectivity with the existing sign-in before asking the user to reconnect. Never print, persist, copy into a skill, or place GitHub credentials in a remote URL.
+- Prefer connected GitHub tools for repository discovery/reads. They do not upload local binary PDF/WebP files; the authenticated Git CLI is suitable for the complete asset commit.
+- Restricted-network DNS errors can make gh auth status misleading. When an approved network retry is available, test existing sign-in connectivity before asking the user to reconnect. Never print, persist, put in a skill, or embed GitHub credentials in remote URLs.
 - If GitHub rejects an unpublished commit with GH007, use the owner's verified GitHub noreply identity from repository history for that commit's author and committer, then retry. Do not weaken email privacy settings or alter published history.
-- PDF annotations can be scoped to one panel even when the page's other panels are accepted. Preserve character face, hair, uniform and prop continuity against neighboring panels; inspect hands, thumb side and grip after an anatomy edit.
-- The source PDF reuses content streams between unrelated pages. Before merging an overlay, detach the target page's Contents stream and clone its resource dictionaries. Otherwise a local edit can propagate to unrelated pages. Compare content and image resources for every supposedly untouched page, then render the changed pages.
-- Preserve the unmodified source and the reviewed master. Publishing/export work must not silently introduce a new visual revision. Export high-resolution reader images directly from the reviewed PDF, never by enlarging the previous small WebP files; resolution does not create detail missing from source art.
+- Anatomy annotations can concern one panel while the others are accepted. Preserve face, hair, uniform and props against neighboring panels; inspect hands, thumb side and grip after editing.
+- The source PDF reuses content streams between unrelated pages. Before overlays or index-text edits, detach target Contents and clone resources. Otherwise local edits can propagate. Compare content and image resources across every supposedly untouched page.
+- Preserve the unmodified source and reviewed master. Export high-resolution reader images from that PDF, never from the older small WebP files.

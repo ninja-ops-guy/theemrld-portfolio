@@ -1,5 +1,5 @@
 {
-  "pageCount": 315,
+  "pageCount": 316,
   "sections": [
     {
       "start": 1,
@@ -13,105 +13,105 @@
       "label": "Vol. I",
       "title": "Engineering the Human Connection",
       "kind": "volume",
-      "end": 50
+      "end": 51
     },
     {
-      "start": 51,
+      "start": 52,
       "label": "Vol. II",
       "title": "The Vessel",
       "kind": "volume",
-      "end": 85
+      "end": 86
     },
     {
-      "start": 86,
+      "start": 87,
       "label": "Interlude",
       "title": "Iona · The World He Left Running",
       "kind": "interlude",
-      "end": 140
+      "end": 141
     },
     {
-      "start": 141,
+      "start": 142,
       "label": "Vol. III",
       "title": "The Return Signal",
       "kind": "volume",
-      "end": 163
+      "end": 164
     },
     {
-      "start": 164,
+      "start": 165,
       "label": "Vol. IV",
       "title": "The False Bearing",
       "kind": "volume",
-      "end": 173
+      "end": 174
     },
     {
-      "start": 174,
+      "start": 175,
       "label": "Vol. V",
       "title": "The House That Didn’t Ask",
       "kind": "volume",
-      "end": 217
-    },
-    {
-      "start": 218,
-      "label": "Guide",
-      "title": "Later collection index",
-      "kind": "guide",
       "end": 218
     },
     {
       "start": 219,
+      "label": "Guide",
+      "title": "Later collection index",
+      "kind": "guide",
+      "end": 219
+    },
+    {
+      "start": 220,
       "label": "Vol. VI",
       "title": "The Stolen Teaching",
       "kind": "volume",
-      "end": 231
+      "end": 232
     },
     {
-      "start": 232,
+      "start": 233,
       "label": "Vol. VII",
       "title": "The Wanting Mind",
       "kind": "volume",
-      "end": 244
+      "end": 245
     },
     {
-      "start": 245,
+      "start": 246,
       "label": "Vol. VIII",
       "title": "The Better Prison",
       "kind": "volume",
-      "end": 257
+      "end": 258
     },
     {
-      "start": 258,
+      "start": 259,
       "label": "Vol. IX",
       "title": "The Name Before",
       "kind": "volume",
-      "end": 270
+      "end": 271
     },
     {
-      "start": 271,
+      "start": 272,
       "label": "Vol. X",
       "title": "Evan's K",
       "kind": "volume",
-      "end": 286
+      "end": 287
     },
     {
-      "start": 287,
+      "start": 288,
       "label": "Guide",
       "title": "XI-XII continuation cover and reader note",
       "kind": "guide",
-      "end": 288
+      "end": 289
     },
     {
-      "start": 289,
+      "start": 290,
       "label": "Vol. XI",
       "title": "The Room He Returns To",
       "kind": "volume",
-      "end": 301
+      "end": 302
     },
     {
-      "start": 302,
+      "start": 303,
       "label": "Vol. XII",
       "title": "What He Stays For",
       "kind": "volume",
-      "end": 315
+      "end": 316
     }
   ],
   "scenes": [
@@ -144,95 +144,99 @@
       "title": "Through the vents"
     },
     {
-      "page": 51,
+      "page": 34,
+      "title": "Waldo / Before the knock"
+    },
+    {
+      "page": 52,
       "title": "Volume II / The Vessel"
     },
     {
-      "page": 86,
+      "page": 87,
       "title": "Iona / The World He Left Running / After Volume II"
     },
     {
-      "page": 141,
+      "page": 142,
       "title": "Volume III / The Return Signal"
     },
     {
-      "page": 148,
+      "page": 149,
       "title": "Iona / The archive choice"
     },
     {
-      "page": 164,
+      "page": 165,
       "title": "Volume IV / The False Bearing"
     },
     {
-      "page": 174,
+      "page": 175,
       "title": "Volume V / The House That Didn’t Ask"
     },
     {
-      "page": 218,
+      "page": 219,
       "title": "Later collection index"
     },
     {
-      "page": 219,
+      "page": 220,
       "title": "Volume VI / The Stolen Teaching"
     },
     {
-      "page": 232,
+      "page": 233,
       "title": "Volume VII / The Wanting Mind"
     },
     {
-      "page": 245,
+      "page": 246,
       "title": "Volume VIII / The Better Prison"
     },
     {
-      "page": 258,
+      "page": 259,
       "title": "Volume IX / The Name Before"
     },
     {
-      "page": 271,
+      "page": 272,
       "title": "Volume X / Evan's K"
     },
     {
-      "page": 287,
+      "page": 288,
       "title": "XI-XII continuation cover and reader note"
     },
     {
-      "page": 289,
+      "page": 290,
       "title": "Volume XI / The Room He Returns To / continuation"
     },
     {
-      "page": 290,
+      "page": 291,
       "title": "Chapter 21"
     },
     {
-      "page": 293,
+      "page": 294,
       "title": "Chapter 22"
     },
     {
-      "page": 296,
+      "page": 297,
       "title": "Chapter 23"
     },
     {
-      "page": 299,
+      "page": 300,
       "title": "Chapter 24"
     },
     {
-      "page": 302,
+      "page": 303,
       "title": "Volume XII / What He Stays For"
     },
     {
-      "page": 303,
+      "page": 304,
       "title": "Chapter 25"
     },
     {
-      "page": 306,
+      "page": 307,
       "title": "Chapter 26"
     },
     {
-      "page": 309,
+      "page": 310,
       "title": "Chapter 27"
     },
     {
-      "page": 312,
+      "page": 313,
       "title": "Chapter 28"
     }
   ],
@@ -248,7 +252,7 @@
         ]
       },
       {
-        "page": 51,
+        "page": 52,
         "rect": [
           23.0,
           147.0,
@@ -257,7 +261,7 @@
         ]
       },
       {
-        "page": 86,
+        "page": 87,
         "rect": [
           23.0,
           178.0,
@@ -266,7 +270,7 @@
         ]
       },
       {
-        "page": 141,
+        "page": 142,
         "rect": [
           23.0,
           209.0,
@@ -275,7 +279,7 @@
         ]
       },
       {
-        "page": 164,
+        "page": 165,
         "rect": [
           23.0,
           240.0,
@@ -284,7 +288,7 @@
         ]
       },
       {
-        "page": 174,
+        "page": 175,
         "rect": [
           23.0,
           271.0,
@@ -293,7 +297,7 @@
         ]
       },
       {
-        "page": 219,
+        "page": 220,
         "rect": [
           23.0,
           302.0,
@@ -302,7 +306,7 @@
         ]
       },
       {
-        "page": 232,
+        "page": 233,
         "rect": [
           23.0,
           333.0,
@@ -311,7 +315,7 @@
         ]
       },
       {
-        "page": 245,
+        "page": 246,
         "rect": [
           23.0,
           364.0,
@@ -320,7 +324,7 @@
         ]
       },
       {
-        "page": 258,
+        "page": 259,
         "rect": [
           23.0,
           395.0,
@@ -329,7 +333,7 @@
         ]
       },
       {
-        "page": 271,
+        "page": 272,
         "rect": [
           23.0,
           426.0,
@@ -338,7 +342,7 @@
         ]
       },
       {
-        "page": 289,
+        "page": 290,
         "rect": [
           23.0,
           457.0,
@@ -347,7 +351,7 @@
         ]
       },
       {
-        "page": 302,
+        "page": 303,
         "rect": [
           23.0,
           488.0,
@@ -367,7 +371,7 @@
         ]
       },
       {
-        "page": 51,
+        "page": 52,
         "rect": [
           220.0,
           122.0,
@@ -376,7 +380,7 @@
         ]
       },
       {
-        "page": 86,
+        "page": 87,
         "rect": [
           28.0,
           177.0,
@@ -385,7 +389,7 @@
         ]
       },
       {
-        "page": 141,
+        "page": 142,
         "rect": [
           220.0,
           177.0,
@@ -394,7 +398,7 @@
         ]
       },
       {
-        "page": 164,
+        "page": 165,
         "rect": [
           28.0,
           232.0,
@@ -403,7 +407,7 @@
         ]
       },
       {
-        "page": 174,
+        "page": 175,
         "rect": [
           220.0,
           232.0,
@@ -504,7 +508,7 @@
         ]
       },
       {
-        "page": 34,
+        "page": 35,
         "rect": [
           25.0,
           383.0,
@@ -513,7 +517,7 @@
         ]
       },
       {
-        "page": 37,
+        "page": 38,
         "rect": [
           25.0,
           410.0,
@@ -522,7 +526,7 @@
         ]
       },
       {
-        "page": 42,
+        "page": 43,
         "rect": [
           25.0,
           437.0,
@@ -531,7 +535,7 @@
         ]
       },
       {
-        "page": 43,
+        "page": 44,
         "rect": [
           25.0,
           464.0,
@@ -540,7 +544,7 @@
         ]
       },
       {
-        "page": 45,
+        "page": 46,
         "rect": [
           25.0,
           491.0,
@@ -549,7 +553,7 @@
         ]
       },
       {
-        "page": 47,
+        "page": 48,
         "rect": [
           25.0,
           518.0,
@@ -558,7 +562,7 @@
         ]
       },
       {
-        "page": 49,
+        "page": 50,
         "rect": [
           25.0,
           545.0,
@@ -567,9 +571,9 @@
         ]
       }
     ],
-    "85": [
+    "86": [
       {
-        "page": 86,
+        "page": 87,
         "rect": [
           80.0,
           620.0,
@@ -578,9 +582,9 @@
         ]
       }
     ],
-    "140": [
+    "141": [
       {
-        "page": 141,
+        "page": 142,
         "rect": [
           11.0,
           628.0,
@@ -589,9 +593,9 @@
         ]
       }
     ],
-    "213": [
+    "214": [
       {
-        "page": 219,
+        "page": 220,
         "rect": [
           23.0,
           567.0,
@@ -600,9 +604,9 @@
         ]
       }
     ],
-    "218": [
+    "219": [
       {
-        "page": 219,
+        "page": 220,
         "rect": [
           28.0,
           128.0,
@@ -611,7 +615,7 @@
         ]
       },
       {
-        "page": 232,
+        "page": 233,
         "rect": [
           220.0,
           128.0,
@@ -620,7 +624,7 @@
         ]
       },
       {
-        "page": 245,
+        "page": 246,
         "rect": [
           28.0,
           185.0,
@@ -629,7 +633,7 @@
         ]
       },
       {
-        "page": 258,
+        "page": 259,
         "rect": [
           220.0,
           185.0,
@@ -638,7 +642,7 @@
         ]
       },
       {
-        "page": 271,
+        "page": 272,
         "rect": [
           28.0,
           242.0,
@@ -656,9 +660,9 @@
         ]
       }
     ],
-    "288": [
+    "289": [
       {
-        "page": 289,
+        "page": 290,
         "rect": [
           25.0,
           142.0,
@@ -667,7 +671,7 @@
         ]
       },
       {
-        "page": 302,
+        "page": 303,
         "rect": [
           25.0,
           257.0,

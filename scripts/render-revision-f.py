@@ -11,9 +11,10 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "public" / "techops-comic"
-SOURCE = ASSETS / "TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf"
+RELEASE = json.loads((ROOT / "docs/COMIC_CURRENT_RELEASE.json").read_text())
+SOURCE = ROOT / "public" / RELEASE["pdf_asset"]
 OUTPUT = ASSETS / "revision-f"
-SHA256 = json.loads((ROOT / "docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json").read_text())["output_sha256"]
+SHA256 = RELEASE["output_sha256"]
 
 
 def render(index):
@@ -29,7 +30,7 @@ def main():
     OUTPUT.mkdir(exist_ok=True)
 
     with fitz.open(SOURCE) as pdf:
-        assert len(pdf) == 315
+        assert len(pdf) == RELEASE["pages"]
         sections = []
         scenes = []
         links = {}
@@ -53,9 +54,9 @@ def main():
                     "page": link["page"] + 1,
                     "rect": [round(point, 3) for point in link["from"]],
                 })
-        assert sum(len(items) for items in links.values()) == 47
+        assert sum(len(items) for items in links.values()) == RELEASE["links"]
         assert sum(section["kind"] == "volume" for section in sections) == 12
-        assert len(scenes) == 30
+        assert len(scenes) == RELEASE["bookmarks"]
         manifest = {"pageCount": len(pdf), "sections": sections, "scenes": scenes, "links": links}
 
     with ProcessPoolExecutor(max_workers=4) as workers:

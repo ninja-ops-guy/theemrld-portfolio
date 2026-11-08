@@ -12,8 +12,8 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-const revisionFArtRevision = 'annotations-v2-hq-badf8bb6';
-const revisionFPdf = base + `TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf?rev=${revisionFArtRevision}`;
+const revisionFArtRevision = 'waldo-continuity-hq-d02606c6';
+const revisionFPdf = base + `TechOps-Hero-Revision-F-Complete.pdf?rev=${revisionFArtRevision}`;
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';
 const printPdf = volumeFiveBase + 'TechOps-Hero-Volume-5.pdf';
@@ -73,9 +73,9 @@ const books = {
     cards: revisionFVolumes.map(section => ({ ...section, cover: revisionFImageUrl(section.start) })),
     scenes: revisionF.scenes,
     links: revisionF.links as Record<number, { page: number; rect: number[] }[]>,
-    describe: (page: number) => revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
+    describe: (page: number) => page === 34 ? 'Waldo shaves before welcoming Mike and Felicia' : revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
     imageUrl: revisionFImageUrl,
-    bookmarkKey: 'techops-hero:revision-f:page',
+    bookmarkKey: 'techops-hero:revision-f:waldo-continuity:page',
   },
   legacy: {
     total: legacyTotal,
@@ -94,7 +94,15 @@ function validPage(value: string | null, total: number) {
   return Number.isInteger(number) && number >= 1 && number <= total ? number : 0;
 }
 function readBookmark(book: (typeof books)[keyof typeof books]) {
-  try { return validPage(localStorage.getItem(book.bookmarkKey), book.total); } catch { return 0; }
+  try {
+    const saved = localStorage.getItem(book.bookmarkKey);
+    if (saved !== null) return validPage(saved, book.total);
+    if (book === books.f) {
+      const previous = validPage(localStorage.getItem('techops-hero:revision-f:page'), 315);
+      return previous >= 34 ? previous + 1 : previous;
+    }
+    return 0;
+  } catch { return 0; }
 }
 
 export default function TechOpsComic() {
@@ -197,7 +205,7 @@ export default function TechOpsComic() {
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
       <nav className="comic-downloads" aria-label="PDF downloads">
-        {revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete 315-page Revision F PDF</a>}
+        {revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete {revisionF.pageCount}-page Revision F PDF</a>}
         {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
         {(!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}

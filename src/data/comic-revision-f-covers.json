@@ -1,6 +1,6 @@
 {
-  "86": {
-    "page": 87,
+  "87": {
+    "page": 88,
     "crop": {
       "x": 145,
       "y": 85,
@@ -8,74 +8,74 @@
     },
     "color": "#d9956f"
   },
-  "219": {
-    "page": 220,
+  "220": {
+    "page": 221,
     "crop": {
       "x": 249,
       "y": 563,
       "size": 354
     },
     "color": "#eab878",
-    "chapters": "1\u20134"
+    "chapters": "1–4"
   },
-  "232": {
-    "page": 234,
+  "233": {
+    "page": 235,
     "crop": {
       "x": 535,
       "y": 63,
       "size": 370
     },
     "color": "#a9b7e4",
-    "chapters": "5\u20138"
+    "chapters": "5–8"
   },
-  "245": {
-    "page": 246,
+  "246": {
+    "page": 247,
     "crop": {
       "x": 175,
       "y": 69,
       "size": 378
     },
     "color": "#c0cbd5",
-    "chapters": "9\u201312"
+    "chapters": "9–12"
   },
-  "258": {
-    "page": 263,
+  "259": {
+    "page": 264,
     "crop": {
       "x": 301,
       "y": 530,
       "size": 375
     },
     "color": "#82bdac",
-    "chapters": "13\u201315"
+    "chapters": "13–15"
   },
-  "271": {
-    "page": 272,
+  "272": {
+    "page": 273,
     "crop": {
       "x": 520,
       "y": 548,
       "size": 412
     },
     "color": "#e8ab65",
-    "chapters": "16\u201320"
+    "chapters": "16–20"
   },
-  "289": {
-    "page": 290,
+  "290": {
+    "page": 291,
     "crop": {
       "x": 318,
       "y": 58,
       "size": 377
     },
     "color": "#bdd0ff",
-    "chapters": "21\u201324"
+    "chapters": "21–24"
   },
-  "302": {
-    "page": 303,
+  "303": {
+    "page": 304,
     "crop": {
       "x": 365,
       "y": 48,
       "size": 378
     },
     "color": "#e1a784",
-    "chapters": "25\u201328"
+    "chapters": "25–28"
   }
 }
