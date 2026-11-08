@@ -1,0 +1,72 @@
+name: Ascended K Combined Review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/k-world/**'
+      - 'public/see-world/**'
+      - 'scripts/ascended*'
+      - 'scripts/ascended-review/**'
+      - '.github/workflows/ascended-k-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  combined:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 053ee3948170ac972bc1af44eacfa4857fc32a0f
+          path: techops-hero
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build and deterministic contracts
+        run: |
+          mkdir -p evidence web
+          git -C portfolio rev-parse HEAD > evidence/portfolio-head.txt
+          git -C techops-hero rev-parse HEAD > evidence/native-head.txt
+          cd portfolio
+          npm install --no-audit --no-fund
+          npm run build > ../evidence/build.log
+          node --test scripts/see-world*.test.mjs scripts/ascended-k-linked.test.mjs tests/k-world-*.test.mjs > ../evidence/contracts.tap
+          cd ../techops-hero
+          node scripts/production_release_gate.js > ../evidence/native-gate.log
+      - name: Stage isolated browser review alongside both applications
+        run: |
+          cp -a portfolio/dist/. web/
+          cp -a portfolio/scripts/ascended-review web/ascended-review
+          ln -s "$PWD/portfolio/dist" web/theemrld-portfolio
+          ln -s "$PWD/techops-hero" web/techops-hero
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > evidence/server.log 2>&1 &
+      - name: Combined portal review
+        env:
+          ASCENDED_QA_DIR: evidence/portal
+        run: python portfolio/scripts/ascended-k-browser.py
+      - name: Released native interaction and presentation regressions
+        env:
+          LINKED_QA_DIR: evidence/linked
+          PRESENTATION_OUTPUT: evidence/presentation
+        run: |
+          python portfolio/scripts/see-world-linked-browser.py
+          python portfolio/scripts/see-world-presentation-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ascended-k-combined-evidence
+          path: evidence/
+          retention-days: 14

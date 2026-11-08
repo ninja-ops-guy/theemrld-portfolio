@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "method": "Observed in managed Chromium via isolated review page; movement supplemented with held W key through browser input",
+  "checks": [
+    "Locked direct hash/action; original 732\u00d7732 painting loaded and pinned",
+    "Earned entry, conversation, safe return; native and linked saves byte-unchanged",
+    "Physical movement crosses painted aperture into chamber",
+    "Earned chamber reload revalidates access",
+    "Sandbox cannot inherit linked reward",
+    "390px layout: entry/conversation/return, 44px controls, no horizontal overflow",
+    "Changed active native run revokes open chamber and returns safely",
+    "Foreign native completion receipt fails closed in browser",
+    "Released K ending opens existing gallery frame and returns to story; presentation retained"
+  ],
+  "errors": [],
+  "scope": "Fixture-assisted released native saves, production gallery UI and validator; 390px iframe layout, not touch-device or screen-reader certification",
+  "pending": [
+    "Hosted combined workflow",
+    "Real native UI to memory-anchor completion on this combined candidate",
+    "Firefox/WebKit and physical mobile validation"
+  ]
+}
