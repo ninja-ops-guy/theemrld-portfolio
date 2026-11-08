@@ -33,6 +33,8 @@ If two sources conflict, preserve both citations and status, apply the higher au
 
 ## Findings taxonomy
 
+For comic website updates, read `references/live-site-publishing.md` before choosing a repository or exporting assets. It records the exact comic URL, edition routing, large-PDF assembly, cache refresh and deployment verification workflow.
+
 Every report finding must be classified:
 - `CONFIRMED_CANON_VIOLATION`: direct contradiction of a cited, applicable canon rule or approved reference; identify the actual image/panel evidence.
 - `UNCERTAIN_INTERPRETATION`: ambiguity, source conflict, weak inference, visually obscured detail, or unconfirmed approval status. State what would resolve it.

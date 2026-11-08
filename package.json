@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prebuild": "node scripts/assemble-volume-five.mjs",
-    "predev": "node scripts/assemble-volume-five.mjs"
+    "prebuild": "node scripts/assemble-volume-five.mjs && node scripts/assemble-revision-f.mjs",
+    "predev": "node scripts/assemble-volume-five.mjs && node scripts/assemble-revision-f.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

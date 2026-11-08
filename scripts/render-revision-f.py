@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "public" / "techops-comic"
 SOURCE = ASSETS / "TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf"
 OUTPUT = ASSETS / "revision-f"
-SHA256 = "228f6966cef780fba3a0c1f0637bd900901bf7cc285092077fa137a31a66ba04"
+SHA256 = json.loads((ROOT / "docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json").read_text())["output_sha256"]
 
 
 def render(index):

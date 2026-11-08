@@ -1,0 +1,59 @@
+{
+  "recorded_on": "2026-11-08",
+  "edition": "Revision F annotations v2",
+  "pages": 315,
+  "source_sha256": "3578f6030238e6a89c3e267a2825079b8575fc91cdc2267a40296c5eb0b94a73",
+  "output_sha256": "badf8bb6d4b68f2739ffcd00cf95d46f84fdf5a17f036eca8ef3aedc4eefbb6f",
+  "output_bytes": 133222088,
+  "parts": [
+    "print-source/revision-f.part0",
+    "print-source/revision-f.part1"
+  ],
+  "changed_pages": [
+    118,
+    120,
+    132,
+    136
+  ],
+  "unchanged_pages": 311,
+  "text_identical": true,
+  "links": 47,
+  "bookmarks": 30,
+  "pdf_storage": "Byte-identical reviewed master, split into two tracked parts and reassembled during prebuild/predev; no recompression.",
+  "web_render": {
+    "width": 1080,
+    "height": 1620,
+    "format": "WebP",
+    "quality": 88,
+    "method": 4,
+    "pages": {
+      "118": {
+        "path": "public/techops-comic/revision-f/118.webp",
+        "sha256": "108912f14a07fd5dd672346b3c18d80195ba4066ab14ba2a64e408ef7c6bd8b3",
+        "bytes": 340962
+      },
+      "120": {
+        "path": "public/techops-comic/revision-f/120.webp",
+        "sha256": "c7e380f4d9b48ad0204e36a6658a2511bd862641d345f8e4a508e2059ea4d25e",
+        "bytes": 325528
+      },
+      "132": {
+        "path": "public/techops-comic/revision-f/132.webp",
+        "sha256": "1386cab5c0890ca6784c46170ddbbb6a507c918ff50ab138a4ea81bbe6d741ff",
+        "bytes": 340688
+      },
+      "136": {
+        "path": "public/techops-comic/revision-f/136.webp",
+        "sha256": "bade5fbce8cc26c44488ae3f8e2e9e4b88984973a998cbe4f6d74be3a524bb5b",
+        "bytes": 436068
+      }
+    }
+  },
+  "corrections": {
+    "118": "Second-panel officer anatomy",
+    "120": "Arm anatomy, removed crouching background man, restored adjacent-panel officer appearance",
+    "132": "Bottom-panel commander arm and hands",
+    "136": "KAPLOWWW sound effect"
+  },
+  "publication_authorization": "Creator requested add it to the live site, then supplied the exact portfolio comic URL."
+}
