@@ -1,0 +1,396 @@
+{
+  "recorded_on": "2026-11-08",
+  "title": "Volume XIII - The Last Launch",
+  "page_count": 40,
+  "pdf_asset": "techops-comic/volume-xiii/TechOps-Hero-Volume-XIII-The-Last-Launch.pdf",
+  "output_sha256": "1c74863c3583039e22fd13b498e8c25c227c116a8b77e475f21f6429c9317787",
+  "output_bytes": 41011805,
+  "reader_revision": "reviewed-1c74863c",
+  "publication_authorization": "User: proceed then publish",
+  "scope": "Six browser comments plus tablet orientation correction. Standalone Volume XIII added; preceding collection preserved.",
+  "web_render": {
+    "width": 2160,
+    "height": 3240,
+    "format": "WebP",
+    "quality": 92,
+    "pages": [
+      {
+        "page": 1,
+        "path": "public/techops-comic/volume-xiii/001.webp",
+        "sha256": "e65fb47813dbaa10c275043905518e8dd959f8fb9bc69a4fabf170066c18b52f",
+        "bytes": 973290
+      },
+      {
+        "page": 2,
+        "path": "public/techops-comic/volume-xiii/002.webp",
+        "sha256": "74086f77cffe6d15e8681a8eec72c88b69fee4e868fdb4008cd23e6d2e10f6c5",
+        "bytes": 111110
+      },
+      {
+        "page": 3,
+        "path": "public/techops-comic/volume-xiii/003.webp",
+        "sha256": "157145df01cd306786d00767f55a39eb9a1b0e7469823d4a0e7b19ed421b35e3",
+        "bytes": 956702
+      },
+      {
+        "page": 4,
+        "path": "public/techops-comic/volume-xiii/004.webp",
+        "sha256": "5ccececbc8462ccaf2257c4e69594abac304fe6a865bf6f731dc3dd816dc74db",
+        "bytes": 1052162
+      },
+      {
+        "page": 5,
+        "path": "public/techops-comic/volume-xiii/005.webp",
+        "sha256": "65cea6b79892a2d35bfd2dd735f4d1d0cf917c0a7cb7ff07c695ca8172b20f08",
+        "bytes": 959638
+      },
+      {
+        "page": 6,
+        "path": "public/techops-comic/volume-xiii/006.webp",
+        "sha256": "0c1c83be26faba0a2e56d58624cc9af95f72b636036e44b639f3143cbdec5f25",
+        "bytes": 892112
+      },
+      {
+        "page": 7,
+        "path": "public/techops-comic/volume-xiii/007.webp",
+        "sha256": "76b29399c357c64eb495041d5949bb6cf62c939c7483d2954f7d1bb0e087ae66",
+        "bytes": 855716
+      },
+      {
+        "page": 8,
+        "path": "public/techops-comic/volume-xiii/008.webp",
+        "sha256": "660d288ed6aeafbfcae0a5196da71aff81c346df78299639f0790d0f41f14c73",
+        "bytes": 828050
+      },
+      {
+        "page": 9,
+        "path": "public/techops-comic/volume-xiii/009.webp",
+        "sha256": "f72c70d03db44f4387773728423288984e8e31267855e5c29a2bbd7e46fce651",
+        "bytes": 985250
+      },
+      {
+        "page": 10,
+        "path": "public/techops-comic/volume-xiii/010.webp",
+        "sha256": "5c3c12b8132d7af071110e53e488306f3748175a19482330a43dca7d090fd067",
+        "bytes": 753306
+      },
+      {
+        "page": 11,
+        "path": "public/techops-comic/volume-xiii/011.webp",
+        "sha256": "b0299d1d2871446296d7b9618fdbfbf41b0269e3a66003e9cff04ae8f2cc6a01",
+        "bytes": 883392
+      },
+      {
+        "page": 12,
+        "path": "public/techops-comic/volume-xiii/012.webp",
+        "sha256": "7e781225e96aa26fbde93ed8ea7381a22f049e0f92bddb57e2c98e22eec07e31",
+        "bytes": 888504
+      },
+      {
+        "page": 13,
+        "path": "public/techops-comic/volume-xiii/013.webp",
+        "sha256": "4ca52064e41423436907a2a04d99935703a29f78189f9cbe946055bf335c0f04",
+        "bytes": 1000778
+      },
+      {
+        "page": 14,
+        "path": "public/techops-comic/volume-xiii/014.webp",
+        "sha256": "464d0c092361dd9fbc9214cecf4714e7cef21e931ca2b61dca58b873d1250a98",
+        "bytes": 1018764
+      },
+      {
+        "page": 15,
+        "path": "public/techops-comic/volume-xiii/015.webp",
+        "sha256": "c8ff6478cd0030faa03b7391764954109da997036603a37d15e89c67472d67c2",
+        "bytes": 936492
+      },
+      {
+        "page": 16,
+        "path": "public/techops-comic/volume-xiii/016.webp",
+        "sha256": "1d82ab697afdf4ff3fe148605411226e606ab946fa542c5ee5c1911089c376c7",
+        "bytes": 968072
+      },
+      {
+        "page": 17,
+        "path": "public/techops-comic/volume-xiii/017.webp",
+        "sha256": "103b1e445069df47a515f4acbeb15885665f1ca7c4fd3803b17d765d84fe18b8",
+        "bytes": 967596
+      },
+      {
+        "page": 18,
+        "path": "public/techops-comic/volume-xiii/018.webp",
+        "sha256": "2db1f0b79500910726b5d77716e232837bc966ba21c017bdae38cb50b3456579",
+        "bytes": 640576
+      },
+      {
+        "page": 19,
+        "path": "public/techops-comic/volume-xiii/019.webp",
+        "sha256": "72c6400cc308827d2522cd23f675b1a7d38339aa39c14068d2a2a70e127fc7d8",
+        "bytes": 925040
+      },
+      {
+        "page": 20,
+        "path": "public/techops-comic/volume-xiii/020.webp",
+        "sha256": "17c36a94bec9e1dfd0119883a0354fdae85f5201ab04cb092f21478d8fff461b",
+        "bytes": 1048472
+      },
+      {
+        "page": 21,
+        "path": "public/techops-comic/volume-xiii/021.webp",
+        "sha256": "1c00b988ee84e882eb7404176265f1a7c85a0d63f92f7444ef93dbfa602c5a3d",
+        "bytes": 1051392
+      },
+      {
+        "page": 22,
+        "path": "public/techops-comic/volume-xiii/022.webp",
+        "sha256": "e9ccc35aacf26f2bb7ddc7ce7f4d2b6f160df8c36c3337e1d454c8fa9f997186",
+        "bytes": 1091850
+      },
+      {
+        "page": 23,
+        "path": "public/techops-comic/volume-xiii/023.webp",
+        "sha256": "5eaf441341110f296ead469f7498c30d8545466e2a2a56f965e28cd4579904dd",
+        "bytes": 1060198
+      },
+      {
+        "page": 24,
+        "path": "public/techops-comic/volume-xiii/024.webp",
+        "sha256": "90ab3121f885778555e81fe5ddf0430f936445886c00640257f7a3509ca8b1d2",
+        "bytes": 946362
+      },
+      {
+        "page": 25,
+        "path": "public/techops-comic/volume-xiii/025.webp",
+        "sha256": "dd07eb843c777bcf7d1db3b3e879763344b83839ccdbf4a6b92b7ea06e28484c",
+        "bytes": 917300
+      },
+      {
+        "page": 26,
+        "path": "public/techops-comic/volume-xiii/026.webp",
+        "sha256": "5d6cbe3a0b77da29fc2eb234fb721b73f77230a9ae3755310896882f863c5dcd",
+        "bytes": 791372
+      },
+      {
+        "page": 27,
+        "path": "public/techops-comic/volume-xiii/027.webp",
+        "sha256": "1c0e3fd977919b5b6ca90f6bd97f74bc4c280777523366c64a3636e54c8f9ee2",
+        "bytes": 1054174
+      },
+      {
+        "page": 28,
+        "path": "public/techops-comic/volume-xiii/028.webp",
+        "sha256": "37353ed16b36d9bd1a4525712576792b276228becb55fff3d6e6cf1c5ea8f932",
+        "bytes": 843216
+      },
+      {
+        "page": 29,
+        "path": "public/techops-comic/volume-xiii/029.webp",
+        "sha256": "838cd21ad814af5e694b289cd0f13252fece8958ccf7719bcaebab4816048587",
+        "bytes": 850232
+      },
+      {
+        "page": 30,
+        "path": "public/techops-comic/volume-xiii/030.webp",
+        "sha256": "ca9593bb326aa0d25944d832f8a3ce09a31d4ba05f772809557e5aa8cba6cadb",
+        "bytes": 823818
+      },
+      {
+        "page": 31,
+        "path": "public/techops-comic/volume-xiii/031.webp",
+        "sha256": "9a519e1d014fb411a354511c2454e673daa72c0ffdd7beeed077b2af203be852",
+        "bytes": 888564
+      },
+      {
+        "page": 32,
+        "path": "public/techops-comic/volume-xiii/032.webp",
+        "sha256": "3b631bacd5d081924aaacee73bc1799d547d21631877012f389e33dd1332676b",
+        "bytes": 868568
+      },
+      {
+        "page": 33,
+        "path": "public/techops-comic/volume-xiii/033.webp",
+        "sha256": "7b6e7be114129d76d025a8a5f25e24e2860aa191e33baaf53255d0a296dcf030",
+        "bytes": 743154
+      },
+      {
+        "page": 34,
+        "path": "public/techops-comic/volume-xiii/034.webp",
+        "sha256": "0b86b84033614f33897ec15ebd8e36add98b8dba1b47522ffd83ff6e50f1fabb",
+        "bytes": 907216
+      },
+      {
+        "page": 35,
+        "path": "public/techops-comic/volume-xiii/035.webp",
+        "sha256": "5c16ac3f771a0f7de1b2327f57e7cb5975f0338cdb3cc5c0bfa0d818bba7e2db",
+        "bytes": 878844
+      },
+      {
+        "page": 36,
+        "path": "public/techops-comic/volume-xiii/036.webp",
+        "sha256": "ab97b286f240bde7e2ff70f3e98d4d4a320630adbdf30ffcdf27e08f3fab61d5",
+        "bytes": 884800
+      },
+      {
+        "page": 37,
+        "path": "public/techops-comic/volume-xiii/037.webp",
+        "sha256": "cedc84764da3e6dc2c73bd76ec25bb83f3379ff883354f5783bb215ad430116e",
+        "bytes": 908004
+      },
+      {
+        "page": 38,
+        "path": "public/techops-comic/volume-xiii/038.webp",
+        "sha256": "1975e993b8e2e3550bd5b551c60fe4bd03d30f39768a27d9dd0805ba5007fa76",
+        "bytes": 819770
+      },
+      {
+        "page": 39,
+        "path": "public/techops-comic/volume-xiii/039.webp",
+        "sha256": "95dd680ef8871d896d5a62d2acd5962288578ece988d412af1ee3ebf86ecc9a8",
+        "bytes": 993464
+      },
+      {
+        "page": 40,
+        "path": "public/techops-comic/volume-xiii/040.webp",
+        "sha256": "00f8b4c4c0f63ff979c2e02418fe5a71f9eb2630c0cc5e4e76728bf4ff3c9c06",
+        "bytes": 865050
+      }
+    ]
+  },
+  "pdf_checks": {
+    "pages": 40,
+    "source_pages": 38,
+    "source_sha256": "17674742b447ddd6ec081c7d20b7e716378f56150711ef6a6270138a773e3e57",
+    "output_sha256": "1c74863c3583039e22fd13b498e8c25c227c116a8b77e475f21f6429c9317787",
+    "bytes": 41011805,
+    "old_to_new_pages": {
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6,
+      "7": 7,
+      "8": 8,
+      "9": 9,
+      "10": 10,
+      "11": 11,
+      "12": 12,
+      "13": 13,
+      "14": 14,
+      "15": 15,
+      "16": 16,
+      "17": 17,
+      "18": 18,
+      "19": 19,
+      "20": 20,
+      "21": 21,
+      "22": 22,
+      "23": 24,
+      "24": 25,
+      "25": 26,
+      "26": 28,
+      "27": 29,
+      "28": 30,
+      "29": 31,
+      "30": 32,
+      "31": 33,
+      "32": 34,
+      "33": 35,
+      "34": 36,
+      "35": 37,
+      "36": 38,
+      "37": 39,
+      "38": 40
+    },
+    "changed_source_pages": [
+      2,
+      5,
+      19,
+      22,
+      30,
+      31
+    ],
+    "inserted_pages": [
+      23,
+      27
+    ],
+    "unchanged_pages_verified": [
+      1,
+      3,
+      4,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      20,
+      21,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38
+    ],
+    "link_targets": [
+      3,
+      7,
+      11,
+      19,
+      24,
+      33
+    ],
+    "outlines": [
+      {
+        "title": "Volume XIII / The Last Launch",
+        "page": 1
+      },
+      {
+        "title": "Volume XIII contents",
+        "page": 2
+      },
+      {
+        "title": "29 / The count after",
+        "page": 3
+      },
+      {
+        "title": "30 / What the station held",
+        "page": 7
+      },
+      {
+        "title": "31 / The route they left",
+        "page": 11
+      },
+      {
+        "title": "32 / What survived the file",
+        "page": 19
+      },
+      {
+        "title": "33 / A table for four",
+        "page": 24
+      },
+      {
+        "title": "34 / The names we carry",
+        "page": 33
+      }
+    ],
+    "visual_status": "VISUALLY_CHECKED"
+  },
+  "editorial_visual_review": "Corrected/new panels and final affected page layouts inspected against supplied source and neighboring pages. New likenesses not separately certified creator-approved."
+}

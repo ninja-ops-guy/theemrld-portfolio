@@ -1,0 +1,156 @@
+{
+  "title": "The Last Launch",
+  "pageCount": 40,
+  "artRevision": "reviewed-1c74863c",
+  "sections": [
+    {
+      "start": 1,
+      "end": 40,
+      "label": "Vol. XIII",
+      "title": "The Last Launch",
+      "kind": "volume"
+    }
+  ],
+  "scenes": [
+    {
+      "title": "Cover",
+      "page": 1
+    },
+    {
+      "title": "Contents",
+      "page": 2
+    },
+    {
+      "title": "29 / The count after",
+      "page": 3
+    },
+    {
+      "title": "30 / What the station held",
+      "page": 7
+    },
+    {
+      "title": "31 / The route they left",
+      "page": 11
+    },
+    {
+      "title": "32 / What survived the file",
+      "page": 19
+    },
+    {
+      "title": "Disaster recovery",
+      "page": 23
+    },
+    {
+      "title": "33 / A table for four",
+      "page": 24
+    },
+    {
+      "title": "Iona remembers playing with Red",
+      "page": 27
+    },
+    {
+      "title": "34 / The names we carry",
+      "page": 33
+    }
+  ],
+  "links": {
+    "2": [
+      {
+        "page": 3,
+        "rect": [
+          25.0,
+          151.0,
+          407.0,
+          189.0
+        ]
+      },
+      {
+        "page": 7,
+        "rect": [
+          25.0,
+          205.0,
+          407.0,
+          243.0
+        ]
+      },
+      {
+        "page": 11,
+        "rect": [
+          25.0,
+          259.0,
+          407.0,
+          297.0
+        ]
+      },
+      {
+        "page": 19,
+        "rect": [
+          25.0,
+          313.0,
+          407.0,
+          351.0
+        ]
+      },
+      {
+        "page": 24,
+        "rect": [
+          25.0,
+          367.0,
+          407.0,
+          405.0
+        ]
+      },
+      {
+        "page": 33,
+        "rect": [
+          25.0,
+          421.0,
+          407.0,
+          459.0
+        ]
+      }
+    ]
+  },
+  "descriptions": [
+    "",
+    "Chapters 29–34 • 38 illustrated story pages 29 The count after 1 30 What the station held 5 31 The route they left 9 32 What survived the file 17 33 A table for four 21 34 The names we carry 29 Sector 4 has fallen. The ships are still answering.",
+    "The detention station has gone quiet. The ships are still answering.",
+    "MEDIC Independent power holds. The ward is at temperature. LUZ Dad?",
+    "A stretcher on the freight ship is empty. Its patient was moved to Medical One. IONA Read that transfer back to me. Then have someone on both ships",
+    "BEFORE THE STRIKE • IONA: Are you down? K: I made it back. I'm on Earth. She saves the exchange locally. The open channel is for the ships still",
+    "K sits through a whole cup going cold. Iona's last reply stays saved on the receiver. MIKE Want company?",
+    "K You know Sector Four? MIKE The site code. I know some of the equipment. K I was in Cell 118. Can I tell you what happened before you look anything",
+    "K describes intake once. Felicia compares his sequence with a copy she kept before they met. FELICIA That's the same acceptance test. I couldn't tell what it was",
+    "Mike opens an Earth-side restart log. His access reaches the host records. The custody details are absent. MIKE I can show you what came back online.",
+    "MEDIC Two accounts for one cradle. AeroTech's sheet still has him in the rack.",
+    "The escort leaves last. The gun stays cold. One of the cargo ships takes its place beside the medical transport. PILOT We can spare a tow line.",
+    "The original freight bay. The dogs' impact damaged the berth and triggered a recovery order. Iona lays the new work order alongside the old incident image. The bay",
+    "DOCK CHIEF My work order gets us into this bay. The inner door still belongs to custody. The reader rejects her at the next door. Iona had counted on needing a",
+    "They have a service transport and a copy of its route. The return leg goes to AeroTech's fleet depot. MARA You still need a second medical pilot.",
+    "The service crew comes back with the ship AeroTech sent. Their return clearance gets them to the recovery berth. Across the glass: two medical ships on standby and an escort awaiting",
+    "IONA Three pilots. Three local release stations. We only get one change of shift. The dock chief keeps the readiness launch on the schedule. Iona's pilots",
+    "The dock grants the readiness launch it expected. Once clear, the relief pilots take local control and peel away together. MEDICAL TWO, RADIO I've got the second ship.",
+    "Her grandfather encrypts the rehearsal time and the name of the song he wants to hear. FELICIA You hid the answer under the teapot.",
+    "DRUMMER Leave a bar before you come back in. FELICIA All right. From the top. She listens through the silence. Then she takes the job she thinks will let",
+    "A participant withdrew. The record was corrected. Training on the same subject was still billed the next month. The exception gets a new heading. Felicia keeps the original, the revision,",
+    "FELICIA, TO SOC Sector 4's power and links died together. Treat it as site loss. Preserve the last telemetry and fence those routes before failover. His tablet sounds on the factory floor: SECTOR 4 LOST.",
+    "MIKE Isolate Sector 4. Restore Earth-side services from the verified offsite backup. Keep the line held until service checks pass. FELICIA This post-strike receipt matches another installation.",
+    "Iona's stolen research transport makes the ordinary crossing. On approach, she waits for a berth. One of the medical ships is already in. Iona waits until a named person",
+    "The next message comes on a quiet afternoon. Iona names a café and gives K a choice of two times. K replies with the earlier time. He puts the receiver down before it can",
+    "K gets there early. He takes the seat with the wall behind him and the door in view. Iona sees him through the window. She stops long enough for a passerby",
+    "IONA, REMEMBERED One. Two. Three. Four. Red's guitar came in exactly where she expected.",
+    "IONA Still take it sweet? K I don't know what I used to do. What did I order? IONA Enough sugar to ruin it.",
+    "The first cup cools. For a minute they talk about how good it feels to hear a voice across a table. K I can remember a sound and still get the room wrong.",
+    "FELICIA His check-in put him across town. Did he tell you he was going out?",
+    "Felicia spots K through the glass. Mike sees a second cup and pauses at the door. FELICIA We could call.",
+    "IONA Wait... who are you? How do you know him? MIKE Mike. K's staying with me. K You didn't happen to be here. Mike's badge swings into view when he pulls out a chair. Iona reads it",
+    "IONA You've been in the mouth of the beast this whole time. K He gave me somewhere to stay.",
+    "FELICIA I worked on the research transfer safeguards. That's how I found the—",
+    "Iona's chair goes back hard. One cup hits the floor. IONA His daughter was standing there. Our ship could keep him alive.",
+    "FELICIA I wrote the life-support check. I need to see what they put around it.",
+    "Felicia waits for Iona to look at her. FELICIA What's his name?",
+    "K I'm walking with her. I'll call when I'm ready. MIKE Okay. K We need to talk about who can see where I am.",
+    "Felicia writes the names beside a printout of her own safeguard. She leaves space for their account of what happened.",
+    "IONA Want to hear what he said the first time his daughter found him? K Tell me."
+  ]
+}
