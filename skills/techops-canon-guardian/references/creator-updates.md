@@ -25,3 +25,7 @@ These instructions supplement Story Bible v1.7. Scope matters: do not replace or
 - Public addendum: https://github.com/ninja-ops-guy/theemrld-portfolio/blob/main/docs/techops-hero-story-bible-addendum.md (inspected 2026-11-06; blob SHA `fc42a152db86b64be49eec43d819e196e5e99808`).
 - Comic scene descriptions: https://github.com/ninja-ops-guy/theemrld-portfolio/blob/main/src/data/comic-descriptions.json (inspected 2026-11-06; blob SHA `11c97c2b7d0cadd0d9c07c428bcd52c3ec024231`). This is a navigation/scene index and chronology aid, not a higher authority than the Story Bible or approved creator direction.
 - The checked-in v1.7 DOCX remains the broad canon base; use the actual file bundled in this skill and check its SHA256 before relying on it. The user-provided material says accepted revisions remain authoritative; inspect current repository and image files when judging a specific page. Do not assume every Volumes I–IV image in Revision 11 has been visually re-audited against this addendum.
+
+## Claudia — November 8, 2026
+
+Read the [scoped Claudia addendum](../../../docs/techops-hero-claudia-addendum-2026-11-08.md) for confirmed identity, portrait provenance, and existing continuity constraints. Claudia is Mike's mother on Earth; Claudia ≠ Mara and Mike ≠ K. Her intended visit and K's memory confusion are future development, not a completed event. Timing, dialogue, trigger, psychological consequences, and resolution remain open. This entry does not replace the bundled Bible.
