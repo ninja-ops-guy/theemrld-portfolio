@@ -27,7 +27,7 @@ if [ -n "$exe" ]; then
     timeout -k 10s 90s gdb -q -batch "$candidate" "$core" \
       -ex 'set pagination off' -ex 'set print frame-arguments none' \
       -ex 'info files' -ex 'info sharedlibrary' -ex 'info threads' \
-      -ex 'thread apply all bt 40' -ex 'info registers rip rsp' \
+      -ex 'thread apply all bt 40' -ex 'info registers' \
       -ex 'x/16i $pc-24' -ex 'info symbol $pc' \
       > "results/stacks/$name.txt" 2>&1 || true
   done < <(find cores -type f -name 'core.*' -print0)
