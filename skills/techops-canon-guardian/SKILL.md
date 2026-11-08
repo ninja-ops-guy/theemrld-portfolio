@@ -26,7 +26,7 @@ If two sources conflict, preserve both citations and status, apply the higher au
 ## Load these local references
 1. Read `{baseDir}/references/canon-locks.md` (mandatory cast, lore, chronology, and disclosure rules).
 2. Read `{baseDir}/references/visual-direction.md` (comic and game-specific visual language).
-3. Read `{baseDir}/references/creator-updates.md` (the November 6 supplemental addendum and its provenance).
+3. Read `{baseDir}/references/creator-updates.md` (dated scoped addenda and their provenance). For Claudia, Mara, or related memory-confusion scenes, also read `{baseDir}/../../docs/techops-hero-claudia-addendum-2026-11-08.md`. Keep confirmed character facts separate from future development; do not assign unapproved visit chronology, dialogue, consequences, or revelations.
 4. If facts are disputed or unclear, inspect the full source `{baseDir}/references/TechOps_Hero_Story_Bible_v1_7.docx`; see `{baseDir}/references/source-manifest.json` for the source digest. Do not claim a later bible is incorporated unless its actual file has been verified and the reference pack updated.
 5. Locate approved character references and accepted page/revision images for the current scene. Check provenance, acceptance status, source/revision, and that the relevant character/appearance is visible. Do not infer that a concept image, screenshot, sprite sheet, or prior generated image was approved. Do not invent exact facial anatomy, outfits, tattoos, scars, proportions, colors, or photo likenesses absent from the references.
 6. Read `references/reference-inventory.md` for discovered source classes and known gaps. Refresh links/hashes from the repository when stale; do not rely on the inventory instead of current inspection.
