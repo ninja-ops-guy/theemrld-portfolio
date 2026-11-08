@@ -18,9 +18,9 @@ SHA256 = json.loads((ROOT / "docs/COMIC_ANNOTATIONS_V2_VERIFICATION.json").read_
 
 def render(index):
     with fitz.open(SOURCE) as pdf:
-        image = pdf[index].get_pixmap(matrix=fitz.Matrix(2.5, 2.5), alpha=False)
+        image = pdf[index].get_pixmap(matrix=fitz.Matrix(5, 5), alpha=False)
     art = Image.frombytes("RGB", (image.width, image.height), image.samples)
-    art.save(OUTPUT / f"{index + 1:03d}.webp", quality=88, method=4)
+    art.save(OUTPUT / f"{index + 1:03d}.webp", quality=92, method=4)
 
 
 def main():

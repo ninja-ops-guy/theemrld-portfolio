@@ -12,7 +12,7 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-const revisionFArtRevision = 'annotations-v2-badf8bb6';
+const revisionFArtRevision = 'annotations-v2-hq-badf8bb6';
 const revisionFPdf = base + `TechOps-Hero-Revision-F-Final-Annotations-315-Pages.pdf?rev=${revisionFArtRevision}`;
 const volumeFiveBase = base + 'volume-v/';
 const mobilePdf = volumeFiveBase + 'TechOps-Hero-Volume-5-Mobile.pdf';

@@ -21,31 +21,1587 @@
   "bookmarks": 30,
   "pdf_storage": "Byte-identical reviewed master, split into two tracked parts and reassembled during prebuild/predev; no recompression.",
   "web_render": {
-    "width": 1080,
-    "height": 1620,
+    "width": 2160,
+    "height": 3240,
     "format": "WebP",
-    "quality": 88,
+    "quality": 92,
     "method": 4,
+    "source": "Full-resolution corrected PDF master, rendered at 360 dpi",
     "pages": {
+      "1": {
+        "path": "public/techops-comic/revision-f/001.webp",
+        "sha256": "f0be91b10be666374443d0d067247fd09c6961fd084f2ca8889b00002b6baa77",
+        "bytes": 195472
+      },
+      "2": {
+        "path": "public/techops-comic/revision-f/002.webp",
+        "sha256": "f7da96a049847181e12d3c0d1f279751dcc21fb8db8065167c4cd25882ddadf4",
+        "bytes": 217824
+      },
+      "3": {
+        "path": "public/techops-comic/revision-f/003.webp",
+        "sha256": "429e32a8d586848f6457cbffbe910e315a75b9c654d0f5b0912f418752811025",
+        "bytes": 1452834
+      },
+      "4": {
+        "path": "public/techops-comic/revision-f/004.webp",
+        "sha256": "087ee8aba072e94842e01124e6e3bdb79acefb2b1e32c14360a4dc39795856ba",
+        "bytes": 167590
+      },
+      "5": {
+        "path": "public/techops-comic/revision-f/005.webp",
+        "sha256": "18e9b3f9119e068774155d428e757d4053f80bd0f9f0079dd0d94d2938c2f54e",
+        "bytes": 141274
+      },
+      "6": {
+        "path": "public/techops-comic/revision-f/006.webp",
+        "sha256": "16940b606b5b5c9fc6830c1241a0d13a416c1361f5f343cd9d24c6606499d9fa",
+        "bytes": 1448090
+      },
+      "7": {
+        "path": "public/techops-comic/revision-f/007.webp",
+        "sha256": "0567757e31971c70752df928fb34d43ecc26d03636213ee0682ebb5e8a107412",
+        "bytes": 1326216
+      },
+      "8": {
+        "path": "public/techops-comic/revision-f/008.webp",
+        "sha256": "aef94c75503b3b5a54e0e91af7b07bbbd80f1c342b3fccce521237c0d1c925eb",
+        "bytes": 1586936
+      },
+      "9": {
+        "path": "public/techops-comic/revision-f/009.webp",
+        "sha256": "e367e2cd1eb6537dfcfde839d390361eb1cb2fa94e4f75aa89f8fbb2c378b4b4",
+        "bytes": 1519104
+      },
+      "10": {
+        "path": "public/techops-comic/revision-f/010.webp",
+        "sha256": "6b0fa26d724deb926cdfe56b2f92a8dac43edf6d7cd8510a04edb52fee245c1d",
+        "bytes": 1128930
+      },
+      "11": {
+        "path": "public/techops-comic/revision-f/011.webp",
+        "sha256": "22e7a8e32ffa573e0bc400295d9da061dbb1bca4a37eccfdd0debd6ac9f23f7c",
+        "bytes": 1248414
+      },
+      "12": {
+        "path": "public/techops-comic/revision-f/012.webp",
+        "sha256": "73c8a5841b9133faf40bf2aaa494a2eedb09856ea575d78a65f9bdf6f804df66",
+        "bytes": 1440334
+      },
+      "13": {
+        "path": "public/techops-comic/revision-f/013.webp",
+        "sha256": "98c4a18f35ba4fe3531534fce259b8636164038cfe1864887af838a4635d2a44",
+        "bytes": 1347620
+      },
+      "14": {
+        "path": "public/techops-comic/revision-f/014.webp",
+        "sha256": "45e19ba6be0f0d863c248b1ecbd4ba1f54b1db2211b05125dff9b725503e006b",
+        "bytes": 1160770
+      },
+      "15": {
+        "path": "public/techops-comic/revision-f/015.webp",
+        "sha256": "7d5022a0ac073517bcf08a1ad741257dd71e600fb8f1f397533517153c870356",
+        "bytes": 1448564
+      },
+      "16": {
+        "path": "public/techops-comic/revision-f/016.webp",
+        "sha256": "a5a60bb59891b11ea3248ae25664449078738c2469103eecbde34c9e7f1fbb76",
+        "bytes": 1278512
+      },
+      "17": {
+        "path": "public/techops-comic/revision-f/017.webp",
+        "sha256": "d19773940b25c87f1469ac7d8fa086a6245f5def0847c6fe91d546655163c5c7",
+        "bytes": 1032048
+      },
+      "18": {
+        "path": "public/techops-comic/revision-f/018.webp",
+        "sha256": "4c132efde6fd71f5ea819ac233f02315244e94d7ed233652c6fa80c71b7b6287",
+        "bytes": 1411676
+      },
+      "19": {
+        "path": "public/techops-comic/revision-f/019.webp",
+        "sha256": "777d79f5ba808ca54979cf431900928e05673bd9500b707cfeaf0958d98649e5",
+        "bytes": 1331200
+      },
+      "20": {
+        "path": "public/techops-comic/revision-f/020.webp",
+        "sha256": "cdf78cf3cb24607264d2d51c6b7d06f06878a06f3e5042adfd8eeb4ce9e1ab3f",
+        "bytes": 1347622
+      },
+      "21": {
+        "path": "public/techops-comic/revision-f/021.webp",
+        "sha256": "4fa6ea63d592d72abab8021defd301f02f1ee0dc52efe13ec4b2587247c6d64d",
+        "bytes": 1547342
+      },
+      "22": {
+        "path": "public/techops-comic/revision-f/022.webp",
+        "sha256": "22471f313b478ab301677d9282f6493c70e63b361cec9706fe73258c221cc540",
+        "bytes": 1938778
+      },
+      "23": {
+        "path": "public/techops-comic/revision-f/023.webp",
+        "sha256": "ee79a81f47d8e9313d898fa0a3458918790151bb861c91409c7e77a1529526e5",
+        "bytes": 1270216
+      },
+      "24": {
+        "path": "public/techops-comic/revision-f/024.webp",
+        "sha256": "1192b868134bfb566bb14242a2732e8859a208ade70734b1ada522bffd9d1071",
+        "bytes": 1046968
+      },
+      "25": {
+        "path": "public/techops-comic/revision-f/025.webp",
+        "sha256": "12b222f18cf76ca87d706fc25ba193828c41b67cd362788f9f717c9947cab378",
+        "bytes": 1062254
+      },
+      "26": {
+        "path": "public/techops-comic/revision-f/026.webp",
+        "sha256": "cdf562516c6e7772660b0d63a340798148b5ec6818c7336a85debe5a9695e86d",
+        "bytes": 820904
+      },
+      "27": {
+        "path": "public/techops-comic/revision-f/027.webp",
+        "sha256": "44d3e8033c29609793f8dff1e0807d93b04093f6a7966d2a5d356e680383e5d1",
+        "bytes": 1139822
+      },
+      "28": {
+        "path": "public/techops-comic/revision-f/028.webp",
+        "sha256": "6cb375ae356fdd07f5d74b09070152a3cf3e4cf9712c38721967665cb4d9004b",
+        "bytes": 1242234
+      },
+      "29": {
+        "path": "public/techops-comic/revision-f/029.webp",
+        "sha256": "a17406c63d95c2c42501d080675a3424d191229dcf24028645ed417334019849",
+        "bytes": 1357918
+      },
+      "30": {
+        "path": "public/techops-comic/revision-f/030.webp",
+        "sha256": "8b3ba9466d9cdfbe2787fd511fda1c667e2c69b7ff0393216a35c4657e04028a",
+        "bytes": 1269544
+      },
+      "31": {
+        "path": "public/techops-comic/revision-f/031.webp",
+        "sha256": "f61bb9e18c4a9542d135bd52a3c69e0538823915b770da34ffda992600eb8c48",
+        "bytes": 1156936
+      },
+      "32": {
+        "path": "public/techops-comic/revision-f/032.webp",
+        "sha256": "18ca3cce9d7432c86a021072886ab451329275c207b055ce21a3ceb7cc040666",
+        "bytes": 1276258
+      },
+      "33": {
+        "path": "public/techops-comic/revision-f/033.webp",
+        "sha256": "2b35fb9de0d32d14728cc137afb645d9cc979947fa3bd72610b58efa583e8c3b",
+        "bytes": 1056372
+      },
+      "34": {
+        "path": "public/techops-comic/revision-f/034.webp",
+        "sha256": "e808affb8d796357a99d7481895128b1189dae8cd71b198c46c07c641b7560d9",
+        "bytes": 1322822
+      },
+      "35": {
+        "path": "public/techops-comic/revision-f/035.webp",
+        "sha256": "8a0433b43ca11d1c5f80d3623a06ec57e5b4c76cc5183b8242546a8726284ed9",
+        "bytes": 1309440
+      },
+      "36": {
+        "path": "public/techops-comic/revision-f/036.webp",
+        "sha256": "b43c9c91444c78e777ac56f7fa43b491dab475ecc7a5e8dc625a0427a29028e8",
+        "bytes": 1213028
+      },
+      "37": {
+        "path": "public/techops-comic/revision-f/037.webp",
+        "sha256": "b49ea7bdf22cab6b7dd5e3b377848f0bba56a03317caadbce1a85f8ff7ca9b9c",
+        "bytes": 1226480
+      },
+      "38": {
+        "path": "public/techops-comic/revision-f/038.webp",
+        "sha256": "f73c942f3ba7ed80ef9328bd8b43ba4947c5053161ec037a65e73de39a252e03",
+        "bytes": 1064648
+      },
+      "39": {
+        "path": "public/techops-comic/revision-f/039.webp",
+        "sha256": "230790e2071da5937e5a78525dd18b6edd38c94a939a55fb296db476fd1f69bd",
+        "bytes": 1009744
+      },
+      "40": {
+        "path": "public/techops-comic/revision-f/040.webp",
+        "sha256": "591e67372b7208a287f24e3a55bb37544ca8f8b47ba07c9b857ef3115005126d",
+        "bytes": 970264
+      },
+      "41": {
+        "path": "public/techops-comic/revision-f/041.webp",
+        "sha256": "3ff293628862e3d7285a98c7b9fac9565c2a3f3ea3d3d11c26321f0cfd369a0a",
+        "bytes": 1152054
+      },
+      "42": {
+        "path": "public/techops-comic/revision-f/042.webp",
+        "sha256": "8a5c4e68782780d57c50a5b26ed0497c66b529ad12798d12324552eeba70e55e",
+        "bytes": 1042496
+      },
+      "43": {
+        "path": "public/techops-comic/revision-f/043.webp",
+        "sha256": "65bbba8fa39d78b9b7d79f896fcf388c4084765cb99e363168c57c9dfa02ce56",
+        "bytes": 1346810
+      },
+      "44": {
+        "path": "public/techops-comic/revision-f/044.webp",
+        "sha256": "48df6020075a4dd9fe322fa81dc02326694e44196d156aacf9208d308b45ce63",
+        "bytes": 1461268
+      },
+      "45": {
+        "path": "public/techops-comic/revision-f/045.webp",
+        "sha256": "e0e42a5b1fefee296734ee1e4b20a4c08b80a50b223ded27c3ecc338b49a7bd9",
+        "bytes": 1014866
+      },
+      "46": {
+        "path": "public/techops-comic/revision-f/046.webp",
+        "sha256": "6874e76c4f2f3152de912c4b8686cc4f28d57dbcdaf1f6d6ea49c6eba5e9a89a",
+        "bytes": 1206204
+      },
+      "47": {
+        "path": "public/techops-comic/revision-f/047.webp",
+        "sha256": "5152d9a40f01972a9dc8e60e355f29918dfd41f15ae3f2566143ff2d5d79e201",
+        "bytes": 1202060
+      },
+      "48": {
+        "path": "public/techops-comic/revision-f/048.webp",
+        "sha256": "2267d8c9513c83dc9803cc6889d8e83d4cb8f19b45cd4fbbba574dd164729006",
+        "bytes": 1260884
+      },
+      "49": {
+        "path": "public/techops-comic/revision-f/049.webp",
+        "sha256": "7149466695cfcd680a176aae45120f19e47f3dd3923091de7b45793e802bfa90",
+        "bytes": 1202406
+      },
+      "50": {
+        "path": "public/techops-comic/revision-f/050.webp",
+        "sha256": "539ac77f00f5ae889114bec1909d6a54bfe07a3627404615835f3207c966c9ef",
+        "bytes": 952732
+      },
+      "51": {
+        "path": "public/techops-comic/revision-f/051.webp",
+        "sha256": "32748016c4f6144554e0ccd3fcf2ddaf67b1684dd0590951a7ca84b8b15bfcea",
+        "bytes": 402976
+      },
+      "52": {
+        "path": "public/techops-comic/revision-f/052.webp",
+        "sha256": "956fe5f29030455588d0fb14d002d02a53cf4d9e8e270c65dbd051ef73c2c628",
+        "bytes": 1215350
+      },
+      "53": {
+        "path": "public/techops-comic/revision-f/053.webp",
+        "sha256": "f5fef05f8cb60e8406837de7a336c2598da00e91d4c6b4b53b295b34a8aa9ca1",
+        "bytes": 1074688
+      },
+      "54": {
+        "path": "public/techops-comic/revision-f/054.webp",
+        "sha256": "fcf3d389656ba3cda4dddc175c3f51cafd840bd238916da8b2e367d2504eb61b",
+        "bytes": 1266538
+      },
+      "55": {
+        "path": "public/techops-comic/revision-f/055.webp",
+        "sha256": "c6426a199a65cfae4b7bef65eb8b7c70bb15507ba9fd7e70829d43d2052c0263",
+        "bytes": 1072318
+      },
+      "56": {
+        "path": "public/techops-comic/revision-f/056.webp",
+        "sha256": "81f9832304a4de66f7f2dccbbf418c8baaf8c0af56a31331dea4d3b07a7107cc",
+        "bytes": 570848
+      },
+      "57": {
+        "path": "public/techops-comic/revision-f/057.webp",
+        "sha256": "7071bcd86302fd16bb68639da3a946f9acdff1b859d7ead63b4a33ee9223c470",
+        "bytes": 1209112
+      },
+      "58": {
+        "path": "public/techops-comic/revision-f/058.webp",
+        "sha256": "a5169f87590d204926602972b9e8db711252029612d93502192df54b46ba5f7e",
+        "bytes": 964984
+      },
+      "59": {
+        "path": "public/techops-comic/revision-f/059.webp",
+        "sha256": "7bfc0542c564d485731eb9be7d6446acf2bd5bf3afd4b2d3cbf76b9ce058bbd7",
+        "bytes": 757606
+      },
+      "60": {
+        "path": "public/techops-comic/revision-f/060.webp",
+        "sha256": "eabec8c4a93c12700e3693274f60a00fc9c39750dda6ba88fbefe6c36e2b76af",
+        "bytes": 1155704
+      },
+      "61": {
+        "path": "public/techops-comic/revision-f/061.webp",
+        "sha256": "5be4b075957e3cd59a16fce46d3bf30f7e901bf4837d176e61158a5104590386",
+        "bytes": 1236012
+      },
+      "62": {
+        "path": "public/techops-comic/revision-f/062.webp",
+        "sha256": "5fc4cd8ff40b473dac3c643dc1f9fd1c60cf7b97a90a05976a702abc835dcd4b",
+        "bytes": 1220136
+      },
+      "63": {
+        "path": "public/techops-comic/revision-f/063.webp",
+        "sha256": "6deb85d1033dbaea0e65c8c6b4cb9034c2f1545f6cddaf4327608ac31c71433b",
+        "bytes": 1043330
+      },
+      "64": {
+        "path": "public/techops-comic/revision-f/064.webp",
+        "sha256": "9a95ed2ad6124e29868edd45288dfd0e4cb135611623b314bf12ebad46229306",
+        "bytes": 991308
+      },
+      "65": {
+        "path": "public/techops-comic/revision-f/065.webp",
+        "sha256": "bd1c16b7fa0c4f7acf891f1042941d8d73e5e2edad929b11dcbd0406d36ffdca",
+        "bytes": 983734
+      },
+      "66": {
+        "path": "public/techops-comic/revision-f/066.webp",
+        "sha256": "e75759b4cbb314aa8abe4711160da8ad5541dccfbb76d47428979a3badfc869f",
+        "bytes": 1126230
+      },
+      "67": {
+        "path": "public/techops-comic/revision-f/067.webp",
+        "sha256": "d2106a2b4e14712352acf3eb5f4af791dbe5fde8c718c0b16cfa63870eb55c37",
+        "bytes": 1037802
+      },
+      "68": {
+        "path": "public/techops-comic/revision-f/068.webp",
+        "sha256": "c1e20ca9042a36edb15e92b54df8a5af0c74f58ed8879d02acea24ee18a055ca",
+        "bytes": 1148828
+      },
+      "69": {
+        "path": "public/techops-comic/revision-f/069.webp",
+        "sha256": "a3900a105c2505e1c7922f203aba59778fc84ad77fef8969d5aed1dd2c1959ff",
+        "bytes": 1185488
+      },
+      "70": {
+        "path": "public/techops-comic/revision-f/070.webp",
+        "sha256": "14104d80a56c7ebfa440115972f25a806a35e334676655f49f64405c74f6c2bf",
+        "bytes": 2060538
+      },
+      "71": {
+        "path": "public/techops-comic/revision-f/071.webp",
+        "sha256": "97d5e4bb5394e2e95b3a7e5526bae9d86beaa9eed5853e38fdc6c525d43ca25f",
+        "bytes": 1105972
+      },
+      "72": {
+        "path": "public/techops-comic/revision-f/072.webp",
+        "sha256": "35f263ed4ec66223fc5a18e069b5581b5706097194560043724aec6dbf679fe1",
+        "bytes": 1249986
+      },
+      "73": {
+        "path": "public/techops-comic/revision-f/073.webp",
+        "sha256": "5f095013a61d5b00429c509f8e54b14e1cc47d4337d2d484264b673556748b98",
+        "bytes": 1133274
+      },
+      "74": {
+        "path": "public/techops-comic/revision-f/074.webp",
+        "sha256": "214e0192667a43a2f96dbaa03e261b7585bfdc969445f9b7fa492db23f18067f",
+        "bytes": 1253148
+      },
+      "75": {
+        "path": "public/techops-comic/revision-f/075.webp",
+        "sha256": "62e67a2449b9357a34440fb0bbaffc7f5f4199b4f09989308c5f54343ceb4835",
+        "bytes": 1189184
+      },
+      "76": {
+        "path": "public/techops-comic/revision-f/076.webp",
+        "sha256": "daa9efb6045fa4dbf03a748e119d092e846ef0e6dfec073d64f8e51ab04bc5fc",
+        "bytes": 1159216
+      },
+      "77": {
+        "path": "public/techops-comic/revision-f/077.webp",
+        "sha256": "f71d3d18efd073965880a58c33efab1281ecabead418d90bab013f9b581265d7",
+        "bytes": 1081162
+      },
+      "78": {
+        "path": "public/techops-comic/revision-f/078.webp",
+        "sha256": "06f67cc5951843416a9bb0ee7913673bdbcc11b2ef3521cd036ed0179ba23e68",
+        "bytes": 1073098
+      },
+      "79": {
+        "path": "public/techops-comic/revision-f/079.webp",
+        "sha256": "07a2aeb944525a15610ae091fa0c7fcab2769873ef241e89a181485f6f510d52",
+        "bytes": 1458576
+      },
+      "80": {
+        "path": "public/techops-comic/revision-f/080.webp",
+        "sha256": "28cbcf028c648734885eff1f59466e786ff734be8560f95247eab8b8bce71b13",
+        "bytes": 2071794
+      },
+      "81": {
+        "path": "public/techops-comic/revision-f/081.webp",
+        "sha256": "2f230aded2133f5892d7fb8533e28dd061333dcf968c9ab995e0c75f35ebaecf",
+        "bytes": 2033424
+      },
+      "82": {
+        "path": "public/techops-comic/revision-f/082.webp",
+        "sha256": "dccf3ffd9d14c6040d4e9dd9b329137aba32f24bdb30b56fa17137724f29da02",
+        "bytes": 1366538
+      },
+      "83": {
+        "path": "public/techops-comic/revision-f/083.webp",
+        "sha256": "cdb725f514a796f9830cac91c38f977e6c4b5387a11f162c89e53e0ea547cfba",
+        "bytes": 1268718
+      },
+      "84": {
+        "path": "public/techops-comic/revision-f/084.webp",
+        "sha256": "86234b0001515e1fddec52175b1ff88095d03507cd7d02d9d9bf5048a04265f8",
+        "bytes": 1338264
+      },
+      "85": {
+        "path": "public/techops-comic/revision-f/085.webp",
+        "sha256": "ed20207e8d9554e07d868bdaaebd279412b297d0750ecd69fb4fafb16422ae8d",
+        "bytes": 773390
+      },
+      "86": {
+        "path": "public/techops-comic/revision-f/086.webp",
+        "sha256": "41896bca74f812de9ff5b45a6416b9c0d0196122a1acdb4fb6f31df58531a83e",
+        "bytes": 955886
+      },
+      "87": {
+        "path": "public/techops-comic/revision-f/087.webp",
+        "sha256": "69431e309ca1230347e794b0a124d073dc426250c812a89a5cb9863c463eee1b",
+        "bytes": 1490250
+      },
+      "88": {
+        "path": "public/techops-comic/revision-f/088.webp",
+        "sha256": "63f1ad8d37759316f1d1ddf74557ac81b51802041b909a2cffbf937e9da1899f",
+        "bytes": 619972
+      },
+      "89": {
+        "path": "public/techops-comic/revision-f/089.webp",
+        "sha256": "e697d0627bf8f2d373d41262805794004d96d8ddc06684227ea0c97d608c93cf",
+        "bytes": 685912
+      },
+      "90": {
+        "path": "public/techops-comic/revision-f/090.webp",
+        "sha256": "8fa69a57c6b2e6dca931c82ff55ca74f95ff938dce3052a40c0426abd5d161d5",
+        "bytes": 1198200
+      },
+      "91": {
+        "path": "public/techops-comic/revision-f/091.webp",
+        "sha256": "8b7a3077c9eb9ee2eb362bfcf2ca8ebb838e77a30d2c2b23ecb70c189f544fd3",
+        "bytes": 519546
+      },
+      "92": {
+        "path": "public/techops-comic/revision-f/092.webp",
+        "sha256": "aecde931e1fe7ac647ca0618be07cfc519a199ee8cebe3d7e224a0bfa4c4f677",
+        "bytes": 1341520
+      },
+      "93": {
+        "path": "public/techops-comic/revision-f/093.webp",
+        "sha256": "76f69a23b1268459abc734f44b34583e87ab42299fe59537fa634cbf9a7aadec",
+        "bytes": 1596924
+      },
+      "94": {
+        "path": "public/techops-comic/revision-f/094.webp",
+        "sha256": "2de8cb7757e31862810e9fc3f178b761f11c27aece8f1019ddc1783b2443d084",
+        "bytes": 876286
+      },
+      "95": {
+        "path": "public/techops-comic/revision-f/095.webp",
+        "sha256": "c540d82e6939c79f6383f918a00ff06b87b2dd10811765a49eadd539476f3e7f",
+        "bytes": 1317360
+      },
+      "96": {
+        "path": "public/techops-comic/revision-f/096.webp",
+        "sha256": "ec7bfac3b02d183d6a4392c6f08df257488dc3dd856f2d8e7fe2aa0f8e497c99",
+        "bytes": 763920
+      },
+      "97": {
+        "path": "public/techops-comic/revision-f/097.webp",
+        "sha256": "c1d498ed67768d18a323b87532c776c3b3427b05479df1c384963a52e2fe1b1a",
+        "bytes": 801322
+      },
+      "98": {
+        "path": "public/techops-comic/revision-f/098.webp",
+        "sha256": "f6ef5f3bd1b0cfeb8ee76b54349c952a192063a504ce0fcc7be6840de1d2f664",
+        "bytes": 830512
+      },
+      "99": {
+        "path": "public/techops-comic/revision-f/099.webp",
+        "sha256": "da1e03ee16c73ccdb2935164cf7356ba9b3b4f28cf78dee2fccd42bae17fddaa",
+        "bytes": 673450
+      },
+      "100": {
+        "path": "public/techops-comic/revision-f/100.webp",
+        "sha256": "5e1c52f7d75505a3af22b57af832312f54bdbffc5a90c81ca9b11f79499adeef",
+        "bytes": 717274
+      },
+      "101": {
+        "path": "public/techops-comic/revision-f/101.webp",
+        "sha256": "7551c12520cfe552ae584777758400066a8e96bd03f775691c3d8c9865cb1f38",
+        "bytes": 609344
+      },
+      "102": {
+        "path": "public/techops-comic/revision-f/102.webp",
+        "sha256": "5b30cad15124156ceebf26355538983ea3466e1111d726ead02cdad2980f1f4a",
+        "bytes": 1213556
+      },
+      "103": {
+        "path": "public/techops-comic/revision-f/103.webp",
+        "sha256": "a292f5854c8b006c2ec2f666f72fd0b99f06cb9dcf66f45445e1db0fc0cb9bde",
+        "bytes": 1243630
+      },
+      "104": {
+        "path": "public/techops-comic/revision-f/104.webp",
+        "sha256": "d56f84cfc0147484084c41a50045d6ee3aaed41ba100627687f042ad6c482edb",
+        "bytes": 776968
+      },
+      "105": {
+        "path": "public/techops-comic/revision-f/105.webp",
+        "sha256": "2e274b8f90eebd66497c1e187a27bd0aa07e34cb5348e2e02ba4676d53f51e5f",
+        "bytes": 528420
+      },
+      "106": {
+        "path": "public/techops-comic/revision-f/106.webp",
+        "sha256": "56e8c1d2c52e8fc3d4d17a419a9810ca35f1dfd3839306378c26f7798c248486",
+        "bytes": 631970
+      },
+      "107": {
+        "path": "public/techops-comic/revision-f/107.webp",
+        "sha256": "cff4a6a9dba8a48d0e15fa9f6fab8369c0ec4317f5ddd6a0bbaed314f9627921",
+        "bytes": 897916
+      },
+      "108": {
+        "path": "public/techops-comic/revision-f/108.webp",
+        "sha256": "8e76f64b022570a4f781489193d7d0fe07db9b7a452c5b2fc6b334fe7e002bda",
+        "bytes": 910548
+      },
+      "109": {
+        "path": "public/techops-comic/revision-f/109.webp",
+        "sha256": "ecec511e1ba42f92505aa742af7c19eccc831e835b191d4c1f4a155cecceb37c",
+        "bytes": 701546
+      },
+      "110": {
+        "path": "public/techops-comic/revision-f/110.webp",
+        "sha256": "6008a8e36d8ec4f58dbc6f8fbb45d21905b43e7b993ccfe390146a272bdd0d39",
+        "bytes": 1341352
+      },
+      "111": {
+        "path": "public/techops-comic/revision-f/111.webp",
+        "sha256": "1b9fb0200c9041610ea5cabdf9329fb59c3c0bf3bf35e8c3c1a366827f91a963",
+        "bytes": 650048
+      },
+      "112": {
+        "path": "public/techops-comic/revision-f/112.webp",
+        "sha256": "a1bb1a9732a302e6af6e49d0229aa7f9da0b2308f834ec6518311fec2df8b558",
+        "bytes": 1063134
+      },
+      "113": {
+        "path": "public/techops-comic/revision-f/113.webp",
+        "sha256": "6eca1e20b145f54bfe1948a696309f20189fca7d9db9ce4348e75010fe5054ec",
+        "bytes": 864810
+      },
+      "114": {
+        "path": "public/techops-comic/revision-f/114.webp",
+        "sha256": "655896a3ed6fc77550d3a398db6f9e3095c312832fa647a578270e9cfd18b6cb",
+        "bytes": 805108
+      },
+      "115": {
+        "path": "public/techops-comic/revision-f/115.webp",
+        "sha256": "b9112a48df6fdafa1dd110ebebf459b92b0631e5b562dd1e47be8d235ae57df4",
+        "bytes": 1053662
+      },
+      "116": {
+        "path": "public/techops-comic/revision-f/116.webp",
+        "sha256": "6c047239cc234afc3a279d7f6739bf34c80791a7db742d7d6e6d8d95c8bfd8f6",
+        "bytes": 1336484
+      },
+      "117": {
+        "path": "public/techops-comic/revision-f/117.webp",
+        "sha256": "a2dc4d15bedb5ed5697e606094b172117d510275b5997be10fdfbe45b9e59f9c",
+        "bytes": 1451864
+      },
       "118": {
         "path": "public/techops-comic/revision-f/118.webp",
-        "sha256": "108912f14a07fd5dd672346b3c18d80195ba4066ab14ba2a64e408ef7c6bd8b3",
-        "bytes": 340962
+        "sha256": "e35305055d1e4c709f0c468e5e09a2440707a03d3a7c9c7fe7a00a89147e6275",
+        "bytes": 1238278
+      },
+      "119": {
+        "path": "public/techops-comic/revision-f/119.webp",
+        "sha256": "de080e1ca0464c35ed166ef92d39f63d7c9e657ecfde0f54f9097a2ee41cd03d",
+        "bytes": 1281126
       },
       "120": {
         "path": "public/techops-comic/revision-f/120.webp",
-        "sha256": "c7e380f4d9b48ad0204e36a6658a2511bd862641d345f8e4a508e2059ea4d25e",
-        "bytes": 325528
+        "sha256": "5d01a940af3b036bf48e008211e7c20f991c5542a4522bc920589b03ef05d976",
+        "bytes": 874230
+      },
+      "121": {
+        "path": "public/techops-comic/revision-f/121.webp",
+        "sha256": "767286f4e30f3cb965e7adb8f370fd738e0fefd1fa1b4042c3a4d5358b2d3e20",
+        "bytes": 591348
+      },
+      "122": {
+        "path": "public/techops-comic/revision-f/122.webp",
+        "sha256": "b91843ec4a8fde4ab0edcc2f49183415c83c98b7a6460989db0d4d5b23465c83",
+        "bytes": 1020912
+      },
+      "123": {
+        "path": "public/techops-comic/revision-f/123.webp",
+        "sha256": "48517dd11dab2b5cca0f17971760b19d5ac81a4bf75107383378ea924f8a0234",
+        "bytes": 1075488
+      },
+      "124": {
+        "path": "public/techops-comic/revision-f/124.webp",
+        "sha256": "1c6ed321ab075b632603a5b40240c550587b3c02cab4f1a66863e86210079bdb",
+        "bytes": 775486
+      },
+      "125": {
+        "path": "public/techops-comic/revision-f/125.webp",
+        "sha256": "5756738e80971d25dd6836a6c66c7120c938c37ff0361f1fbf8a8f5e07fca4d9",
+        "bytes": 686838
+      },
+      "126": {
+        "path": "public/techops-comic/revision-f/126.webp",
+        "sha256": "257fe269a49adb4ece43ec5c7d1edd6bddd46ec8c0acdbf9cb3454d86af0b027",
+        "bytes": 765208
+      },
+      "127": {
+        "path": "public/techops-comic/revision-f/127.webp",
+        "sha256": "8112fa2bd8b22b0221fcb2599d83c5f10314400a172d355342b5a071c36c2015",
+        "bytes": 1355852
+      },
+      "128": {
+        "path": "public/techops-comic/revision-f/128.webp",
+        "sha256": "0742909714f895d6bf3997eae83f33807d885f516a9df1fe188d41c2fe3e8bea",
+        "bytes": 971628
+      },
+      "129": {
+        "path": "public/techops-comic/revision-f/129.webp",
+        "sha256": "6eb3e3fba353c5b16a3fc5fc149877e11957cf9ca0c0d0f578a3d1b254eee9d2",
+        "bytes": 778508
+      },
+      "130": {
+        "path": "public/techops-comic/revision-f/130.webp",
+        "sha256": "f9ef79f92137bf789f96c352f00c82bf5b39eb3b4bb4a0b4970ec67ba7e6ac10",
+        "bytes": 737664
+      },
+      "131": {
+        "path": "public/techops-comic/revision-f/131.webp",
+        "sha256": "3f0b8fc745336c1b854a23d92c56d3a1dbdbdc48682b9344c9cc2f28d973686b",
+        "bytes": 1438744
       },
       "132": {
         "path": "public/techops-comic/revision-f/132.webp",
-        "sha256": "1386cab5c0890ca6784c46170ddbbb6a507c918ff50ab138a4ea81bbe6d741ff",
-        "bytes": 340688
+        "sha256": "f8716f7781d81157c66e1de69a8617fcbe40316cfd6c64b0e9920a99113e6bc9",
+        "bytes": 1288654
+      },
+      "133": {
+        "path": "public/techops-comic/revision-f/133.webp",
+        "sha256": "156939a7a44de33350d3c15ef5709fcbd39ea92496a721628f3f7d9874bd2e22",
+        "bytes": 976316
+      },
+      "134": {
+        "path": "public/techops-comic/revision-f/134.webp",
+        "sha256": "8499237e52473aa9d60fc1b83e82256a5c53e2961b8689905b2525887c531b7c",
+        "bytes": 695306
+      },
+      "135": {
+        "path": "public/techops-comic/revision-f/135.webp",
+        "sha256": "8a5989a1196c55e1e8df33fcfd002cdf0c4cb58145fef6bf957c3fcc86ef3271",
+        "bytes": 1016440
       },
       "136": {
         "path": "public/techops-comic/revision-f/136.webp",
-        "sha256": "bade5fbce8cc26c44488ae3f8e2e9e4b88984973a998cbe4f6d74be3a524bb5b",
-        "bytes": 436068
+        "sha256": "7c1f6ab2cdd9298e7f1dd1521391d7ad580d39d1a1286b876a43595d86ec64d0",
+        "bytes": 1755662
+      },
+      "137": {
+        "path": "public/techops-comic/revision-f/137.webp",
+        "sha256": "cc35cce499df1441b9cd82cf72112112a271e25abcf019ee383353c667830f15",
+        "bytes": 866820
+      },
+      "138": {
+        "path": "public/techops-comic/revision-f/138.webp",
+        "sha256": "5f59fdeb59faa2911bdb588fb1539ad9ebecd02726c4201daf34baa75962ecf6",
+        "bytes": 916310
+      },
+      "139": {
+        "path": "public/techops-comic/revision-f/139.webp",
+        "sha256": "fadb1959e69003cad7cb24e14d7a3578cae28f2251eae1f0cd9b81d86cc3b9e1",
+        "bytes": 966178
+      },
+      "140": {
+        "path": "public/techops-comic/revision-f/140.webp",
+        "sha256": "008400d4ed4b4ef0ddf31cfe1fc0e038aaea48746c538e53e52794d3ff571a09",
+        "bytes": 846960
+      },
+      "141": {
+        "path": "public/techops-comic/revision-f/141.webp",
+        "sha256": "1fac8a31eedfef4f992f5867d76b6847438d65ccc5ede53c318bc1fdc3ccbbc4",
+        "bytes": 592308
+      },
+      "142": {
+        "path": "public/techops-comic/revision-f/142.webp",
+        "sha256": "acb8564a43e9c8ed77333bd8433593ac24c0b132adc93f27c8fec0b4c473af2d",
+        "bytes": 1466972
+      },
+      "143": {
+        "path": "public/techops-comic/revision-f/143.webp",
+        "sha256": "2d917060a321cf69e619985039cfc3e5deff201920de6f1274da5764aca1c2ea",
+        "bytes": 1031538
+      },
+      "144": {
+        "path": "public/techops-comic/revision-f/144.webp",
+        "sha256": "fc143f9aa7b33278799694612b174c63b9c60bbd750106298c24f680aa0a170f",
+        "bytes": 1005822
+      },
+      "145": {
+        "path": "public/techops-comic/revision-f/145.webp",
+        "sha256": "1ccd7a2b8db81d62aaca2f6e49bd1fef34db6bb8a293cae9292b3d7a52fd1aee",
+        "bytes": 1420048
+      },
+      "146": {
+        "path": "public/techops-comic/revision-f/146.webp",
+        "sha256": "6fe6f0e39b5ed6911b51d15afba15d1287e0a54923894431f2aaf20139da9091",
+        "bytes": 1325504
+      },
+      "147": {
+        "path": "public/techops-comic/revision-f/147.webp",
+        "sha256": "fc6add4334d6807a483b3d4721e66dd3196ec197c258c4be71498ebf7f6e600d",
+        "bytes": 1195990
+      },
+      "148": {
+        "path": "public/techops-comic/revision-f/148.webp",
+        "sha256": "d543a9731ed25d7cc7d82f6a0ba8f0bfc850695642423a3d9352b57f9af355ec",
+        "bytes": 1624806
+      },
+      "149": {
+        "path": "public/techops-comic/revision-f/149.webp",
+        "sha256": "03a9e75aa3e31739cae06af0a3fa5b7ac8eb8e25921acb436cd085839cf3faf5",
+        "bytes": 1008784
+      },
+      "150": {
+        "path": "public/techops-comic/revision-f/150.webp",
+        "sha256": "4d63792081defed35013bd16bc2617c45da5a883f3d958de879b908ee82dcd56",
+        "bytes": 987584
+      },
+      "151": {
+        "path": "public/techops-comic/revision-f/151.webp",
+        "sha256": "8a56cad315a2c75bc51aee6b45808638d39208e6cc58757db8d4ad7585d457a6",
+        "bytes": 1156548
+      },
+      "152": {
+        "path": "public/techops-comic/revision-f/152.webp",
+        "sha256": "49e62cc160c2c8a1dacc0e9a5eb64995a59b1f42a2e506463df86700d6126a35",
+        "bytes": 1263870
+      },
+      "153": {
+        "path": "public/techops-comic/revision-f/153.webp",
+        "sha256": "910760da9e5d71ceef34135db16d593c6f5b029da2cea2a52514077637ac51d4",
+        "bytes": 1189138
+      },
+      "154": {
+        "path": "public/techops-comic/revision-f/154.webp",
+        "sha256": "8b5bb86844ac055b202ed70124125bb2907b2005e900d1bdb1aee251e93089a2",
+        "bytes": 1344530
+      },
+      "155": {
+        "path": "public/techops-comic/revision-f/155.webp",
+        "sha256": "d2b5b2d3c1c8a07c2d182c52d07f43ae9a33c058eabed7c441de9c821057d8c9",
+        "bytes": 1319534
+      },
+      "156": {
+        "path": "public/techops-comic/revision-f/156.webp",
+        "sha256": "2e73caeb5af580acaabf669d28f68606e4f771de5cf1068aac2039d15a7af260",
+        "bytes": 1154492
+      },
+      "157": {
+        "path": "public/techops-comic/revision-f/157.webp",
+        "sha256": "0b283e9dbc874db060d2618d21893e50fa8c255af210866a3f489f8054fdcd46",
+        "bytes": 1202910
+      },
+      "158": {
+        "path": "public/techops-comic/revision-f/158.webp",
+        "sha256": "229737ef8d4bd7fd816f5fc65ab1fc0ffb89381b436903874933a08b717c6f8a",
+        "bytes": 1006674
+      },
+      "159": {
+        "path": "public/techops-comic/revision-f/159.webp",
+        "sha256": "2b307e5adb04d0a0d757a737af9d4b8c5d4e58844f7928a9f7487cb7f9c9bc1b",
+        "bytes": 1088634
+      },
+      "160": {
+        "path": "public/techops-comic/revision-f/160.webp",
+        "sha256": "da7282ec8dc5a73833dce02f8b29cb06ff89eebeaa987fa54f1a8bebdcc02ad1",
+        "bytes": 1077318
+      },
+      "161": {
+        "path": "public/techops-comic/revision-f/161.webp",
+        "sha256": "fecc6d4a5566a7e422b8a11e5d3510e9abee08275661413abc45d5f779d8f6dc",
+        "bytes": 1242358
+      },
+      "162": {
+        "path": "public/techops-comic/revision-f/162.webp",
+        "sha256": "a12c06d670f217dbac3e856817a07957ca05e3551ce4428188c33d2988cc8107",
+        "bytes": 1218008
+      },
+      "163": {
+        "path": "public/techops-comic/revision-f/163.webp",
+        "sha256": "ef40a5c74c673b1e449d7ab5c60d3f79bfbad159d6c4e2828b06d32b22b38322",
+        "bytes": 158896
+      },
+      "164": {
+        "path": "public/techops-comic/revision-f/164.webp",
+        "sha256": "9261a17287438fa294c7cc79d645e63163f920692ac258f85dc88a3ed7927b65",
+        "bytes": 723314
+      },
+      "165": {
+        "path": "public/techops-comic/revision-f/165.webp",
+        "sha256": "0ad1fa138d513237d0566847fd0a056270002391e97968651be62639f172b7e7",
+        "bytes": 1319308
+      },
+      "166": {
+        "path": "public/techops-comic/revision-f/166.webp",
+        "sha256": "e22c24cd48c37818024bd18a643fa89f82a9e3b6bd73cc9c80ada2dfadd64b5a",
+        "bytes": 1078882
+      },
+      "167": {
+        "path": "public/techops-comic/revision-f/167.webp",
+        "sha256": "c7beec3f5016acb13c5db748f805769a9e7286691149dc08d48c8c16536fa45b",
+        "bytes": 1279032
+      },
+      "168": {
+        "path": "public/techops-comic/revision-f/168.webp",
+        "sha256": "355871ee23514387e30c8538937d50006c0662a1ec83f2637c242454f38adc31",
+        "bytes": 1256520
+      },
+      "169": {
+        "path": "public/techops-comic/revision-f/169.webp",
+        "sha256": "39479781bed2ca89b5d378b48f0e3f2d70c2362a37346271dfa647c8b94d2b9d",
+        "bytes": 1201892
+      },
+      "170": {
+        "path": "public/techops-comic/revision-f/170.webp",
+        "sha256": "af4850e4886e9864a92f8a8e58425023b9652b2cd690f1b147f7609277170920",
+        "bytes": 1144402
+      },
+      "171": {
+        "path": "public/techops-comic/revision-f/171.webp",
+        "sha256": "d87da9c22208138d71b743b61903358e3207dc214cab206c668c10d74992c5a3",
+        "bytes": 1209942
+      },
+      "172": {
+        "path": "public/techops-comic/revision-f/172.webp",
+        "sha256": "1d00c25e848e55307a72611d5129dc9487a62cbeba31a59c3714dd917239ed3c",
+        "bytes": 1223282
+      },
+      "173": {
+        "path": "public/techops-comic/revision-f/173.webp",
+        "sha256": "7a1dcf4c4bbab5e1b05d891f894523c11dfd4c6d88c938438ab53a29e2b4913c",
+        "bytes": 159176
+      },
+      "174": {
+        "path": "public/techops-comic/revision-f/174.webp",
+        "sha256": "5f3df86a8c4e34da4aa298cae22f2aa4ef663e8b995d2c215e26a2d1ec43258e",
+        "bytes": 752688
+      },
+      "175": {
+        "path": "public/techops-comic/revision-f/175.webp",
+        "sha256": "5507ceea4b14ba89296379c87e786f549dc2d3bb589d7f597c67e03385dd57d9",
+        "bytes": 1049156
+      },
+      "176": {
+        "path": "public/techops-comic/revision-f/176.webp",
+        "sha256": "2fcbce0700facdc4d9c68f585bf69da1f6c1df2630d06f7e425160ff53353531",
+        "bytes": 930718
+      },
+      "177": {
+        "path": "public/techops-comic/revision-f/177.webp",
+        "sha256": "4b3b33673c4bd7025661fcc6f39e1f787ab612d7627b3ee9ca18574dac3a5243",
+        "bytes": 1049276
+      },
+      "178": {
+        "path": "public/techops-comic/revision-f/178.webp",
+        "sha256": "65d68d8f41739868637ccfea3ea3bb8762baa7bcc7cfdcb6d3b485135cdeaa13",
+        "bytes": 886544
+      },
+      "179": {
+        "path": "public/techops-comic/revision-f/179.webp",
+        "sha256": "f1e7b5963892e404d331ce9fd23ff936ec677dd811d4fda25bf64310a29b1ce9",
+        "bytes": 945640
+      },
+      "180": {
+        "path": "public/techops-comic/revision-f/180.webp",
+        "sha256": "1839159af0e5ef554b303d738bfafb5daa331e26ee076443ff5f278127b1a3bf",
+        "bytes": 968494
+      },
+      "181": {
+        "path": "public/techops-comic/revision-f/181.webp",
+        "sha256": "947ed7a55d5093c31a3a5ebeadcd30567b81932177e3d59dbe9ab4c0784e97e1",
+        "bytes": 1045204
+      },
+      "182": {
+        "path": "public/techops-comic/revision-f/182.webp",
+        "sha256": "a41cdf301c8a96f7bead115b31e0499400e97eddf05488059c7f816ff28e425e",
+        "bytes": 1167688
+      },
+      "183": {
+        "path": "public/techops-comic/revision-f/183.webp",
+        "sha256": "11dd7ba98ecffb056d8e7785348f6cb05fa71d54840c9d059286c8fe35994fbe",
+        "bytes": 1070220
+      },
+      "184": {
+        "path": "public/techops-comic/revision-f/184.webp",
+        "sha256": "f969cc967b5209409fa44f38aae135b081c7554ca98d740f94afc3896b289c66",
+        "bytes": 947080
+      },
+      "185": {
+        "path": "public/techops-comic/revision-f/185.webp",
+        "sha256": "5982f181f0ad6cb651d1b3c03828eacc4a3c3b5ba514955b56d2bf9257000cf8",
+        "bytes": 962254
+      },
+      "186": {
+        "path": "public/techops-comic/revision-f/186.webp",
+        "sha256": "428b8661014cfa17adf12344e5d052fe0f64c36afa5802657b9b10bfead6d7c1",
+        "bytes": 758250
+      },
+      "187": {
+        "path": "public/techops-comic/revision-f/187.webp",
+        "sha256": "449140f01f33e5a6eb037f5b061e210445389a0d924f513b7016c731dd5bc0c9",
+        "bytes": 969242
+      },
+      "188": {
+        "path": "public/techops-comic/revision-f/188.webp",
+        "sha256": "c60131e35022ff8c314a2ae059692cc0cb4f57187b6d37cc90a8a5362078b88e",
+        "bytes": 930444
+      },
+      "189": {
+        "path": "public/techops-comic/revision-f/189.webp",
+        "sha256": "fa8d9d92622cc41d67c043504ffda15cc04200ca3b77e1cdec09aab14ef80743",
+        "bytes": 877224
+      },
+      "190": {
+        "path": "public/techops-comic/revision-f/190.webp",
+        "sha256": "72f432174df3908a3e460086b68de96297e84fafcdad7689cd21d5bdcc8d031e",
+        "bytes": 888126
+      },
+      "191": {
+        "path": "public/techops-comic/revision-f/191.webp",
+        "sha256": "8cc2aae146f5d54fdc362b9f4ddcfa0334701859b0cc2d172d2cb3e98a588a16",
+        "bytes": 708530
+      },
+      "192": {
+        "path": "public/techops-comic/revision-f/192.webp",
+        "sha256": "87ab10bed28ee316a70a56b62bb0ccfbb8cb8239bd7ee3eb1be4d7c6e84f3991",
+        "bytes": 952072
+      },
+      "193": {
+        "path": "public/techops-comic/revision-f/193.webp",
+        "sha256": "fb1b763ea848b37ec9ff32c854fce683f11ea2a5ed2f6b400b83fdbe719f4001",
+        "bytes": 1058388
+      },
+      "194": {
+        "path": "public/techops-comic/revision-f/194.webp",
+        "sha256": "e5cc1a1ae110729dfbf22725a8168639a13ec2f10d91bc9e8fc05b35e30045f6",
+        "bytes": 976488
+      },
+      "195": {
+        "path": "public/techops-comic/revision-f/195.webp",
+        "sha256": "42c7cacd2c4b25cff3841c5c922679342e673eddd1462bec64eff05a6c8f071b",
+        "bytes": 1084032
+      },
+      "196": {
+        "path": "public/techops-comic/revision-f/196.webp",
+        "sha256": "42ee89947a97ce68d243e26ec8a3a0f546047baf16279215a476ed66c92dfe8f",
+        "bytes": 894678
+      },
+      "197": {
+        "path": "public/techops-comic/revision-f/197.webp",
+        "sha256": "2e0085f1da1544da580c8eef99a8e3af646f6ca3d0c44aa3b4c2670a77581f89",
+        "bytes": 718638
+      },
+      "198": {
+        "path": "public/techops-comic/revision-f/198.webp",
+        "sha256": "a5caa7204bce64da36b2cb807ff1c4e56154a8e5497398a2dd67936676bd34e8",
+        "bytes": 664728
+      },
+      "199": {
+        "path": "public/techops-comic/revision-f/199.webp",
+        "sha256": "1ad2802a7dca01e02640b0cbad493f8db59f390af18df06903d6b19e9454a8de",
+        "bytes": 734460
+      },
+      "200": {
+        "path": "public/techops-comic/revision-f/200.webp",
+        "sha256": "4aa43ee1ca62bf7aa812f3d1876f93722a9b6cce6c53b45e29189a1d19523805",
+        "bytes": 777634
+      },
+      "201": {
+        "path": "public/techops-comic/revision-f/201.webp",
+        "sha256": "14b8f30c51b80a9e74ca5ba390e33cd1dce5fc1f76ce72470513e5fd67a7d4ea",
+        "bytes": 861902
+      },
+      "202": {
+        "path": "public/techops-comic/revision-f/202.webp",
+        "sha256": "ddf803ee9ae3c270bd579a71435f705d9c35ac437daa8687edadaa6ce2445da5",
+        "bytes": 813974
+      },
+      "203": {
+        "path": "public/techops-comic/revision-f/203.webp",
+        "sha256": "7160f22f40148e34dec8aea0c5397707f6c0e482542168ebe3b8a321aed92336",
+        "bytes": 844256
+      },
+      "204": {
+        "path": "public/techops-comic/revision-f/204.webp",
+        "sha256": "69a8559390edbdba036ba114135a83b04bb22c81bebc21ec8f5088a24cb0bc3d",
+        "bytes": 949764
+      },
+      "205": {
+        "path": "public/techops-comic/revision-f/205.webp",
+        "sha256": "8b609dbd11d70f47bd161e1cecb1aaa752ba2a2a9c6aaf3548260375b5b0a7df",
+        "bytes": 1055514
+      },
+      "206": {
+        "path": "public/techops-comic/revision-f/206.webp",
+        "sha256": "f458f906104bcc3e90317c703f005d027d9d802679ee69e74233a021afd852da",
+        "bytes": 915476
+      },
+      "207": {
+        "path": "public/techops-comic/revision-f/207.webp",
+        "sha256": "e3f55dc632e27e958755a08625260781e6ef8531d5554b80de85ac5afcb28a12",
+        "bytes": 975806
+      },
+      "208": {
+        "path": "public/techops-comic/revision-f/208.webp",
+        "sha256": "8c7237cf8bf665e1323a1414324c654e6ba5d7a6db03395e36a85fd5156be774",
+        "bytes": 894356
+      },
+      "209": {
+        "path": "public/techops-comic/revision-f/209.webp",
+        "sha256": "3b809c56ba54a8992bc5fcba82766c8e28f23f67a0272d12d29856a715f6e4fe",
+        "bytes": 1003490
+      },
+      "210": {
+        "path": "public/techops-comic/revision-f/210.webp",
+        "sha256": "cb6cc76f933e2acfae92b945272e8ddb36af770bba496cb42bc58b0a4447e351",
+        "bytes": 1058964
+      },
+      "211": {
+        "path": "public/techops-comic/revision-f/211.webp",
+        "sha256": "4de328a8c5f8c3393842c1a7c213f8c9e2122f7afbbebf60cb43966d31b843c0",
+        "bytes": 1072302
+      },
+      "212": {
+        "path": "public/techops-comic/revision-f/212.webp",
+        "sha256": "b8c850178cf5bda7cf3985b8afd0b180780d1a2dd1ffefa8763e3b10968c7c54",
+        "bytes": 999942
+      },
+      "213": {
+        "path": "public/techops-comic/revision-f/213.webp",
+        "sha256": "3a957e65106f6e59f3c6279fbcb6395a107954660b9c288ca78aa0eb69485a59",
+        "bytes": 587116
+      },
+      "214": {
+        "path": "public/techops-comic/revision-f/214.webp",
+        "sha256": "0eb0c8554f97f10f6da3318ecb0e8a580cc474b596b31ef1b218277ef23d59c6",
+        "bytes": 550176
+      },
+      "215": {
+        "path": "public/techops-comic/revision-f/215.webp",
+        "sha256": "7c3b6f6c43a9937b2eb2c45445126cd933e35938e304e58cc5a181b35827faf7",
+        "bytes": 429316
+      },
+      "216": {
+        "path": "public/techops-comic/revision-f/216.webp",
+        "sha256": "4816cdde07e6a4a70bd6b22b546cb5bafbc0c1bf515c02dd8c10110cae8e1724",
+        "bytes": 487642
+      },
+      "217": {
+        "path": "public/techops-comic/revision-f/217.webp",
+        "sha256": "47bbf00124f4a50c97d21013c03af67827eeaad8f3c1ffc8a58711436414ee78",
+        "bytes": 1060158
+      },
+      "218": {
+        "path": "public/techops-comic/revision-f/218.webp",
+        "sha256": "bf438f878d25e3d4a14a9792c6c9e3deba06378c6d53336ed1cf7f99925d5910",
+        "bytes": 221704
+      },
+      "219": {
+        "path": "public/techops-comic/revision-f/219.webp",
+        "sha256": "d0050220f3bef14fc3d81bcf4a16004563bbd17d139eeb4f8ecd1ad7ba5e7990",
+        "bytes": 68494
+      },
+      "220": {
+        "path": "public/techops-comic/revision-f/220.webp",
+        "sha256": "09e2a0ce76cacc02aa4a497f10578fdee43e7477ab01580845508f106890f23f",
+        "bytes": 1036964
+      },
+      "221": {
+        "path": "public/techops-comic/revision-f/221.webp",
+        "sha256": "ba8905b1fb461eb19865de909256483a6ac7307c984b4b7e73e96bb87fabac38",
+        "bytes": 1022058
+      },
+      "222": {
+        "path": "public/techops-comic/revision-f/222.webp",
+        "sha256": "0ecd334abd69848b5639290e2a8abb7a22fa5826941ad2dea27031d05ef7515d",
+        "bytes": 1167408
+      },
+      "223": {
+        "path": "public/techops-comic/revision-f/223.webp",
+        "sha256": "55998984b2448587a77b3e689b334f966ed7a860aca2ea044215e69ddb8397d4",
+        "bytes": 1214014
+      },
+      "224": {
+        "path": "public/techops-comic/revision-f/224.webp",
+        "sha256": "38347b1a7957340b8cb205e9542c1a26c715f2022e15c87f395bebc2c3910232",
+        "bytes": 1105168
+      },
+      "225": {
+        "path": "public/techops-comic/revision-f/225.webp",
+        "sha256": "4a62989bffc98802791bfa303dfe6f50283a172fa554acdc9a9d8631c2fcd0ff",
+        "bytes": 647462
+      },
+      "226": {
+        "path": "public/techops-comic/revision-f/226.webp",
+        "sha256": "48d737e2ad493c9cdf9cf45caa7dd21a10c0d29857db734f23ed8132621d138d",
+        "bytes": 1004210
+      },
+      "227": {
+        "path": "public/techops-comic/revision-f/227.webp",
+        "sha256": "aa1f42e2aafdffead48e8fce6056d567c0f72bbaf04bc01c6f9a8f989b70a7a4",
+        "bytes": 1142402
+      },
+      "228": {
+        "path": "public/techops-comic/revision-f/228.webp",
+        "sha256": "4f33ac7289cf8402df70607bc439b890d1c025c111c3574f89e43c21fcd48417",
+        "bytes": 1051654
+      },
+      "229": {
+        "path": "public/techops-comic/revision-f/229.webp",
+        "sha256": "27b4a958941006317f2ed1f23f53b349409202f81ac529e5a707f3dcf2e638ce",
+        "bytes": 786834
+      },
+      "230": {
+        "path": "public/techops-comic/revision-f/230.webp",
+        "sha256": "27cac9700e5fbdf851cbd6b4b6e45a6c3a2436ce73688f72ce67e034a8dee138",
+        "bytes": 1040454
+      },
+      "231": {
+        "path": "public/techops-comic/revision-f/231.webp",
+        "sha256": "140595d782cd36b4875988f02aff5353b56841930a7aabc90fe4cd11e004b2e9",
+        "bytes": 1077002
+      },
+      "232": {
+        "path": "public/techops-comic/revision-f/232.webp",
+        "sha256": "b1e2e80d67e60d3a8d3187b823c5d6004fc507fb4f97366062d1fbcb3de3698b",
+        "bytes": 68704
+      },
+      "233": {
+        "path": "public/techops-comic/revision-f/233.webp",
+        "sha256": "216fe3bb108067667822e471c32a672d3e93c69202d9019cc348cc2a6cacf33f",
+        "bytes": 1110378
+      },
+      "234": {
+        "path": "public/techops-comic/revision-f/234.webp",
+        "sha256": "67251b728904e6e97b98e7f0205f9fabce9ad507f670ad97a11f6a234e5b1d34",
+        "bytes": 1107896
+      },
+      "235": {
+        "path": "public/techops-comic/revision-f/235.webp",
+        "sha256": "e7c38c2f2a112a853f9ea7458376ec811862a4414df038784a733762b7204454",
+        "bytes": 1062408
+      },
+      "236": {
+        "path": "public/techops-comic/revision-f/236.webp",
+        "sha256": "a98ca914ca0019323e3b5efb9a7349811223ce660384998a524ce381e05e3780",
+        "bytes": 1005002
+      },
+      "237": {
+        "path": "public/techops-comic/revision-f/237.webp",
+        "sha256": "115733bd0a8a515d4f54264fcc36a68858e8d826852033b2126fbe1fe12ba898",
+        "bytes": 742560
+      },
+      "238": {
+        "path": "public/techops-comic/revision-f/238.webp",
+        "sha256": "a9934eb968600f7a194997fd7551f14897aaa5fd1d5c7f24af7309ed7e8ec0ee",
+        "bytes": 1152482
+      },
+      "239": {
+        "path": "public/techops-comic/revision-f/239.webp",
+        "sha256": "0b14f213982cefed71aa71121452b7b2833694153b03391ed23ef79f03979434",
+        "bytes": 1153872
+      },
+      "240": {
+        "path": "public/techops-comic/revision-f/240.webp",
+        "sha256": "f6572302780a5e8b4f483bab120b6720aff9a2607bf9c677ca3695687c43e8c1",
+        "bytes": 1197748
+      },
+      "241": {
+        "path": "public/techops-comic/revision-f/241.webp",
+        "sha256": "4331960f7791051b153fbf54b2bf3b41abee9c2708e5bd384a1eaab3be165f0e",
+        "bytes": 1181450
+      },
+      "242": {
+        "path": "public/techops-comic/revision-f/242.webp",
+        "sha256": "1849818c1e0d2313cdc4cedc3a37c78d21229a29fbdf08b6a78203b88b888f66",
+        "bytes": 1056848
+      },
+      "243": {
+        "path": "public/techops-comic/revision-f/243.webp",
+        "sha256": "5e50370f5eb0e568aef3fbf689df9ba4615bdfc9816eb38c26bd06471d538611",
+        "bytes": 1089798
+      },
+      "244": {
+        "path": "public/techops-comic/revision-f/244.webp",
+        "sha256": "7e2fd3508613beae13cfe07261d7195f62c358632c0ecfdf347e4927ea64fdc3",
+        "bytes": 838220
+      },
+      "245": {
+        "path": "public/techops-comic/revision-f/245.webp",
+        "sha256": "fda43cc55483c37269f921e04bf874ae4f679f9dc014f15f38ea73b9d6052cc5",
+        "bytes": 70384
+      },
+      "246": {
+        "path": "public/techops-comic/revision-f/246.webp",
+        "sha256": "62e2fb8d6e6a4971d0639569f535872bd23cf231c31dcbd7d57b6162625ae5eb",
+        "bytes": 1013284
+      },
+      "247": {
+        "path": "public/techops-comic/revision-f/247.webp",
+        "sha256": "ddd1cc0591796026e4e1d34d44f7e1c5400012dc4f126bd8b1f829e7d500dcf0",
+        "bytes": 1022846
+      },
+      "248": {
+        "path": "public/techops-comic/revision-f/248.webp",
+        "sha256": "52cfcfb197ab55d6b3a23df77be0808f5505e25990914f0821b990430eaa402f",
+        "bytes": 1055504
+      },
+      "249": {
+        "path": "public/techops-comic/revision-f/249.webp",
+        "sha256": "21ecf766aff38008e8f2c71cd98f325f473a5c2ef87accc7f3fdafce656d2a02",
+        "bytes": 973750
+      },
+      "250": {
+        "path": "public/techops-comic/revision-f/250.webp",
+        "sha256": "28276390466dd5b0acfd788daeb48dff331f1590da21bf4138533a2ae4c6c9bd",
+        "bytes": 1089156
+      },
+      "251": {
+        "path": "public/techops-comic/revision-f/251.webp",
+        "sha256": "d16805775357867398509f63e44df55011933826f60c8a0d46357f7fb36776dd",
+        "bytes": 1026012
+      },
+      "252": {
+        "path": "public/techops-comic/revision-f/252.webp",
+        "sha256": "c678407d96ddea87c08adb169334b594eaf9d0693789789a13cbe01c3541e259",
+        "bytes": 1115612
+      },
+      "253": {
+        "path": "public/techops-comic/revision-f/253.webp",
+        "sha256": "c06b166a4d9394aeb69e84c0cfbdcf01ff59527763d93fdd2a367a9f568684a8",
+        "bytes": 1114196
+      },
+      "254": {
+        "path": "public/techops-comic/revision-f/254.webp",
+        "sha256": "59707f1a8a87d8a3c177893dee7bb41b369824865f60388c6518b54f3997ba14",
+        "bytes": 1442652
+      },
+      "255": {
+        "path": "public/techops-comic/revision-f/255.webp",
+        "sha256": "918e6e14c799f23c8353849f5b7fa2d0d72d0f2154877908c2ab29dbdff8ee1d",
+        "bytes": 1203898
+      },
+      "256": {
+        "path": "public/techops-comic/revision-f/256.webp",
+        "sha256": "2b0e877414e67ee96e37d7989bb3808fa71ec6147446460c3a128c9c81c1714b",
+        "bytes": 1028044
+      },
+      "257": {
+        "path": "public/techops-comic/revision-f/257.webp",
+        "sha256": "5684ea92706676fccb050e65fd6dd2a9e9f8523d687759d4c88cf94912d2de83",
+        "bytes": 1326780
+      },
+      "258": {
+        "path": "public/techops-comic/revision-f/258.webp",
+        "sha256": "bb6140a84f9cc302186fe6f8050792f6ad948d8af39a630bd9dd46d553300642",
+        "bytes": 68844
+      },
+      "259": {
+        "path": "public/techops-comic/revision-f/259.webp",
+        "sha256": "c22030bc1ec50dfeffa1bcb46ec97e651905200eb09f96690ded9298a3cd10b3",
+        "bytes": 928234
+      },
+      "260": {
+        "path": "public/techops-comic/revision-f/260.webp",
+        "sha256": "7af5b7827e7d1a9c67e02a4586a19152cd1c3bc110dfac8f7b3ee80d10dc9757",
+        "bytes": 1148158
+      },
+      "261": {
+        "path": "public/techops-comic/revision-f/261.webp",
+        "sha256": "df48d3f1a70748144179f61bcaa690e5109b4805b2cdf13b9a4bc88fdbf097ac",
+        "bytes": 1373098
+      },
+      "262": {
+        "path": "public/techops-comic/revision-f/262.webp",
+        "sha256": "d91c5455ad3b9810d443d540b38b3887f9256fb214bd163acc7869215df017fe",
+        "bytes": 1279722
+      },
+      "263": {
+        "path": "public/techops-comic/revision-f/263.webp",
+        "sha256": "962ba099346ad6e3720df0633a9000843841716c0e2c7c837cfee21774e65812",
+        "bytes": 882736
+      },
+      "264": {
+        "path": "public/techops-comic/revision-f/264.webp",
+        "sha256": "20e19e801fafc1781ead53763163bb13be37e77c6ed21d7682cd626cd30ba63c",
+        "bytes": 667562
+      },
+      "265": {
+        "path": "public/techops-comic/revision-f/265.webp",
+        "sha256": "d2bf8e33f828a41c0bd512c4db3410b2fd0d0440996c736f0415e67aadee9baa",
+        "bytes": 865680
+      },
+      "266": {
+        "path": "public/techops-comic/revision-f/266.webp",
+        "sha256": "1e432d0eb00698d3aa4b5b9d09bcc5a2d636f273b455404a17ed22646569c2d9",
+        "bytes": 1068222
+      },
+      "267": {
+        "path": "public/techops-comic/revision-f/267.webp",
+        "sha256": "180c5e68522caaa9df631c0c669ea6291f473171720e24769472e7e2c817be98",
+        "bytes": 1064786
+      },
+      "268": {
+        "path": "public/techops-comic/revision-f/268.webp",
+        "sha256": "832a59cea8f75787e9eedb30c5ea83fbb6db6f92af09c66639a20c9f3ba8e025",
+        "bytes": 1224156
+      },
+      "269": {
+        "path": "public/techops-comic/revision-f/269.webp",
+        "sha256": "a18b7dafbd63d079f73f5af0e673b2d0a1717e9f029d2c30abd57183dd08498d",
+        "bytes": 1142108
+      },
+      "270": {
+        "path": "public/techops-comic/revision-f/270.webp",
+        "sha256": "e94dc881c549e99af3a715486a3724b8cc1745d7dda76f92f833967671004fe6",
+        "bytes": 679200
+      },
+      "271": {
+        "path": "public/techops-comic/revision-f/271.webp",
+        "sha256": "60497aa39004f0f684c2064a8cf088247c8f6db200a844c24ace52f4cf3aeccb",
+        "bytes": 61324
+      },
+      "272": {
+        "path": "public/techops-comic/revision-f/272.webp",
+        "sha256": "fc3150b336ad848d7ebcae41ea100b25a383572d5bcda6ddd49dd29e8cc74f78",
+        "bytes": 888198
+      },
+      "273": {
+        "path": "public/techops-comic/revision-f/273.webp",
+        "sha256": "5fae2fc482f4a573f50d2d2a30b2cb5d796556b8e611f3eef9b0464dfade92a8",
+        "bytes": 845786
+      },
+      "274": {
+        "path": "public/techops-comic/revision-f/274.webp",
+        "sha256": "fe68ba29b616c8dcf7b92162d85b0885ddd32c59320fc879635f73bca2f4d310",
+        "bytes": 918154
+      },
+      "275": {
+        "path": "public/techops-comic/revision-f/275.webp",
+        "sha256": "7af84c24107af46e8739e94cf18aa1f6603bc93a91a4215a3dca871fcaee469e",
+        "bytes": 1278466
+      },
+      "276": {
+        "path": "public/techops-comic/revision-f/276.webp",
+        "sha256": "45e10f235bbd46754f04ac80931aee61274eea195ce02e4c368750c5a9eb9a0d",
+        "bytes": 1032402
+      },
+      "277": {
+        "path": "public/techops-comic/revision-f/277.webp",
+        "sha256": "d2d1792432a3ac2e1433c5c52caad336e5a72c4c12cb272bfc44eff9a4ba473e",
+        "bytes": 1246868
+      },
+      "278": {
+        "path": "public/techops-comic/revision-f/278.webp",
+        "sha256": "5e23fb0abc921237a9ccae6265b06d67a514a38af08f56a3bda40930c11161bc",
+        "bytes": 1069448
+      },
+      "279": {
+        "path": "public/techops-comic/revision-f/279.webp",
+        "sha256": "132507da743144d44f13a2ef2707138ce89affd542650f93177c809f22cae783",
+        "bytes": 1089272
+      },
+      "280": {
+        "path": "public/techops-comic/revision-f/280.webp",
+        "sha256": "40aec1b8a5b23cc451b46571a588f66cb4af9bec372a5d8bdd571e6f553c3e70",
+        "bytes": 1023272
+      },
+      "281": {
+        "path": "public/techops-comic/revision-f/281.webp",
+        "sha256": "7909c22e5620a9b37ed150e4211db4fe122f4bb04a4ac1192bde3d523056231b",
+        "bytes": 1334820
+      },
+      "282": {
+        "path": "public/techops-comic/revision-f/282.webp",
+        "sha256": "c8acf16ccef2b6ac52a3576847f9490490d5cf36e95c615b1ce95ab50e02a45b",
+        "bytes": 1391046
+      },
+      "283": {
+        "path": "public/techops-comic/revision-f/283.webp",
+        "sha256": "d44eb24c163691b39c5fd0993de5fc603f134db3b01d5ac7558efa4ff7b385b9",
+        "bytes": 1185572
+      },
+      "284": {
+        "path": "public/techops-comic/revision-f/284.webp",
+        "sha256": "8119c9150a84d0ca8f661fb3a7bf5b267951036c5643a8bf975f0298a074433a",
+        "bytes": 1324108
+      },
+      "285": {
+        "path": "public/techops-comic/revision-f/285.webp",
+        "sha256": "3a2a03dd12b9b4d886b5d38e962b1cf811b297d0b0aada7fdc9e695bfc54ebc9",
+        "bytes": 1775416
+      },
+      "286": {
+        "path": "public/techops-comic/revision-f/286.webp",
+        "sha256": "1c0a5daedee4c60e3f2d8cd0034b6a312efe4adcd36c62243e7ee3651169078d",
+        "bytes": 1150106
+      },
+      "287": {
+        "path": "public/techops-comic/revision-f/287.webp",
+        "sha256": "a4e837797417d0e327ffde6abdfbd7d9c1a24cbf66e4a5b2d5bae02f351d6294",
+        "bytes": 1062266
+      },
+      "288": {
+        "path": "public/techops-comic/revision-f/288.webp",
+        "sha256": "07a4aa07fc87640cd810c7ba04763949aa5cdcdabe09df3e17fe33da1a800a75",
+        "bytes": 206786
+      },
+      "289": {
+        "path": "public/techops-comic/revision-f/289.webp",
+        "sha256": "dde2c787922c0208447741914f219425f059dfed8284975b0d2a01dc1384d7a9",
+        "bytes": 77114
+      },
+      "290": {
+        "path": "public/techops-comic/revision-f/290.webp",
+        "sha256": "52a535a7bc0c34efe765c941f64a38cb14cf7d3e6b792ca9c3f72a35e72d0d25",
+        "bytes": 1145276
+      },
+      "291": {
+        "path": "public/techops-comic/revision-f/291.webp",
+        "sha256": "0fd16b8208bbcf3f8ce49551b631de4fd920ae72fa5e0ae999c0a01b553b8dd6",
+        "bytes": 1215116
+      },
+      "292": {
+        "path": "public/techops-comic/revision-f/292.webp",
+        "sha256": "8d9cc274c011784b89ab80c6d1fee9a95e9d8860875470a35c0ae9f5f418df4e",
+        "bytes": 1033096
+      },
+      "293": {
+        "path": "public/techops-comic/revision-f/293.webp",
+        "sha256": "0c34e8f265abf84d06a8a1271f9813e5412a4222b0d0072acf86dcb7507f05a5",
+        "bytes": 1013430
+      },
+      "294": {
+        "path": "public/techops-comic/revision-f/294.webp",
+        "sha256": "df6e2b92b0861f3a7e7ebb63b49447a2b34c977f3b68188c4e7520e8cc956ccb",
+        "bytes": 983652
+      },
+      "295": {
+        "path": "public/techops-comic/revision-f/295.webp",
+        "sha256": "86edc11a5b65babcf674322b55504af62cd5ac224357ea9e522666017570c1b2",
+        "bytes": 1177302
+      },
+      "296": {
+        "path": "public/techops-comic/revision-f/296.webp",
+        "sha256": "761f589174b9ea78a9f0ad82de823cd6ab90e2977425df7797927ce2171137fc",
+        "bytes": 1128044
+      },
+      "297": {
+        "path": "public/techops-comic/revision-f/297.webp",
+        "sha256": "8f987ef078c6ba9c925a4853ae1c68b5780fc6c926859a4105b3c3fb2b38b351",
+        "bytes": 1294370
+      },
+      "298": {
+        "path": "public/techops-comic/revision-f/298.webp",
+        "sha256": "3573f5ac8e587adc1f379cdccecab47527bc6a2646f30d6b805be0af6c989092",
+        "bytes": 1169766
+      },
+      "299": {
+        "path": "public/techops-comic/revision-f/299.webp",
+        "sha256": "b8646e3c8074b6f0cd46cc510c4fb5319236ceb77d24911be5026fc2b6a2af81",
+        "bytes": 1099692
+      },
+      "300": {
+        "path": "public/techops-comic/revision-f/300.webp",
+        "sha256": "8aee5b2cbc6cabb0ef0142e60411957f97255ae0c7652faef01611ea0ed090e5",
+        "bytes": 1220044
+      },
+      "301": {
+        "path": "public/techops-comic/revision-f/301.webp",
+        "sha256": "881014e6a2920e3c4f5338566b012ac875a79a3a90c7ba6f3664da7578d89e5a",
+        "bytes": 1135170
+      },
+      "302": {
+        "path": "public/techops-comic/revision-f/302.webp",
+        "sha256": "62d828d745c6bf54d42d56c9317612b71f13124e9f8dd2068527acc8b950a5d9",
+        "bytes": 76230
+      },
+      "303": {
+        "path": "public/techops-comic/revision-f/303.webp",
+        "sha256": "8fedc456f5f4e41b461b8d2184ba1e2e5f9221f234c9dda4d2669eb249e542b5",
+        "bytes": 1283484
+      },
+      "304": {
+        "path": "public/techops-comic/revision-f/304.webp",
+        "sha256": "2b18af524705dce9934f9095df323e72838ddbe3a9a9905ead4a48b8807ff112",
+        "bytes": 1062076
+      },
+      "305": {
+        "path": "public/techops-comic/revision-f/305.webp",
+        "sha256": "dcbb2d8f77da361a272d930c77d0ff54b91b71bace7a298d6bd3a186e378702f",
+        "bytes": 1003108
+      },
+      "306": {
+        "path": "public/techops-comic/revision-f/306.webp",
+        "sha256": "159ed84ff6e16f67cbce1db222388ecf303849367068b520affda7e51e941e86",
+        "bytes": 1191928
+      },
+      "307": {
+        "path": "public/techops-comic/revision-f/307.webp",
+        "sha256": "2c8d070acd0cc4943f03d5b966abc9396edc86216e7c5e6ecf62a273581af75d",
+        "bytes": 1304572
+      },
+      "308": {
+        "path": "public/techops-comic/revision-f/308.webp",
+        "sha256": "36c747a0cd2f7d7c3dedfbfb7e4ea56802b1a232b5b7780d83ed4e365aba6156",
+        "bytes": 1274430
+      },
+      "309": {
+        "path": "public/techops-comic/revision-f/309.webp",
+        "sha256": "c6d5c06f7afba607437f85ed254f32fdd5eb24a9ff156ee3e1ac5db179920acf",
+        "bytes": 1017322
+      },
+      "310": {
+        "path": "public/techops-comic/revision-f/310.webp",
+        "sha256": "ef7e6a41ef98d770e9d10926a294e8cafbe565785987104bce971aff8cfc354c",
+        "bytes": 1495420
+      },
+      "311": {
+        "path": "public/techops-comic/revision-f/311.webp",
+        "sha256": "a0650c74bef108d03963efd07418a89f15d3a5c7b636382c92c32579083e6d41",
+        "bytes": 1134588
+      },
+      "312": {
+        "path": "public/techops-comic/revision-f/312.webp",
+        "sha256": "f51a4462a584bb0d0c2dcba55d27676271e25d41338ed2ef17f840d9fc17bd09",
+        "bytes": 1079882
+      },
+      "313": {
+        "path": "public/techops-comic/revision-f/313.webp",
+        "sha256": "223e7f5597ee5f04999a55f80ce004f3d3695c2df3f2323dff0ba2a1f942133b",
+        "bytes": 1405858
+      },
+      "314": {
+        "path": "public/techops-comic/revision-f/314.webp",
+        "sha256": "724b813365e05ef9ecf8ab3650c37689cf7b06f72780b2821654dff83904caa1",
+        "bytes": 1382552
+      },
+      "315": {
+        "path": "public/techops-comic/revision-f/315.webp",
+        "sha256": "a03ecda19eecc5fa5a914f92559bfd81dc024c50a7442e007d496100181a802a",
+        "bytes": 1395286
       }
     }
   },
@@ -55,5 +1611,11 @@
     "132": "Bottom-panel commander arm and hands",
     "136": "KAPLOWWW sound effect"
   },
-  "publication_authorization": "Creator requested add it to the live site, then supplied the exact portfolio comic URL."
+  "publication_authorization": "Creator requested add it to the live site, then supplied the exact portfolio comic URL.",
+  "reader_resolution_upgrade": {
+    "previous_width": 1080,
+    "previous_height": 1620,
+    "all_315_pages_exported": true,
+    "master_pdf_unchanged": true
+  }
 }
