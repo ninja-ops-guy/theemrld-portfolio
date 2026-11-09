@@ -295,6 +295,7 @@ export default function TechOpsComic() {
               ? <IllustratedCover key={page} art={openingCover} label={section.label} title={section.title}
                   inReader onError={() => setFailedPage(page)} />
               : <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />}
+            {isVolumeThirteen && page === total && <div className="comic-end-card">To be continued.</div>}
             {links[page]?.map(({page:target,rect:[x1,y1,x2,y2]}, i) =>
               <button key={i} aria-label={`Read page ${target}: ${describe(target)}`} className="comic-hotspot" onClick={() => choosePage(target)}
                 style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
