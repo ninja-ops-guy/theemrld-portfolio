@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ninja-ops-guy/techops-hero
-          ref: 784621b66ca0b39f5b5a1c68862939e6254296db
+          ref: f239a4428567a55f23022c0b13d9672a773d62cf
           path: techops-hero
           persist-credentials: false
       - uses: actions/setup-node@v4
