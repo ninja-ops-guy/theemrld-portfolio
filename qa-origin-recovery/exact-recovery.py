@@ -14,6 +14,18 @@ def replace_once(old,new):
     source=source.replace(old,new,1)
 replace_once("'runnerRevision':4,'productHeads':{'portfolio':'0a6f9bf6481f321b52d7a496da02cf62cc193820','native':'b8b2378f3cf0b84bfc94e1472b8e26d7043a7445'}", "'runnerRevision':6,'productHeads':{'portfolio':os.environ['PORTFOLIO_HEAD'],'native':os.environ['NATIVE_HEAD']},'harnessHead':os.environ['HARNESS_HEAD']")
 replace_once("URL=BASE+'/theemrld-portfolio/see-world/index.html'", "URL=BASE+'/techops-hero/see-world/index.html'")
+replace_once("""def travel(n,i):
+    target=[420,820,1220][i];n.keyboard.down('ArrowRight')
+    try:n.wait_for_function('(x)=>NM.x+NM.w/2>=x-60',arg=target,timeout=12000)
+    finally:n.keyboard.up('ArrowRight')
+    expect(n.get_by_role('button',name='Inspect objective',exact=True)).to_be_enabled(timeout=4000)
+    n.get_by_role('button',name='Inspect objective',exact=True).click()""", """def travel(n,i):
+    target=[420,820,1220][i];n.keyboard.down('ArrowRight')
+    try:
+        n.wait_for_function('(x)=>NM.x+NM.w/2>=x-60',arg=target,timeout=12000)
+        expect(n.get_by_role('button',name='Inspect objective',exact=True)).to_be_enabled(timeout=8000)
+    finally:n.keyboard.up('ArrowRight')
+    n.get_by_role('button',name='Inspect objective',exact=True).click()""")
 replace_once('contexts=[];pages=[];page_errors=[];observations={}\n', '''contexts=[];pages=[];page_errors=[];observations={}
 events=[];phase='initialization';case_name='none'
 def event(kind,**data):
