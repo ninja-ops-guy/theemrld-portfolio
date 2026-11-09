@@ -9,6 +9,7 @@
         var host = window.location.hostname.toLowerCase();
         var hash = window.location.hash;
         if ((host === 'kterminal.site' || host === 'www.kterminal.site') &&
+            (window.location.pathname === '/' || window.location.pathname === '/index.html') &&
             (hash === '' || hash === '#' || hash === '#/')) {
           window.location.replace(window.location.pathname + window.location.search + '#/terminal');
         }
