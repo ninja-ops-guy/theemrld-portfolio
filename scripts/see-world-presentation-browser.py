@@ -8,7 +8,7 @@ import json, os, traceback
 BASE=os.environ.get('PRESENTATION_BASE','http://127.0.0.1:8765').rstrip('/')
 ENGINE=os.environ.get('PRESENTATION_ENGINE','chromium')
 OUT=Path(os.environ.get('PRESENTATION_OUTPUT','qa/presentation'));OUT.mkdir(parents=True,exist_ok=True)
-SITE=BASE+'/theemrld-portfolio/'
+SITE=BASE+'/'
 STORY=SITE+'see-world/index.html'
 report={'engine':ENGINE,'passed':[],'failures':[],'page_errors':[],'scope':'Built UI, declared native prerequisites, real UI interactions. No story or save-authority changes.'}
 contexts=[]

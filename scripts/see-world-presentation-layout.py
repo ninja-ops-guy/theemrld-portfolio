@@ -9,7 +9,7 @@ with sync_playwright() as pw:
     b=getattr(pw,engine).launch(headless=True)
     p=b.new_page()
     p.route('https://**/*',lambda r:r.abort())
-    for route,label,selector in [('/theemrld-portfolio/#/links','media','.media-hub'),('/theemrld-portfolio/see-world/index.html','welcome','.journey-strip')]:
+    for route,label,selector in [('/#/links','media','.media-hub'),('/see-world/index.html','welcome','.journey-strip')]:
         for width in [320,390,1440]:
             p.set_viewport_size({'width':width,'height':1000});p.goto(base+route);p.locator(selector).wait_for();p.wait_for_timeout(150)
             stats=p.evaluate('''()=>({viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.right>innerWidth+1}).map(e=>({tag:e.tagName,id:e.id,cls:e.className,text:e.textContent.slice(0,65),right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width})).slice(0,35)})''')
