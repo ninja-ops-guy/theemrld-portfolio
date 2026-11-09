@@ -60,7 +60,7 @@ jobs:
         run: |
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/k-world-preview.log 2>&1 &
           for i in {1..60}; do
-            if curl --fail --silent http://127.0.0.1:4173/theemrld-portfolio/ >/dev/null; then
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
               exit 0
             fi
             sleep 1
