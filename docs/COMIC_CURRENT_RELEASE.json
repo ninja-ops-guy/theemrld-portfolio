@@ -1,16 +1,17 @@
 {
   "recorded_on": "2026-11-08",
-  "edition": "Revision F - Waldo unmasking and shaving",
+  "edition": "Revision F - continuity reviewed",
   "pages": 316,
-  "output_sha256": "939b90bb8f597fc1601ad90ea02f33cad59dd6bb95a48ac652055b130525ce48",
-  "output_bytes": 142160430,
+  "output_sha256": "46943e144014e61b6b556b13722b8d9548b59a17d066c3ade066f9c735282733",
+  "output_bytes": 151835204,
   "parts": [
     "print-source/revision-f.part0",
-    "print-source/revision-f.part1"
+    "print-source/revision-f.part1",
+    "print-source/revision-f.part2"
   ],
   "pdf_asset": "techops-comic/TechOps-Hero-Revision-F-Complete.pdf",
-  "reader_revision": "waldo-unmask-hq-939b90bb",
-  "previous_master_sha256": "d02606c61e41ef33a121b0750c32cdc6979828897185c34810cc261d810c0516",
+  "reader_revision": "continuity-hq-46943e14",
+  "previous_master_sha256": "939b90bb8f597fc1601ad90ea02f33cad59dd6bb95a48ac652055b130525ce48",
   "inserted_page": 34,
   "printed_folio": "31A",
   "inserted_scene": "Waldo / Before the knock",
@@ -282,8 +283,8 @@
       },
       "29": {
         "path": "public/techops-comic/revision-f/029.webp",
-        "sha256": "a17406c63d95c2c42501d080675a3424d191229dcf24028645ed417334019849",
-        "bytes": 1357918
+        "sha256": "b8b5c0073c88575676b3e0be816a142acb27e43122c7cbfcca79dc0f0c38b52b",
+        "bytes": 1281166
       },
       "30": {
         "path": "public/techops-comic/revision-f/030.webp",
@@ -777,8 +778,8 @@
       },
       "128": {
         "path": "public/techops-comic/revision-f/128.webp",
-        "sha256": "8112fa2bd8b22b0221fcb2599d83c5f10314400a172d355342b5a071c36c2015",
-        "bytes": 1355852
+        "sha256": "cb08d185b8e2f5130520ac16b88da8dc7df4ddf5938d1c840ec2caa8c43c7e1a",
+        "bytes": 1141634
       },
       "129": {
         "path": "public/techops-comic/revision-f/129.webp",
@@ -827,8 +828,8 @@
       },
       "138": {
         "path": "public/techops-comic/revision-f/138.webp",
-        "sha256": "cc35cce499df1441b9cd82cf72112112a271e25abcf019ee383353c667830f15",
-        "bytes": 866820
+        "sha256": "18c510e3aa6a949ebd8df7a891fbf69975b1b92eeb49aebbef78af8788b0dc81",
+        "bytes": 851160
       },
       "139": {
         "path": "public/techops-comic/revision-f/139.webp",
@@ -1723,6 +1724,7 @@
     }
   },
   "publication_authorization": "User requested publishing the corrections, high-resolution reader, and an added Waldo shaving scene in the same ongoing task.",
-  "revision_scope": "Revised existing page 34 top panel to show mask removal before shaving and before K first meets Mike. Page order unchanged.",
-  "guide_number_reference_edition_pages": 315
+  "revision_scope": "316-page appearance/anatomy screening; repairs to K gloves on page 29, Director hair on page 128, and Mara locs on page 138. Three affected panels replaced; other 313 pages and all navigation preserved.",
+  "guide_number_reference_edition_pages": 315,
+  "review_report": "docs/COMIC_CONTINUITY_REVIEW.md"
 }

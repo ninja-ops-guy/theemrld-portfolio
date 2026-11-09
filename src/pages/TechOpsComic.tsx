@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
 const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
-const revisionFArtRevision = 'waldo-unmask-hq-939b90bb';
+const revisionFArtRevision = 'continuity-hq-46943e14';
 const revisionFPdf = base + `TechOps-Hero-Revision-F-Complete.pdf?rev=${revisionFArtRevision}`;
 const volumeThirteenBase = base + 'volume-xiii/';
 const volumeThirteenPdf = `${volumeThirteenBase}TechOps-Hero-Volume-XIII-The-Last-Launch.pdf?rev=${volumeThirteen.artRevision}`;

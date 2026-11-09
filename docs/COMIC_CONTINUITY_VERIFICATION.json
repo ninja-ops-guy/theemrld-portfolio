@@ -1,0 +1,139 @@
+{
+  "output": "C:\\Users\\jinis\\Documents\\Codex\\2026-11-08\\browser-comments-user-comment-1-browser\\outputs\\TechOps-Hero-Revision-F-Continuity-Reviewed-316-Pages.pdf",
+  "sha256": "46943e144014e61b6b556b13722b8d9548b59a17d066c3ade066f9c735282733",
+  "bytes": 151835204,
+  "pages": 316,
+  "changed_pages": [
+    29,
+    128,
+    138
+  ],
+  "unchanged_pages_verified": 313,
+  "text_preserved_all_pages": true,
+  "bookmarks": 31,
+  "links": 47,
+  "source_master_sha256": "939b90bb8f597fc1601ad90ea02f33cad59dd6bb95a48ac652055b130525ce48",
+  "art": [
+    {
+      "page": 29,
+      "file": "C:\\Users\\jinis\\Documents\\Codex\\2026-11-08\\browser-comments-user-comment-1-browser\\outputs\\Continuity-page-029-panel.png",
+      "sha256": "524444711e7f6b8f38cb1bcbd5570f9e6ef6a361d9513374f33f6fc04b0325fe",
+      "native_dimensions": [
+        1512,
+        1040
+      ],
+      "source_crop": [
+        64,
+        32,
+        2054,
+        1413
+      ],
+      "clip_polygons": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            2054,
+            0
+          ],
+          [
+            2054,
+            1413
+          ],
+          [
+            0,
+            1413
+          ]
+        ]
+      ]
+    },
+    {
+      "page": 128,
+      "file": "C:\\Users\\jinis\\Documents\\Codex\\2026-11-08\\browser-comments-user-comment-1-browser\\outputs\\Continuity-page-128-panel.png",
+      "sha256": "aca68f00f7a6f17365d653969ff4ed490649570eda73f42c3c7ee32d4b4ff3b6",
+      "native_dimensions": [
+        1300,
+        1209
+      ],
+      "source_crop": [
+        86,
+        1060,
+        1988,
+        1848
+      ],
+      "clip_polygons": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            1988,
+            0
+          ],
+          [
+            1988,
+            1848
+          ],
+          [
+            0,
+            1848
+          ]
+        ]
+      ]
+    },
+    {
+      "page": 138,
+      "file": "C:\\Users\\jinis\\Documents\\Codex\\2026-11-08\\browser-comments-user-comment-1-browser\\outputs\\Continuity-page-138-panel.png",
+      "sha256": "56eb2c9b7740be0025166092de82bf8eb66a119668279564a5e441a35c0442fd",
+      "native_dimensions": [
+        1479,
+        1064
+      ],
+      "source_crop": [
+        86,
+        1542,
+        1988,
+        1430
+      ],
+      "clip_polygons": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            1988,
+            0
+          ],
+          [
+            1988,
+            1430
+          ],
+          [
+            0,
+            1430
+          ]
+        ]
+      ]
+    }
+  ],
+  "state": "VISUALLY_CHECKED_RELEASE_PREPARED",
+  "qa": "Generated panels compared to original panels and local references. Final assembled pages checked at mobile size and details at enlarged size. Hair/glove corrections visible; no patch seams; dialogue, props, poses and story beats retained. Other 313 pages retain identical content and image streams. No definitive full-cast model-sheet approval claimed.",
+  "native_panel_dimensions": {
+    "29": [
+      1512,
+      1040
+    ],
+    "128": [
+      1300,
+      1209
+    ],
+    "138": [
+      1479,
+      1064
+    ]
+  }
+}
