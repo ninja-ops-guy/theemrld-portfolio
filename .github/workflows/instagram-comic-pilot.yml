@@ -1,0 +1,52 @@
+name: Instagram Comic Pilot Preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/instagram-comic-pilot.yml'
+      - 'scripts/render_instagram_comic.py'
+      - 'scripts/test_instagram_comic.py'
+      - 'docs/COMIC_CURRENT_RELEASE.json'
+      - 'public/techops-comic/revision-f/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /docs/COMIC_CURRENT_RELEASE.json
+            /scripts/render_instagram_comic.py
+            /scripts/test_instagram_comic.py
+            /public/techops-comic/revision-f/006.webp
+            /public/techops-comic/revision-f/007.webp
+            /public/techops-comic/revision-f/008.webp
+            /public/techops-comic/revision-f/009.webp
+            /public/techops-comic/revision-f/010.webp
+            /public/techops-comic/revision-f/011.webp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install image converter
+        run: python -m pip install 'Pillow==11.3.0'
+      - name: Test page order and no-crop framing
+        run: python -m unittest discover -s scripts -p 'test_instagram_comic.py' -v
+      - name: Render first six Instagram-ready comic slides from verified release pages
+        run: python scripts/render_instagram_comic.py --post THIG-P01
+      - name: Retain approval-only preview and provenance
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: techops-instagram-p01-review-only
+          path: qa/instagram-pilot/THIG-P01/
+          retention-days: 14
+          if-no-files-found: error
