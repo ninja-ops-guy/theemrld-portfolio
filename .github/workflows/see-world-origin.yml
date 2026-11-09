@@ -1,0 +1,56 @@
+name: See World Origin Pair
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  paired-origin:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 44c4558cf3609e89377b486942acf473a46b8d21
+          path: native
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact paired reader, origin routing and save contracts
+        working-directory: portfolio
+        run: TECHOPS_SOURCE=../native node --test scripts/see-world*.test.mjs
+      - name: Native production gate
+        working-directory: native
+        run: npm test
+      - name: Build portfolio
+        working-directory: portfolio
+        run: npm install --no-audit --no-fund && npm run build
+      - name: Install isolated test browser
+        run: python -m pip install playwright==1.57.0 && python -m playwright install --with-deps chromium
+      - name: Exercise production-hostname choices without live writes
+        run: python portfolio/scripts/see-world-origin-browser.py
+      - name: Exercise same-origin paired save loop
+        run: |
+          mkdir site
+          ln -s "$PWD/native" site/techops-hero
+          ln -s "$PWD/portfolio/dist" site/theemrld-portfolio
+          python -m http.server 8765 --directory site > server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          LINKED_STORY_PATH=/techops-hero/see-world/index.html LINKED_QA_DIR=origin-proof python portfolio/scripts/see-world-linked-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: same-origin-paired-save-proof
+          path: |
+            origin-proof/
+            server.log

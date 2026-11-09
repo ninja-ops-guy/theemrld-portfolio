@@ -48,7 +48,7 @@ with sync_playwright() as p:
     for label,page in [('native',native),('see',see)]:
         page.on('pageerror',lambda e,label=label:observed.append({'page':label,'error':str(e)}))
     try:
-        see.goto(BASE+'/theemrld-portfolio/see-world/index.html#k')
+        see.goto(BASE+os.environ.get('LINKED_STORY_PATH','/theemrld-portfolio/see-world/index.html')+'#k')
         see.locator('.hero').wait_for()
         assert see.get_by_role('button',name='Locked in this playthrough',exact=True).count()==4
         text=see.locator('#content').inner_text()
@@ -105,7 +105,7 @@ with sync_playwright() as p:
         passed('native completion receipt returns to See World and survives reload')
         # Mobile reads the same real persisted linked records, not arbitrary all-complete flags.
         mobilectx=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,storage_state=ctx.storage_state())
-        mobile=mobilectx.new_page();mobile.goto(BASE+'/theemrld-portfolio/see-world/index.html')
+        mobile=mobilectx.new_page();mobile.goto(BASE+os.environ.get('LINKED_STORY_PATH','/theemrld-portfolio/see-world/index.html'))
         assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
         mobile.get_by_role('button',name='Continue this perspective',exact=True).click()
         assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth')
@@ -120,7 +120,7 @@ with sync_playwright() as p:
         native.get_by_role('button',name='Read an earlier perspective',exact=True).click()
         native.get_by_role('button',name='Record this account and reveal the interlude',exact=True).click()
         native.wait_for_function('(()=>{try{return TechOpsLinked.context().milestones.ionaAccount===true}catch{return false}})()')
-        see.goto(BASE+'/theemrld-portfolio/see-world/index.html#iona')
+        see.goto(BASE+os.environ.get('LINKED_STORY_PATH','/theemrld-portfolio/see-world/index.html')+'#iona')
         expect(see.get_by_role('heading',name='The empty mic',exact=True)).to_be_visible()
         passed('Iona disclosure is explicit, after Ghost Fork, and earlier-interlude labeled')
         # Wrong-run imports and old unrestricted previews are never accepted.

@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     def media():
         hub.goto(SITE+'#/links');hub.locator('.media-hub').wait_for()
         expect(hub.locator('h1')).to_contain_text('Stories.')
-        expected=['#/comic','/techops-hero/','#/see-world','#/k/gallery','#/terminal','https://soundcloud.com/raikouno/tracks','https://www.instagram.com/mikesninja/','https://www.instagram.com/kind.dread/','https://www.instagram.com/defied_stars/']
+        expected=['#/comic','https://ninja-ops-guy.github.io/techops-hero/','#/see-world','#/k/gallery','#/terminal','https://soundcloud.com/raikouno/tracks','https://www.instagram.com/mikesninja/','https://www.instagram.com/kind.dread/','https://www.instagram.com/defied_stars/']
         for href in expected:expect(hub.locator('.media-hub a[href="'+href+'"]')).to_have_count(1)
         text=hub.locator('.media-hub').inner_text()
         for obsolete in ['profile unverified','matching TechOps Hero build','Playable story draft']:assert obsolete not in text

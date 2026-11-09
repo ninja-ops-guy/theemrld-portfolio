@@ -1,3 +1,7 @@
+import {chooseSaveOrigin, portfolioUrl, gameUrl} from './origin-routes.mjs';
+await chooseSaveOrigin();
+for (const a of document.querySelectorAll('a[href="/techops-hero/"]')) a.href = gameUrl(location.hostname);
+for (const a of document.querySelectorAll('a[href="../#/links"]')) a.href = portfolioUrl('links');
 // Help remains usable even when the optional enhancement or reader cannot load.
 const help = document.getElementById('player-help');
 document.getElementById('help-open').onclick = () => help.showModal();
@@ -32,7 +36,7 @@ try {
   const title = document.createElement('h1'); title.textContent = 'The story reader could not open.';
   const text = document.createElement('p'); text.textContent = 'Your saved progress has not been changed. Check your connection and try again, or return to the media hub.';
   const retry = document.createElement('button'); retry.type = 'button'; retry.className = 'primary'; retry.textContent = 'Try again'; retry.onclick = () => location.reload();
-  const link = document.createElement('a'); link.href = '../#/links'; link.target = '_top'; link.textContent = 'Back to the media hub'; link.className = 'secondary';
+  const link = document.createElement('a'); link.href = portfolioUrl('links'); link.target = '_top'; link.textContent = 'Back to the media hub'; link.className = 'secondary';
   main.append(title, text, retry, link); main.classList.add('boot-message');
   document.getElementById('storage-status').textContent = 'The reader is unavailable. No progress was imported, reset, or awarded.';
   console.warn('Story reader load failed.', error);
