@@ -76,6 +76,15 @@ with sync_playwright() as p:
         before=native.evaluate('JSON.stringify(TechOpsCampaign.load(localStorage).story)')
         passed('native completion unlocks scene; See World handoff earns section')
         native.evaluate('''()=>{closeDlg();S.inDialog=false;S.inBattle=false;S.paused=false;enterNight();}''')
+        if os.environ.get('LINKED_VERIFY_HUD')=='1':
+            # Both menu owners must remain usable in desktop and short-landscape Night.
+            for viewport in [{'width':1280,'height':800},{'width':844,'height':390}]:
+                native.set_viewport_size(viewport)
+                for selector in ['#night-campaign','#see-world-linked-button']:
+                    expect(native.locator(selector)).to_be_visible()
+                    native.wait_for_function('''selector=>{const el=document.querySelector(selector);const b=el.getBoundingClientRect();const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth&&b.top>=0&&b.bottom<=innerHeight&&(hit===el||el.contains(hit));}''',arg=selector,timeout=5000)
+            native.set_viewport_size({'width':1280,'height':800})
+            passed('Night campaign and linked journal controls are reachable on desktop and short landscape')
         native.locator('#see-world-linked-button').click()
         native.get_by_role('button',name='Enter: Signal / Independent Check',exact=True).click()
         native.wait_for_function('TechOpsLinked.mission()?.id==="signal-check"')

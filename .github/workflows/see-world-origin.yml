@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ninja-ops-guy/techops-hero
-          ref: f239a4428567a55f23022c0b13d9672a773d62cf
+          ref: 8d3ac165863857a4cf29a4aed6251b347fde0d2f
           path: native
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -54,7 +54,7 @@ jobs:
           python -m http.server 8765 --directory site > server.log 2>&1 &
           server=$!
           trap 'kill "$server"' EXIT
-          LINKED_STORY_PATH=/techops-hero/see-world/index.html LINKED_QA_DIR=origin-proof python portfolio/scripts/see-world-linked-browser.py
+          LINKED_VERIFY_HUD=1 LINKED_STORY_PATH=/techops-hero/see-world/index.html LINKED_QA_DIR=origin-proof python portfolio/scripts/see-world-linked-browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
