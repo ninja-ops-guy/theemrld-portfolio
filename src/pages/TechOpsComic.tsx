@@ -257,7 +257,15 @@ export default function TechOpsComic() {
             <div className="comic-vol-meta">{item.label}<span>PP. {item.start}–{item.end}</span></div>
             <div className="comic-vol-title">{item.title} <ArrowRight size={18}/></div>
           </button>;
-        })}</div>
+        })}{isRevisionF && <button onClick={() => {
+          const q = new URLSearchParams({ edition: 'xiii', page: '1' });
+          if (fromWorld) q.set('from', 'world');
+          setParams(q);
+        }}>
+          <img src={volumeThirteenImageUrl(1)} alt="" loading="lazy" width="1080" height="1620" />
+          <div className="comic-vol-meta">Vol. XIII<span>PP. {revisionF.pageCount + 1}–{revisionF.pageCount + volumeThirteen.pageCount}</span></div>
+          <div className="comic-vol-title">{volumeThirteen.title} <ArrowRight size={18}/></div>
+        </button>}</div>
         {!isVolumeThirteen && <p><Link className="comic-edition-link" to={`/comic?edition=xiii&page=1${fromWorld ? '&from=world' : ''}`}>
           Continue with Volume XIII · The Last Launch <ArrowRight size={18}/>
         </Link></p>}
