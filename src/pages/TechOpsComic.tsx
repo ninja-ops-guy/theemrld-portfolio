@@ -9,6 +9,7 @@ import volumeFive from '../data/comic-volume-five.json';
 import volumeThirteen from '../data/comic-volume-thirteen.json';
 import ComicMusicBar from '../components/ComicMusicBar';
 import FourBeatPulse from '../components/FourBeatPulse';
+import visualRegisterData from '../data/comic-visual-registers.json';
 import { rememberReaderPosition } from '../hooks/useReaderPosition';
 import './TechOpsComic.css';
 
@@ -48,6 +49,60 @@ const revisionFImageUrl = (page: number) => `${base}revision-f/${String(page).pa
 const revisionFVolumes = revisionF.sections.filter(section => section.kind !== 'guide');
 type CoverArt = { page: number; crop: { x: number; y: number; size: number }; color: string; chapters?: string };
 const illustratedCovers: Partial<Record<number, CoverArt>> = coverArt;
+
+type VisualRegisterPanel = {
+  order: number;
+  registers: string[];
+  status: 'editorial_reviewed' | 'needs_creator_review';
+  note: string;
+  candidateRegisters?: string[];
+  evidenceSource?: string;
+  claimScope?: string;
+};
+type VisualRegisterAnnotation = {
+  edition: string;
+  artRevision: string;
+  pageIndex: number;
+  pageRegister: string;
+  status: 'editorial_reviewed' | 'needs_creator_review';
+  note: string;
+  panels: VisualRegisterPanel[];
+};
+const visualRegisterLabels = visualRegisterData.registers as Record<string, { label: string; description: string }>;
+function VisualRegisterDetails({ annotation }: { annotation: VisualRegisterAnnotation }) {
+  const labels = [...new Set(annotation.panels.flatMap(panel => panel.registers))];
+  const pageLabel = annotation.pageRegister === 'unclassified'
+    ? 'Not classified'
+    : annotation.pageRegister === 'mixed'
+      ? labels.map(key => visualRegisterLabels[key]?.label ?? key).join(' · ') || 'Mixed registers'
+      : visualRegisterLabels[annotation.pageRegister]?.label ?? annotation.pageRegister;
+  const pendingCount = annotation.panels.filter(panel => panel.status === 'needs_creator_review').length;
+  return <section className="comic-register" aria-label={`Visual register for page ${annotation.pageIndex}`}>
+    <details>
+      <summary><span className="comic-register-kicker">Visual register</span><strong>{pageLabel}</strong>
+        <span className="comic-register-state">{pendingCount ? `${pendingCount} panel${pendingCount === 1 ? '' : 's'} need creator review` : 'editorially reviewed sample'}</span>
+      </summary>
+      <div className="comic-register-body">
+        <p>{annotation.note} Labels describe presentation, not truth status; this sample is not creator approval.</p>
+        <ol className="comic-register-panels">
+          {annotation.panels.map(panel => <li key={panel.order}>
+            <strong>Panel {panel.order}</strong>
+            {panel.registers.length > 0
+              ? <span>{panel.registers.map(key => visualRegisterLabels[key]?.label ?? key).join(' · ')}</span>
+              : <span>Needs creator review{panel.candidateRegisters?.length ? ` · possible: ${panel.candidateRegisters.map(key => visualRegisterLabels[key]?.label ?? key).join(', ')}` : ''}</span>}
+            <p>{panel.note}</p>
+            {panel.evidenceSource && <p><strong>Record source:</strong> {panel.evidenceSource}. <strong>Scope:</strong> {panel.claimScope}</p>}
+          </li>)}
+        </ol>
+        <details className="comic-register-legend">
+          <summary>Six-register legend</summary>
+          <dl>{Object.entries(visualRegisterLabels).map(([key, item]) =>
+            <div key={key}><dt>{item.label}</dt><dd>{item.description}</dd></div>)}</dl>
+        </details>
+      </div>
+    </details>
+  </section>;
+}
 
 function IllustratedCover({ art, label, title, inReader = false, onError, onLoad }: {
   art: CoverArt;
@@ -135,6 +190,7 @@ export default function TechOpsComic() {
   const fromWorld = params.get('from') === 'world';
   const artRevision = isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision;
   const pageKey = `${edition}:${artRevision}:${page}`;
+  const visualRegister = visualRegisterData.annotations.find(entry => entry.edition === edition && entry.artRevision === artRevision && entry.pageIndex === page) as VisualRegisterAnnotation | undefined;
   const currentPage = useRef(pageKey);
   currentPage.current = pageKey;
   const [loadedPage, setLoadedPage] = useState('');
@@ -318,6 +374,7 @@ export default function TechOpsComic() {
                 style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
           </div>}
       </div>
+      {failedPage !== page && visualRegister && <VisualRegisterDetails annotation={visualRegister} />}
       <nav className="comic-controls" aria-label="Reader navigation">
         <button className="comic-turn" aria-label="Previous page" disabled={page===1} onClick={() => choosePage(page-1)}><ChevronLeft/></button>
         <label>Page <select aria-label="Jump to page" value={page} onChange={e=>choosePage(Number(e.target.value))}>

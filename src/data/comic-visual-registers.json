@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "taxonomyVersion": "techops-hero-registers-v1",
+  "description": "Edition- and art-revision-bound visual-register labels. Editorial review does not mean creator approval or factual verification.",
+  "registers": {
+    "objective_present": {
+      "label": "Present",
+      "description": "Observable action or dialogue in the scene-present frame; a character's spoken claim is not thereby proven."
+    },
+    "personal_recollection": {
+      "label": "Personal memory",
+      "description": "Red/K/Iona lived recollection; potentially incomplete and not documentary proof by itself."
+    },
+    "mike_memory_feed": {
+      "label": "Mike-to-K fragment",
+      "description": "Fragmentary, induced, one-way Mike-origin information reaching K; not K's own autobiographical memory."
+    },
+    "stored_evidence": {
+      "label": "Record",
+      "description": "Physical or captured source with explicit provenance and bounded claim scope."
+    },
+    "orpheus_provisional_model": {
+      "label": "ORPHEUS model · provisional",
+      "description": "ORPHEUS classification, inference, counterfactual, or reconstruction; presentation style does not verify its claim."
+    },
+    "celestial_event": {
+      "label": "Celestial event",
+      "description": "Actual celestial experience in established cosmology; do not demote it to memory or simulation by visual resemblance."
+    }
+  },
+  "editions": {
+    "f": {
+      "pageCount": 316,
+      "artRevision": "continuity-hq-46943e14",
+      "artPath": "public/techops-comic/revision-f/{page}.webp"
+    },
+    "legacy": {
+      "pageCount": 161,
+      "artRevision": "11.2",
+      "artPath": "public/techops-comic/{page}.webp"
+    }
+  },
+  "annotations": [
+    {
+      "edition": "f",
+      "artRevision": "continuity-hq-46943e14",
+      "pageIndex": 13,
+      "pageRegister": "mixed",
+      "status": "editorial_reviewed",
+      "chronology": "scene_present",
+      "note": "Inspected Revision F art: present hangar conversation and an on-screen event log. The displayed 92% score is a machine report, not independent corroboration.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [
+            "objective_present",
+            "stored_evidence"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present discussion over a displayed log.",
+          "evidenceSource": "On-screen terminal event log",
+          "claimScope": "The visible entries and displayed 92% score only; the score does not independently prove identity, cause, or ORPHEUS origin."
+        },
+        {
+          "order": 2,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Mike and Felicia discuss the other end of the signal."
+        },
+        {
+          "order": 3,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Hangar establishing image within the current scene."
+        },
+        {
+          "order": 4,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present dialogue about the plane and key."
+        }
+      ]
+    },
+    {
+      "edition": "f",
+      "artRevision": "continuity-hq-46943e14",
+      "pageIndex": 33,
+      "pageRegister": "mixed",
+      "status": "editorial_reviewed",
+      "chronology": "scene_present",
+      "note": "Inspected Revision F art: live radio report, landing, and a phone message. A received text records what the sender said; it is not independent proof of the claims in the text.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Live controller radio exchange; not a stored recording."
+        },
+        {
+          "order": 2,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Landing action and clearance caption."
+        },
+        {
+          "order": 3,
+          "registers": [
+            "objective_present",
+            "stored_evidence"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Mike reads a received text message.",
+          "evidenceSource": "Displayed text message from Waldo",
+          "claimScope": "The message records an invitation and the sender's stated situation; it does not independently authenticate identity or verify every claim."
+        }
+      ]
+    },
+    {
+      "edition": "f",
+      "artRevision": "continuity-hq-46943e14",
+      "pageIndex": 77,
+      "pageRegister": "unclassified",
+      "status": "needs_creator_review",
+      "chronology": "unresolved",
+      "note": "Inspected Revision F origin montage. The source of the montage and narration is not established by the page alone; do not equate it with personal memory, an ORPHEUS reconstruction, or independent evidence.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Adoption/origin image; visual source and narrative channel need review.",
+          "candidateRegisters": [
+            "personal_recollection",
+            "objective_present"
+          ]
+        },
+        {
+          "order": 2,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Red and Iona at the bench; image alone does not establish whether this is recollection or narrated history.",
+          "candidateRegisters": [
+            "personal_recollection",
+            "objective_present"
+          ]
+        },
+        {
+          "order": 3,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "ORPHEUS monitor displays a birth-signature match; distinguish the system's record from its interpretation.",
+          "candidateRegisters": [
+            "stored_evidence",
+            "orpheus_provisional_model"
+          ]
+        },
+        {
+          "order": 4,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Narration attributes a goal to ORPHEUS; clarify source and provisional status.",
+          "candidateRegisters": [
+            "orpheus_provisional_model",
+            "objective_present"
+          ]
+        }
+      ]
+    },
+    {
+      "edition": "legacy",
+      "artRevision": "11.2",
+      "pageIndex": 13,
+      "pageRegister": "objective_present",
+      "status": "needs_creator_review",
+      "chronology": "scene_present",
+      "note": "Scene-index title “What Orpheus was” belongs to the legacy edition. Mike and Felicia explain/test in the present; the purple construct image remains ambiguous.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present Mike/Felicia conversation."
+        },
+        {
+          "order": 2,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present explanation with an aircraft diagram; dialogue is an account, not an independently verified record."
+        },
+        {
+          "order": 3,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present explanation beside research binders."
+        },
+        {
+          "order": 4,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Purple human-form graphic could be a concept illustration or provisional ORPHEUS model.",
+          "candidateRegisters": [
+            "objective_present",
+            "orpheus_provisional_model"
+          ]
+        },
+        {
+          "order": 5,
+          "registers": [
+            "objective_present"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present equipment test and dialogue about what can be proven."
+        }
+      ]
+    },
+    {
+      "edition": "legacy",
+      "artRevision": "11.2",
+      "pageIndex": 33,
+      "pageRegister": "mixed",
+      "status": "editorial_reviewed",
+      "chronology": "relative_order_only",
+      "note": "Scene-index title “Red and Iona / recollection.” Present workshop panels surround a panel explicitly labelled Iona / recollection.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [
+            "objective_present",
+            "stored_evidence"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Present workshop conversation examines a damaged recording.",
+          "evidenceSource": "Displayed waveform / damaged GHOST BENDS rehearsal recording",
+          "claimScope": "Only the audible fragment/voice represented on the page; not the whole room, exact chronology, or completeness of K's recollection."
+        },
+        {
+          "order": 2,
+          "registers": [
+            "personal_recollection"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Explicitly labelled Iona / recollection; not an independent recording or complete historical account."
+        },
+        {
+          "order": 3,
+          "registers": [
+            "objective_present",
+            "stored_evidence"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Return to the present; the characters explicitly retain the gaps.",
+          "evidenceSource": "Displayed waveform / damaged GHOST BENDS rehearsal recording",
+          "claimScope": "The page's audible fragment only; missing portions remain unknown."
+        }
+      ]
+    },
+    {
+      "edition": "legacy",
+      "artRevision": "11.2",
+      "pageIndex": 77,
+      "pageRegister": "mixed",
+      "status": "needs_creator_review",
+      "chronology": "unresolved",
+      "note": "Scene-index title “The celestial encounter / Tea and regalia.” Canon confirms the actual celestial event, but its historical placement remains open; the opening/threshold panels need creator review.",
+      "panels": [
+        {
+          "order": 1,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Cell 118 panel appears to introduce the sequence, but the Bible leaves the celestial event's exact placement open.",
+          "candidateRegisters": [
+            "objective_present",
+            "personal_recollection",
+            "celestial_event"
+          ]
+        },
+        {
+          "order": 2,
+          "registers": [],
+          "status": "needs_creator_review",
+          "note": "Threshold/portal image does not by itself settle transition, emerald phenomenon, or arrival.",
+          "candidateRegisters": [
+            "objective_present",
+            "celestial_event"
+          ]
+        },
+        {
+          "order": 3,
+          "registers": [
+            "celestial_event"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Luminous realm depiction belongs to the canon-confirmed actual celestial experience; no date is inferred."
+        },
+        {
+          "order": 4,
+          "registers": [
+            "celestial_event"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Continuation within the distinct stable celestial realm register."
+        },
+        {
+          "order": 5,
+          "registers": [
+            "celestial_event"
+          ],
+          "status": "editorial_reviewed",
+          "note": "Continuation of the actual celestial experience; shared motifs do not make it a memory."
+        }
+      ]
+    }
+  ],
+  "separationRules": [
+    {
+      "id": "ORPHEUS_IS_NOT_EVIDENCE",
+      "rule": "An ORPHEUS statement or reconstruction is not stored evidence unless a separate bounded source is identified."
+    },
+    {
+      "id": "FEED_IS_NOT_PERSONAL_MEMORY",
+      "rule": "A Mike-origin feed fragment is distinct from K's personal recollection and cannot prove K's biography by itself."
+    },
+    {
+      "id": "RECOLLECTION_IS_NOT_RECORD",
+      "rule": "Personal recollection cannot be presented as a tape, log, or independently corroborated event."
+    },
+    {
+      "id": "RECORD_SCOPE_IS_BOUNDED",
+      "rule": "A displayed record supports only its stated content and completeness."
+    },
+    {
+      "id": "CELESTIAL_IS_NOT_SIMULATION",
+      "rule": "A canon-confirmed celestial event stays distinct from memory and ORPHEUS reconstruction even when motifs recur."
+    },
+    {
+      "id": "PAGE_BINDING_IS_EXACT",
+      "rule": "Edition, art revision, and one-based page index must all match the loaded artwork."
+    }
+  ]
+}
