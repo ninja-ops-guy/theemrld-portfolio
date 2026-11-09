@@ -18,6 +18,7 @@ No song assignments are invented. Empty guided mode is explicitly unavailable an
 
 ## Verification
 
+- First hosted Domain Readiness attempt stopped because its unit-test step ran before dependency installation (missing TypeScript). Installation now precedes tests; that failure is retained in the workflow history.
 - 163 Node tests passed locally after the native fixture checkout was present. The first cross-repository test attempt failed to load that missing checkout; it was not a product assertion failure.
 - TypeScript/Vite build passed. Existing bundle-size/Tailwind warnings remain.
 - Managed browser: terminal route/title, disabled empty Guided control, comment dialog and copy confirmation observed; no comment submitted.

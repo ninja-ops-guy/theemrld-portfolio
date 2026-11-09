@@ -155,7 +155,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
         case 'k-world:comment': setCommentsOpen(true); break;
         case 'k-world:guided-editor': setScoreOpen(true); break;
         case 'k-world:comic': navigate('/comic?from=world'); break;
-        case 'k-world:portfolio': navigate('/'); break;
+        case 'k-world:portfolio': navigate('/portfolio'); break;
       }
     };
     window.addEventListener('message', receive);

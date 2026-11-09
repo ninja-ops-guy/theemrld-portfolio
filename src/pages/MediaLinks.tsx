@@ -27,7 +27,7 @@ export default function MediaLinks() {
   return <main className="media-hub">
     <div className="media-hub-inner">
       <header className="media-masthead">
-        <Link to="/" className="media-wordmark"><span aria-hidden="true">◈</span> THE EMRLD</Link>
+        <Link to="/portfolio" className="media-wordmark"><span aria-hidden="true">◈</span> THE EMRLD</Link>
         <span>THE CREATIVE COLLECTION</span>
       </header>
       <div className="media-layout">
@@ -72,7 +72,7 @@ export default function MediaLinks() {
           </section>
         </div>
       </div>
-      <footer className="media-footer"><p>Independent art. Connected stories.</p><nav aria-label="Creator links"><Link to="/">Portfolio <ArrowRight size={14} aria-hidden="true" /></Link><a href="https://github.com/ninja-ops-guy"><Github size={15} aria-hidden="true" /> GitHub</a></nav><small>BUILD · OPERATE · PROTECT · BELONG</small></footer>
+      <footer className="media-footer"><p>Independent art. Connected stories.</p><nav aria-label="Creator links"><Link to="/portfolio">Portfolio <ArrowRight size={14} aria-hidden="true" /></Link><a href="https://github.com/ninja-ops-guy"><Github size={15} aria-hidden="true" /> GitHub</a></nav><small>BUILD · OPERATE · PROTECT · BELONG</small></footer>
     </div>
   </main>;
 }

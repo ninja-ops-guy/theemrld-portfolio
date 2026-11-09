@@ -1,6 +1,6 @@
 import { BACKUP_KEY, MAX_SIZE, exportSettings, validateBackup, previewSettings, importSettings, restoreSettings } from './settings.mjs';
 const byId = id => document.getElementById(id);
-let pending = null, rows = [];
+let pending = null, rows = [], fileVersion = 0;
 const status = text => { byId('recovery-status').textContent = text; };
 const download = (data, name) => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
@@ -15,11 +15,13 @@ byId('export-settings').onclick = () => {
   } catch (e) { status(e.message); }
 };
 byId('import-file').onchange = async event => {
+  const version = ++fileVersion;
   pending = null; rows = []; byId('preview').replaceChildren(); byId('apply-settings').disabled = true;
   const file = event.target.files[0]; if (!file) return;
   try {
     if (file.size > MAX_SIZE) throw Error('Use a settings file smaller than 1 MB.');
-    pending = validateBackup(JSON.parse(await file.text())); rows = previewSettings(pending, localStorage);
+    const text = await file.text(); if (version !== fileVersion) return;
+    pending = validateBackup(JSON.parse(text)); rows = previewSettings(pending, localStorage);
     for (const row of rows) {
       const label = document.createElement('label'), box = document.createElement('input'); box.type = 'checkbox'; box.value = row.key; box.checked = row.status === 'missing'; box.disabled = row.status === 'same';
       label.append(box, document.createTextNode(` ${row.label} — ${row.status === 'conflict' ? 'already exists; select to replace' : row.status === 'same' ? 'already matches; kept' : 'not saved here yet'}`)); byId('preview').append(label);

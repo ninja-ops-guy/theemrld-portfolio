@@ -37,6 +37,7 @@ with sync_playwright() as pw:
     assert p.evaluate('Object.fromEntries(Object.entries(localStorage))')==fixture
     report['passed'].append('Original-origin export only contains allowed settings; source data unchanged')
     p.goto(NEW+'/recover/')
+    expect(p.get_by_role('button',name='Undo last import')).to_be_hidden()
     p.evaluate('(key)=>localStorage.setItem(key,"10")',KEY)
     p.locator('#import-file').set_input_files(export)
     expect(p.get_by_text('Revision F bookmark — already exists; select to replace')).to_be_visible()
