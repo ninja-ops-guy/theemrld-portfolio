@@ -259,3 +259,41 @@ html:has(.comic-reel[open]) { overflow: hidden; }
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+.comic-register {
+  flex: none;
+  padding: 4px clamp(12px,4vw,72px);
+  background: #121317;
+  border-top: 1px solid var(--line);
+  color: var(--paper);
+  font-size: 12px;
+}
+.comic-register > details > summary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-height: 34px;
+  cursor: pointer;
+  list-style-position: inside;
+}
+.comic-register-kicker { color: var(--gold); font: 700 11px/1.3 ui-monospace,Consolas,monospace; text-transform: uppercase; letter-spacing: .08em; }
+.comic-register-state { color: #c8c2b7; }
+.comic-register-body { max-height: min(42vh,360px); overflow: auto; padding: 4px 0 10px; }
+.comic-register-body > p { margin: 4px 0 10px; }
+.comic-register-panels { display: grid; gap: 8px; margin: 0; padding-left: 24px; }
+.comic-register-panels li { padding-left: 4px; }
+.comic-register-panels li > strong { margin-right: 10px; color: var(--gold); }
+.comic-register-panels p { margin: 4px 0 0; color: #ddd6c8; }
+.comic-register-legend { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 7px; }
+.comic-register-legend summary { cursor: pointer; width: fit-content; }
+.comic-register-legend dl { display: grid; grid-template-columns: minmax(120px, .35fr) 1fr; gap: 6px 14px; margin: 8px 0 0; }
+.comic-register-legend dl > div { display: contents; }
+.comic-register-legend dt { font-weight: 750; color: var(--gold); }
+.comic-register-legend dd { margin: 0; }
+@media (max-width: 700px) {
+  .comic-register { padding-inline: 8px; }
+  .comic-register-body { max-height: 32vh; }
+  .comic-register-legend dl { grid-template-columns: 1fr; gap: 2px; }
+  .comic-register-legend dd { margin-bottom: 8px; }
+}

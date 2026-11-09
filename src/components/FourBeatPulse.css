@@ -1,0 +1,14 @@
+.four-beat { color: #dbece1; background: #09120f; padding: 12px 18px; font: 12px/1.4 ui-monospace, monospace; border: 1px solid #355346; border-radius: 8px; max-width: 28rem; }
+.four-beat-caption { display: block; margin-bottom: 8px; }
+.four-beat-count { display: flex; gap: 18px; }
+.four-beat-step { display: flex; align-items: center; gap: 6px; }
+.four-beat-step i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #92e0b1; opacity: .35; animation: story-four-beat 2.4s linear 1; }
+.four-beat-repeat .four-beat-step i { animation-iteration-count: infinite; }
+.four-beat-step.beat-2 i { animation-delay: .6s; }
+.four-beat-step.beat-3 i { animation-delay: 1.2s; }
+.four-beat-step.beat-4 i { animation-delay: 1.8s; }
+@keyframes story-four-beat { 0%, 18% { opacity: 1; } 25%, 100% { opacity: .35; } }
+.comic-reel > .four-beat { position: absolute; z-index: 3; left: 50%; bottom: 76px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); }
+.comic-page-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 12px; pointer-events: none; z-index: 2; }
+@media (max-width: 420px) { .four-beat-count { gap: 10px; } .four-beat { padding: 10px 12px; } }
+@media (prefers-reduced-motion: reduce) { .four-beat-step i { animation: none !important; opacity: 1; } }
