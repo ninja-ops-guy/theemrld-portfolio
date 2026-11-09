@@ -76,20 +76,21 @@ with sync_playwright() as p:
         before=native.evaluate('JSON.stringify(TechOpsCampaign.load(localStorage).story)')
         passed('native completion unlocks scene; See World handoff earns section')
         native.evaluate('''()=>{closeDlg();S.inDialog=false;S.inBattle=false;S.paused=false;enterNight();}''')
-        if os.environ.get('LINKED_VERIFY_HUD')=='1':
-            # Both menu owners must remain usable in desktop and short-landscape Night.
-            for viewport in [{'width':1280,'height':800},{'width':844,'height':390}]:
-                native.set_viewport_size(viewport)
-                for selector in ['#night-campaign','#see-world-linked-button']:
-                    expect(native.locator(selector)).to_be_visible()
-                    native.wait_for_function('''selector=>{const el=document.querySelector(selector);const b=el.getBoundingClientRect();const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth&&b.top>=0&&b.bottom<=innerHeight&&(hit===el||el.contains(hit));}''',arg=selector,timeout=5000)
-            native.set_viewport_size({'width':1280,'height':800})
-            passed('Night campaign and linked journal controls are reachable on desktop and short landscape')
         native.locator('#see-world-linked-button').click()
         native.get_by_role('button',name='Enter: Signal / Independent Check',exact=True).click()
         native.wait_for_function('TechOpsLinked.mission()?.id==="signal-check"')
         # Remove combat enemies only in this browser fixture to isolate movement/interaction.
         native.evaluate('NM.enemies=[];NM.hp=10000;S.inDialog=false;S.paused=false')
+        if os.environ.get('LINKED_VERIFY_HUD')=='1':
+            # Both menu owners must remain usable in desktop and short-landscape Night.
+            for viewport in [{'width':1280,'height':800},{'width':844,'height':390}]:
+                native.set_viewport_size(viewport)
+                for selector in ['#night-campaign','#see-world-linked-button']:
+                    REPORT['hud_context']={'viewport':viewport,'selector':selector}
+                    expect(native.locator(selector)).to_be_visible()
+                    native.wait_for_function('''selector=>{const el=document.querySelector(selector);const b=el.getBoundingClientRect();const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return b.width>=44&&b.height>=44&&b.left>=0&&b.right<=innerWidth&&b.top>=0&&b.bottom<=innerHeight&&(hit===el||el.contains(hit));}''',arg=selector,timeout=5000)
+            native.set_viewport_size({'width':1280,'height':800})
+            passed('Night campaign and linked journal controls are reachable on desktop and short landscape')
         assert native_snapshot(native)['runId']==old_id
         answers=['Record the quiet baseline','Preserve the disagreement','Let another operator enforce the stop']
         for i,answer in enumerate(answers):
@@ -168,6 +169,8 @@ with sync_playwright() as p:
             try:
                 page.screenshot(path=str(OUT/('failure-'+label+'.png')),full_page=True)
                 REPORT[label+'_body']=page.locator('body').inner_text()[-14000:]
+                if label=='native':
+                    REPORT['hud_diagnostics']=page.evaluate('''()=>({bodyClasses:document.body.className,viewport:{width:innerWidth,height:innerHeight},controls:['#night-campaign','#see-world-linked-button'].map(selector=>{const el=document.querySelector(selector);if(!el)return {selector,missing:true};const b=el.getBoundingClientRect(),css=getComputedStyle(el),hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);return {selector,rect:b.toJSON(),display:css.display,visibility:css.visibility,zIndex:css.zIndex,pointerEvents:css.pointerEvents,hidden:el.hidden,parentHidden:el.parentElement?.hidden,hit:hit&&{id:hit.id,tag:hit.tagName}};})})''')
                 if label=='native': REPORT['native_diagnostics']=page.evaluate('({linked:window.TechOpsLinked?.health(),loadError:window.__seeWorldLinkedLoadError,saveError:window.__techopsSaveError,state:!!window.S,identity:window.S?.meta?.seeWorldLink,night:window.NM&&{district:NM.district,x:NM.x,paused:S.paused,inDialog:S.inDialog},source:localStorage.getItem("techops:linked:native:v1")})')
             except Exception: pass
         raise
