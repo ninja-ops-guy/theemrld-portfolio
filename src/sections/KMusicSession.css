@@ -6,3 +6,5 @@
 .k-music-floating span { flex: 1; min-width: 120px; }
 .k-music-floating button, .k-music-floating a { color: #85edb8; min-height: 36px; }
 .k-music-floating :focus-visible { outline: 2px solid #b7ffdc; outline-offset: 3px; }
+
+.k-site-info{display:flex;justify-content:center;flex-wrap:wrap;gap:12px 24px;padding:16px 20px;background:#050a14;color:#a6bbad;font:12px system-ui;position:relative;z-index:2}.k-site-info a{text-decoration:underline;text-underline-offset:4px;min-height:32px;display:flex;align-items:center}

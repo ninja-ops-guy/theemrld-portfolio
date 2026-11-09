@@ -30,6 +30,7 @@ export default function ProjectCommentDialog({ open, onClose, context = 'K Termi
   const messageRef = useRef<HTMLTextAreaElement>(null);
   const [draft, setDraft] = useState<ProjectCommentDraft>(initialDraft);
   const [savedOnDevice, setSavedOnDevice] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('');
   const [handoffOpened, setHandoffOpened] = useState(false);
   const prepared = prepareProjectComment(draft, context);
   const hasDraft = Boolean(draft.title || draft.message);
@@ -83,7 +84,7 @@ export default function ProjectCommentDialog({ open, onClose, context = 'K Termi
       </header>
 
       <p id="kt-comment-description" className="kt-comment-intro">
-        Thoughts on the comic, music, game, or the project? Write them here, then review and post on GitHub.
+        Thoughts on the comic, music, game, or the project? Write them here. Copy your message to share with @defied_stars on Instagram, or post public feedback on GitHub.
       </p>
 
       <div className="kt-comment-field">
@@ -95,7 +96,7 @@ export default function ProjectCommentDialog({ open, onClose, context = 'K Termi
           maxLength={PROJECT_COMMENT_TITLE_MAX_LENGTH}
           placeholder="What’s on your mind?"
           autoComplete="off"
-          onChange={(event) => { setDraft((current) => ({ ...current, title: event.target.value })); setHandoffOpened(false); }}
+          onChange={(event) => { setDraft((current) => ({ ...current, title: event.target.value })); setHandoffOpened(false); setCopyStatus(''); }}
         />
       </div>
 
@@ -112,25 +113,30 @@ export default function ProjectCommentDialog({ open, onClose, context = 'K Termi
           rows={7}
           placeholder="I’d love to see…"
           aria-describedby="kt-comment-count kt-comment-storage"
-          onChange={(event) => { setDraft((current) => ({ ...current, message: event.target.value })); setHandoffOpened(false); }}
+          onChange={(event) => { setDraft((current) => ({ ...current, message: event.target.value })); setHandoffOpened(false); setCopyStatus(''); }}
         />
       </div>
 
       <div className="kt-comment-meta">
         <span id="kt-comment-storage">{hasDraft ? (savedOnDevice ? 'Draft saved on this device.' : 'Draft kept in this tab; device storage is unavailable.') : 'Your draft stays here until you clear it.'}</span>
-        {hasDraft && <button type="button" onClick={() => { setDraft({ title: '', message: '' }); setHandoffOpened(false); messageRef.current?.focus(); }}>Clear draft</button>}
+        {hasDraft && <button type="button" onClick={() => { setDraft({ title: '', message: '' }); setHandoffOpened(false); setCopyStatus(''); messageRef.current?.focus(); }}>Clear draft</button>}
       </div>
 
       <div className="kt-comment-notice">
-        <strong>Public feedback · GitHub sign-in required</strong>
-        <p>Your comment is posted only after you submit it on GitHub. Your draft stays here if you close that tab.</p>
+        <strong>Choose where to share</strong>
+        <p>Instagram messages use your Instagram account. Public project feedback uses your GitHub account. Nothing is sent from this editor; review and submit on the service you choose.</p>
       </div>
 
       <div className="kt-comment-status" role="status" aria-live="polite">
-        {handoffOpened ? 'Review and submit on GitHub to publish your comment. Your draft is still saved here.' : draft.message.trim() && prepared.error ? prepared.error : ''}
+        {copyStatus || (handoffOpened ? 'Review and submit on GitHub to publish your comment. Your draft is still saved here.' : draft.message.trim() && prepared.error ? prepared.error : '')}
       </div>
 
       <footer className="kt-comment-actions">
+        <button type="button" className="kt-comment-submit" disabled={!draft.message.trim()} onClick={async () => {
+          try { await navigator.clipboard.writeText(`${draft.title.trim() ? draft.title.trim() + '\n\n' : ''}${draft.message.trim()}\n\n${context}`); setCopyStatus('Message copied. Paste it into an Instagram message to @defied_stars. Nothing has been sent.'); }
+          catch { setCopyStatus('Copy is unavailable. Select and copy your message from the editor.'); }
+        }}>Copy message</button>
+        <a href="https://www.instagram.com/defied_stars/" target="_blank" rel="noopener noreferrer" className="kt-comment-secondary">Open @defied_stars ↗</a>
         <a href={PROJECT_COMMENTS_URL} target="_blank" rel="noopener noreferrer" className="kt-comment-secondary">Read project feedback ↗</a>
         {prepared.url ? (
           <a

@@ -4,7 +4,7 @@ import { useKMusic } from '../sections/AsciiCityWorld';
 import './ComicMusicBar.css';
 
 export default function ComicMusicBar({ edition, page, revision }: { edition: string; page: number; revision: string }) {
-  const { audio, background, guided, guidedNotice, scoreSource, catalogueStatus, sendCommand, setVolume, openComments, openScore, setReader, usePublishedScore } = useKMusic();
+  const { audio, background, guided, hasGuidedCues, guidedNotice, scoreSource, catalogueStatus, sendCommand, setVolume, openComments, openScore, setReader, usePublishedScore } = useKMusic();
   useEffect(() => { setReader({ edition, page, revision }); }, [edition, page, revision, setReader]);
   useEffect(() => () => setReader(null), [setReader]);
   const playing = audio.status === 'playing';
@@ -20,7 +20,7 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
     <div className="comic-music-row">
       <div className="comic-music-track">
         <span>K TERMINAL <i>/</i> {guided ? 'GUIDED SOUNDTRACK' : 'BACKGROUND MUSIC'}</span>
-        <strong title={audio.current?.title}>{audio.current?.title || (guided ? 'Waiting for a song cue' : 'Music for the pages')}</strong>
+        <strong title={audio.current?.title}>{audio.current?.title || (guided ? guidedNotice : 'Music for the pages')}</strong>
       </div>
       <div className="comic-music-transport">
         <button className="comic-music-play" onClick={toggle} aria-label={playing ? 'Pause soundtrack' : audio.current ? 'Resume soundtrack' : 'Play soundtrack'}>{playing ? 'Ⅱ Pause' : '▶ Play'}</button>
@@ -28,7 +28,7 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
         <label className="comic-music-volume">Vol <input type="range" min="0" max="100" value={audio.volume} onChange={event => setVolume(Number(event.target.value))} aria-label="Soundtrack volume" /></label>
       </div>
       <div className="comic-music-options">
-        <button aria-pressed={guided} onClick={() => sendCommand(guided ? 'guided off' : 'guided on')}>Guided {guided ? 'on' : 'off'}</button>
+        <button aria-pressed={guided} disabled={!hasGuidedCues} title={hasGuidedCues ? 'Follow page cues' : 'No guided songs assigned yet. Use Define songs for a local preview.'} onClick={() => sendCommand(guided ? 'guided off' : 'guided on')}>{hasGuidedCues ? `Guided ${guided ? 'on' : 'off'}` : 'Guided · not configured'}</button>
         <button onClick={openScore}>Define songs</button>
         <button onClick={openComments}>Comment</button>
       </div>
@@ -38,7 +38,7 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
       <div className="comic-music-detail-body">
         {audio.error && <p role="status">{audio.error} <Link to="/k/terminal">Open player controls</Link></p>}
         {audio.current && audio.status === 'paused' && !audio.pausedByUser && <p>Press Play to allow audio. If your browser still blocks it, use the <Link to="/k/terminal">SoundCloud controls in K World</Link>.</p>}
-        <p>{guidedNotice} {scoreSource === 'draft' ? 'You are previewing a soundtrack saved on this device.' : 'The published soundtrack follows the creator’s page cues.'}</p>
+        <p>{guidedNotice} {scoreSource === 'draft' ? 'You are previewing a soundtrack saved on this device.' : hasGuidedCues ? 'The published soundtrack follows the creator’s page cues.' : 'No guided soundtrack has been published yet. Background music is available; Define songs creates a local preview.'}</p>
         <p className="comic-music-catalogue">{catalogueStatus}</p>
         <div>
           <button aria-pressed={background} onClick={() => sendCommand(background ? 'background off' : 'background on')}>Background {background ? 'on' : 'off'}</button>

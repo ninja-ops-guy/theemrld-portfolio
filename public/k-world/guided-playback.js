@@ -29,6 +29,10 @@ export class GuidedPlayback {
   }
 
   setEnabled(enabled) {
+    if (enabled && !this.score.cues.length) {
+      this.setNotice('No guided songs are assigned yet. Use guided edit to define a local preview.');
+      return; // An unavailable mode must not pause or clear existing background music.
+    }
     this.enabled = Boolean(enabled);
     if (this.enabled) {
       // Explicitly choosing guided listening is a new play gesture.
