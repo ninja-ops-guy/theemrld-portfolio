@@ -120,7 +120,7 @@ def main():
         record("ONE-PLAYER-COMMAND-CONTRACT", "No crossfade, no second player." in status_log, status_log[-800:])
         snapshot = context.request.get(BASE + "k-world/latest-releases.json").json()
         titles = [track["title"] for track in snapshot["tracks"][:12]]
-        page.wait_for_function("document.querySelector('#release-status').textContent.startsWith('Last verified on')")
+        page.wait_for_function("document.querySelector('#release-status').textContent.startsWith('Catalogue updated ')")
         songs = page.locator("#song-list .song:not(.empty)")
         listed = songs.locator("span:nth-child(2)").all_text_contents()
         record("VERIFIED-RELEASE-ORDER", listed == titles, json.dumps(listed))
