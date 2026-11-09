@@ -162,7 +162,7 @@ html:has(.comic-reel[open]) { overflow: hidden; }
   74% { transform: translate(-50%, -50%); }
   80% { transform: translate(-75%, -50%); }
   85% { transform: translate(0%, -75%); }
-  90% { transform: translate(-25%, -75%); }
+  90% { transform: translate(-50%, -75%); }
   95% { transform: translate(-50%, -75%); }
   100% { transform: translate(-75%, -75%); }
 }
@@ -244,4 +244,18 @@ html:has(.comic-reel[open]) { overflow: hidden; }
   border-top: 1px solid color-mix(in srgb, var(--cover-accent) 45%, transparent);
   padding-top: 2cqw;
   font-size: 3.5cqw;
+}
+.comic-sheet { container-type: inline-size; }
+.comic-end-card {
+  position: absolute;
+  right: 4.2%;
+  bottom: 6.4%;
+  padding: 1.1cqw 1.5cqw;
+  border: 1px solid #c9a25f;
+  background: #111820;
+  color: #d6b573;
+  font: 750 2.35cqw/1.1 ui-monospace, Consolas, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
