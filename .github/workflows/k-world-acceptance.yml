@@ -70,7 +70,7 @@ jobs:
 
       - name: Run browser release acceptance
         env:
-          K_WORLD_BASE_URL: http://127.0.0.1:4173/theemrld-portfolio/
+          K_WORLD_BASE_URL: http://127.0.0.1:4173/
           K_WORLD_QA_DIR: qa/k-world-acceptance
         run: python tests/k-world-acceptance.py
 
