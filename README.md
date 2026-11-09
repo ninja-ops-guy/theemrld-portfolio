@@ -74,7 +74,15 @@ npm run build
 
 ### Refresh the K World release catalogue
 
-Run `python scripts/sync_raikouno.py` to fetch @raikouno's public SoundCloud RSS feed and update `public/k-world/latest-releases.json`. Review the newest entries against the artist's Tracks page before publishing the snapshot. The feed includes public tracks selected for RSS, and the terminal shows when the snapshot was verified. The terminal's Refresh button reloads the published snapshot.
+K Terminal checks @raikouno's public SoundCloud RSS feed hourly and publishes a new catalogue when track data changes. Open pages refresh the published catalogue every five minutes and when returning to the tab; `sync` or `sync latest` checks it immediately. Sync preserves the current song and playback position. `latest` explicitly plays the newest published release. The feed includes public tracks selected for RSS, and both terminal interfaces show the catalogue timestamp. The existing `python scripts/sync_raikouno.py` command remains available for a manual refresh. See [release sync operations](docs/K_TERMINAL_RELEASE_SYNC.md).
+
+### Music while reading and project comments
+
+Both `/terminal` and `/k/terminal` control the same persistent player. Use `latest`, then `background on`, then `comic` to keep listening while reading. `background off` pauses playback outside the terminal. A fresh page load still requires an explicit play gesture; this feature keeps music across navigation inside the site, not after closing the browser.
+
+`guided edit` opens the soundtrack editor. Assign an edition, inclusive page range, song title, and SoundCloud track URL, then preview the score on your device. `guided on` follows the visible comic page. Cue changes preserve a listener's pause, pages within a cue do not restart it, and unassigned pages remain silent. The published score intentionally starts empty until the creator defines the placements. Local preview edits do not change the soundtrack for other readers. See [guided soundtrack authoring](docs/GUIDED_SOUNDTRACK.md) for publication and revision binding.
+
+`comment` opens a text editor for public project feedback. Drafts remain on the device; **Review and post on GitHub** opens the repository's issue form for the visitor to review and submit while signed in. Opening that link does not submit a comment. The reader also exposes music controls, **Define songs**, and **Comment** above the artwork.
 
 ## Links
 

@@ -1,0 +1,8 @@
+.k-session-frame { position: fixed; inset: 0; display: block; width: 100%; height: 100dvh; border: 0; background: #070910; z-index: 20; }
+.k-session-frame-background { inset: auto; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1; }
+.k-session-error { position: fixed; z-index: 80; bottom: 12px; left: 12px; right: 12px; max-width: 620px; padding: 12px 16px; background: #21190e; color: #ffe1a0; border: 1px solid #8d6a29; font: 13px/1.5 ui-monospace, monospace; }
+.k-session-error button { float: right; min-width: 28px; margin-left: 12px; }
+.k-music-floating { position: fixed; z-index: 70; bottom: 12px; right: 12px; left: 12px; margin-left: auto; max-width: 650px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; border: 1px solid #39765d; border-radius: 8px; background: #081810f5; color: #d7f4e4; font: 12px/1.5 ui-monospace, monospace; }
+.k-music-floating span { flex: 1; min-width: 120px; }
+.k-music-floating button, .k-music-floating a { color: #85edb8; min-height: 36px; }
+.k-music-floating :focus-visible { outline: 2px solid #b7ffdc; outline-offset: 3px; }

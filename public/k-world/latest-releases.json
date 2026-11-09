@@ -1,12 +1,47 @@
 {
-  "verifiedAt": "2026-11-07T18:59:21Z",
+  "verifiedAt": "2026-11-09T04:14:07Z",
   "tracks": [
+    {
+      "id": "other-plans",
+      "title": "Other Plans",
+      "url": "https://soundcloud.com/raikouno/other-plans",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-08T19:12:23Z"
+    },
+    {
+      "id": "rust-concrete",
+      "title": "Rust & Concrete",
+      "url": "https://soundcloud.com/raikouno/rust-concrete",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-08T13:54:05Z"
+    },
+    {
+      "id": "g2u",
+      "title": "G2U",
+      "url": "https://soundcloud.com/raikouno/g2u",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-08T06:07:39Z"
+    },
+    {
+      "id": "more-than-anything-else-wav",
+      "title": "More Than Anything Else",
+      "url": "https://soundcloud.com/raikouno/more-than-anything-else-wav",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-07T17:26:19Z"
+    },
     {
       "id": "damn-robot",
       "title": "DAMN ROBOT!",
       "url": "https://soundcloud.com/raikouno/damn-robot",
       "provider": "soundcloud",
       "createdAt": "2026-11-07T16:17:09Z"
+    },
+    {
+      "id": "the-mercy-i-buried",
+      "title": "The Mercy I Buried",
+      "url": "https://soundcloud.com/raikouno/the-mercy-i-buried",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-07T15:58:11Z"
     },
     {
       "id": "idle",

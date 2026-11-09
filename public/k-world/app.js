@@ -4,6 +4,8 @@ import {buildScene,moveCamera,findInteraction,isFree} from './scenes.js';
 import {WORLDS,ART,TRACKS,resolveWorld,zoneForWorld,zoneLabel} from './data.js';
 import {SoundCloudPort,Sequencer,reactiveEnvelope,canonicalUrl} from './audio.js';
 import {iconFrame} from './icons.js';
+import {validateGuidedScore} from './guided.js';
+import {GuidedPlayback} from './guided-playback.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),qa=params.get('qa')==='1'||globalThis.__K_QA__===true;
 const KEYS='k-world:library:v6',RECENT='k-world:recent:v6',PREF='k-world:prefs:v6',LATEST='k-world:latest:v2';
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -30,46 +32,82 @@ const on=(el,type,fn,opts={})=>el.addEventListener(type,fn,{...opts,signal});
 const capture=(el,id)=>{try{el.setPointerCapture(id);}catch{/* Pointer may already have been cancelled by the OS. */}};
 const port=new SoundCloudPort($('soundcloud-slot'),mergeLibrary);
 const music=new Sequencer(port);music.playlists.latest=latestKnown;music.volume(preferences.volume);
+let hostWorldVisible=params.get('entry')!=='player',hostTerminalVisible=false;
+let background=read('k-world:background:v1',false)===true;
+let stateTimer=null,startPromise=null,pendingNavigation=null;
+let transportIntent=0;
+let scoreFromHost=false;
+const guided=new GuidedPlayback(music,()=>{updateMusicUI();publishState();});
+function parentMessage(message){if(window.parent!==window)window.parent.postMessage(message,location.origin);}
+function publishState(){
+ if(stateTimer!==null)return;
+ stateTimer=setTimeout(()=>{stateTimer=null;parentMessage({type:'k-world:state',audio:{...music.state},background,guided:guided.enabled,guidedNotice:guided.notice});},100);
+}
+function publishCatalogue(){
+ parentMessage({type:'k-world:catalogue',tracks:lastVerified?.tracks||latestKnown,status:$('release-status').textContent});
+}
+function setBackground(enabled){
+ background=enabled;write('k-world:background:v1',enabled);
+ if(!enabled&&guided.enabled){++transportIntent;guided.setEnabled(false);}
+ if(!enabled&&!hostWorldVisible&&!hostTerminalVisible)pauseMusic();
+ updateMusicUI();publishState();
+}
+function pauseMusic(){++transportIntent;if(guided.enabled)guided.pause();else music.pause();}
+function resumeMusic(){++transportIntent;if(guided.enabled)guided.resume();else if(music.state.current)music.resume();else void startLatestMusic();}
+function openHostPanel(panel){
+ if(window.parent!==window)parentMessage({type:panel==='comment'?'k-world:comment':'k-world:guided-editor'});
+ else location.href='../#/terminal?panel='+panel;
+}
+async function loadGuidedScore(){
+ try{const response=await fetch('guided-cues.json',{cache:'no-store'});if(!response.ok)throw Error('Soundtrack definitions unavailable');const score=validateGuidedScore(await response.json());if(!scoreFromHost)guided.setScore(score);}
+ catch{if(!scoreFromHost)log('Published soundtrack unavailable. Use guided edit to define a local preview.','error');}
+}
 const savePrefs=()=>write(PREF,preferences);
 function mergeLibrary(tracks){const seen=new Set(library.map(t=>t.url));let next=Math.max(0,...library.map(t=>t.slot||0))+1;for(const raw of tracks){const t=cleanTrack(raw);if(!t||seen.has(t.url)){if(t?.createdAt){const prior=library.find(old=>old.url===t.url);if(prior){prior.createdAt=t.createdAt;prior.title=t.title;}}continue;}t.slot=next++;library.push(t);seen.add(t.url);}const used=new Set();for(const t of library){if(!t.slot||used.has(t.slot))t.slot=next++;used.add(t.slot);}write(KEYS,library);renderLibrary();}
 mergeLibrary(Object.values(TRACKS));
+if(lastVerified){mergeLibrary(lastVerified.tracks);latestKnown=lastVerified.tracks.slice(0,12).map(track=>library.find(entry=>entry.url===track.url)||track);music.playlists.latest=latestKnown;renderLibrary();}
 // Legacy catalogue remains accessible as an archive; it is not the latest-releases source.
 function remember(track){if(!track||track.provider==='local')return;recent=[track.url,...recent.filter(x=>x!==track.url)].slice(0,8);write(RECENT,recent);renderLibrary();}
 function renderLibrary(){const filter=($('song-search')?.value||'').toLowerCase(),list=$('song-list');if(!list)return;list.replaceChildren();const current=music?.state?.current?.url;const visible=showArchive?[...library].sort((a,b)=>(Date.parse(b.createdAt)||0)-(Date.parse(a.createdAt)||0)||a.slot-b.slot):latestKnown;for(const t of visible.filter(t=>t.title.toLowerCase().includes(filter))){const button=document.createElement('button');button.className='song'+(t.url===current?' current':'');button.type='button';button.title='Play '+t.title+'. Use pause or resume in K Terminal.';const number=document.createElement('span');number.className='number';number.textContent=t.slot?String(t.slot).padStart(2,'0'):'';const title=document.createElement('span');title.textContent=t.title;button.append(number,title);if(!showArchive&&t.url===latestKnown[0]?.url){const tag=document.createElement('small');tag.className='tag';tag.textContent='LATEST';button.append(tag);}if(recent.includes(t.url)){const tag=document.createElement('small');tag.className='tag';tag.textContent='RECENT';button.append(tag);}button.addEventListener('click',()=>selectTrack(t));list.append(button);}if(!list.children.length){const empty=document.createElement('div');empty.className='song empty';empty.textContent=showArchive?'No matching archived tracks.':'Latest releases not verified yet. Use LATEST ON SOUNDCLOUD, or choose SHOW ARCHIVE.';list.append(empty);}const box=$('recent-songs');box.replaceChildren();if(recent.length){const title=document.createElement('small');title.textContent='RECENT';box.append(title);for(const url of recent){const t=library.find(t=>t.url===url);if(!t)continue;const b=document.createElement('button');b.textContent=t.title;b.title='Play '+t.title;b.addEventListener('click',()=>selectTrack(t));box.append(b);}}}
-function selectTrack(track){remember(track);music.select(track);log('MANUAL / '+track.title+'\nScene changes will not replace this song. Type auto on to queue scene music again.');}
+function selectTrack(track){++transportIntent;guided.cancelForManual();remember(track);music.select(track);log('MANUAL / '+track.title+'\nScene changes will not replace this song. Type auto on to queue scene music again.');publishState();}
 function releaseStatus(){
- return lastVerified?'Last verified on '+lastVerified.verifiedAt.slice(0,10)+' (UTC)':'No verified releases available';
+ return lastVerified?'Catalogue updated '+lastVerified.verifiedAt.replace('T',' ').replace('Z',' UTC')+' · hourly sync':'No verified releases available';
 }
 function loadPublishedReleases(){
  if(releaseRequest)return releaseRequest;
  releaseRequest=(async()=>{
   let loaded=false;
+  const requestAbort=new AbortController(),timeout=setTimeout(()=>requestAbort.abort(),12000);
   try{
-   const response=await fetch('latest-releases.json',{cache:'no-store'});
+   const response=await fetch('latest-releases.json',{cache:'no-store',signal:requestAbort.signal});
    if(!response.ok)throw Error('Release catalogue unavailable');
    const snapshot=releaseSnapshot(await response.json());
    if(!snapshot||Date.parse(snapshot.verifiedAt)<Date.parse(lastVerified?.verifiedAt))throw Error('Invalid or older release catalogue');
    lastVerified=snapshot;
-   latestKnown=snapshot.tracks.slice(0,12);
-   music.playlists.latest=latestKnown;
-   write(LATEST,{verifiedAt:snapshot.verifiedAt,tracks:latestKnown});
    mergeLibrary(snapshot.tracks);
+   latestKnown=snapshot.tracks.slice(0,12).map(track=>library.find(entry=>entry.url===track.url)||track);
+   music.playlists.latest=latestKnown;
+   // Insertions at the front must not make FINISH repeat the song already playing.
+   if(music.state.activeZone==='latest')music.state.index=latestKnown.findIndex(track=>track.url===music.state.current?.url);
+   write(LATEST,{verifiedAt:snapshot.verifiedAt,tracks:snapshot.tracks});
+   renderLibrary();
    loaded=true;
   }catch{/* Keep the last verified snapshot when the published catalogue cannot be loaded. */}
+  finally{clearTimeout(timeout);}
   $('release-status').textContent=releaseStatus()+(loaded?'':' · catalogue refresh unavailable');
+  publishCatalogue();
   return loaded;
  })().finally(()=>{releaseRequest=null;});
  return releaseRequest;
 }
 let releaseRequest=null;
-let latestCheck=null;
 function startLatestMusic(force=false){
- if(latestCheck)return latestCheck;
- const generation=music.generation,wasPaused=music.state.pausedByUser;
- latestCheck=(async()=>{
+ guided.cancelForManual();
+ const intent=++transportIntent;
+ return (async()=>{
   await loadPublishedReleases();
   // The visitor's intervening manual selection or pause always wins.
-  if(music.generation!==generation||(!force&&music.state.current)||(music.state.pausedByUser&&!wasPaused))return;
+  if(transportIntent!==intent||(!force&&music.state.current))return;
   if(music.startZone('latest'))log('LATEST / '+music.state.current.title+'\nNewest tracks in the verified catalogue play first; room changes queue without interrupting.');
   else{
    // Never silently substitute a years-old room track and call it the latest release.
@@ -78,8 +116,7 @@ function startLatestMusic(force=false){
    $('current-title').textContent='LATEST UPLOADS UNAVAILABLE';
    toast('Latest uploads could not be verified. Use the SoundCloud profile link.');
   }
- })().finally(()=>{latestCheck=null;});
- return latestCheck;
+ })();
 }
 function log(text,type=''){const p=document.createElement('p');p.className=type;p.textContent=text;$('console-output').append(p);while($('console-output').children.length>120)$('console-output').firstElementChild.remove();$('console-output').scrollTop=$('console-output').scrollHeight;}
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
@@ -92,13 +129,13 @@ function navigate(id,{returning=false,arm=false,position=null,yaw=null}={}){
  if(!cache.has(id))cache.set(id,buildScene(assets,id));scene=cache.get(id);
  camera.position=[...(position||scene.spawn)];camera.yaw=yaw??scene.yaw;camera.pitch=.025;
  if(returning&&id==='city'){camera.position=[0,1.7,14];camera.yaw=0;}
- music.setZone(zoneForWorld(id));if(arm&&!music.state.armed&&!music.state.pausedByUser)music.arm();
+ music.setZone(zoneForWorld(id));if(arm&&!guided.enabled&&!music.state.armed&&!music.state.pausedByUser)music.arm();
  $('room-title').textContent=scene.title;$('room-subtitle').textContent=scene.subtitle;$('arrival-title').textContent=scene.title;$('arrival-kicker').textContent=id==='gallery'?'AN ARCHIVE YOU CAN WALK THROUGH':id==='city'?'THE SYSTEMS BEHIND THE WORK':'PORTAL WORLD / ALWAYS RETURN';$('arrival-detail').textContent=scene.subtitle;$('arrival').classList.remove('faded');clearTimeout(arrivalTimer);arrivalTimer=setTimeout(()=>$('arrival').classList.add('faded'),7000);
  $('special-controls').hidden=id!=='station';$('drive-dash').hidden=true;document.title=scene.title+' — K // THE EMRLD';
  historyReplace();$('scene').focus({preventScroll:true});updateMusicUI();
 }
 function historyReplace(){const hash=activeId;try{window.history.replaceState(null,'','#'+hash);}catch{}}
-function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!music.state.armed)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
+function interact(){if(anyDialog())return;if(drive){drive=false;$('drive-dash').hidden=true;camera.position[1]=1.7;music.setZone('city');toast('K // DRIVE parked. Audio continues to the end of the song.');return;}if(!target)return;if(target.type==='art')showArt(ART.findIndex(p=>p.id===target.art));else if(target.type==='terminal')openDialog('terminal');else if(target.type==='flight')toggleFlight();else if(target.type==='car'){drive=true;camera.position=[0,1.35,-1];camera.yaw=0;$('drive-dash').hidden=false;music.setZone('car');if(!guided.enabled&&!music.state.armed&&!music.state.pausedByUser)music.arm();toast('K // DRIVE · Flag queued. A/D steers; E exits.');}else if(target.type==='gate'){const to=target.to;const returning=to==='city';navigate(to,{returning,arm:true});}}
 function rotateArtworkWhenUnseen(interaction){
  if(activeId!=='gallery'||!interaction?.art||ART.length<2)return;
  const slot=interaction.id.replace(/^art-/,'');
@@ -118,17 +155,21 @@ function rotateArtworkWhenUnseen(interaction){
 }
 function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=ART[artIndex];$('art-title').textContent=piece.letter+' / '+piece.title;$('art-image').src=globalThis.__K_EMBEDDED_ASSETS__?.[piece.src]||piece.src;$('art-image').alt=piece.title+' — user supplied artwork';if(!$('art-dialog').open)openDialog('art');}
 function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside K-01 Orbital.');return;}clearInput();if(!flight){flightHome={position:[...camera.position],yaw:camera.yaw};flight=true;camera.position[1]=Math.max(2.4,camera.position[1]);music.setZone('flight');toast('EVA engaged. Space / + climbs; C / − descends. F lands safely.');}else{flight=false;camera.position=[...flightHome.position];camera.yaw=flightHome.yaw;flightHome=null;music.setZone('light');toast('Airlock reentry. Position restored safely.');}$('special-toggle').textContent=flight?'F / LAND':'F / EVA';}
-function manualNext(delta){if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[(index+delta+library.length)%library.length]);}
+function manualNext(delta){++transportIntent;guided.cancelForManual();if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[index<0?(delta<0?library.length-1:0):(index+delta+library.length)%library.length]);}
 function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map(s=>s.replace(/^['"]|['"]$/g,''))||[];if(!tokens.length)return;const [cmd,...args]=tokens;log('k@theemrld $ '+raw,'command-line');const key=cmd.toLowerCase();try{switch(key){
- case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nlatest · auto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero (game) · comic (read TechOps Hero) · clear\n\nChanging rooms queues music; only an explicit next/play command interrupts.');break;
+ case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nsync [latest] · latest · background on|off|status\nguided on|off|status · guided edit · comment\nauto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero (game) · comic (read TechOps Hero) · clear\n\nSync refreshes the catalogue without interrupting. Background keeps music playing in the comic. Guided follows your edition/page song cues. Comment opens project feedback.');break;
+ case 'sync':if(args.length>1||(args.length&&args[0]!=='latest'))throw Error('Usage: sync or sync latest. Use latest to play the newest song.');void refreshLibrary();break;
+ case 'background':{const mode=args[0]||'status';if(!['on','off','status'].includes(mode)||args.length>1)throw Error('Usage: background on|off|status');if(mode!=='status')setBackground(mode==='on');log('BACKGROUND / '+(background?'ON — music continues in the comic and other site pages.':'OFF — music pauses when you leave a terminal.'));break;}
+ case 'guided':{const mode=args[0]||'status';if(mode==='edit'||mode==='define'){openHostPanel('guided');break;}if(!['on','off','status'].includes(mode)||args.length>1)throw Error('Usage: guided on|off|status or guided edit');if(mode!=='status'){++transportIntent;if(mode==='on')setBackground(true);guided.setEnabled(mode==='on');publishState();}log('GUIDED / '+(guided.enabled?'ON':'OFF')+'\n'+guided.notice);break;}
+ case 'comment':openHostPanel('comment');break;
  case 'latest':void startLatestMusic(true);break;
- case 'play':case 'song':case 'track':{if(!args.length){music.resume();break;}const value=args.join(' '),url=canonicalUrl(value),slot=Number(value);let t=url?library.find(t=>t.url===url):Number.isInteger(slot)?library.find(t=>t.slot===slot):library.find(t=>t.title.toLowerCase()===value.toLowerCase());if(!t&&!url){const matches=library.filter(t=>t.title.toLowerCase().includes(value.toLowerCase()));if(matches.length===1)t=matches[0];else throw Error(matches.length?'More than one song matches. Use its number.':'Song not found. Use songs or the library search.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
- case 'pause':music.pause();log('Paused. Walking into another room will not restart music.');break;
- case 'resume':music.resume();log('Resuming the current song.');break;
- case 'stop':music.stop();log('Stopped at 00:00. Resume is explicit.');break;
+ case 'play':case 'song':case 'track':{if(!args.length){resumeMusic();break;}const value=args.join(' '),url=canonicalUrl(value),slot=Number(value);let t=url?library.find(t=>t.url===url):Number.isInteger(slot)?library.find(t=>t.slot===slot):library.find(t=>t.title.toLowerCase()===value.toLowerCase());if(!t&&!url){const matches=library.filter(t=>t.title.toLowerCase().includes(value.toLowerCase()));if(matches.length===1)t=matches[0];else throw Error(matches.length?'More than one song matches. Use its number.':'Song not found. Use songs or the library search.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
+ case 'pause':pauseMusic();log('Paused. Walking into another room will not restart music.');break;
+ case 'resume':resumeMusic();log(guided.enabled?guided.notice:'Playback requested. If the browser blocks it, open SoundCloud controls in K World.');break;
+ case 'stop':++transportIntent;music.stop();log('Stopped at 00:00. Resume is explicit.');break;
  case 'next':case 'skip':manualNext(1);break;
  case 'prev':manualNext(-1);break;
- case 'auto':if(!['on','off'].includes(args[0]))throw Error('Usage: auto on|off');music.auto(args[0]==='on');log(args[0]==='on'?'Auto DJ on. Current song and pause state are preserved.':'Manual mode. Location changes no longer choose music.');break;
+ case 'auto':if(!['on','off'].includes(args[0]))throw Error('Usage: auto on|off');++transportIntent;guided.cancelForManual();music.auto(args[0]==='on');log(args[0]==='on'?'Auto DJ on. Current song and pause state are preserved.':'Manual mode. Location changes no longer choose music.');break;
  case 'queue':case 'nowplaying':case 'status':case 'zone':log(`PLAYER / K TERMINAL\nMODE / ${music.state.mode}\nTRACK / ${music.state.current?.title||'NONE'}\nSTATUS / ${music.state.status}\nLOCATION / ${zoneLabel(music.state.zone)}\nNEXT ROOM / ${music.state.pendingZone?zoneLabel(music.state.pendingZone):'NONE'}\nFinish-event transitions only. No crossfade, no second player.`);break;
  case 'songs':case 'list':log(library.map(t=>`${String(t.slot).padStart(2,'0')} / ${t.title}`).join('\n'));break;
  case 'volume':{const v=Number(args[0]);if(!args.length){log('Volume: '+music.state.volume);break;}if(!Number.isFinite(v)||v<0||v>100)throw Error('Volume must be 0–100.');music.volume(v);preferences.volume=v;savePrefs();break;}
@@ -171,32 +212,63 @@ async function refreshLibrary(){
   log('Catalogue refresh unavailable. '+releaseStatus()+'.','error');
  }
 }
-function updateMusicUI(){const s=music.state;$('audio-title').textContent=s.current?s.current.title:'Sound is off. Your world is ready.';$('audio-mode').textContent='K TERMINAL / '+s.mode.toUpperCase()+' / '+s.status.toUpperCase();$('audio-next').textContent=s.error|| (!s.current?'Tap Play for the latest verified releases.':s.pendingZone?'NEXT / '+zoneLabel(s.pendingZone)+' — after this song':'Full songs. One player. No overlap.');$('audio-toggle').textContent=s.status==='playing'?'Ⅱ':'▶';$('audio-toggle').ariaLabel=s.status==='playing'?'Pause music':'Play or resume music';$('current-title').textContent=s.current?.title||'NO TRACK LOADED';$('current-time').textContent=timeLabel(s.position)+' / '+timeLabel(s.duration);$('progress').value=s.duration?s.position/s.duration:0;$('pending-title').textContent=s.error||(s.pendingZone?'QUEUED / '+zoneLabel(s.pendingZone)+' · waits for FINISH':'Location / '+zoneLabel(s.zone)+' · mode '+s.mode);$('transport-auto').textContent='AUTO DJ: '+(s.mode==='auto'?'ON':'OFF');$('terminal-zone').textContent=zoneLabel(s.zone);$('volume').value=s.volume;$('terminal-audio-status').textContent=s.status==='error'?'PROVIDER ERROR / RESUME TO RETRY':'ONE PLAYER / '+s.status.toUpperCase()+' / NO CROSSFADE';}
+function updateMusicUI(){const s=music.state;$('audio-title').textContent=s.current?s.current.title:'Sound is off. Your world is ready.';$('audio-mode').textContent='K TERMINAL / '+(guided.enabled?'GUIDED':s.mode.toUpperCase())+' / '+s.status.toUpperCase();$('audio-next').textContent=s.error|| (guided.enabled?guided.notice:!s.current?'Tap Play for the latest verified releases.':s.pendingZone?'NEXT / '+zoneLabel(s.pendingZone)+' — after this song':'Full songs. One player. No overlap.');$('audio-toggle').textContent=s.status==='playing'?'Ⅱ':'▶';$('audio-toggle').ariaLabel=s.status==='playing'?'Pause music':'Play or resume music';$('current-title').textContent=s.current?.title||'NO TRACK LOADED';$('current-time').textContent=timeLabel(s.position)+' / '+timeLabel(s.duration);$('progress').value=s.duration?s.position/s.duration:0;$('pending-title').textContent=s.error||(guided.enabled?guided.notice:s.pendingZone?'QUEUED / '+zoneLabel(s.pendingZone)+' · waits for FINISH':'Location / '+zoneLabel(s.zone)+' · mode '+s.mode);$('transport-auto').textContent='AUTO DJ: '+(s.mode==='auto'?'ON':'OFF');$('terminal-zone').textContent=zoneLabel(s.zone);$('volume').value=s.volume;$('terminal-audio-status').textContent=s.status==='error'?'PROVIDER ERROR / RESUME TO RETRY':'ONE PLAYER / '+s.status.toUpperCase()+' / NO CROSSFADE';if($('background-toggle')){$('background-toggle').textContent='BACKGROUND: '+(background?'ON':'OFF');$('background-toggle').setAttribute('aria-pressed',String(background));}if($('guided-toggle')){$('guided-toggle').textContent='GUIDED: '+(guided.enabled?'ON':'OFF');$('guided-toggle').setAttribute('aria-pressed',String(guided.enabled));}}
 const timeLabel=ms=>{const sec=Math.max(0,Math.floor((ms||0)/1000));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};
-let lastCurrent='',lastHeard='';on(music,'change',()=>{updateMusicUI();if(music.state.current?.url!==lastCurrent){lastCurrent=music.state.current?.url||'';renderLibrary();}if(music.state.status==='playing'&&music.state.current?.url!==lastHeard){lastHeard=music.state.current?.url||'';remember(music.state.current);}});
+let lastCurrent='',lastHeard='';on(music,'change',()=>{updateMusicUI();publishState();if(music.state.current?.url!==lastCurrent){lastCurrent=music.state.current?.url||'';renderLibrary();}if(music.state.status==='playing'&&music.state.current?.url!==lastHeard){lastHeard=music.state.current?.url||'';remember(music.state.current);}});
 function portals(container,detailed=false){for(const w of WORLDS){const button=document.createElement('button');button.className='portal';button.dataset.destination=w.id;button.style.setProperty('--color',w.color);button.setAttribute('aria-label','Enter '+w.subtitle);const pre=document.createElement('pre');pre.dataset.icon=w.icon;pre.setAttribute('aria-hidden','true');pre.textContent=iconFrame(w.icon,0);const name=document.createElement('strong');name.className='portal-name';name.textContent=w.name;const sub=document.createElement('span');sub.className='portal-sub';sub.textContent=w.subtitle.toUpperCase();button.append(pre,name,sub);if(detailed){const p=document.createElement('p');p.className='portal-description';p.textContent=w.description;const tag=document.createElement('small');tag.className='portal-tag';tag.textContent=w.tag;button.append(p,tag);}on(button,'click',()=>navigate(w.id,{arm:true}));container.append(button);}}
 portals($('terminal-portals'));portals($('atlas-portals'),true);
 for(const b of document.querySelectorAll('.hub-cards [data-destination]'))on(b,'click',()=>navigate(b.dataset.destination,{arm:true}));
 for(const b of document.querySelectorAll('[data-close]'))on(b,'click',()=>closeDialog(b.dataset.close));
 for(const d of document.querySelectorAll('dialog'))on(d,'close',clearInput);
 on($('terminal-button'),'click',()=>openDialog('terminal'));on($('map-button'),'click',()=>openDialog('atlas'));on($('brand'),'click',()=>openDialog('atlas'));on($('help-button'),'click',()=>openDialog('help'));on($('view-button'),'click',()=>setView(!preferences.ascii));on($('interact'),'click',interact);on($('special-toggle'),'click',toggleFlight);
-const toggleMusic=()=>music.state.status==='playing'?music.pause():music.state.current?music.resume():void startLatestMusic();on($('audio-toggle'),'click',toggleMusic);on($('audio-skip'),'click',()=>manualNext(1));on($('transport-pause'),'click',toggleMusic);on($('transport-next'),'click',()=>manualNext(1));on($('transport-auto'),'click',()=>music.auto(music.state.mode!=='auto'));
+const toggleMusic=()=>music.state.status==='playing'?pauseMusic():resumeMusic();on($('audio-toggle'),'click',toggleMusic);on($('audio-skip'),'click',()=>manualNext(1));on($('transport-pause'),'click',toggleMusic);on($('transport-next'),'click',()=>manualNext(1));on($('transport-auto'),'click',()=>command('auto '+(music.state.mode!=='auto'?'on':'off')));
+on($('background-toggle'),'click',()=>command('background '+(background?'off':'on')));
+on($('guided-toggle'),'click',()=>command('guided '+(guided.enabled?'off':'on')));
+on($('guided-edit'),'click',()=>openHostPanel('guided'));
+on($('comment-open'),'click',()=>openHostPanel('comment'));
 on($('volume'),'input',e=>{music.volume(Number(e.target.value));preferences.volume=music.state.volume;savePrefs();});on($('song-search'),'input',renderLibrary);on($('archive-toggle'),'click',()=>{showArchive=!showArchive;$('archive-toggle').textContent=showArchive?'SHOW LATEST':'SHOW ARCHIVE';renderLibrary();});on($('library-refresh'),'click',refreshLibrary);on($('art-prev'),'click',()=>showArt(artIndex-1));on($('art-next'),'click',()=>showArt(artIndex+1));
 function openComic(){
  if(window.parent!==window)window.parent.postMessage({type:'k-world:comic'},location.origin);
  else location.href='../#/comic?from=world';
 }
 on($('comic-button'),'click',openComic);
-on($('portfolio-button'),'click',()=>{music.pause();if(window.parent!==window)window.parent.postMessage({type:'k-world:portfolio'},location.origin);else location.href=location.protocol==='file:'||location.protocol==='about:'?'https://ninja-ops-guy.github.io/theemrld-portfolio/':'../';});
-on($('local-audio'),'change',e=>{const file=e.target.files?.[0];if(!file)return;const url=URL.createObjectURL(file);objectUrls.add(url);music.select({id:'local-'+Date.now(),title:file.name,url,provider:'local'});log('Local file opened. Real FFT and playback-rate controls are available. Nothing was uploaded.');});
+on($('portfolio-button'),'click',()=>{if(!background)pauseMusic();if(window.parent!==window)window.parent.postMessage({type:'k-world:portfolio'},location.origin);else location.href=location.protocol==='file:'||location.protocol==='about:'?'https://ninja-ops-guy.github.io/theemrld-portfolio/':'../';});
+on($('local-audio'),'change',e=>{const file=e.target.files?.[0];if(!file)return;++transportIntent;guided.cancelForManual();const url=URL.createObjectURL(file);objectUrls.add(url);music.select({id:'local-'+Date.now(),title:file.name,url,provider:'local'});log('Local file opened. Real FFT and playback-rate controls are available. Nothing was uploaded.');});
 on($('console-form'),'submit',e=>{e.preventDefault();const raw=$('command').value;if(!raw.trim())return;history.push(raw);history=history.slice(-100);historyIndex=history.length;$('command').value='';command(raw);});
 on($('command'),'keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeDialog('terminal');}else if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);$('command').value=history[historyIndex]||'';}else if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(history.length,historyIndex+1);$('command').value=history[historyIndex]||'';}});
 const editable=e=>e.composedPath().some(el=>el?.matches?.('input,textarea,select,[contenteditable="true"]'));
 on(window,'keydown',e=>{if(editable(e)||anyDialog())return;const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keyState.add(k);if(e.repeat)return;if(k==='e')interact();if(k==='t'||k==='`')openDialog('terminal');if(k==='m')openDialog('atlas');if(k==='v')setView(!preferences.ascii);if(k==='f')toggleFlight();if(k===' '&&activeId==='moon'&&!flight&&Math.abs(vy)<.01)vy=2.3;});on(window,'keyup',e=>keyState.delete(e.key.toLowerCase()));on(window,'blur',clearInput);on(document,'visibilitychange',()=>{if(document.hidden)clearInput();});
 on($('scene'),'pointerdown',e=>{if(anyDialog()||e.button>0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};capture($('scene'),e.pointerId);$('scene').focus();});on($('scene'),'pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;camera.yaw+=(e.clientX-drag.x)*.004;camera.pitch=clamp(camera.pitch-(e.clientY-drag.y)*.003,-.95,.95);drag.x=e.clientX;drag.y=e.clientY;});for(const event of ['pointerup','pointercancel','lostpointercapture'])on($('scene'),event,()=>drag=null);
 for(const button of document.querySelectorAll('[data-move]')){on(button,'pointerdown',e=>{e.preventDefault();input[button.dataset.move]=true;capture(button,e.pointerId);});for(const event of ['pointerup','pointercancel','lostpointercapture'])on(button,event,()=>input[button.dataset.move]=false);}
-on(window,'message',e=>{if(e.origin!==location.origin||e.source!==window.parent||window.parent===window)return;if(e.data?.type==='k-world:navigate'){if(e.data.scene==='terminal')openDialog('terminal');else navigate(e.data.scene)};});
-function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.045,(now-(lastTime||now))/1000);lastTime=now;elapsed+=dt;if(!scene||document.hidden)return;
+on(window,'message',e=>{
+ if(e.origin!==location.origin||e.source!==window.parent||window.parent===window)return;
+ const message=e.data;if(!message||typeof message.type!=='string')return;
+ try{switch(message.type){
+  case 'k-world:host':{
+   const wasVisible=hostWorldVisible;
+   hostWorldVisible=message.worldVisible===true;hostTerminalVisible=message.terminalVisible===true;
+   if(!hostWorldVisible){clearInput();cancelAnimationFrame(frameId);frameId=0;for(const dialog of document.querySelectorAll('dialog'))if(dialog.open)dialog.close();}
+   else if(!wasVisible){void start();if(scene&&!frameId){lastTime=0;frameId=requestAnimationFrame(animate);}}
+   if(!hostWorldVisible&&!hostTerminalVisible&&!background)pauseMusic();
+   publishState();break;
+  }
+  case 'k-world:navigate':
+   if(typeof message.scene!=='string')break;
+   pendingNavigation=message.scene;
+   void start().then(()=>{if(!hostWorldVisible)return;const destination=pendingNavigation;pendingNavigation=null;if(destination==='terminal')openDialog('terminal');else if(destination)navigate(destination);});break;
+  case 'k-world:command':if(typeof message.raw==='string'&&message.raw.length<=1000)command(message.raw);break;
+  case 'k-world:select':{
+   const track=cleanTrack(message.track);if(!track)break;
+   mergeLibrary([track]);selectTrack(track);if(message.autoplay===false)pauseMusic();break;
+  }
+  case 'k-world:volume':if(Number.isFinite(message.volume)){music.volume(message.volume);preferences.volume=music.state.volume;savePrefs();}break;
+  case 'k-world:seek':if(Number.isFinite(message.ms))music.seek(message.ms);break;
+  case 'k-world:reader':guided.setLocation(message.position);publishState();break;
+  case 'k-world:score':guided.setScore(validateGuidedScore(message.score));scoreFromHost=true;publishState();break;
+  case 'k-world:refresh':void loadPublishedReleases();break;
+ }}catch(error){log(error.message||'Unable to apply music request.','error');publishState();}
+});
+function animate(now){if(!hostWorldVisible){frameId=0;return;}frameId=requestAnimationFrame(animate);const dt=Math.min(.045,(now-(lastTime||now))/1000);lastTime=now;elapsed+=dt;if(!scene||document.hidden)return;
  if(!anyDialog()&&$('loading').hidden){let fw=(keyState.has('w')||keyState.has('arrowup')||input.forward?1:0)-(keyState.has('s')||keyState.has('arrowdown')||input.back?1:0),st=(keyState.has('d')||input.right?1:0)-(keyState.has('a')||input.left?1:0);if(keyState.has('arrowleft'))camera.yaw-=dt*1.6;if(keyState.has('arrowright'))camera.yaw+=dt*1.6;if(drive){camera.yaw+=st*dt*1.15;st=0;}const len=Math.max(1,Math.hypot(fw,st)),speed=drive?7:flight?5:keyState.has('shift')?4.0:2.55;fw/=len;st/=len;const dx=(Math.sin(camera.yaw)*fw+Math.cos(camera.yaw)*st)*dt*speed,dz=(-Math.cos(camera.yaw)*fw+Math.sin(camera.yaw)*st)*dt*speed;
   if(flight){camera.position[0]=clamp(camera.position[0]+dx,-11,11);camera.position[2]=clamp(camera.position[2]+dz,-20,14);camera.position[1]=clamp(camera.position[1]+((keyState.has(' ')||input.up?1:0)-(keyState.has('c')||keyState.has('control')||input.down?1:0))*dt*2.3,1.7,6.2);}
   else{moveCamera(scene,camera,dx,dz);const base=(scene.ground?.(camera.position[0],camera.position[2])||0)+(drive?1.35:1.7);if(activeId==='moon'&&(vy||camera.position[1]>base+.02)){vy-=dt*1.62;camera.position[1]+=vy*dt;if(camera.position[1]<=base){camera.position[1]=base;vy=0;}}else camera.position[1]=base;}
@@ -215,14 +287,15 @@ function animate(now){frameId=requestAnimationFrame(animate);const dt=Math.min(.
 }
 function drawViz(envelope){if(!preferences.viz)return;const c=$('visualizer'),ctx=c.getContext('2d');const w=Math.max(1,c.clientWidth),h=Math.max(1,c.clientHeight);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}ctx.clearRect(0,0,w,h);const color=preferences.vizTheme==='violet'?'#b685e3':preferences.vizTheme==='amber'?'#e8b86a':'#59ccaa';ctx.strokeStyle=color;ctx.fillStyle=color;const time=music.state.position/1000,playing=music.state.status==='playing',n=preferences.vizBars;ctx.globalAlpha=.7;if(preferences.vizStyle==='ring'){ctx.beginPath();for(let i=0;i<128;i++){const a=i*Math.PI*2/127,r=14+(playing?envelope.energy*14+Math.sin(a*5+time*3)*5:0),x=w/2+Math.cos(a)*r*1.8,y=h/2+Math.sin(a)*r;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else if(preferences.vizStyle==='wave'){ctx.beginPath();for(let x=0;x<w;x+=2){const y=h/2+(playing?Math.sin(x*.04+time*4)*Math.sin(x*.011+time)*h*.30:0);if(x)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.stroke();}else{for(let i=0;i<n;i++){const level=playing?(.14+envelope.energy*.4+(Math.sin(i*.5+time*4)+1)*.14):.04;ctx.fillRect(i*w/n,h-level*h,w/n-2,level*h);}}ctx.globalAlpha=1;$('visualizer-source').textContent=envelope.source==='pcm'?'LIVE FFT / LOCAL AUDIO':'PLAYBACK-CLOCK SYNC / NOT FFT';}
 function animateBand(){if(!preferences.band)return;const t=music.state.position/1000,playing=music.state.status==='playing',step=Math.floor(t/.18),roles=[[0,1,0,21],[2,2,8,2],[3,3,14,3],[10,16,19,23]];[...document.querySelectorAll('.sprite')].forEach((el,i)=>{const cell=roles[i][playing?(step+i)%4:0],x=cell%6,y=Math.floor(cell/6);el.style.backgroundPosition=`${x*20}% ${y*100/3}%`;el.style.transform=playing&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches?`translateY(${-Math.abs(Math.sin(t*9+i))*5}px) rotate(${Math.sin(t*7+i)*2}deg)`:'none';});}
-async function start(){try{renderer=new Renderer($('scene'));setView(preferences.ascii,false);assets=new Assets(renderer);const assetTotal=ART.length+1;$('load-progress').max=assetTotal;const progressTimer=setInterval(()=>{const settled=assets.loaded.length+assets.errors.length;$('load-progress').value=settled;$('load-state').textContent=`Verifying your artwork… ${settled} / ${assetTotal}`;},100);await assets.load();clearInterval(progressTimer);$('load-progress').value=assetTotal;
- const requested=location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=requested==='terminal'?'gallery':requested;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
+function start(){if(!startPromise)startPromise=startWorld();return startPromise;}
+async function startWorld(){try{renderer=new Renderer($('scene'));setView(preferences.ascii,false);assets=new Assets(renderer);const assetTotal=ART.length+1;$('load-progress').max=assetTotal;const progressTimer=setInterval(()=>{const settled=assets.loaded.length+assets.errors.length;$('load-progress').value=settled;$('load-state').textContent=`Verifying your artwork… ${settled} / ${assetTotal}`;},100);await assets.load();clearInterval(progressTimer);$('load-progress').value=assetTotal;
+ const requested=pendingNavigation||location.hash.slice(1)||params.get('scene')||params.get('entry')||'gallery',entry=requested==='terminal'?'gallery':requested;navigate(resolveWorld(entry),requested==='terminal'?{position:[7.8,1.7,13.5],yaw:0}:{});if(hostWorldVisible&&!frameId)frameId=requestAnimationFrame(animate);$('visualizer-panel').hidden=!preferences.viz;$('k-band').hidden=!preferences.band;
  $('load-state').textContent=`${assets.loaded.length} archive and sprite assets loaded${assets.errors.length?` · ${assets.errors.length} fallbacks`:''}.`;
  if(assets.errors.length)toast('Artwork missing: '+assets.errors.join(', ')+'. Named fallbacks are visible; nothing fails silently.');
  // Populate the visible library from the scheduled release manifest before the visitor enters.
  void loadPublishedReleases();
- if(qa){$('loading').hidden=true;if(requested==='terminal')openDialog('terminal');}
- else{$('load-state').textContent='Archive ready. Your art, music and worlds.';const enter=document.createElement('button'),quiet=document.createElement('button');enter.textContent='ENTER WORLD / SOUND ON';quiet.textContent='EXPLORE QUIETLY';const finish=(sound)=>{$('loading').hidden=true;if(sound)void startLatestMusic();else music.pause();if(requested==='terminal')openDialog('terminal');};on(enter,'click',()=>finish(true));on(quiet,'click',()=>finish(false));$('loading').append(enter,quiet);}
+ if(qa||music.state.current){$('loading').hidden=true;if(requested==='terminal'&&hostWorldVisible)openDialog('terminal');}
+ else{$('load-state').textContent='Archive ready. Your art, music and worlds.';const enter=document.createElement('button'),quiet=document.createElement('button');enter.textContent='ENTER WORLD / SOUND ON';quiet.textContent='EXPLORE QUIETLY';const finish=(sound)=>{$('loading').hidden=true;if(sound)void startLatestMusic();else pauseMusic();if(requested==='terminal')openDialog('terminal');};on(enter,'click',()=>finish(true));on(quiet,'click',()=>finish(false));$('loading').append(enter,quiet);}
  if(qa)window.__K_WORLD_QA__={
  navigate:(id,pose)=>navigate(id,pose||{}),
  camera:(position,yaw=0,pitch=0)=>{camera.position=[...position];camera.yaw=yaw;camera.pitch=pitch;},
@@ -239,5 +312,9 @@ async function start(){try{renderer=new Renderer($('scene'));setView(preferences
  command:raw=>command(raw)
 };
  }catch(e){$('loading').classList.add('error');$('load-state').textContent='Unable to open the 3D renderer: '+e.message;console.error(e);}}
-start();
-on(window,'pagehide',()=>{cancelAnimationFrame(frameId);clearInput();clearTimeout(arrivalTimer);clearTimeout(toastTimer);music.destroy();renderer?.dispose();for(const url of objectUrls)URL.revokeObjectURL(url);aborter.abort();});
+void loadPublishedReleases();void loadGuidedScore();
+const refreshTimer=setInterval(()=>{if(!document.hidden)void loadPublishedReleases();},5*60*1000);
+on(document,'visibilitychange',()=>{if(!document.hidden)void loadPublishedReleases();});
+if(hostWorldVisible)void start();
+parentMessage({type:'k-world:ready'});publishState();
+on(window,'pagehide',()=>{cancelAnimationFrame(frameId);clearInterval(refreshTimer);clearTimeout(stateTimer);clearInput();clearTimeout(arrivalTimer);clearTimeout(toastTimer);music.destroy();renderer?.dispose();for(const url of objectUrls)URL.revokeObjectURL(url);aborter.abort();});

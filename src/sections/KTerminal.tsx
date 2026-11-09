@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import KBandStage from './KBandStage';
-import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioTrack, type KAudioZone } from '../data/kAudioZones';
+import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioZone } from '../data/kAudioZones';
+import { useKMusic } from './AsciiCityWorld';
 
 interface Track {
   id: number;
@@ -14,6 +15,27 @@ interface Track {
 interface TerminalLine {
   text: string;
   className?: string;
+}
+
+// Terminal styling is deliberately limited to known span classes. Track metadata,
+// saved playlist titles, and typed commands must remain text when rendered.
+function terminalHtml(value: string) {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+    .replace(/&lt;span class=&quot;((?:tc|kt)-[a-z0-9-]+)&quot;&gt;/g, '<span class="$1">')
+    .replace(/&lt;\/span&gt;/g, '</span>');
+}
+
+function soundcloudTrackUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (url.protocol !== 'https:' || !['soundcloud.com', 'www.soundcloud.com'].includes(url.hostname) || url.username || url.password || url.port || parts.length !== 2 || ['sets', 'likes', 'tracks', 'reposts', 'popular-tracks'].includes(parts[1])) return null;
+    return `https://soundcloud.com/${parts.join('/')}`;
+  } catch { return null; }
+}
+
+function audioZoneLabel(zone: string | null | undefined) {
+  return zone && zone in K_ZONE_LABELS ? K_ZONE_LABELS[zone as KAudioZone] : zone ? zone.toUpperCase() : 'STANDALONE';
 }
 
 const bootMessages = [
@@ -502,10 +524,11 @@ export default function KTerminal({
   onExitToGallery,
   onEnterScene,
   worldAudioZone,
-  worldAudioArmed = false,
   onAudioState,
 }: KTerminalProps = {}) {
   const navigate = useNavigate();
+  const music = useKMusic();
+  const { audio, catalogue, catalogueStatus, sendCommand, playTrack: selectSharedTrack } = music;
   const [terminalParams] = useSearchParams();
   const fromGallery = embedded || terminalParams.get('from') === 'gallery';
   const enterWorldScene = useCallback((scene: KWorldScene) => {
@@ -518,52 +541,43 @@ export default function KTerminal({
   const terminalRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const widgetRef = useRef<HTMLIFrameElement>(null);
-  const scWidgetRef = useRef<any>(null);
-  const widgetBoundRef = useRef(false);
-  const catalogHydratedRef = useRef(false);
   const visualizerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playbackPositionRef = useRef(0);
-  const pausedByUserRef = useRef(false);
-  const autoDjRef = useRef(true);
-  const zoneRef = useRef<KAudioZone | undefined>(worldAudioZone);
-  const lastAutoZoneRef = useRef<KAudioZone | undefined>(undefined);
-  const zoneIndexRef = useRef(0);
-  const autoAdvanceRef = useRef<(() => void) | null>(null);
-  const pendingZoneRef = useRef<KAudioZone | null>(null);
-  const activeZoneRef = useRef<KAudioZone | undefined>(worldAudioZone);
-  const currentTrackUrlRef = useRef('');
-  const loadGenerationRef = useRef(0);
+  const catalogueSignatureRef = useRef('');
+  const lastAudioErrorRef = useRef<string | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [bootPhase, setBootPhase] = useState<'booting' | 'done'>('booting');
   const [bootText, setBootText] = useState('');
   const [inputValue, setInputValue] = useState('');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [tracks, setTracks] = useState<Track[]>(defaultTracks);
-  const [volume, setVolume] = useState(50);
-  const [progress, setProgress] = useState(0);
-  const [playbackPositionMs, setPlaybackPositionMs] = useState(0);
-  const [timeDisplay, setTimeDisplay] = useState('00:00 / 00:00');
-  const [audioStatus, setAudioStatus] = useState('STANDBY');
+  const isPlaying = audio.status === 'playing';
+  const volume = audio.volume;
+  const playbackPositionMs = audio.position;
+  const progress = audio.duration > 0 ? Math.max(0, Math.min(100, audio.position / audio.duration * 100)) : 0;
+  const audioStatus = audio.status.toUpperCase();
+  const autoDj = audio.mode === 'auto';
+  const pendingZone = audio.pendingZone;
+  const currentTrack: Track | null = audio.current ? {
+    id: tracks.find((track) => track.url === audio.current?.url)?.id ?? -1,
+    url: audio.current.url,
+    title: audio.current.title,
+    duration: audio.duration,
+    plays: tracks.find((track) => track.url === audio.current?.url)?.plays ?? 0,
+  } : null;
   const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1);
+  const playbackRate = audio.rate;
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
   const [visualizerBars, setVisualizerBars] = useState(50);
   const [visualizerFps, setVisualizerFps] = useState(20);
   const [bandEnabled, setBandEnabled] = useState(true);
-  const [autoDj, setAutoDj] = useState(true);
-  const [pendingZone, setPendingZone] = useState<KAudioZone | null>(null);
   const [asciiTick, setAsciiTick] = useState(0);
   const [ritualEnabled, setRitualEnabled] = useState(true);
   const [ritualIntensity, setRitualIntensity] = useState(72);
   const [ritualFps, setRitualFps] = useState(8);
 
-  useEffect(() => { autoDjRef.current = autoDj; }, [autoDj]);
-  useEffect(() => { zoneRef.current = worldAudioZone; }, [worldAudioZone]);
-  useEffect(() => { currentTrackUrlRef.current = currentTrack?.url || ''; }, [currentTrack?.url]);
+  useEffect(() => { playbackPositionRef.current = audio.position; }, [audio.position]);
 
   const bootIndexRef = useRef(0);
   const STORAGE_KEY = 'k-terminal:tracks:v3';
@@ -579,13 +593,10 @@ export default function KTerminal({
         setTracks(Array.from(byUrl.values()));
       }
       const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-      if (typeof settings.volume === 'number') setVolume(settings.volume);
       if (typeof settings.visualizerEnabled === 'boolean') setVisualizerEnabled(settings.visualizerEnabled);
       if (typeof settings.visualizerBars === 'number') setVisualizerBars(settings.visualizerBars);
       if (typeof settings.visualizerFps === 'number') setVisualizerFps(settings.visualizerFps);
-      if (typeof settings.playbackRate === 'number') setPlaybackRate(settings.playbackRate);
       if (typeof settings.bandEnabled === 'boolean') setBandEnabled(settings.bandEnabled);
-      if (typeof settings.autoDj === 'boolean') setAutoDj(settings.autoDj);
       if (typeof settings.ritualEnabled === 'boolean') setRitualEnabled(settings.ritualEnabled);
       if (typeof settings.ritualIntensity === 'number') setRitualIntensity(settings.ritualIntensity);
       if (typeof settings.ritualFps === 'number') setRitualFps(settings.ritualFps);
@@ -642,7 +653,7 @@ export default function KTerminal({
   }, [bootPhase]);
 
   const addLine = useCallback((text: string, className?: string) => {
-    setLines((prev) => [...prev, { text, className }]);
+    setLines((prev) => [...prev, { text: terminalHtml(text), className }]);
   }, []);
 
   const showWelcome = useCallback(() => {
@@ -652,7 +663,8 @@ export default function KTerminal({
     addLine('');
     addLine('Artist Profile: <span class="tc-cyan">https://soundcloud.com/raikouno</span>');
     addLine('');
-    addLine(`<span class="tc-success">[OK]</span> ${defaultTracks.length} track(s) pre-loaded.`);
+    addLine('<span class="tc-success">[SYNC]</span> Latest releases update automatically. Type sync to check now.');
+    addLine('Type <span class="tc-command">latest</span> to play the newest verified track, then <span class="tc-command">background on</span> to keep listening in the comic.');
     addLine('Type <span class="tc-command">\'list\'</span> to see available tracks.');
     addLine('Type <span class="tc-command">\'help\'</span> for all commands.');
     addLine('Or <span class="tc-cyan">CLICK on any track below to play</span>');
@@ -665,128 +677,29 @@ export default function KTerminal({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  const updateProgressUI = useCallback((current: number, total: number) => {
-    playbackPositionRef.current = current || 0;
-    setPlaybackPositionMs(current || 0);
-    if (!total) return;
-    const percent = (current / total) * 100;
-    setProgress(percent);
-    const currentSec = Math.floor(current / 1000);
-    const totalSec = Math.floor(total / 1000);
-    setTimeDisplay(`${formatTime(currentSec)} / ${formatTime(totalSec)}`);
-  }, [formatTime]);
+  const timeDisplay = `${formatTime(Math.floor(audio.position / 1000))} / ${formatTime(Math.floor(audio.duration / 1000))}`;
 
-  // Bind SoundCloud widget events (call once after iframe loads)
-  const bindWidgetEvents = useCallback((widget: any) => {
-    const SC = (window as any).SC;
-    if (!SC) return;
-
-    if (widgetBoundRef.current) return;
-    widgetBoundRef.current = true;
-
-    widget.bind(SC.Widget.Events.READY, () => {
-      // The initial widget is the artist profile. SoundCloud resolves it to the
-      // current public catalogue, so getSounds() gives us recent uploads without
-      // hard-coding a stale list. Only hydrate once; later READY events are tracks.
-      if (!catalogHydratedRef.current && typeof widget.getSounds === 'function') {
-        widget.getSounds((sounds: any[]) => {
-          if (Array.isArray(sounds) && sounds.length > 1) {
-            catalogHydratedRef.current = true;
-            const liveTracks: Track[] = sounds.map((sound: any, index: number) => ({
-              id: index + 1,
-              url: sound.permalink_url || sound.uri || '',
-              title: sound.title || `Track ${index + 1}`,
-              duration: sound.duration || 0,
-              plays: sound.playback_count || 0,
-            })).filter((track: Track) => track.url);
-            if (liveTracks.length) {
-              setTracks((saved) => {
-                const byUrl = new Map<string, Track>();
-                [...liveTracks, ...saved].forEach((t) => { if (!byUrl.has(t.url)) byUrl.set(t.url, t); });
-                return Array.from(byUrl.values()).map((t, i) => ({ ...t, id: i + 1 }));
-              });
-              addLine(`<span class="tc-success">[SYNC]</span> Loaded ${liveTracks.length} current SoundCloud tracks.`);
-            }
-          }
-        });
-      }
-      widget.getDuration((duration: number) => {
-        setCurrentTrack((prev) => (prev ? { ...prev, duration } : prev));
+  // The persistent site host owns the only player. Catalogue refreshes never
+  // reload or seek it, and opening the comic does not create another session.
+  useEffect(() => {
+    const signature = catalogue.map((track) => `${track.url}\t${track.title}`).join('\n');
+    if (!signature || signature === catalogueSignatureRef.current) return;
+    catalogueSignatureRef.current = signature;
+    setTracks((saved) => {
+      const byUrl = new Map<string, Track>();
+      catalogue.forEach((track, index) => {
+        const known = saved.find((item) => item.url === track.url);
+        byUrl.set(track.url, { id: index + 1, url: track.url, title: track.title, duration: known?.duration || 0, plays: known?.plays || 0 });
       });
-      widget.setVolume(volume);
-      // Do not auto-play the initial profile catalogue. Track loads below use
-      // auto_play plus their load callback, both originating from the user's gesture.
+      saved.forEach((track) => { if (!byUrl.has(track.url)) byUrl.set(track.url, track); });
+      return [...byUrl.values()].map((track, index) => ({ ...track, id: index + 1 }));
     });
+  }, [catalogue]);
 
-    widget.bind(SC.Widget.Events.PLAY, () => {
-      setIsPlaying(true);
-      setAudioStatus('PLAYING');
-      startVisualizer();
-    });
-
-    widget.bind(SC.Widget.Events.PAUSE, () => {
-      setIsPlaying(false);
-      setAudioStatus('PAUSED');
-      stopVisualizer();
-    });
-
-    widget.bind(SC.Widget.Events.FINISH, () => {
-      setIsPlaying(false);
-      setAudioStatus('FINISHED');
-      stopVisualizer();
-      // Sequential audio invariant: a world/room change is queued while a song
-      // is playing and may only take effect after FINISH. There is one widget,
-      // one active track, and no crossfade/overlap path.
-      if (autoDjRef.current && autoAdvanceRef.current) {
-        autoAdvanceRef.current();
-      } else {
-        addLine('Track finished. Type "next" to continue or "list" to choose another.', 'warning');
-      }
-    });
-
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e: any) => {
-      updateProgressUI(e.currentPosition, currentTrack?.duration || 0);
-    });
-  }, [volume, updateProgressUI, addLine, currentTrack?.duration]);
-
-  // SoundCloud Widget init. load() keeps playback attached to the existing
-  // iframe/widget instance so a user's click remains the playback gesture.
-  const initSoundCloud = useCallback((url: string, shouldAutoPlay = true) => {
-    if (!widgetRef.current) return;
-    const generation = ++loadGenerationRef.current;
-
-    const SC = (window as any).SC;
-    if (!SC || !SC.Widget) {
-      addLine('<span class="tc-warning">[WARN]</span> SoundCloud API loading... retrying...');
-      window.setTimeout(() => { if (generation === loadGenerationRef.current) initSoundCloud(url, shouldAutoPlay); }, 500);
-      return;
-    }
-
-    try {
-      const widget = scWidgetRef.current || SC.Widget(widgetRef.current);
-      scWidgetRef.current = widget;
-      bindWidgetEvents(widget);
-
-      widget.load(url, {
-        auto_play: shouldAutoPlay,
-        hide_related: true,
-        show_comments: false,
-        show_user: false,
-        show_reposts: false,
-        visual: false,
-        callback: () => {
-          if (generation !== loadGenerationRef.current) return;
-          widget.setVolume(volume);
-          if (shouldAutoPlay) widget.play();
-          else widget.pause();
-        },
-      });
-    } catch (err) {
-      console.error('SC Widget error:', err);
-      setAudioStatus('ERROR');
-      addLine('<span class="tc-error">Error loading SoundCloud player. Try the track again.</span>');
-    }
-  }, [bindWidgetEvents, addLine, volume]);
+  useEffect(() => {
+    if (audio.error && audio.error !== lastAudioErrorRef.current) addLine(audio.error, 'error');
+    lastAudioErrorRef.current = audio.error;
+  }, [audio.error, addLine]);
 
   // Visualizer
   const startVisualizer = useCallback(() => {
@@ -829,114 +742,29 @@ export default function KTerminal({
     }
   }, []);
 
-  // Play track by click
+  useEffect(() => {
+    if (isPlaying) startVisualizer();
+    else stopVisualizer();
+    return stopVisualizer;
+  }, [isPlaying, bootPhase, startVisualizer, stopVisualizer]);
+
+  // Library selections and URL playback are requests to the shared controller.
+  // Visual state updates only after its authoritative provider events arrive.
   const playTrack = useCallback((track: Track) => {
-    setAutoDj(false);
-    pausedByUserRef.current = false;
-    setCurrentTrack(track);
+    const url = soundcloudTrackUrl(track.url);
+    if (!url) { addLine('Use a public HTTPS SoundCloud track URL.', 'error'); return; }
+    selectSharedTrack({ url, title: track.title });
     addLine(`Loading track ${track.id}: ${track.title}...`);
-    addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
-    initSoundCloud(track.url);
-  }, [addLine, initSoundCloud]);
+    addLine('If the browser requests a playback gesture, use resume or the player’s Play button.');
+  }, [addLine, selectSharedTrack]);
 
-  // Play any SoundCloud URL
-  const playUrl = useCallback((url: string) => {
-    setAutoDj(false);
-    pausedByUserRef.current = false;
-    if (!url.includes('soundcloud.com')) {
-      addLine('<span class="tc-error">Error: URL must be from SoundCloud</span>');
-      return;
-    }
-    const t: Track = { id: 999, url, title: 'Custom URL', duration: 0, plays: 0 };
-    setCurrentTrack(t);
-    addLine(`Loading SoundCloud URL...`);
-    addLine('<span class="tc-cyan">[TIP]</span> If playback does not start automatically, type <span class="tc-command">resume</span> to start the selected song.');
-    initSoundCloud(url);
-  }, [addLine, initSoundCloud]);
-
-  // Poll the widget as a secondary source of truth. Some mobile/browser combinations
-  // can miss an early PLAY event after widget.load(); this keeps the K band and
-  // visualizer moving whenever SoundCloud is actually playing.
-  useEffect(() => {
-    if (!currentTrack) return;
-    const id = window.setInterval(() => {
-      const widget = scWidgetRef.current;
-      if (!widget) return;
-      widget.isPaused?.((paused: boolean) => {
-        const playing = !paused;
-        setIsPlaying(playing);
-        setAudioStatus(playing ? 'PLAYING' : 'PAUSED');
-        if (playing && !visualizerIntervalRef.current) startVisualizer();
-      });
-      widget.getPosition?.((position: number) => {
-        widget.getDuration?.((duration: number) => updateProgressUI(position || 0, duration || currentTrack.duration || 0));
-      });
-    }, 300);
-    return () => window.clearInterval(id);
-  }, [currentTrack, startVisualizer, updateProgressUI]);
-
-  const playWorldTrack = useCallback((track: KAudioTrack, index: number, shouldAutoPlay: boolean) => {
-    if (currentTrackUrlRef.current === track.url && (isPlaying || playbackPositionRef.current > 0)) return;
-    const t: Track = { id: 7000 + index, url: track.url, title: track.title, duration: 0, plays: 0 };
-    currentTrackUrlRef.current = track.url;
-    setCurrentTrack(t);
-    setProgress(0);
-    setPlaybackPositionMs(0);
-    setTimeDisplay('00:00 / 00:00');
-    setAudioStatus(shouldAutoPlay ? 'LOADING' : 'PAUSED');
-    initSoundCloud(track.url, shouldAutoPlay);
-  }, [initSoundCloud, isPlaying]);
-
-  const playZone = useCallback((zone: KAudioZone, index = 0, forcePlay = false) => {
-    const playlist = K_ZONE_PLAYLISTS[zone] || [];
-    if (!playlist.length) return;
-    const nextIndex = ((index % playlist.length) + playlist.length) % playlist.length;
-    zoneIndexRef.current = nextIndex;
-    activeZoneRef.current = zone;
-    pendingZoneRef.current = null;
-    setPendingZone(null);
-    const shouldAutoPlay = forcePlay || !pausedByUserRef.current;
-    playWorldTrack(playlist[nextIndex], nextIndex, shouldAutoPlay);
-    addLine(`<span class="tc-cyan">[AUTO DJ]</span> ${K_ZONE_LABELS[zone]} → ${playlist[nextIndex].title}`);
-  }, [addLine, playWorldTrack]);
-
-  useEffect(() => {
-    autoAdvanceRef.current = () => {
-      if (!autoDjRef.current) return;
-      const queued = pendingZoneRef.current;
-      if (queued) {
-        playZone(queued, 0, true);
-        return;
-      }
-      const zone = activeZoneRef.current || zoneRef.current;
-      if (!zone) return;
-      const playlist = K_ZONE_PLAYLISTS[zone] || [];
-      if (!playlist.length) return;
-      const next = (zoneIndexRef.current + 1) % playlist.length;
-      playZone(zone, next, true);
-    };
-  }, [playZone]);
-
-  useEffect(() => {
-    if (!worldAudioArmed || !worldAudioZone || !autoDj) return;
-    if (lastAutoZoneRef.current === worldAudioZone) return;
-    lastAutoZoneRef.current = worldAudioZone;
-    zoneRef.current = worldAudioZone;
-
-    const hasActiveTrack = Boolean(currentTrackUrlRef.current);
-    const trackInProgress = hasActiveTrack && audioStatus !== 'FINISHED' && audioStatus !== 'STOPPED' && progress < 99.5;
-    if (trackInProgress) {
-      // Last destination wins. Moving through several rooms while one song plays
-      // never stacks players or interrupts playback.
-      pendingZoneRef.current = worldAudioZone;
-      setPendingZone(worldAudioZone);
-      setAudioStatus((status) => status === 'PLAYING' ? 'PLAYING' : status);
-      return;
-    }
-
-    zoneIndexRef.current = 0;
-    playZone(worldAudioZone, 0, false);
-  }, [worldAudioArmed, worldAudioZone, autoDj, playZone, audioStatus, progress]);
+  const playUrl = useCallback((value: string) => {
+    const url = soundcloudTrackUrl(value);
+    if (!url) { addLine('Use a public HTTPS SoundCloud track URL.', 'error'); return; }
+    const known = tracks.find((track) => track.url === url);
+    selectSharedTrack({ url, title: known?.title || url.split('/').pop()!.replace(/-/g, ' ') });
+    addLine('Loading the selected SoundCloud track in the shared player...');
+  }, [addLine, tracks, selectSharedTrack]);
 
   useEffect(() => {
     onAudioState?.({
@@ -954,6 +782,12 @@ export default function KTerminal({
     switch (cmd) {
       case 'help':
         addLine(`Available commands:
+  <span class="tc-command">sync [latest]</span>      - Refresh the latest published releases
+  <span class="tc-command">latest</span>            - Play the newest verified track
+  <span class="tc-command">background on|off</span> - Keep music playing while reading
+  <span class="tc-command">guided on|off</span>     - Follow the comic soundtrack cues
+  <span class="tc-command">guided edit</span>       - Define songs for edition/page ranges
+  <span class="tc-command">comment</span>           - Open the project feedback editor
   <span class="tc-command">list</span>              - Display available tracks
   <span class="tc-command">play [id]</span>         - Play track by ID
   <span class="tc-command">play [url]</span>        - Play any SoundCloud URL
@@ -997,12 +831,12 @@ export default function KTerminal({
         addLine('PLAYLIST:');
         addLine('='.repeat(40));
         tracks.forEach((track) => {
-          const prefix = currentTrack && currentTrack.id === track.id ? '▶ ' : '  ';
+          const prefix = currentTrack && currentTrack.url === track.url ? '▶ ' : '  ';
           const playsDisplay = track.plays >= 1000
             ? `${(track.plays / 1000).toFixed(track.plays >= 10000 ? 0 : 1)}K`
             : `${track.plays}`;
           const playsStr = track.plays > 0 ? ` <span class="tc-cyan">${playsDisplay} plays</span>` : '';
-          addLine(`${prefix}[${track.id}] ${track.title}${playsStr}`, currentTrack && currentTrack.id === track.id ? 'playing' : '');
+          addLine(`${prefix}[${track.id}] ${track.title}${playsStr}`, currentTrack && currentTrack.url === track.url ? 'playing' : '');
         });
         addLine('');
         addLine('Click on a track above or use "play [id]" to select');
@@ -1015,6 +849,7 @@ export default function KTerminal({
           break;
         }
         const arg = args[0];
+        if (arg.toLowerCase() === 'latest') { sendCommand('latest'); addLine('Selecting the newest verified release...'); break; }
         if (arg.includes('soundcloud.com')) {
           playUrl(arg);
         } else {
@@ -1034,9 +869,9 @@ export default function KTerminal({
           addLine('Error: No URL specified. Usage: add [url] [title]', 'error');
           break;
         }
-        const url = args[0];
-        if (!url.includes('soundcloud.com')) {
-          addLine('Error: URL must be from SoundCloud', 'error');
+        const url = soundcloudTrackUrl(args[0]);
+        if (!url) {
+          addLine('Use a public HTTPS SoundCloud track URL.', 'error');
           break;
         }
         const title = args.slice(1).join(' ') || `Track ${tracks.length + 1}`;
@@ -1081,115 +916,87 @@ export default function KTerminal({
         break;
       }
 
+      case 'sync':
+        if (args.length && (args.length !== 1 || args[0].toLowerCase() !== 'latest')) { addLine('Usage: sync or sync latest', 'error'); break; }
+        sendCommand('sync latest');
+        addLine('Checking the published latest-release catalogue. Current playback is preserved.');
+        break;
+
+      case 'latest':
+        sendCommand('latest');
+        addLine('Selecting the newest verified release...');
+        break;
+
+      case 'background': {
+        const mode = (args[0] || 'status').toLowerCase();
+        if (!['on', 'off', 'status'].includes(mode)) { addLine('Usage: background on|off|status', 'error'); break; }
+        if (mode === 'status') addLine(`Background playback: ${music.background ? 'ON' : 'OFF'}`);
+        else { sendCommand(`background ${mode}`); addLine(`Background ${mode} requested. ${mode === 'on' ? 'Start music with latest or resume, then open the comic.' : 'Music will pause when you leave a music screen.'}`); }
+        break;
+      }
+
+      case 'guided': {
+        const mode = (args[0] || 'status').toLowerCase();
+        if (mode === 'edit') { music.openScore(); break; }
+        if (!['on', 'off', 'status'].includes(mode)) { addLine('Usage: guided on|off|status|edit', 'error'); break; }
+        if (mode === 'status') addLine(`Guided mode: ${music.guided ? 'ON' : 'OFF'}\n${music.guidedNotice}`);
+        else { sendCommand(`guided ${mode}`); addLine(`Guided mode ${mode} requested. ${mode === 'on' ? 'Open the comic to follow configured page cues. Use guided edit to define them.' : 'Page changes will stop selecting music.'}`); }
+        break;
+      }
+
+      case 'comment':
+        music.openComments();
+        break;
+
       case 'auto': {
         const mode = (args[0] || '').toLowerCase();
-        if (mode !== 'on' && mode !== 'off') {
-          addLine(`AUTO DJ: ${autoDj ? 'ON' : 'OFF'} · usage: auto on|off`);
-          break;
-        }
-        const enabled = mode === 'on';
-        setAutoDj(enabled);
-        autoDjRef.current = enabled;
-        if (enabled) {
-          pausedByUserRef.current = false;
-          const zone = worldAudioZone || zoneRef.current;
-          if (zone) {
-            lastAutoZoneRef.current = undefined;
-            playZone(zone, 0, true);
-          }
-          addLine('<span class="tc-success">AUTO DJ ON</span> — world zones control K Terminal audio.');
-        } else {
-          addLine('<span class="tc-warning">AUTO DJ OFF</span> — current/manual track remains under terminal control.');
-        }
+        if (mode !== 'on' && mode !== 'off') { addLine(`AUTO DJ: ${autoDj ? 'ON' : 'OFF'} · usage: auto on|off`); break; }
+        sendCommand(`auto ${mode}`);
+        addLine(mode === 'on' ? 'Auto DJ requested. The shared controller preserves your current song and pause state.' : 'Manual mode requested. Location changes will no longer choose songs.');
         break;
       }
 
-      case 'zone': {
-        const zone = worldAudioZone || zoneRef.current;
-        addLine(zone ? `ZONE: ${K_ZONE_LABELS[zone]} · AUTO DJ ${autoDj ? 'ON' : 'OFF'}` : 'ZONE: standalone terminal');
+      case 'zone':
+        addLine(`ZONE: ${audioZoneLabel(worldAudioZone || audio.zone)} · AUTO DJ ${autoDj ? 'ON' : 'OFF'}`);
         break;
-      }
 
       case 'songs': {
-        const zone = worldAudioZone || zoneRef.current;
-        if (!zone) { addLine('No world zone active.'); break; }
-        addLine(`${K_ZONE_LABELS[zone]} PLAYLIST:`);
-        (K_ZONE_PLAYLISTS[zone] || []).forEach((track, i) => addLine(`  [${i + 1}] ${track.title}`));
+        const zone = worldAudioZone || audio.zone;
+        if (zone && zone in K_ZONE_PLAYLISTS) {
+          addLine(`${audioZoneLabel(zone)} PLAYLIST:`);
+          K_ZONE_PLAYLISTS[zone as KAudioZone].forEach((track, index) => addLine(`  [${index + 1}] ${track.title}`));
+        } else {
+          addLine('LATEST RELEASES:');
+          catalogue.slice(0, 20).forEach((track) => addLine(`  [${tracks.find((item) => item.url === track.url)?.id || '—'}] ${track.title}`));
+        }
         break;
       }
 
-      case 'nowplaying': {
-        addLine(`AUDIO AUTHORITY: K TERMINAL
+      case 'nowplaying':
+        addLine(`AUDIO AUTHORITY: SHARED K TERMINAL SESSION
 MODE: ${autoDj ? 'AUTO DJ / SCENE SYNC' : 'MANUAL'}
-ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}
+ZONE: ${audioZoneLabel(worldAudioZone || audio.zone)}
 TRACK: ${currentTrack?.title || 'NONE'}
 STATUS: ${audioStatus}
-NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG PLAYS TO END'}`);
+NEXT ROOM: ${pendingZone ? audioZoneLabel(pendingZone) : 'NONE'}
+BACKGROUND: ${music.background ? 'ON' : 'OFF'} · GUIDED: ${music.guided ? 'ON' : 'OFF'}`);
         break;
-      }
 
-      case 'skip': {
-        if (!scWidgetRef.current) { addLine('Error: No track loaded', 'error'); break; }
-        try { scWidgetRef.current.pause(); scWidgetRef.current.seekTo(0); } catch (_) {}
-        setIsPlaying(false);
-        setAudioStatus('FINISHED');
-        stopVisualizer();
-        if (autoDjRef.current && autoAdvanceRef.current) autoAdvanceRef.current();
-        addLine('<span class="tc-cyan">[SKIP]</span> Advanced to the queued room/next song.');
+      case 'skip':
+      case 'pause':
+      case 'resume':
+      case 'stop':
+        sendCommand(cmd);
+        addLine(`${cmd.toUpperCase()} requested for the shared player.`);
         break;
-      }
-
-      case 'pause': {
-        if (!scWidgetRef.current) {
-          addLine('Error: No track loaded', 'error');
-          break;
-        }
-        pausedByUserRef.current = true;
-        try { scWidgetRef.current.pause(); } catch (e) {}
-        addLine('Playback paused.');
-        break;
-      }
-
-      case 'resume': {
-        if (!scWidgetRef.current) {
-          addLine('Error: No track loaded', 'error');
-          break;
-        }
-        pausedByUserRef.current = false;
-        try { scWidgetRef.current.play(); } catch (e) {}
-        addLine('Resuming playback...');
-        break;
-      }
-
-      case 'stop': {
-        if (!scWidgetRef.current) {
-          addLine('Error: No track loaded', 'error');
-          break;
-        }
-        try {
-          pausedByUserRef.current = true;
-        scWidgetRef.current.pause();
-          scWidgetRef.current.seekTo(0);
-        } catch (e) {}
-        setIsPlaying(false);
-        setAudioStatus('STOPPED');
-        stopVisualizer();
-        setProgress(0);
-        addLine('Playback stopped.');
-        break;
-      }
 
       case 'speed': {
-        if (!args[0]) { addLine(`Playback speed: ${playbackRate}x`); break; }
+        if (!args[0]) { addLine(`Actual playback speed: ${playbackRate}x`); break; }
         const rate = Number(args[0]);
         if (!Number.isFinite(rate) || rate < 0.5 || rate > 2) { addLine('Error: Speed must be between 0.5 and 2.0', 'error'); break; }
-        setPlaybackRate(rate);
-        const widget: any = scWidgetRef.current;
-        if (widget && typeof widget.setPlaybackRate === 'function') {
-          try { widget.setPlaybackRate(rate); addLine(`Playback speed set to ${rate}x`); } catch (_) { addLine('Provider rejected playback-rate control.', 'error'); }
-        } else {
-          addLine('Speed preference saved, but SoundCloud embedded playback does not expose playback-rate control in this browser.', 'warning');
-        }
+        if (audio.current?.provider !== 'local') { addLine('SoundCloud embeds do not support playback-rate changes. Speed remains 1x.', 'warning'); break; }
+        sendCommand(`speed ${rate}`);
+        addLine(`Requested local-audio speed: ${rate}x.`);
         break;
       }
 
@@ -1232,13 +1039,12 @@ NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG P
           addLine(`Current volume: ${volume}%`);
           break;
         }
-        const vol = parseInt(args[0]);
+        const vol = Number(args[0]);
         if (isNaN(vol) || vol < 0 || vol > 100) {
           addLine('Error: Volume must be 0-100', 'error');
           break;
         }
-        setVolume(vol);
-        try { scWidgetRef.current?.setVolume(vol); } catch (e) {}
+        music.setVolume(vol);
         addLine(`Volume set to ${vol}%`);
         break;
       }
@@ -1252,7 +1058,7 @@ NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG P
           playTrack(tracks[0]);
           break;
         }
-        const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
+        const currentIndex = tracks.findIndex((t) => t.url === currentTrack.url);
         const nextTrack = tracks[(currentIndex + 1) % tracks.length];
         playTrack(nextTrack);
         break;
@@ -1267,8 +1073,8 @@ NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG P
           playTrack(tracks[0]);
           break;
         }
-        const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
-        const prevTrack = tracks[(currentIndex - 1 + tracks.length) % tracks.length];
+        const currentIndex = tracks.findIndex((t) => t.url === currentTrack.url);
+        const prevTrack = tracks[currentIndex < 0 ? tracks.length - 1 : (currentIndex - 1 + tracks.length) % tracks.length];
         playTrack(prevTrack);
         break;
       }
@@ -1282,10 +1088,13 @@ NEXT ROOM: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'NONE — CURRENT SONG P
 Status: ${isPlaying ? 'PLAYING' : 'PAUSED/STOPPED'}
 Volume: ${volume}%
 Playlist: ${tracks.length} track(s)
-Audio Authority: K Terminal
+Audio Authority: Shared K Terminal session
 Mode: ${autoDj ? 'AUTO DJ' : 'MANUAL'}
-Zone: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'standalone'}
-Queued Room: ${pendingZone ? K_ZONE_LABELS[pendingZone] : 'none'}
+Zone: ${audioZoneLabel(worldAudioZone || audio.zone)}
+Queued Room: ${audioZoneLabel(pendingZone)}
+Background: ${music.background ? 'ON' : 'OFF'}
+Guided: ${music.guided ? 'ON' : 'OFF'}
+Catalogue: ${catalogueStatus}
 Sequential Playback: ON (no overlap)`);
         break;
       }
@@ -1293,7 +1102,7 @@ Sequential Playback: ON (no overlap)`);
       case 'city': {
         addLine('<span class="tc-cyan">[CITY]</span> Returning to K//CITY...');
         if (embedded && onExitToCity) onExitToCity();
-        else navigate('/gallery?spawn=console');
+        else navigate('/k/city');
         break;
       }
 
@@ -1329,7 +1138,7 @@ Sequential Playback: ON (no overlap)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, playZone, pendingZone]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, pendingZone, audio, audioStatus, music, catalogue, catalogueStatus, sendCommand]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -1364,26 +1173,7 @@ Sequential Playback: ON (no overlap)`);
     const frame = requestAnimationFrame(resizeCanvas);
     window.addEventListener('resize', resizeCanvas);
     return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resizeCanvas); };
-  }, []);
-
-  // Load SoundCloud API script
-  useEffect(() => {
-    if (document.getElementById('sc-api')) return;
-    const script = document.createElement('script');
-    script.id = 'sc-api';
-    script.src = 'https://w.soundcloud.com/player/api.js';
-    script.async = true;
-    script.onload = () => {
-      if (widgetRef.current && (window as any).SC?.Widget) {
-        const widget = scWidgetRef.current || (window as any).SC.Widget(widgetRef.current);
-        scWidgetRef.current = widget;
-        bindWidgetEvents(widget);
-      }
-    };
-    document.body.appendChild(script);
-    // Keep the shared Widget API loaded. K//CITY uses the same script after
-    // the terminal overlay closes, avoiding a silent handoff/reload gap.
-  }, [bindWidgetEvents]);
+  }, [bootPhase]);
 
   // Auto-scroll terminal
   useEffect(() => {
@@ -1404,19 +1194,6 @@ Sequential Playback: ON (no overlap)`);
     <div className="kt-body">
       <div className="kt-regal-pillar kt-regal-pillar-left" aria-hidden="true"><span className="kt-pillar-glyph">♛</span></div>
       <div className="kt-regal-pillar kt-regal-pillar-right" aria-hidden="true"><span className="kt-pillar-glyph">♛</span></div>
-
-      {/* SoundCloud widget iframe -- tiny but in-viewport for mobile autoplay policy */}
-      <iframe
-        ref={widgetRef}
-        id="soundcloud-widget"
-        width="1"
-        height="1"
-        scrolling="no"
-        frameBorder="no"
-        allow="autoplay"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/raikouno&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
-        style={{ position: 'absolute', bottom: '0', left: '0', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none', border: 0 }}
-      />
 
       {gameOpen && (
         <div className="kt-game-shell" role="dialog" aria-label="TechOps Hero">
@@ -1452,7 +1229,7 @@ Sequential Playback: ON (no overlap)`);
               <button
                 type="button"
                 className="kt-gallery-exit"
-                onClick={() => { if (embedded && onExitToCity) onExitToCity(); else navigate('/gallery?spawn=console'); }}
+                onClick={() => { if (embedded && onExitToCity) onExitToCity(); else navigate('/k/city'); }}
                 title="Exit K Terminal and return to K//CITY at the apse computer"
               >
                 [EXIT → CITY]
@@ -1466,7 +1243,7 @@ Sequential Playback: ON (no overlap)`);
               [&larr; PORTFOLIO]
             </Link>
             <div className="kt-status">
-              [SYSTEM: ONLINE] [AUTO DJ: ${autoDj ? 'ON' : 'OFF'}] [ZONE: ${worldAudioZone ? K_ZONE_LABELS[worldAudioZone] : 'STANDALONE'}]${pendingZone ? ` [NEXT: ${K_ZONE_LABELS[pendingZone]}]` : ''} [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
+              [SYSTEM: ONLINE] [AUTO DJ: {autoDj ? 'ON' : 'OFF'}] [ZONE: {audioZoneLabel(worldAudioZone || audio.zone)}]{pendingZone ? ` [NEXT: ${audioZoneLabel(pendingZone)}]` : ''} [AUDIO: <span className={`kt-audio-${audioStatus === 'PLAYING' ? 'success' : audioStatus === 'PAUSED' ? 'warning' : 'error'}`}>{audioStatus}</span>]
             </div>
           </div>
         </div>
@@ -1574,14 +1351,15 @@ Sequential Playback: ON (no overlap)`);
           <div className="kt-progress-bar" style={{ width: `${progress}%` }} />
         </div>
         <div className="kt-track-info">
-          <span id="current-track">{currentTrack ? currentTrack.title.toUpperCase() : 'NO TRACK LOADED'}{pendingZone ? ` · NEXT: ${K_ZONE_LABELS[pendingZone]}` : ''}</span>
+          <span id="current-track">{currentTrack ? currentTrack.title.toUpperCase() : 'NO TRACK LOADED'}{pendingZone ? ` · NEXT: ${audioZoneLabel(pendingZone)}` : ''}</span>
           <span id="time-display">{timeDisplay}</span>
         </div>
 
         {/* Click-to-play track list */}
         <div className="kt-click-play">
             <div className="kt-click-header">
-              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · persistent library
+              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · latest releases + your saved library
+              <div style={{ color: '#aadfba', marginTop: 6 }}>{catalogueStatus || 'Checking the latest releases…'} · background {music.background ? 'on' : 'off'} · guided {music.guided ? 'on' : 'off'}</div>
             </div>
             {isMobile && (
               <div
@@ -1602,7 +1380,7 @@ Sequential Playback: ON (no overlap)`);
               {tracks.map((track) => (
                 <li
                   key={track.id}
-                  className={`kt-track-item ${currentTrack && currentTrack.id === track.id ? 'kt-playing' : ''}`}
+                  className={`kt-track-item ${currentTrack && currentTrack.url === track.url ? 'kt-playing' : ''}`}
                   onClick={() => playTrack(track)}
                 >
                   <span className="kt-track-number">[{String(track.id).padStart(2, '0')}]</span>

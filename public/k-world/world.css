@@ -30,3 +30,5 @@ dialog header,dialog footer{border-color:#00ff4124}dialog header small,dialog fo
 .band-members{background:radial-gradient(ellipse at bottom,#06200b,transparent)}
 .music-title h3,.song.current{color:#00ff41}.current-song strong{color:#b7ff00}.song{color:#8fcf99}.song:hover{background:#061408;color:#caffd2}.song.current{background:#08230d;border-left-color:#00ff41}
 #atlas-dialog .hub-cards button,.hub-cards button:nth-child(2){background:linear-gradient(115deg,#061408,#020602)}.hub-cards strong{color:#b7ff00}.hub-cards span,.portal-description{color:#84a98a}
+
+.reader-music-modes{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.reader-music-modes button{border:1px solid #345849;padding:8px 10px;color:#a6efc8;background:#0b1a15;font:11px/1.4 ui-monospace,monospace;min-height:36px}.reader-music-modes button[aria-pressed="true"]{border-color:#69dfa2;background:#143727;color:#d1ffe6}

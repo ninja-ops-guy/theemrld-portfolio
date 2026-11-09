@@ -51,9 +51,9 @@ function App() {
     window.scrollTo(0, 0);
     if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' }));
   }, [location.pathname, location.hash]);
-  return <Routes>
+  return <AsciiCityWorld><Routes>
     <Route path="/" element={<Portfolio />} />
-    <Route path="/k/*" element={<AsciiCityWorld />} />
+    <Route path="/k/*" element={null} />
     <Route path="/terminal" element={<KTerminal />} />
     <Route path="/links" element={<MediaLinks />} />
     <Route path="/see-world" element={<Suspense fallback={<main role="status">Opening See World…</main>}><SeeWorld /></Suspense>} />
@@ -63,7 +63,7 @@ function App() {
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
-  </Routes>;
+  </Routes></AsciiCityWorld>;
 }
 
 export default App;

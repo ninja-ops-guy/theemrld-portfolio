@@ -1,10 +1,13 @@
 import json
+import contextlib
+import io
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-from scripts.sync_raikouno import parse_feed
+from unittest.mock import patch
+from scripts.sync_raikouno import MAX_FEED_BYTES, main, parse_feed, update_snapshot
 
 FEED = b"""<rss><channel>
 <item><title>Old</title><link>https://soundcloud.com/raikouno/old</link><pubDate>Wed, 01 Jul 2026 10:00:00 GMT</pubDate></item>
@@ -51,6 +54,78 @@ class SyncTests(unittest.TestCase):
     def test_no_undated_tracks_accepted(self):
         with self.assertRaises(ValueError):
             parse_feed(b"<rss><channel><item><title>A</title><link>https://soundcloud.com/raikouno/a</link></item></channel></rss>")
+
+    def test_unchanged_feed_preserves_snapshot_bytes_and_date(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            tracks = parse_feed(FEED)
+            self.assertTrue(update_snapshot(output, tracks))
+            # A previous successful check must not cause hourly timestamp commits.
+            snapshot = json.loads(output.read_text())
+            snapshot["verifiedAt"] = "2026-11-01T12:00:00Z"
+            output.write_text(json.dumps(snapshot, indent=4) + "\n")
+            previous = output.read_bytes()
+            self.assertFalse(update_snapshot(output, parse_feed(FEED)))
+            self.assertEqual(output.read_bytes(), previous)
+
+    def test_new_release_and_title_edits_are_published(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            update_snapshot(output, parse_feed(FEED))
+            updated = FEED.replace(b"<title>New</title>", b"<title>Corrected title</title>")
+            added = b"""<item><title>Latest</title><link>https://soundcloud.com/raikouno/latest</link>
+            <pubDate>Sun, 08 Nov 2026 10:00:00 GMT</pubDate></item>"""
+            updated = updated.replace(b"</channel>", added + b"</channel>")
+            self.assertTrue(update_snapshot(output, parse_feed(updated)))
+            tracks = json.loads(output.read_text())["tracks"]
+            self.assertEqual([track["title"] for track in tracks], ["Latest", "Corrected title", "Old"])
+
+    def test_feed_order_changes_do_not_reorder_equal_date_tracks(self):
+        a = b"""<item><title>A</title><link>https://soundcloud.com/raikouno/a</link>
+        <pubDate>Sun, 08 Nov 2026 10:00:00 GMT</pubDate></item>"""
+        b = a.replace(b"<title>A</title>", b"<title>B</title>").replace(b"raikouno/a", b"raikouno/b")
+        self.assertEqual(parse_feed(b"<rss><channel>" + a + b + b"</channel></rss>"),
+                         parse_feed(b"<rss><channel>" + b + a + b"</channel></rss>"))
+
+    def test_failed_atomic_replace_keeps_previous_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            update_snapshot(output, parse_feed(FEED))
+            previous = output.read_bytes()
+            with patch.object(Path, "replace", side_effect=OSError("write unavailable")):
+                with self.assertRaises(OSError):
+                    update_snapshot(output, parse_feed(FEED.replace(b"<title>New</title>", b"<title>Changed</title>")))
+            self.assertEqual(output.read_bytes(), previous)
+            self.assertEqual(list(Path(directory).iterdir()), [output])
+
+    def test_network_failure_keeps_previous_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            update_snapshot(output, parse_feed(FEED))
+            previous = output.read_bytes()
+            with patch.object(sys, "argv", ["sync_raikouno.py", "--output", str(output)]):
+                with patch("urllib.request.urlopen", side_effect=TimeoutError("feed timeout")):
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        self.assertEqual(main(), 1)
+            self.assertEqual(output.read_bytes(), previous)
+
+    def test_oversized_feed_keeps_previous_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            update_snapshot(output, parse_feed(FEED))
+            previous = output.read_bytes()
+            with patch.object(sys, "argv", ["sync_raikouno.py", "--output", str(output)]):
+                with patch("urllib.request.urlopen", return_value=io.BytesIO(b" " * (MAX_FEED_BYTES + 1))):
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        self.assertEqual(main(), 1)
+            self.assertEqual(output.read_bytes(), previous)
+
+    def test_valid_feed_repairs_invalid_local_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "latest-releases.json"
+            output.write_text('{"tracks": []}')
+            self.assertTrue(update_snapshot(output, parse_feed(FEED)))
+            self.assertEqual(json.loads(output.read_text())["tracks"][0]["title"], "New")
 
 if __name__ == "__main__":
     unittest.main()

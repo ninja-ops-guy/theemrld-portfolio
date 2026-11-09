@@ -7,6 +7,7 @@ import revisionF from '../data/comic-revision-f.json';
 import coverArt from '../data/comic-revision-f-covers.json';
 import volumeFive from '../data/comic-volume-five.json';
 import volumeThirteen from '../data/comic-volume-thirteen.json';
+import ComicMusicBar from '../components/ComicMusicBar';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
@@ -228,6 +229,7 @@ export default function TechOpsComic() {
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
       </nav>
     </header>
+    <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true" />

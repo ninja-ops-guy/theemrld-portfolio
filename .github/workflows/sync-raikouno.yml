@@ -1,0 +1,101 @@
+name: Sync K Terminal releases
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+# A GITHUB_TOKEN push does not start the normal Pages push workflow. The last
+# step explicitly dispatches it, only after new catalogue data needs publishing.
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: k-terminal-release-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout the small release-sync surface
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/sync_raikouno.py
+            /tests/test_raikouno_sync.py
+            /public/k-world/latest-releases.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate release parser and preservation behavior
+        run: python -m unittest discover -s tests -p 'test_raikouno_sync.py'
+
+      - name: Fetch current public releases
+        run: python scripts/sync_raikouno.py
+
+      - name: Commit changed track data without replacing concurrent work
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=public/k-world/latest-releases.json
+          if git diff --quiet -- "$manifest"; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          expected_head="$(git rev-parse HEAD)"
+          git fetch --no-tags --depth=1 origin main
+          if [ "$(git rev-parse origin/main)" != "$expected_head" ]; then
+            echo '::error::Main advanced during release sync. No changes were pushed; the next run will retry from the new head.'
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- "$manifest"
+          git commit -m 'Update K Terminal SoundCloud releases'
+          # An ordinary push rejects a main-branch race after the fetch above.
+          git push origin HEAD:refs/heads/main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+      - name: Determine whether the catalogue still needs deployment
+        id: deployment
+        env:
+          CATALOGUE_CHANGED: ${{ steps.publish.outputs.changed }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pathlib
+          import urllib.request
+
+          needed = os.environ['CATALOGUE_CHANGED'] == 'true'
+          if not needed:
+              # Retry publication after a previous dispatch or deployment failed,
+              # even when today's feed data is unchanged. Network errors fail the
+              # job and retry on the next schedule; they do not trigger a rebuild.
+              url = 'https://ninja-ops-guy.github.io/theemrld-portfolio/k-world/latest-releases.json'
+              request = urllib.request.Request(url, headers={'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  published = json.load(response)
+              current = json.loads(pathlib.Path('public/k-world/latest-releases.json').read_text())
+              needed = published.get('tracks') != current['tracks']
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"needed={'true' if needed else 'false'}\n")
+          print('Catalogue deployment requested.' if needed else 'Published catalogue is current; no build needed.')
+          PY
+
+      - name: Publish the updated catalogue through the normal Pages workflow
+        if: steps.deployment.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main

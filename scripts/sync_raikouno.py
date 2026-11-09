@@ -2,6 +2,7 @@
 """Sync public @raikouno RSS releases into a dated, auditable K Terminal feed.
 
 Fail closed: no empty/undated replacement when SoundCloud RSS is unavailable.
+Identical track data leaves the previous bytes and verification date untouched.
 SoundCloud RSS must be enabled by the account owner for this feed to work.
 """
 import argparse
@@ -18,6 +19,7 @@ import xml.etree.ElementTree as ET
 FEED = "https://feeds.soundcloud.com/users/soundcloud:users:72536165/sounds.rss"
 DEST = pathlib.Path("public/k-world/latest-releases.json")
 ARTIST = "raikouno"
+MAX_FEED_BYTES = 3_000_000
 
 def parse_feed(xml: bytes) -> list[dict]:
     root = ET.fromstring(xml)
@@ -51,10 +53,38 @@ def parse_feed(xml: bytes) -> list[dict]:
         seen.add(url)
         tracks.append({"id": parts[1], "title": title, "url": url,
                        "provider": "soundcloud", "createdAt": date})
-    tracks.sort(key=lambda t: t["createdAt"], reverse=True)
+    # A feed reorder must not generate a release commit for equal-date tracks.
+    tracks.sort(key=lambda t: (t["createdAt"], t["url"]), reverse=True)
     if not tracks:
         raise ValueError("No valid, dated @raikouno tracks in RSS feed")
     return tracks
+
+def update_snapshot(output: pathlib.Path, tracks: list[dict]) -> bool:
+    """Atomically publish changed track data; return False for a semantic no-op."""
+    if output.exists():
+        try:
+            previous = json.loads(output.read_text(encoding="utf-8"))
+            verified = dt.datetime.fromisoformat(previous["verifiedAt"].replace("Z", "+00:00"))
+            if verified.tzinfo is not None and previous.get("tracks") == tracks:
+                return False
+        except (ValueError, TypeError, KeyError, AttributeError):
+            # A valid feed can repair a malformed local catalogue.
+            pass
+    output.parent.mkdir(parents=True, exist_ok=True)
+    snapshot = {
+        "verifiedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "tracks": tracks,
+    }
+    result = json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n"
+    file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=output.parent, delete=False)
+    temporary = pathlib.Path(file.name)
+    try:
+        with file:
+            file.write(result)
+        temporary.replace(output)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return True
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -69,22 +99,12 @@ def main() -> int:
             headers = {"User-Agent": "Mozilla/5.0 (compatible; KTerminalReleaseSync/1.0)"}
             request = urllib.request.Request(FEED, headers=headers)
             with urllib.request.urlopen(request, timeout=20) as response:
-                tracks = parse_feed(response.read(3_000_000))
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        snapshot = {
-            "verifiedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
-            "tracks": tracks,
-        }
-        result = json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n"
-        file = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=args.output.parent, delete=False)
-        temporary = pathlib.Path(file.name)
-        try:
-            with file:
-                file.write(result)
-            temporary.replace(args.output)
-        finally:
-            temporary.unlink(missing_ok=True)
-        print(f"Verified {len(tracks)} dated @raikouno releases")
+                data = response.read(MAX_FEED_BYTES + 1)
+                if len(data) > MAX_FEED_BYTES:
+                    raise ValueError("SoundCloud RSS response exceeds the size limit")
+                tracks = parse_feed(data)
+        changed = update_snapshot(args.output, tracks)
+        print(f"{'Updated' if changed else 'Unchanged'}: {len(tracks)} dated @raikouno releases")
         return 0
     except Exception as error:
         print(f"RELEASE_SYNC_BLOCKED: {error}. Existing catalogue preserved.", file=sys.stderr)
