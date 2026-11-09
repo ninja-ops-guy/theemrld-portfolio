@@ -2,6 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // The dedicated K Terminal domain opens the console by default.
+      // Preserve explicit hash routes so links to the comic, city, and other pages still work.
+      (function () {
+        var host = window.location.hostname.toLowerCase();
+        var hash = window.location.hash;
+        if ((host === 'kterminal.site' || host === 'www.kterminal.site') &&
+            (window.location.pathname === '/' || window.location.pathname === '/index.html') &&
+            (hash === '' || hash === '#' || hash === '#/')) {
+          window.location.replace(window.location.pathname + window.location.search + '#/terminal');
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>THEEMRLD — Systems, Security & Applied R&D</title>
     <meta name="description" content="Systems and security engineering portfolio covering production infrastructure, autonomous systems, formal verification, adversarial ML, and evidence-first applied R&D." />
