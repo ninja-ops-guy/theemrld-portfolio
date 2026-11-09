@@ -10,7 +10,7 @@ const stage = fs.readFileSync(path.join(root, 'src/sections/KBandStage.tsx'), 'u
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'public/k-world/assets/manifest.json'), 'utf8'));
 
 test('K Terminal band sprite points to a deployed sprite sheet', () => {
-  const match = component.match(/backgroundImage:\\s*`url\\(\\$\\{import\\.meta\\.env\\.BASE_URL\\}([^)]+)\\)`/);
+  const match = component.match(/backgroundImage:\s*`url\(\$\{import\.meta\.env\.BASE_URL\}([^)]+)\)`/);
   assert.ok(match, 'sprite must resolve from Vite base URL');
   const relativeUrl = match[1];
   const absoluteAsset = path.join(root, 'public', relativeUrl);
@@ -22,9 +22,9 @@ test('K Terminal band sprite points to a deployed sprite sheet', () => {
 });
 
 test('K band animation only references complete sprite cells', () => {
-  const match = stage.match(/const FRAMES = \\{([\\s\\S]*?)\\};/);
+  const match = stage.match(/const FRAMES = \{([\s\S]*?)\};/);
   assert.ok(match, 'KBandStage must define its animation frame map');
-  const entries = [...match[1].matchAll(/(vocals|control|keys|hype):\\s*\\[([^\\]]+)\\]/g)];
+  const entries = [...match[1].matchAll(/(vocals|control|keys|hype):\s*\[([^\]]+)\]/g)];
   assert.deepEqual(entries.map(([, role]) => role).sort(), ['control', 'hype', 'keys', 'vocals']);
 
   for (const [, role, rawFrames] of entries) {
