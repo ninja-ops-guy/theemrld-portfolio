@@ -20,7 +20,7 @@ import json, os, sys, time
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-BASE = os.environ.get("K_WORLD_BASE_URL", "http://127.0.0.1:4173/theemrld-portfolio/")
+BASE = os.environ.get("K_WORLD_BASE_URL", "http://127.0.0.1:4173/")
 OUT = Path(os.environ.get("K_WORLD_QA_DIR", "qa/k-world-acceptance"))
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []
