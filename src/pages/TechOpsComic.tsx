@@ -8,6 +8,8 @@ import coverArt from '../data/comic-revision-f-covers.json';
 import volumeFive from '../data/comic-volume-five.json';
 import volumeThirteen from '../data/comic-volume-thirteen.json';
 import ComicMusicBar from '../components/ComicMusicBar';
+import FourBeatPulse from '../components/FourBeatPulse';
+import { rememberReaderPosition } from '../hooks/useReaderPosition';
 import './TechOpsComic.css';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
@@ -47,12 +49,13 @@ const revisionFVolumes = revisionF.sections.filter(section => section.kind !== '
 type CoverArt = { page: number; crop: { x: number; y: number; size: number }; color: string; chapters?: string };
 const illustratedCovers: Partial<Record<number, CoverArt>> = coverArt;
 
-function IllustratedCover({ art, label, title, inReader = false, onError }: {
+function IllustratedCover({ art, label, title, inReader = false, onError, onLoad }: {
   art: CoverArt;
   label: string;
   title: string;
   inReader?: boolean;
   onError?: () => void;
+  onLoad?: () => void;
 }) {
   const { x, y, size } = art.crop;
   return <div className="comic-illustrated-cover" style={{ '--cover-accent': art.color } as CSSProperties}
@@ -61,7 +64,7 @@ function IllustratedCover({ art, label, title, inReader = false, onError }: {
     <div className="comic-cover-mast"><span>{label}</span><strong>TechOps Hero</strong></div>
     <div className="comic-cover-panel">
       <img src={revisionFImageUrl(art.page)} alt="" loading={inReader ? 'eager' : 'lazy'}
-        width="1080" height="1620" onError={onError}
+        width="1080" height="1620" onError={onError} onLoad={onLoad}
         style={{ width: `${108000 / size}%`, left: `${-100 * x / size}%`, top: `${-100 * y / size}%` }} />
     </div>
     <div className="comic-cover-title">{title}</div>
@@ -130,8 +133,20 @@ export default function TechOpsComic() {
   const { total, sections, cards, scenes, links, describe, imageUrl, bookmarkKey } = books[edition];
   const page = validPage(params.get('page'), total);
   const fromWorld = params.get('from') === 'world';
+  const artRevision = isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision;
+  const pageKey = `${edition}:${artRevision}:${page}`;
+  const currentPage = useRef(pageKey);
+  currentPage.current = pageKey;
+  const [loadedPage, setLoadedPage] = useState('');
   const [bookmarks, setBookmarks] = useState(() => ({ f: readBookmark(books.f), legacy: readBookmark(books.legacy), xiii: readBookmark(books.xiii) }));
   const savedPage = bookmarks[edition];
+  const markPageLoaded = useCallback(() => {
+    if (!page || currentPage.current !== pageKey) return;
+    setLoadedPage(pageKey);
+    setBookmarks(previous => previous[edition] === page ? previous : { ...previous, [edition]: page });
+    try { localStorage.setItem(bookmarkKey, String(page)); } catch { /* Private storage is optional. */ }
+    rememberReaderPosition({ edition, page, revision: artRevision });
+  }, [page, pageKey, edition, bookmarkKey, artRevision]);
   const alternateEdition = new URLSearchParams();
   if (fromWorld) alternateEdition.set('from', 'world');
   if (isRevisionF) alternateEdition.set('edition', 'legacy');
@@ -192,8 +207,6 @@ export default function TechOpsComic() {
   }, [page]);
   useEffect(() => {
     if (!page) { setZoom(false); return; }
-    setBookmarks(previous => previous[edition] === page ? previous : { ...previous, [edition]: page });
-    try { localStorage.setItem(bookmarkKey, String(page)); } catch { /* Private storage is optional. */ }
     stage.current?.scrollTo(0, 0);
     function keydown(e: KeyboardEvent) {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.target instanceof HTMLElement && e.target.closest('input,select,textarea,[contenteditable=true]'))) return;
@@ -216,6 +229,7 @@ export default function TechOpsComic() {
         </div>
         <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
       </div>
+      <FourBeatPulse label="TechOps Hero · count-in" />
       <button type="button" className="comic-reel-toggle" onClick={() => setIntro(false)}>Skip intro</button>
     </dialog>}
     <header className="comic-mast">
@@ -229,7 +243,7 @@ export default function TechOpsComic() {
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
       </nav>
     </header>
-    <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
+    <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={artRevision} />
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true" />
@@ -292,11 +306,12 @@ export default function TechOpsComic() {
           choosePage(Math.min(total,Math.max(1,page + (dx < 0 ? 1 : -1))));
         }}>
         {failedPage === page ? <p role="alert">This page could not load. <a href={pdfUrl}>Open the complete PDF</a></p> :
-          <div className="comic-sheet">
+          <div className="comic-sheet" aria-busy={loadedPage !== pageKey}>
+            {loadedPage !== pageKey && <div className="comic-page-loading"><FourBeatPulse label={`Loading page ${page}`} repeat /></div>}
             {openingCover
               ? <IllustratedCover key={page} art={openingCover} label={section.label} title={section.title}
-                  inReader onError={() => setFailedPage(page)} />
-              : <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />}
+                  inReader onLoad={markPageLoaded} onError={() => setFailedPage(page)} />
+              : <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onLoad={markPageLoaded} onError={() => setFailedPage(page)} />}
             {isVolumeThirteen && page === total && <div className="comic-end-card">To be continued.</div>}
             {links[page]?.map(({page:target,rect:[x1,y1,x2,y2]}, i) =>
               <button key={i} aria-label={`Read page ${target}: ${describe(target)}`} className="comic-hotspot" onClick={() => choosePage(target)}

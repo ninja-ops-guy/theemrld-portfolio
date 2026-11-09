@@ -1,0 +1,22 @@
+name: Comic Terminal Unit Tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/k-world/**'
+      - 'src/**'
+      - 'tests/story-*.test.mjs'
+      - '.github/workflows/story-reader-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reader navigation and integration contracts
+        run: node --test tests/story-*.test.mjs

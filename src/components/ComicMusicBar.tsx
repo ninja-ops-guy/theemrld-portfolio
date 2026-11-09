@@ -1,12 +1,19 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useKMusic } from '../sections/AsciiCityWorld';
+import useStoryApi from '../hooks/useStoryApi';
+import './StoryTerminal.css';
 import './ComicMusicBar.css';
 
 export default function ComicMusicBar({ edition, page, revision }: { edition: string; page: number; revision: string }) {
-  const { audio, background, guided, guidedNotice, scoreSource, catalogueStatus, sendCommand, setVolume, openComments, openScore, setReader, usePublishedScore } = useKMusic();
+  const { score, audio, background, guided, guidedNotice, scoreSource, catalogueStatus, sendCommand, setVolume, openComments, openScore, setReader, usePublishedScore } = useKMusic();
   useEffect(() => { setReader({ edition, page, revision }); }, [edition, page, revision, setReader]);
   useEffect(() => () => setReader(null), [setReader]);
+  const api = useStoryApi();
+  const position = { edition, page, revision };
+  const cue = api?.soundtrackCue(score, position);
+  const listenHref = api?.soundtrackHref(score, position);
+  const scene = api?.sceneForPosition(position);
   const playing = audio.status === 'playing';
   const toggle = () => {
     if (playing) sendCommand('pause');
@@ -33,6 +40,13 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
         <button onClick={openComments}>Comment</button>
       </div>
     </div>
+    {cue && listenHref ? <div className="story-page-cue">
+      <Link to={listenHref}>Listen in K Terminal</Link><strong>{cue.title}</strong>
+      <small>{scoreSource === 'draft' ? 'Local preview · this device only' : 'Published soundtrack cue'}</small>
+    </div> : scene && <div className="story-page-cue">
+      <span>{score ? 'This performance has no assigned track yet.' : 'Soundtrack definition is not available yet.'}</span>
+      <button onClick={openScore}>Define this scene’s song</button>
+    </div>}
     <details className="comic-music-details">
       <summary>{audio.error ? 'Playback needs attention' : guided ? guidedNotice : background ? 'Music continues as you read' : 'Soundtrack options'}</summary>
       <div className="comic-music-detail-body">

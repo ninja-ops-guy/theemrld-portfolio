@@ -16,6 +16,7 @@ const INITIAL_AUDIO: MusicState = { current: null, status: 'idle', position: 0, 
 const PREVIEW_KEY = 'k-world:guided-preview:v1';
 type SessionMessage = { type: string; [key: string]: unknown };
 type MusicContextValue = {
+  score: GuidedScore | undefined;
   audio: MusicState; catalogue: MusicTrack[]; catalogueStatus: string;
   background: boolean; guided: boolean; guidedNotice: string; scoreSource: 'published' | 'draft';
   sendCommand: (raw: string) => void;
@@ -189,7 +190,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [post]);
 
-  const value = useMemo<MusicContextValue>(() => ({ audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore }), [audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore]);
+  const value = useMemo<MusicContextValue>(() => ({ score, audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore }), [score, audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore]);
   const isComic = location.pathname === '/comic';
   return <MusicContext.Provider value={value}>
     {children}

@@ -17,6 +17,8 @@ import Contact from './sections/Contact';
 import Footer from './sections/Footer';
 import AsciiCityWorld from './sections/AsciiCityWorld';
 import KTerminal from './sections/KTerminal';
+import StoryTerminal from './components/StoryTerminal';
+import FourBeatPulse from './components/FourBeatPulse';
 import CaseStudy from './pages/CaseStudy';
 import MediaLinks from './pages/MediaLinks';
 import ProgramCaseStudy from './pages/ProgramCaseStudy';
@@ -54,10 +56,10 @@ function App() {
   return <AsciiCityWorld><Routes>
     <Route path="/" element={<Portfolio />} />
     <Route path="/k/*" element={null} />
-    <Route path="/terminal" element={<KTerminal />} />
+    <Route path="/terminal" element={<StoryTerminal><KTerminal /></StoryTerminal>} />
     <Route path="/links" element={<MediaLinks />} />
     <Route path="/see-world" element={<Suspense fallback={<main role="status">Opening See World…</main>}><SeeWorld /></Suspense>} />
-    <Route path="/comic" element={<Suspense fallback={<main>Opening TechOps Hero…</main>}><TechOpsComic /></Suspense>} />
+    <Route path="/comic" element={<Suspense fallback={<main><FourBeatPulse label="Opening TechOps Hero" repeat /></main>}><TechOpsComic /></Suspense>} />
     <Route path="/gallery" element={<Navigate to={`/k/gallery${location.search}`} replace />} />
     <Route path="/city" element={<Navigate to={`/k/city${location.search}`} replace />} />
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
