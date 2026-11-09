@@ -66,6 +66,13 @@ jobs:
           cp portfolio/src/pages/{MediaLinks.tsx,media-links.css,media-links-base.css,SeeWorld.tsx} evidence/source/
           cp portfolio/scripts/see-world-presentation*.py evidence/source/
           cp portfolio/docs/SEE_WORLD_PUBLIC_PRESENTATION.md evidence/source/
+          # Mirror the root-base deployment, retaining a legacy subpath alias.
+          python - <<'PY'
+          from pathlib import Path
+          for source in Path('portfolio/dist').resolve().iterdir():
+              if source.name != 'techops-hero':
+                  Path('web', source.name).symlink_to(source, target_is_directory=source.is_dir())
+          PY
           ln -s "$PWD/portfolio/dist" web/theemrld-portfolio
           ln -s "$PWD/techops-hero" web/techops-hero
           nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > evidence/server.log 2>&1 &

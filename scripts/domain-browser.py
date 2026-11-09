@@ -10,6 +10,11 @@ OLD='https://ninja-ops-guy.github.io'
 NEW='https://kterminal.site'
 report={'passed':[],'errors':[],'scope':'Synthetic data; candidate files intercepted at production origin names. Not live deployment or real saved-state recovery.'}
 
+def passed(message):
+    report['passed'].append(message)
+    (OUT/'receipt.json').write_text(json.dumps(report,indent=2))
+    print('PASS', message, flush=True)
+
 def route_request(route):
     u=urlsplit(route.request.url)
     if u.netloc=='ninja-ops-guy.github.io' and u.path.startswith('/techops-hero/recover-settings/'):
@@ -21,7 +26,9 @@ def route_request(route):
     else:route.abort();return
     if ROOT not in path.resolve().parents or not path.is_file():route.fulfill(status=404,body='Not found');return
     content_type='text/javascript' if path.suffix in ('.js','.mjs') else mimetypes.guess_type(path)[0] or 'application/octet-stream'
-    route.fulfill(path=str(path),content_type=content_type)
+    if route.request.method == 'HEAD':
+        route.fulfill(status=200,body='',content_type=content_type,headers={'content-length':str(path.stat().st_size)})
+    else: route.fulfill(path=str(path),content_type=content_type)
 
 with sync_playwright() as pw:
     browser=pw.chromium.launch(headless=True)
@@ -35,7 +42,7 @@ with sync_playwright() as pw:
     export=OUT/'settings.json';d.value.save_as(export)
     payload=json.loads(export.read_text());assert payload['entries']=={KEY:'92','k-world:background:v1':'true'}
     assert p.evaluate('Object.fromEntries(Object.entries(localStorage))')==fixture
-    report['passed'].append('Original-origin export only contains allowed settings; source data unchanged')
+    passed('Original-origin export only contains allowed settings; source data unchanged')
     p.goto(NEW+'/recover/')
     expect(p.get_by_role('button',name='Undo last import')).to_be_hidden()
     p.evaluate('(key)=>localStorage.setItem(key,"10")',KEY)
@@ -47,7 +54,7 @@ with sync_playwright() as pw:
     assert p.evaluate('(key)=>localStorage.getItem(key)',KEY)=='10'
     assert p.evaluate('localStorage.getItem("k-world:background:v1")')=='true'
     assert p.evaluate('localStorage.getItem("techops_save")') is None
-    report['passed'].append('Default import keeps newer conflicting bookmark and excludes game data')
+    passed('Default import keeps newer conflicting bookmark and excludes game data')
     p.get_by_role('button',name='Undo last import').click()
     assert p.evaluate('localStorage.getItem("k-world:background:v1")') is None
     p.locator('#import-file').set_input_files([]);p.locator('#import-file').set_input_files(export)
@@ -56,30 +63,32 @@ with sync_playwright() as pw:
     assert p.evaluate('(key)=>localStorage.getItem(key)',KEY)=='92'
     p.get_by_role('button',name='Undo last import').click()
     assert p.evaluate('(key)=>localStorage.getItem(key)',KEY)=='10'
-    report['passed'].append('Explicit conflict replacement and undo restore original bookmark bytes')
+    passed('Explicit conflict replacement and undo restore original bookmark bytes')
     invalid=OUT/'invalid.json';invalid.write_text(json.dumps({**payload,'entries':{'techops_save':'unrelated run'}}))
     before=p.evaluate('Object.fromEntries(Object.entries(localStorage))')
     p.locator('#import-file').set_input_files(invalid)
     expect(p.locator('#recovery-status')).to_contain_text('Unsupported or invalid setting')
     assert p.evaluate('Object.fromEntries(Object.entries(localStorage))')==before
-    report['passed'].append('Foreign save keys fail before writes')
+    passed('Foreign save keys fail before writes')
     p.screenshot(path=str(OUT/'recovery-mobile.png'),full_page=True)
     for path in ['/about/','/music/','/comic/','/portfolio/','/privacy/','/404.html']:
         p.goto(NEW+path);expect(p.get_by_role('heading',level=1)).to_be_visible()
         assert p.evaluate('document.documentElement.scrollWidth<=innerWidth')
         assert not p.locator('script[src*="googlesyndication"]').count()
-    report['passed'].append('Static information and recovery pages fit a 390px viewport')
+    passed('Static information and recovery pages fit a 390px viewport')
     p.goto(NEW+'/')
     expect(p).to_have_url(NEW+'/#/terminal')
     expect(p).to_have_title('K Terminal — Music, Comics & Worlds')
     assert p.locator('meta[property="og:url"]').get_attribute('content')==NEW+'/'
     assert not p.locator('script[src*="googlesyndication"]').count()
-    report['passed'].append('Custom-domain root opens terminal with creative metadata and no ad loader')
-    p.goto(NEW+'/#/comic')
+    passed('Custom-domain root opens terminal with creative metadata and no ad loader')
+    p.goto(NEW+'/#/comic',wait_until='domcontentloaded')
+    skip=p.get_by_role('button',name='Skip intro',exact=True)
+    if skip.is_visible():skip.click()
     expect(p.get_by_role('button',name='Guided · not configured')).to_be_disabled()
     p.get_by_role('button',name='Comment',exact=True).click()
     expect(p.get_by_role('link',name='Open @defied_stars ↗')).to_be_visible()
-    report['passed'].append('Empty guided mode is explicit and Instagram feedback alternative is visible')
+    passed('Empty guided mode is explicit and Instagram feedback alternative is visible')
     assert not report['errors'],report['errors']
     p.screenshot(path=str(OUT/'feedback-mobile.png'),full_page=True)
     browser.close()

@@ -18,6 +18,7 @@ No song assignments are invented. Empty guided mode is explicitly unavailable an
 
 ## Verification
 
+- Existing presentation workflow initially failed to load its media hub because it mounted only the old repository subpath despite the root-base build. Root mounting and test URLs now match the domain and the same correction in #66, without changing story authority.
 - First hosted Domain Readiness attempt stopped because its unit-test step ran before dependency installation (missing TypeScript). Installation now precedes tests; that failure is retained in the workflow history.
 - 163 Node tests passed locally after the native fixture checkout was present. The first cross-repository test attempt failed to load that missing checkout; it was not a product assertion failure.
 - TypeScript/Vite build passed. Existing bundle-size/Tailwind warnings remain.
