@@ -1,7 +1,7 @@
 {
   "recorded_on": "2026-11-10",
   "title": "Volume XIV — The System Is Healthy",
-  "publication_status": "staging — binary assets not yet committed; not a public release",
+  "publication_status": "staging; binary assets not yet uploaded; not deployed",
   "page_count": 133,
   "pdf_asset": "techops-comic/volume-xiv/TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf",
   "output_sha256": "97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae",
@@ -16,12 +16,14 @@
     75000000,
     31907121
   ],
-  "reader_revision": "corrected-97f16edf9df0",
+  "reader_revision": "corrected-97f16edf9df0-q75",
   "web_render": {
     "width": 2160,
     "height": 3330,
     "format": "WebP",
-    "page_count": 133
+    "page_count": 133,
+    "quality": 75,
+    "optimized_bytes": 97628296
   },
   "chapter_starts": [
     {
@@ -61,5 +63,13 @@
       "end": 133
     }
   ],
-  "review_note": "2026-11-10 final review; user explicitly authorized publication; creator approval of every drawing not presumed"
+  "review_note": "2026-11-10 final review; user explicitly authorized publication; creator approval of every drawing not presumed",
+  "pages_capacity": {
+    "baseline_deployment_bytes": 908631822,
+    "optimized_volume_xiv_art_bytes": 97628296,
+    "volume_xiv_pdf_bytes": 181907121,
+    "prune_only_superseded_unlinked_pdfs_bytes": 216105098,
+    "projected_deployment_bytes": 972062141,
+    "max_deployment_bytes": 1000000000
+  }
 }
