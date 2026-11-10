@@ -1,0 +1,53 @@
+name: Publish corrected comic media 2026-11-10
+
+on:
+  push:
+    branches: [release/techops-corrected-media-20261110]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: corrected-comic-publication-20261110
+  cancel-in-progress: false
+
+jobs:
+  publish-media-and-prepare-reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned PDF and image validators
+        run: python -m pip install --disable-pip-version-check pymupdf==1.26.7 Pillow==12.3.0
+      - name: Fetch exact reviewed publication bundle
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/publisher.zip" 'https://d2ol7oe51mr4n9.cloudfront.net/user_3KUGKm6rb5ZYG1d6wZeiyLW1uHj/f76520f6-c406-4f2e-a35a-ed27d7c50ad2.zip'
+          echo "f1145226bddb45ef167dd2a2f86ad5e4876a323814e662d8cdb116aec0d2718d  $RUNNER_TEMP/publisher.zip" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/techops-publisher"
+          python -m zipfile -e "$RUNNER_TEMP/publisher.zip" "$RUNNER_TEMP/techops-publisher"
+      - name: Verify originals, publish immutable media, and test additive reader
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: '1'
+        run: python "$RUNNER_TEMP/techops-publisher/publish.py"
+      - name: Retain publication evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: corrected-comic-publication-evidence
+          path: |
+            ${{ runner.temp }}/techops-corrected-publication/current-editions.json
+            ${{ runner.temp }}/techops-corrected-publication/media/COMIC_MEDIA_RECEIPT.json
+            docs/COMIC_CORRECTED_PUBLICATION_QA.json
+          if-no-files-found: warn
+          retention-days: 30
