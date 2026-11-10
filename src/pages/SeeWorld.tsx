@@ -9,7 +9,7 @@ export default function SeeWorld() {
     const receive = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow) return;
       if (event.data?.type !== 'see-world:navigate') return;
-      const routes: Record<string, string> = { comic: '/comic', links: '/links', terminal: '/terminal', portfolio: '/' };
+      const routes: Record<string, string> = { comic: '/comic', links: '/links', terminal: '/terminal', portfolio: '/portfolio' };
       const to = event.data.to;
       if (typeof to === 'string' && Object.prototype.hasOwnProperty.call(routes, to)) navigate(routes[to]);
     };

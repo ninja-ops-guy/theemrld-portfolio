@@ -60,7 +60,7 @@ jobs:
         run: |
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/k-world-preview.log 2>&1 &
           for i in {1..60}; do
-            if curl --fail --silent http://127.0.0.1:4173/theemrld-portfolio/ >/dev/null; then
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
               exit 0
             fi
             sleep 1
@@ -70,7 +70,7 @@ jobs:
 
       - name: Run browser release acceptance
         env:
-          K_WORLD_BASE_URL: http://127.0.0.1:4173/theemrld-portfolio/
+          K_WORLD_BASE_URL: http://127.0.0.1:4173/
           K_WORLD_QA_DIR: qa/k-world-acceptance
         run: python tests/k-world-acceptance.py
 

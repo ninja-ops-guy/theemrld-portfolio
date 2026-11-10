@@ -1,0 +1,40 @@
+name: K Terminal Domain Readiness
+on:
+  pull_request:
+    paths:
+      - 'public/recover/**'
+      - 'scripts/domain-*'
+      - '.github/workflows/domain-readiness.yml'
+      - 'src/components/ComicMusicBar.tsx'
+      - 'src/components/ProjectCommentDialog.tsx'
+      - 'src/sections/AsciiCityWorld.tsx'
+      - 'public/k-world/guided-playback.js'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  domain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm install --no-audit --no-fund
+      - run: node --test scripts/domain-settings.test.mjs tests/*.test.mjs
+      - run: npm run build
+      - run: python -m pip install playwright==1.57.0 && python -m playwright install --with-deps chromium
+      - run: python scripts/domain-browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kterminal-domain-proof
+          path: domain-proof/

@@ -930,6 +930,7 @@ export default function KTerminal({
       case 'background': {
         const mode = (args[0] || 'status').toLowerCase();
         if (!['on', 'off', 'status'].includes(mode)) { addLine('Usage: background on|off|status', 'error'); break; }
+        if (mode === 'on' && !music.hasGuidedCues) { addLine('No guided songs are assigned yet. Use guided edit to define a local preview.'); break; }
         if (mode === 'status') addLine(`Background playback: ${music.background ? 'ON' : 'OFF'}`);
         else { sendCommand(`background ${mode}`); addLine(`Background ${mode} requested. ${mode === 'on' ? 'Start music with latest or resume, then open the comic.' : 'Music will pause when you leave a music screen.'}`); }
         break;
@@ -939,6 +940,7 @@ export default function KTerminal({
         const mode = (args[0] || 'status').toLowerCase();
         if (mode === 'edit') { music.openScore(); break; }
         if (!['on', 'off', 'status'].includes(mode)) { addLine('Usage: guided on|off|status|edit', 'error'); break; }
+        if (mode === 'on' && !music.hasGuidedCues) { addLine('No guided songs are assigned yet. Use guided edit to define a local preview.'); break; }
         if (mode === 'status') addLine(`Guided mode: ${music.guided ? 'ON' : 'OFF'}\n${music.guidedNotice}`);
         else { sendCommand(`guided ${mode}`); addLine(`Guided mode ${mode} requested. ${mode === 'on' ? 'Open the comic to follow configured page cues. Use guided edit to define them.' : 'Page changes will stop selecting music.'}`); }
         break;
@@ -1236,7 +1238,7 @@ Sequential Playback: ON (no overlap)`);
               </button>
             )}
             <Link
-              to="/"
+              to="/portfolio"
               className="kt-status hover:text-[#00ffff] transition-colors duration-300"
               style={{ textDecoration: 'none' }}
             >

@@ -17,7 +17,7 @@ const PREVIEW_KEY = 'k-world:guided-preview:v1';
 type SessionMessage = { type: string; [key: string]: unknown };
 type MusicContextValue = {
   audio: MusicState; catalogue: MusicTrack[]; catalogueStatus: string;
-  background: boolean; guided: boolean; guidedNotice: string; scoreSource: 'published' | 'draft';
+  background: boolean; guided: boolean; hasGuidedCues: boolean; guidedNotice: string; scoreSource: 'published' | 'draft';
   sendCommand: (raw: string) => void;
   playTrack: (track: { url: string; title: string }, autoplay?: boolean) => void;
   setVolume: (volume: number) => void; seek: (ms: number) => void;
@@ -155,7 +155,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
         case 'k-world:comment': setCommentsOpen(true); break;
         case 'k-world:guided-editor': setScoreOpen(true); break;
         case 'k-world:comic': navigate('/comic?from=world'); break;
-        case 'k-world:portfolio': navigate('/'); break;
+        case 'k-world:portfolio': navigate('/portfolio'); break;
       }
     };
     window.addEventListener('message', receive);
@@ -189,10 +189,11 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [post]);
 
-  const value = useMemo<MusicContextValue>(() => ({ audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore }), [audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore]);
+  const value = useMemo<MusicContextValue>(() => ({ audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, hasGuidedCues: Boolean(score?.cues.length), sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore }), [audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, score, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore]);
   const isComic = location.pathname === '/comic';
   return <MusicContext.Provider value={value}>
     {children}
+    {!worldVisible && <nav aria-label="Site information" className="k-site-info"><a href="/about/">About K Terminal</a><a href="/privacy/">Privacy</a><a href="/recover/">Recover saved settings</a></nav>}
     {started && <iframe
       ref={frame} src={source}
       title="K // THE EMRLD — shared world and music player"

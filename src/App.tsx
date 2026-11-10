@@ -48,11 +48,14 @@ function Portfolio() {
 function App() {
   const location = useLocation();
   useEffect(() => {
+    const titles: Record<string, string> = { '/': 'THEEMRLD — Engineering Portfolio', '/portfolio': 'THEEMRLD — Engineering Portfolio', '/terminal': 'K Terminal — Music, Comics & Worlds', '/comic': 'TechOps Hero — Comic Reader | K Terminal', '/see-world': 'See World | K Terminal', '/links': 'Explore | K Terminal' };
+    document.title = titles[location.pathname] || (location.pathname.startsWith('/case-study/') ? 'Engineering Case Study | THEEMRLD' : 'K World | K Terminal');
     window.scrollTo(0, 0);
     if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' }));
   }, [location.pathname, location.hash]);
   return <AsciiCityWorld><Routes>
     <Route path="/" element={<Portfolio />} />
+    <Route path="/portfolio" element={<Portfolio />} />
     <Route path="/k/*" element={null} />
     <Route path="/terminal" element={<KTerminal />} />
     <Route path="/links" element={<MediaLinks />} />
@@ -63,6 +66,7 @@ function App() {
     <Route path="/case-study/residual" element={<ProgramCaseStudy slug="residual" />} />
     <Route path="/case-study/verified-cyber-planning" element={<ProgramCaseStudy slug="verified-cyber-planning" />} />
     <Route path="/case-study/:slug" element={<CaseStudy />} />
+    <Route path="*" element={<main style={{ padding: '8vh 7vw' }}><h1>Page not found</h1><a href="#/terminal">Open K Terminal</a></main>} />
   </Routes></AsciiCityWorld>;
 }
 

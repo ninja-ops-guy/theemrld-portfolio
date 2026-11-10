@@ -146,19 +146,18 @@ test('gaps disarm and invalidate loading audio without inventing a user pause', 
   assert.equal(plays(calls).length, 1);
 });
 
-test('an empty soundtrack remains silent on enable and resume in every edition', () => {
+test('an empty soundtrack cannot enable guided mode or interrupt background music', () => {
   const { guided, music, calls } = setup();
+  music.select(track('background')); playing(music);
+  const previousState = structuredClone(music.state), previousCalls = structuredClone(calls);
   for (const edition of Object.keys(GUIDED_EDITIONS)) {
     guided.setLocation(position(2, edition));
     guided.setEnabled(true);
-    guided.resume();
   }
-  assert.equal(guided.enabled, true);
+  assert.equal(guided.enabled, false);
   assert.equal(guided.activeCue, null);
-  assert.equal(music.state.armed, false);
-  assert.equal(music.state.current, null);
-  assert.equal(loads(calls).length, 0);
-  assert.equal(plays(calls).length, 0);
+  assert.deepEqual(music.state, previousState);
+  assert.deepEqual(calls, previousCalls);
   assert.match(guided.notice, /No guided songs are assigned/);
 });
 
