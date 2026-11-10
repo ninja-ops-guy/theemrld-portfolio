@@ -13,15 +13,30 @@ test('The published score makes no unsolicited music placements', () => {
   assert.equal(resolveGuidedCue(score, at(3)), null);
 });
 
-test('Edition limits and stamps match the actual reader sources', () => {
+test('Current edition limits bind to the publication; archived scores retain their original stamps', () => {
   const json = name => JSON.parse(readFileSync(new URL(`../src/data/${name}.json`, import.meta.url), 'utf8'));
-  const reader = readFileSync(new URL('../src/pages/TechOpsComic.tsx', import.meta.url), 'utf8');
+  for (const [id, book] of Object.entries(json('comic-current-editions').books)) {
+    assert.equal(GUIDED_EDITIONS[id].pageCount, book.pageCount);
+    assert.equal(GUIDED_EDITIONS[id].revision, book.revision);
+  }
+  const historicalF = JSON.parse(readFileSync(new URL('../docs/COMIC_CURRENT_RELEASE.json', import.meta.url), 'utf8'));
   assert.equal(GUIDED_EDITIONS.f.pageCount, json('comic-revision-f').pageCount);
-  assert.equal(GUIDED_EDITIONS.f.revision, reader.match(/const revisionFArtRevision = '([^']+)'/)[1]);
+  assert.equal(GUIDED_EDITIONS.f.revision, historicalF.reader_revision);
   assert.equal(GUIDED_EDITIONS.xiii.pageCount, json('comic-volume-thirteen').pageCount);
   assert.equal(GUIDED_EDITIONS.xiii.revision, json('comic-volume-thirteen').artRevision);
   assert.equal(GUIDED_EDITIONS.legacy.pageCount, json('comic-descriptions').length + json('comic-volume-five').descriptions.length);
-  assert.equal(GUIDED_EDITIONS.legacy.revision, reader.match(/const revision = '([^']+)'/)[1]);
+  assert.equal(GUIDED_EDITIONS.legacy.revision, '11.2');
+});
+
+test('Soundtrack creation offers current books only and never silently remaps retired cues', () => {
+  const source = readFileSync(new URL('../src/components/GuidedScoreDialog.tsx', import.meta.url), 'utf8');
+  assert.ok(source.includes("edition: 'g' as GuidedEdition"));
+  assert.ok(source.includes('Object.entries(displayLabels).map'));
+  assert.ok(!source.includes('Object.entries(GUIDED_EDITIONS).map'));
+  assert.ok(source.includes('if (!Object.prototype.hasOwnProperty.call(displayLabels, cue.edition))'));
+  const historical = scoreWith(cue());
+  assert.equal(resolveGuidedCue(historical, at(3, 'g')), null);
+  assert.equal(resolveGuidedCue(historical, at(3, 'xiii-r')), null);
 });
 
 test('One cue stays stable across its inclusive range; unassigned pages are silent', () => {

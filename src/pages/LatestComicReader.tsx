@@ -2,13 +2,18 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import source from '../data/comic-current-editions.json';
+import displayLabels from '../data/comic-display-labels.json';
 import ComicMusicBar from '../components/ComicMusicBar';
 import './TechOpsComic.css';
 import './LatestComicReader.css';
 
 type Hotspot = { page: number; rect: number[] };
 type Book = { id: string; label: string; title: string; pageCount: number; revision: string; pdfUrl: string; imageBase: string; width: number; height: number; sections: {start:number; end:number; label:string; title:string; kind:string}[]; scenes: {page:number; title:string}[]; links: Record<string, Hotspot[]> };
-const books = source.books as Record<string, Book>;
+// Editorial revision IDs remain stable for bookmarks, hashes and soundtrack bindings.
+// Reader-facing names are independent of those internal production identifiers.
+const books = Object.fromEntries(Object.entries(source.books).map(([id, book]) => [id, {
+  ...book, ...displayLabels[id as keyof typeof displayLabels],
+}])) as Record<string, Book>;
 const editionOrder = ['g', 'xiii-r', 'xiv'];
 const base = import.meta.env.BASE_URL + 'techops-comic/';
 const imageUrl = (book: Book, page: number) => `${book.imageBase}${String(page).padStart(3, '0')}.webp`;
@@ -52,7 +57,7 @@ export default function LatestComicReader() {
     return ()=>motion.removeEventListener('change',stop);
   },[]);
   useEffect(() => {
-    const previous=document.title; document.title=page?`Page ${page} · ${book.label} · TechOps Hero`:'TechOps Hero · Latest corrected editions';
+    const previous=document.title; document.title=page?`Page ${page} · ${book.label} · TechOps Hero`:'TechOps Hero · Full collection';
     return ()=>{document.title=previous;};
   },[book.label,page]);
   useEffect(() => {
@@ -85,13 +90,13 @@ export default function LatestComicReader() {
       <section className="comic-hero" style={{'--dock':`url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true"/>
         <button className="comic-reel-toggle" onClick={()=>setIntro(true)}>Replay intro</button>
-        <div className="comic-hero-copy"><p className="comic-overline"><span/> LATEST CORRECTED EDITIONS</p>
+        <div className="comic-hero-copy"><p className="comic-overline"><span/> THE FULL COLLECTION</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line,row)=><span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i)=><b key={i} style={{'--i':row*7+i} as CSSProperties}>{c===' '?'\u00a0':c}</b>)}</span>)}</h1>
           <p className="comic-byline">By Mike Olivares</p><div className="comic-actions"><button className="comic-primary" onClick={()=>go(saved>1?saved:1)}>{saved>1?`Resume · p. ${saved}`:`Read ${book.label}`} <ArrowRight size={18}/></button><span>{book.pageCount} pages <i>/</i> {book.title}</span></div>
         </div>
       </section>
-      <section className="comic-library" aria-label="Latest corrected editions">
-        <div className="comic-library-heading"><h2>The complete reading order</h2><span>REVISED NOVEMBER 10, 2026</span></div>
+      <section className="comic-library" aria-label="Comic library">
+        <div className="comic-library-heading"><h2>The complete reading order</h2><span>VOLUMES I–XIV</span></div>
         <div className="comic-volumes comic-volumes-complete comic-current-books">{editionOrder.map(eid=>{
           const item=books[eid];return <article key={eid} className="comic-current-card"><button onClick={()=>go(1,eid)}>
             <img src={imageUrl(item,eid==='g'?3:1)} alt={`${item.label} cover`} width={item.width} height={item.height} loading="lazy"/>
@@ -100,10 +105,9 @@ export default function LatestComicReader() {
         })}</div>
         <h2 className="comic-current-chapters">{book.label} · Contents</h2>
         <div className="comic-current-toc">{book.scenes.map((scene,i)=><button key={`${scene.page}-${i}`} onClick={()=>go(scene.page)}><span>{scene.title}</span><small>p. {scene.page}</small></button>)}</div>
-        <p><Link className="comic-edition-link" to={`/comic?edition=f${fromWorld?'&from=world':''}`}>Earlier Revision F and legacy readers <ArrowRight size={18}/></Link></p>
       </section>
     </> : <>
-      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Collection</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={()=>setZoom(!zoom)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button></div>
+      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Library</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={()=>setZoom(!zoom)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button></div>
       <div className={'comic-stage'+(zoom?' is-enlarged':'')} ref={stage}
         onTouchStart={e=>{swipe.current=!zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
         onTouchCancel={()=>{swipe.current=null;}}
@@ -118,7 +122,7 @@ export default function LatestComicReader() {
         <label>Page <select aria-label="Jump to page" value={page} onChange={e=>go(Number(e.target.value))}>{Array.from({length:book.pageCount},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select> / {book.pageCount}</label>
         <button className="comic-turn" aria-label="Next page" disabled={page===book.pageCount} onClick={()=>go(page+1)}><ChevronRight/></button>
         <select aria-label="Jump to scene" className="comic-scenes" value="" onChange={e=>go(Number(e.target.value))}><option value="" disabled>Jump to scene</option>{book.scenes.map((scene,i)=><option key={`${scene.page}-${i}`} value={scene.page}>{scene.page} · {scene.title}</option>)}</select>
-        <label className="comic-current-edition">Edition <select aria-label="Choose edition" value={id} onChange={e=>go(1,e.target.value)}>{editionOrder.map(eid=><option key={eid} value={eid}>{books[eid].label}</option>)}</select></label>
+        <label className="comic-current-edition">Book <select aria-label="Choose book" value={id} onChange={e=>go(1,e.target.value)}>{editionOrder.map(eid=><option key={eid} value={eid}>{books[eid].label}</option>)}</select></label>
         <span className="sr-only" aria-live="polite">Page {page} of {book.pageCount}. {describe(page)}</span>
       </nav>
       {page===book.pageCount && next && <div className="comic-current-continue"><button className="comic-primary" onClick={()=>go(1,next)}>Continue with {books[next].label}<ArrowRight size={18}/></button></div>}
