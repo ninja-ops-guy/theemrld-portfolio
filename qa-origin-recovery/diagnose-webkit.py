@@ -36,6 +36,27 @@ if os.environ['QA_MOVEMENT']=='bounded':
 once("        row.update(status='FAIL',error=str(error),traceback=traceback.format_exc());event('case-failure',error=str(error))", "        row.update(status='FAIL',error=str(error),traceback=traceback.format_exc());event('case-failure',error=str(error))\n        for label,p in pages:\n            if label=='native':native_probe(p,'failure-before-screenshots')")
 once("    contexts=[];pages=[];page_errors=[];observations={};row={'name':name};start=time.monotonic();case_name=name;phase='test';event('case-start')", "    if os.environ.get('QA_SCOPE')!='full' and name!=os.environ['QA_CASE']:return\n    contexts=[];pages=[];page_errors=[];observations={};row={'name':name};start=time.monotonic();case_name=name;phase='test';event('case-start')")
 once("REPORT['browserVersion']=browser.version;", "REPORT['diagnosticOnly']=True;REPORT['movementVariant']=os.environ['QA_MOVEMENT'];REPORT['scope']='Full original suite order in one browser, including original 27 cases, two atomicity repeats and two existing-write probes; assertions unchanged. Read-only probes can affect scheduling.' if os.environ.get('QA_SCOPE')=='full' else 'Focused native objective observation; one named case per process, not full recovery certification. Original assertions retained. Read-only probes can affect scheduling.';REPORT['browserVersion']=browser.version;")
+
+# Observe only synthetic local save keys in case18; never write or repair them.
+companion_probe = r'''def companion_snapshot(p,label):
+    import hashlib
+    try:
+        data=p.locator('body').evaluate("""()=>{const values={};for(const k of Object.keys(localStorage).sort()){if(k.startsWith('techops'))values[k]=localStorage.getItem(k)}let selected,error;try{selected=window.TechOpsLinkedSaveCore?.selectedRun()}catch(e){error=String(e)}return {url:location.href,ready:window.__productionTitleReadiness?.ready,hasCore:!!window.TechOpsLinkedSaveCore,hasCompanion:!!window.TechOpsLinked,selected,selectedError:error,runtimeIdentity:window.S?.meta?.seeWorldLink,night:!!window.S?.nightMode,paused:!!window.S?.paused,dialog:!!window.S?.inDialog,mode:window.S?.meta?._standaloneMode,values}}""",timeout=2000)
+        raw=data.pop('values')
+        data['storage']={k:{'raw':v,'utf8Bytes':len(v.encode('utf-8')),'sha256':hashlib.sha256(v.encode('utf-8')).hexdigest()} for k,v in raw.items()}
+        path=OUT/('case18-'+label+'.json');path.write_text(json.dumps(data,indent=2))
+        event('companion-save-snapshot',label=label,path=path.name,ready=data.get('ready'),hasCore=data.get('hasCore'),hasCompanion=data.get('hasCompanion'),keys=list(raw))
+    except Exception as error:event('companion-snapshot-unavailable',label=label,error=str(error))
+
+'''
+# Helpers belong at module scope, not in the with-browser suite block.
+once('def native_probe(p,label):',companion_probe+'def native_probe(p,label):')
+once("        assert offline.evaluate('TechOpsCampaign.save(TechOpsCampaign.load(localStorage),localStorage)') is True", "        assert offline.evaluate('TechOpsCampaign.save(TechOpsCampaign.load(localStorage),localStorage)') is True\n        companion_snapshot(offline,'offline-before-reload')\n        companion_snapshot(n,'survivor-before-reload')")
+once("        offline.reload(wait_until='domcontentloaded');offline.wait_for_function('window.TechOpsLinkedSaveCore&&window.__productionTitleReadiness?.ready',timeout=30000)","        event('companion-reload-start')\n        offline.reload(wait_until='domcontentloaded')\n        event('companion-reload-domcontentloaded')\n        companion_snapshot(offline,'offline-after-reload-dom')\n        offline.wait_for_function('window.TechOpsLinkedSaveCore&&window.__productionTitleReadiness?.ready',timeout=30000)\n        companion_snapshot(offline,'offline-after-reload-ready')")
+once("        c.unroute('**/see-world/linked.mjs');offline.reload(wait_until='domcontentloaded')", "        companion_snapshot(offline,'offline-before-restoration')\n        c.unroute('**/see-world/linked.mjs');offline.reload(wait_until='domcontentloaded')\n        companion_snapshot(offline,'restored-after-reload-dom')")
+once("        observations['preservedRun']=run_id", "        companion_snapshot(offline,'restored-selected-run')\n        observations['preservedRun']=run_id")
+once("        for label,p in pages:\n            if label=='native':native_probe(p,'failure-before-screenshots')", "        if name=='18-companion-outage-ownership-reload-recovery':\n            for label,p in pages:\n                companion_snapshot(p,label+'-failure-before-screenshots')\n        for label,p in pages:\n            if label.startswith('native'):native_probe(p,label+'-failure-before-screenshots')")
+
 expanded=out/'diagnostic-executed-test.py';expanded.write_text(source)
 (out/'diagnostic-source-sha256.txt').write_text(hashlib.sha256(Path(__file__).read_bytes()).hexdigest()+'\n')
 if os.environ.get('DIAG_EXPAND_ONLY')!='1':runpy.run_path(str(expanded),run_name='__main__')
