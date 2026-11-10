@@ -14,6 +14,11 @@ def gh(*args):
     return subprocess.check_output(['gh', *args], text=True)
 
 
+def find_release():
+    pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{REPOSITORY}/releases?per_page=100'))
+    return next((release for page in pages for release in page if release['tag_name'] == TAG), None)
+
+
 def verify(path, entry):
     sha = hashlib.sha256()
     size = 0
@@ -40,8 +45,7 @@ def main():
     for entry in entries:
         verify(Path('public') / entry['path'], entry)
     # Use the release list to distinguish absence from a failed authenticated request.
-    releases = json.loads(gh('api', '--paginate', '--slurp', f'repos/{REPOSITORY}/releases?per_page=100'))
-    release = next((r for page in releases for r in page if r['tag_name'] == TAG), None)
+    release = find_release()
     if release is None:
         body = ('Historical reading PDFs preserved byte-for-byte. These are superseded editions, '
                 'not new comic revisions. The 315-page annotation update is separate from the '
@@ -53,7 +57,10 @@ def main():
             gh('release', 'create', TAG, '--repo', REPOSITORY, '--target', SOURCE,
                '--title', 'TechOps Hero — historical reading PDFs (November 10, 2026)',
                '--notes-file', str(notes), '--draft', '--latest=false')
-        release = json.loads(gh('api', f'repos/{REPOSITORY}/releases/tags/{TAG}'))
+        # The tag endpoint can return 404 for drafts whose tag is not published yet.
+        release = find_release()
+        if release is None:
+            raise ValueError('Created archive draft is not visible in the release list')
     refs = json.loads(gh('api', f'repos/{REPOSITORY}/git/matching-refs/tags/{TAG}'))
     target = next((ref for ref in refs if ref['ref'] == f'refs/tags/{TAG}'), None)
     if target is not None:
@@ -78,7 +85,7 @@ def main():
             verify(Path(temp) / Path(entry['path']).name, entry)
     if release['draft']:
         gh('release', 'edit', TAG, '--repo', REPOSITORY, '--draft=false', '--latest=false')
-    final = json.loads(gh('api', f'repos/{REPOSITORY}/releases/tags/{TAG}'))
+    final = json.loads(gh('api', f'repos/{REPOSITORY}/releases/{release["id"]}'))
     if final['draft'] or final['prerelease']:
         raise ValueError('Archive publication did not complete')
     target = json.loads(gh('api', f'repos/{REPOSITORY}/git/ref/tags/{TAG}'))
