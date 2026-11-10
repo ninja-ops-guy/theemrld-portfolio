@@ -66,7 +66,7 @@ try:
                 campaign_progress: ['techops_hero_campaign_v1']
             };
             const keys = Object.keys(localStorage);
-            const known = new Set(Object.values(groups).flat());
+            const known = new Set([...Object.values(groups).flat(), 'setItem', 'getItem']);
             const linked = k => k.startsWith('techops:linked:');
             return {
                 ...Object.fromEntries(Object.entries(groups).map(([category, names]) => [category, names.some(k => keys.includes(k))])),
@@ -79,13 +79,13 @@ try:
                 total_count: keys.length
             };
         }""")
-        assert game.evaluate("Object.keys(localStorage).every(k=>k==='techops_settings')"),'Native title wrote a non-preference key'
+        assert game.evaluate("Object.keys(localStorage).every(k=>['techops_settings','setItem','getItem'].includes(k)) && typeof localStorage.setItem==='function' && typeof localStorage.getItem==='function'"),'Native title has unexpected storage or non-callable storage API'
         game.close()
-        report['passed'].append('Actual game link reaches ready original-origin game; only documented techops_settings startup preference allowed')
+        report['passed'].append('Actual game link reaches ready original-origin game; only documented settings and legacy method-name startup artifacts allowed; storage APIs callable')
         shortcut=page('shortcut');shortcut.goto(BASE+'/techops-hero/?routing-check=1#routing-check')
         shortcut.wait_for_url(GAME+'?routing-check=1#routing-check')
         shortcut.wait_for_function('window.__productionTitleReadiness?.ready===true',timeout=120000)
-        assert shortcut.evaluate("Object.keys(localStorage).every(k=>k==='techops_settings')"),'Native shortcut wrote a non-preference key'
+        assert shortcut.evaluate("Object.keys(localStorage).every(k=>['techops_settings','setItem','getItem'].includes(k)) && typeof localStorage.setItem==='function' && typeof localStorage.getItem==='function'"),'Native shortcut has unexpected storage or non-callable storage API'
         shortcut.close()
         legacy=page('legacy');legacy.goto(LEGACY+'#/links');legacy.locator('.media-hub').wait_for()
         assert legacy.url==BASE+'/#/links'

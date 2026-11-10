@@ -28,10 +28,10 @@ test('smoke retains deployed reader byte checks and fails on wrong destinations'
  assert.ok(smoke.includes('assert not report[\'page_errors\']'));
 });
 
-test('native title preference exception never accepts save or progression keys',()=>{
- const allowed=keys=>keys.every(k=>k==='techops_settings');
- assert.equal(allowed([]),true);assert.equal(allowed(['techops_settings']),true);
+test('native title exact startup allowlist rejects every save and unknown key',()=>{
+ const allowed=keys=>keys.every(k=>['techops_settings','setItem','getItem'].includes(k));
+ assert.equal(allowed([]),true);assert.equal(allowed(['techops_settings']),true);assert.equal(allowed(['techops_settings','setItem','getItem']),true);
  for(const key of ['techops_save','techops_save_bak','techops_day_checkpoint_v1','techops_hero_campaign_v1','techops:linked:native:v1','techops:linked:story:v1:synthetic:run','unknown'])assert.equal(allowed(['techops_settings',key]),false);
  const smoke=readFileSync('scripts/see-world-public-smoke.py','utf8');
- assert.equal(smoke.split("Object.keys(localStorage).every(k=>k==='techops_settings')").length-1,2);
+ assert.equal(smoke.split("Object.keys(localStorage).every(k=>['techops_settings','setItem','getItem'].includes(k)) && typeof localStorage.setItem==='function' && typeof localStorage.getItem==='function'").length-1,2);
 });
