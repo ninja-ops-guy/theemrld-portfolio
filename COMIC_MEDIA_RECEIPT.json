@@ -1,0 +1,6396 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-11-10",
+  "books": {
+    "g": {
+      "id": "g",
+      "label": "Revision G · Volumes I–XII",
+      "title": "The corrected collection",
+      "pageCount": 316,
+      "revision": "corrected-c18407af88e9",
+      "pdfFilename": "TechOps-Hero-Revision-G-Complete.pdf",
+      "pdfSha256": "c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b",
+      "pdfBytes": 336208773,
+      "imagePath": "techops-comic/revision-g/",
+      "width": 2160,
+      "height": 3240,
+      "sections": [
+        {
+          "start": 1,
+          "end": 2,
+          "label": "Guide",
+          "title": "Collection index and reader key",
+          "kind": "guide"
+        },
+        {
+          "start": 3,
+          "label": "Vol. I",
+          "title": "Engineering the Human Connection",
+          "kind": "volume",
+          "end": 51
+        },
+        {
+          "start": 52,
+          "label": "Vol. II",
+          "title": "The Vessel",
+          "kind": "volume",
+          "end": 86
+        },
+        {
+          "start": 87,
+          "label": "Interlude",
+          "title": "Iona · The World He Left Running",
+          "kind": "volume",
+          "end": 141
+        },
+        {
+          "start": 142,
+          "label": "Vol. III",
+          "title": "The Return Signal",
+          "kind": "volume",
+          "end": 164
+        },
+        {
+          "start": 165,
+          "label": "Vol. IV",
+          "title": "The False Bearing",
+          "kind": "volume",
+          "end": 174
+        },
+        {
+          "start": 175,
+          "label": "Vol. V",
+          "title": "The House That Didn’t Ask",
+          "kind": "volume",
+          "end": 218
+        },
+        {
+          "start": 219,
+          "label": "Guide",
+          "title": "Later collection index",
+          "kind": "guide",
+          "end": 219
+        },
+        {
+          "start": 220,
+          "label": "Vol. VI",
+          "title": "The Stolen Teaching",
+          "kind": "volume",
+          "end": 232
+        },
+        {
+          "start": 233,
+          "label": "Vol. VII",
+          "title": "The Wanting Mind",
+          "kind": "volume",
+          "end": 245
+        },
+        {
+          "start": 246,
+          "label": "Vol. VIII",
+          "title": "The Better Prison",
+          "kind": "volume",
+          "end": 258
+        },
+        {
+          "start": 259,
+          "label": "Vol. IX",
+          "title": "The Name Before",
+          "kind": "volume",
+          "end": 271
+        },
+        {
+          "start": 272,
+          "label": "Vol. X",
+          "title": "Evan's K",
+          "kind": "volume",
+          "end": 287
+        },
+        {
+          "start": 288,
+          "label": "Continuation",
+          "title": "Volumes XI–XII · Reader note",
+          "kind": "guide",
+          "end": 289
+        },
+        {
+          "start": 290,
+          "label": "Vol. XI",
+          "title": "The Room He Returns To",
+          "kind": "volume",
+          "end": 302
+        },
+        {
+          "start": 303,
+          "label": "Vol. XII",
+          "title": "What He Stays For",
+          "kind": "volume",
+          "end": 316
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Full collection index"
+        },
+        {
+          "page": 2,
+          "title": "Reader key"
+        },
+        {
+          "page": 3,
+          "title": "Volume I / Engineering the Human Connection"
+        },
+        {
+          "page": 21,
+          "title": "The Way In / restored arrival"
+        },
+        {
+          "page": 22,
+          "title": "Sector 4 crash"
+        },
+        {
+          "page": 23,
+          "title": "Found by the Dogs / Cell 118 then Cell 1984"
+        },
+        {
+          "page": 24,
+          "title": "Through the vents"
+        },
+        {
+          "page": 34,
+          "title": "Waldo / Before the knock"
+        },
+        {
+          "page": 52,
+          "title": "Volume II / The Vessel"
+        },
+        {
+          "page": 87,
+          "title": "Iona / The World He Left Running / After Volume II"
+        },
+        {
+          "page": 142,
+          "title": "Volume III / The Return Signal"
+        },
+        {
+          "page": 149,
+          "title": "Iona / The archive choice"
+        },
+        {
+          "page": 165,
+          "title": "Volume IV / The False Bearing"
+        },
+        {
+          "page": 175,
+          "title": "Volume V / The House That Didn’t Ask"
+        },
+        {
+          "page": 219,
+          "title": "Later collection index"
+        },
+        {
+          "page": 220,
+          "title": "Volume VI / The Stolen Teaching"
+        },
+        {
+          "page": 233,
+          "title": "Volume VII / The Wanting Mind"
+        },
+        {
+          "page": 246,
+          "title": "Volume VIII / The Better Prison"
+        },
+        {
+          "page": 259,
+          "title": "Volume IX / The Name Before"
+        },
+        {
+          "page": 272,
+          "title": "Volume X / Evan's K"
+        },
+        {
+          "page": 288,
+          "title": "XI-XII continuation cover and reader note"
+        },
+        {
+          "page": 290,
+          "title": "Volume XI / The Room He Returns To / continuation"
+        },
+        {
+          "page": 291,
+          "title": "Chapter 21"
+        },
+        {
+          "page": 294,
+          "title": "Chapter 22"
+        },
+        {
+          "page": 297,
+          "title": "Chapter 23"
+        },
+        {
+          "page": 300,
+          "title": "Chapter 24"
+        },
+        {
+          "page": 303,
+          "title": "Volume XII / What He Stays For"
+        },
+        {
+          "page": 304,
+          "title": "Chapter 25"
+        },
+        {
+          "page": 307,
+          "title": "Chapter 26"
+        },
+        {
+          "page": 310,
+          "title": "Chapter 27"
+        },
+        {
+          "page": 313,
+          "title": "Chapter 28"
+        }
+      ],
+      "links": {
+        "1": [
+          {
+            "page": 3,
+            "rect": [
+              5.324074074074074,
+              17.901234567901234,
+              94.21296296296296,
+              22.376543209876544
+            ]
+          },
+          {
+            "page": 52,
+            "rect": [
+              5.324074074074074,
+              22.685185185185187,
+              94.21296296296296,
+              27.160493827160494
+            ]
+          },
+          {
+            "page": 87,
+            "rect": [
+              5.324074074074074,
+              27.469135802469136,
+              94.21296296296296,
+              31.944444444444443
+            ]
+          },
+          {
+            "page": 142,
+            "rect": [
+              5.324074074074074,
+              32.25308641975309,
+              94.21296296296296,
+              36.72839506172839
+            ]
+          },
+          {
+            "page": 165,
+            "rect": [
+              5.324074074074074,
+              37.03703703703704,
+              94.21296296296296,
+              41.51234567901235
+            ]
+          },
+          {
+            "page": 175,
+            "rect": [
+              5.324074074074074,
+              41.82098765432099,
+              94.21296296296296,
+              46.2962962962963
+            ]
+          },
+          {
+            "page": 220,
+            "rect": [
+              5.324074074074074,
+              46.60493827160494,
+              94.21296296296296,
+              51.08024691358025
+            ]
+          },
+          {
+            "page": 233,
+            "rect": [
+              5.324074074074074,
+              51.388888888888886,
+              94.21296296296296,
+              55.864197530864196
+            ]
+          },
+          {
+            "page": 246,
+            "rect": [
+              5.324074074074074,
+              56.17283950617284,
+              94.21296296296296,
+              60.648148148148145
+            ]
+          },
+          {
+            "page": 259,
+            "rect": [
+              5.324074074074074,
+              60.95679012345679,
+              94.21296296296296,
+              65.4320987654321
+            ]
+          },
+          {
+            "page": 272,
+            "rect": [
+              5.324074074074074,
+              65.74074074074075,
+              94.21296296296296,
+              70.21604938271605
+            ]
+          },
+          {
+            "page": 290,
+            "rect": [
+              5.324074074074074,
+              70.5246913580247,
+              94.21296296296296,
+              75.0
+            ]
+          },
+          {
+            "page": 303,
+            "rect": [
+              5.324074074074074,
+              75.30864197530865,
+              94.21296296296296,
+              79.78395061728395
+            ]
+          }
+        ],
+        "2": [
+          {
+            "page": 3,
+            "rect": [
+              6.481481481481482,
+              18.82716049382716,
+              49.074074074074076,
+              26.080246913580247
+            ]
+          },
+          {
+            "page": 52,
+            "rect": [
+              50.925925925925924,
+              18.82716049382716,
+              93.51851851851852,
+              26.080246913580247
+            ]
+          },
+          {
+            "page": 87,
+            "rect": [
+              6.481481481481482,
+              27.314814814814813,
+              49.074074074074076,
+              34.5679012345679
+            ]
+          },
+          {
+            "page": 142,
+            "rect": [
+              50.925925925925924,
+              27.314814814814813,
+              93.51851851851852,
+              34.5679012345679
+            ]
+          },
+          {
+            "page": 165,
+            "rect": [
+              6.481481481481482,
+              35.80246913580247,
+              49.074074074074076,
+              43.05555555555556
+            ]
+          },
+          {
+            "page": 175,
+            "rect": [
+              50.925925925925924,
+              35.80246913580247,
+              93.51851851851852,
+              43.05555555555556
+            ]
+          },
+          {
+            "page": 1,
+            "rect": [
+              6.481481481481482,
+              44.29012345679013,
+              49.074074074074076,
+              51.54320987654321
+            ]
+          }
+        ],
+        "5": [
+          {
+            "page": 6,
+            "rect": [
+              5.787037037037037,
+              21.604938271604937,
+              93.75,
+              24.691358024691358
+            ]
+          },
+          {
+            "page": 9,
+            "rect": [
+              5.787037037037037,
+              25.771604938271604,
+              93.75,
+              28.858024691358025
+            ]
+          },
+          {
+            "page": 14,
+            "rect": [
+              5.787037037037037,
+              29.938271604938272,
+              93.75,
+              33.02469135802469
+            ]
+          },
+          {
+            "page": 18,
+            "rect": [
+              5.787037037037037,
+              34.10493827160494,
+              93.75,
+              37.19135802469136
+            ]
+          },
+          {
+            "page": 19,
+            "rect": [
+              5.787037037037037,
+              38.27160493827161,
+              93.75,
+              41.358024691358025
+            ]
+          },
+          {
+            "page": 21,
+            "rect": [
+              5.787037037037037,
+              42.43827160493827,
+              93.75,
+              45.52469135802469
+            ]
+          },
+          {
+            "page": 25,
+            "rect": [
+              5.787037037037037,
+              46.60493827160494,
+              93.75,
+              49.69135802469136
+            ]
+          },
+          {
+            "page": 28,
+            "rect": [
+              5.787037037037037,
+              50.77160493827161,
+              93.75,
+              53.858024691358025
+            ]
+          },
+          {
+            "page": 31,
+            "rect": [
+              5.787037037037037,
+              54.93827160493827,
+              93.75,
+              58.02469135802469
+            ]
+          },
+          {
+            "page": 35,
+            "rect": [
+              5.787037037037037,
+              59.10493827160494,
+              93.75,
+              62.19135802469136
+            ]
+          },
+          {
+            "page": 38,
+            "rect": [
+              5.787037037037037,
+              63.27160493827161,
+              93.75,
+              66.35802469135803
+            ]
+          },
+          {
+            "page": 43,
+            "rect": [
+              5.787037037037037,
+              67.43827160493827,
+              93.75,
+              70.5246913580247
+            ]
+          },
+          {
+            "page": 44,
+            "rect": [
+              5.787037037037037,
+              71.60493827160494,
+              93.75,
+              74.69135802469135
+            ]
+          },
+          {
+            "page": 46,
+            "rect": [
+              5.787037037037037,
+              75.77160493827161,
+              93.75,
+              78.85802469135803
+            ]
+          },
+          {
+            "page": 48,
+            "rect": [
+              5.787037037037037,
+              79.93827160493827,
+              93.75,
+              83.0246913580247
+            ]
+          },
+          {
+            "page": 50,
+            "rect": [
+              5.787037037037037,
+              84.10493827160494,
+              93.75,
+              87.19135802469135
+            ]
+          }
+        ],
+        "86": [
+          {
+            "page": 87,
+            "rect": [
+              18.51851851851852,
+              95.67901234567901,
+              81.48148148148148,
+              99.07407407407408
+            ]
+          }
+        ],
+        "141": [
+          {
+            "page": 142,
+            "rect": [
+              2.5462962962962963,
+              96.91358024691358,
+              86.3425925925926,
+              99.53703703703704
+            ]
+          }
+        ],
+        "214": [
+          {
+            "page": 220,
+            "rect": [
+              5.324074074074074,
+              87.5,
+              50.46296296296296,
+              95.06172839506173
+            ]
+          }
+        ],
+        "219": [
+          {
+            "page": 220,
+            "rect": [
+              6.481481481481482,
+              19.753086419753085,
+              49.074074074074076,
+              27.006172839506174
+            ]
+          },
+          {
+            "page": 233,
+            "rect": [
+              50.925925925925924,
+              19.753086419753085,
+              93.51851851851852,
+              27.006172839506174
+            ]
+          },
+          {
+            "page": 246,
+            "rect": [
+              6.481481481481482,
+              28.549382716049383,
+              49.074074074074076,
+              35.80246913580247
+            ]
+          },
+          {
+            "page": 259,
+            "rect": [
+              50.925925925925924,
+              28.549382716049383,
+              93.51851851851852,
+              35.80246913580247
+            ]
+          },
+          {
+            "page": 272,
+            "rect": [
+              6.481481481481482,
+              37.34567901234568,
+              49.074074074074076,
+              44.598765432098766
+            ]
+          },
+          {
+            "page": 1,
+            "rect": [
+              50.925925925925924,
+              37.34567901234568,
+              93.51851851851852,
+              44.598765432098766
+            ]
+          }
+        ],
+        "289": [
+          {
+            "page": 290,
+            "rect": [
+              5.787037037037037,
+              21.91358024691358,
+              93.75,
+              33.02469135802469
+            ]
+          },
+          {
+            "page": 303,
+            "rect": [
+              5.787037037037037,
+              39.660493827160494,
+              93.75,
+              50.77160493827161
+            ]
+          }
+        ]
+      }
+    },
+    "xiii-r": {
+      "id": "xiii-r",
+      "label": "Volume XIII · Revised",
+      "title": "The Last Launch",
+      "pageCount": 49,
+      "revision": "corrected-85c2fbd8c80b",
+      "pdfFilename": "TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf",
+      "pdfSha256": "85c2fbd8c80b8704c884cdfe2f1771f2bbd856bbfaabde57ca855112c4580637",
+      "pdfBytes": 65854157,
+      "imagePath": "techops-comic/volume-xiii-revised/",
+      "width": 2160,
+      "height": 3240,
+      "sections": [
+        {
+          "start": 1,
+          "end": 49,
+          "label": "Vol. XIII",
+          "title": "The Last Launch",
+          "kind": "volume"
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Volume XIII / The Last Launch"
+        },
+        {
+          "page": 2,
+          "title": "Volume XIII contents"
+        },
+        {
+          "page": 3,
+          "title": "29 / The count after"
+        },
+        {
+          "page": 7,
+          "title": "30 / What the station held"
+        },
+        {
+          "page": 11,
+          "title": "31 / The route they left"
+        },
+        {
+          "page": 29,
+          "title": "32 / What survived the file"
+        },
+        {
+          "page": 33,
+          "title": "33 / A table for four"
+        },
+        {
+          "page": 41,
+          "title": "34 / The names we carry"
+        },
+        {
+          "page": 49,
+          "title": "Volume XIII / To be continued"
+        }
+      ],
+      "links": {
+        "2": [
+          {
+            "page": 3,
+            "rect": [
+              5.787037037037037,
+              23.30246913580247,
+              94.21296296296296,
+              29.166666666666668
+            ]
+          },
+          {
+            "page": 7,
+            "rect": [
+              5.787037037037037,
+              31.635802469135804,
+              94.21296296296296,
+              37.5
+            ]
+          },
+          {
+            "page": 11,
+            "rect": [
+              5.787037037037037,
+              39.96913580246913,
+              94.21296296296296,
+              45.833333333333336
+            ]
+          },
+          {
+            "page": 29,
+            "rect": [
+              5.787037037037037,
+              48.30246913580247,
+              94.21296296296296,
+              54.166666666666664
+            ]
+          },
+          {
+            "page": 33,
+            "rect": [
+              5.787037037037037,
+              56.635802469135804,
+              94.21296296296296,
+              62.5
+            ]
+          },
+          {
+            "page": 41,
+            "rect": [
+              5.787037037037037,
+              64.96913580246914,
+              94.21296296296296,
+              70.83333333333333
+            ]
+          }
+        ]
+      }
+    },
+    "xiv": {
+      "id": "xiv",
+      "label": "Volume XIV",
+      "title": "The System Is Healthy",
+      "pageCount": 133,
+      "revision": "corrected-97f16edf9df0",
+      "pdfFilename": "TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf",
+      "pdfSha256": "97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae",
+      "pdfBytes": 181907121,
+      "imagePath": "techops-comic/volume-xiv/",
+      "width": 2160,
+      "height": 3330,
+      "sections": [
+        {
+          "start": 1,
+          "end": 1,
+          "label": "Cover",
+          "title": "The System Is Healthy",
+          "kind": "guide"
+        },
+        {
+          "start": 2,
+          "end": 23,
+          "label": "Chapter 35",
+          "title": "No Incident Report for This",
+          "kind": "chapter"
+        },
+        {
+          "start": 24,
+          "end": 45,
+          "label": "Chapter 36",
+          "title": "Recover by Policy",
+          "kind": "chapter"
+        },
+        {
+          "start": 46,
+          "end": 67,
+          "label": "Chapter 37",
+          "title": "The Approval Chain",
+          "kind": "chapter"
+        },
+        {
+          "start": 68,
+          "end": 89,
+          "label": "Chapter 38",
+          "title": "A Clean Life",
+          "kind": "chapter"
+        },
+        {
+          "start": 90,
+          "end": 111,
+          "label": "Chapter 39",
+          "title": "What You Can Prove",
+          "kind": "chapter"
+        },
+        {
+          "start": 112,
+          "end": 133,
+          "label": "Chapter 40",
+          "title": "The System Is Healthy",
+          "kind": "chapter"
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Cover · The System Is Healthy"
+        },
+        {
+          "page": 2,
+          "title": "Chapter 35 · No Incident Report for This"
+        },
+        {
+          "page": 24,
+          "title": "Chapter 36 · Recover by Policy"
+        },
+        {
+          "page": 46,
+          "title": "Chapter 37 · The Approval Chain"
+        },
+        {
+          "page": 68,
+          "title": "Chapter 38 · A Clean Life"
+        },
+        {
+          "page": 90,
+          "title": "Chapter 39 · What You Can Prove"
+        },
+        {
+          "page": 112,
+          "title": "Chapter 40 · The System Is Healthy"
+        }
+      ],
+      "links": {}
+    }
+  },
+  "images": [
+    {
+      "edition": "g",
+      "page": 1,
+      "path": "techops-comic/revision-g/001.webp",
+      "bytes": 194920,
+      "sha256": "0135ca848fdb94ff078702bf7e637e8d217bc6e582fa464b69310309204f1971",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 2,
+      "path": "techops-comic/revision-g/002.webp",
+      "bytes": 218020,
+      "sha256": "7fd32d16378f3e33dba99d84b52542930fc2a66edeaf519fab1a73631949723c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 3,
+      "path": "techops-comic/revision-g/003.webp",
+      "bytes": 1495978,
+      "sha256": "665fe231fd2f52e7d3052accc7889424a4f558e8f1f13fd5d4ebaaf4732546bc",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 4,
+      "path": "techops-comic/revision-g/004.webp",
+      "bytes": 167590,
+      "sha256": "087ee8aba072e94842e01124e6e3bdb79acefb2b1e32c14360a4dc39795856ba",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 5,
+      "path": "techops-comic/revision-g/005.webp",
+      "bytes": 141274,
+      "sha256": "18e9b3f9119e068774155d428e757d4053f80bd0f9f0079dd0d94d2938c2f54e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 6,
+      "path": "techops-comic/revision-g/006.webp",
+      "bytes": 1425920,
+      "sha256": "0ba74380ef2bb88e26f27be970056e5c135578a721ba2f79976a1e6592c47360",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 7,
+      "path": "techops-comic/revision-g/007.webp",
+      "bytes": 1328024,
+      "sha256": "8c34865fcf60e7e978114146e308352c2361c0b3e20b7a250d12a1449191fd03",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 8,
+      "path": "techops-comic/revision-g/008.webp",
+      "bytes": 1586936,
+      "sha256": "aef94c75503b3b5a54e0e91af7b07bbbd80f1c342b3fccce521237c0d1c925eb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 9,
+      "path": "techops-comic/revision-g/009.webp",
+      "bytes": 1321628,
+      "sha256": "c6aabaa1fd15d5a0f6ce5a5a497a03b62e8326f9b90d68341239ef2c28932ff3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 10,
+      "path": "techops-comic/revision-g/010.webp",
+      "bytes": 1151840,
+      "sha256": "ce6419be72a933ff4ed9f149b86286cd8baf1d2da8a95a6a48d8caaf64a08ce4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 11,
+      "path": "techops-comic/revision-g/011.webp",
+      "bytes": 1139132,
+      "sha256": "78fb2d510b75c155aa24a3b44ed3199a698c3d02720f8089c2809deb1c77c455",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 12,
+      "path": "techops-comic/revision-g/012.webp",
+      "bytes": 1395700,
+      "sha256": "698be4c5ac171e1829bc5db6bdc5b752f458497c0762fbc9e1ad16be7f446d12",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 13,
+      "path": "techops-comic/revision-g/013.webp",
+      "bytes": 1385212,
+      "sha256": "cdbb40a0650e60b116d1329824043b866779b1c10ded58ba1f53d397158dff15",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 14,
+      "path": "techops-comic/revision-g/014.webp",
+      "bytes": 1203634,
+      "sha256": "ab15ea9ec0d082b0fada2ceceac6f56558d8c79f6af9e0616c28635375723317",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 15,
+      "path": "techops-comic/revision-g/015.webp",
+      "bytes": 1536930,
+      "sha256": "c9e2fec9ebb48774e9fba78bcab1b0778946853d8d9e0d5a9d895e027be707d1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 16,
+      "path": "techops-comic/revision-g/016.webp",
+      "bytes": 1294008,
+      "sha256": "c14e483316554d06bd9c7c84eea9ef5625c3a0ffe28ef2f25f2a514f8fd6cb5a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 17,
+      "path": "techops-comic/revision-g/017.webp",
+      "bytes": 1064882,
+      "sha256": "22acda08c8af7432e2cd14c1c139b24ea2f632681ad563e65df0a5f16e2b985c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 18,
+      "path": "techops-comic/revision-g/018.webp",
+      "bytes": 1411676,
+      "sha256": "4c132efde6fd71f5ea819ac233f02315244e94d7ed233652c6fa80c71b7b6287",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 19,
+      "path": "techops-comic/revision-g/019.webp",
+      "bytes": 1311222,
+      "sha256": "dae59561dd137e81152e983101f6cd499232b84334f0d09976b421476770816b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 20,
+      "path": "techops-comic/revision-g/020.webp",
+      "bytes": 1340604,
+      "sha256": "d9c81aa9b5377798b8ef0bc6af1bc15dae03f5e356ef0fccdd4be722567d5023",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 21,
+      "path": "techops-comic/revision-g/021.webp",
+      "bytes": 1609444,
+      "sha256": "2dd578150956f33b1b8594a712963fac7ef9abc2201697f921679f366c8a3789",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 22,
+      "path": "techops-comic/revision-g/022.webp",
+      "bytes": 1938778,
+      "sha256": "22471f313b478ab301677d9282f6493c70e63b361cec9706fe73258c221cc540",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 23,
+      "path": "techops-comic/revision-g/023.webp",
+      "bytes": 1262680,
+      "sha256": "78a0d9104a3be63295e0e6503e940cc82156f4acb97f431f551fdfc45fc0d7c1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 24,
+      "path": "techops-comic/revision-g/024.webp",
+      "bytes": 1165650,
+      "sha256": "c7331032e8526a1aa9c15c674e84465543f31dd4745306b65e6f544effddc657",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 25,
+      "path": "techops-comic/revision-g/025.webp",
+      "bytes": 923364,
+      "sha256": "d64ae3af1900853e474a6e868265690e695a61ebb1132c8fe9d3bb8d0f14192f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 26,
+      "path": "techops-comic/revision-g/026.webp",
+      "bytes": 911154,
+      "sha256": "a9102e3248c8ea2a2c743de444d8055f2ab32b230ae747a5dd0416687258a3d0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 27,
+      "path": "techops-comic/revision-g/027.webp",
+      "bytes": 1139822,
+      "sha256": "44d3e8033c29609793f8dff1e0807d93b04093f6a7966d2a5d356e680383e5d1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 28,
+      "path": "techops-comic/revision-g/028.webp",
+      "bytes": 1243126,
+      "sha256": "464d214524bd657f69fb4f7b1a9d51e802485572db4b4e4abce76304f31368ec",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 29,
+      "path": "techops-comic/revision-g/029.webp",
+      "bytes": 1295674,
+      "sha256": "fa9eb2c561569ed6170cd08c491d062abc7f4b30c8ae87f947bc77a045a4be1d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 30,
+      "path": "techops-comic/revision-g/030.webp",
+      "bytes": 1202074,
+      "sha256": "6496f4cf42f69d32bde77fee49182f5641419c0dffd40454f578fc409311b93d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 31,
+      "path": "techops-comic/revision-g/031.webp",
+      "bytes": 1163978,
+      "sha256": "b9171186f0a8bb78877c6d407a80b96785f3c43ce07a8ab9707b7957ec7706fe",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 32,
+      "path": "techops-comic/revision-g/032.webp",
+      "bytes": 1171760,
+      "sha256": "c51c47f3c0c42715d4703e23feb8eb3d6c43323a265089017fdecc1458f575e5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 33,
+      "path": "techops-comic/revision-g/033.webp",
+      "bytes": 1056372,
+      "sha256": "2b35fb9de0d32d14728cc137afb645d9cc979947fa3bd72610b58efa583e8c3b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 34,
+      "path": "techops-comic/revision-g/034.webp",
+      "bytes": 1089616,
+      "sha256": "17e7f4325ec4bba4ceafdc14e7509d4b09b1280dbbe6bbfd6f388dea8e0829a0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 35,
+      "path": "techops-comic/revision-g/035.webp",
+      "bytes": 1322822,
+      "sha256": "e808affb8d796357a99d7481895128b1189dae8cd71b198c46c07c641b7560d9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 36,
+      "path": "techops-comic/revision-g/036.webp",
+      "bytes": 1309666,
+      "sha256": "1b92891ac0e55a4ac35cafd6a1ad08150ca6ff7614476f7237c4ff8eb58fc255",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 37,
+      "path": "techops-comic/revision-g/037.webp",
+      "bytes": 1268046,
+      "sha256": "909931a55ad6f6a57fd298fe201db1fdd63b422a9df6862a77023001eb04ad2a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 38,
+      "path": "techops-comic/revision-g/038.webp",
+      "bytes": 1226480,
+      "sha256": "b49ea7bdf22cab6b7dd5e3b377848f0bba56a03317caadbce1a85f8ff7ca9b9c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 39,
+      "path": "techops-comic/revision-g/039.webp",
+      "bytes": 1064648,
+      "sha256": "f73c942f3ba7ed80ef9328bd8b43ba4947c5053161ec037a65e73de39a252e03",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 40,
+      "path": "techops-comic/revision-g/040.webp",
+      "bytes": 1009300,
+      "sha256": "ce12f7472c817cdea7ad67d9501b93ec2f6c914b75f47106391eb06c84ba7824",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 41,
+      "path": "techops-comic/revision-g/041.webp",
+      "bytes": 973094,
+      "sha256": "3677f8b5fa115c07c8d83f1f3fc606fc9b57a75053144c9624c85011a8b00ac9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 42,
+      "path": "techops-comic/revision-g/042.webp",
+      "bytes": 1152054,
+      "sha256": "3ff293628862e3d7285a98c7b9fac9565c2a3f3ea3d3d11c26321f0cfd369a0a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 43,
+      "path": "techops-comic/revision-g/043.webp",
+      "bytes": 1161774,
+      "sha256": "69da7b522517ddff5cc8ef3b8d2948ddb0c580f0f882d0dabbf0e289b32c4969",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 44,
+      "path": "techops-comic/revision-g/044.webp",
+      "bytes": 1349530,
+      "sha256": "5fe13ff7fbd5d5822c54b7cab7d8f0ec0f60cbf2dba73d7472b6b4d62bf52ca2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 45,
+      "path": "techops-comic/revision-g/045.webp",
+      "bytes": 1461268,
+      "sha256": "48df6020075a4dd9fe322fa81dc02326694e44196d156aacf9208d308b45ce63",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 46,
+      "path": "techops-comic/revision-g/046.webp",
+      "bytes": 982272,
+      "sha256": "65dbe43d5fb47fd38c26929d9970063369826705252461ab47a695d044d99610",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 47,
+      "path": "techops-comic/revision-g/047.webp",
+      "bytes": 1206204,
+      "sha256": "6874e76c4f2f3152de912c4b8686cc4f28d57dbcdaf1f6d6ea49c6eba5e9a89a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 48,
+      "path": "techops-comic/revision-g/048.webp",
+      "bytes": 1206506,
+      "sha256": "86b75917ab24325b23f38c1b6a12abe0ea74c58cf996cb10931113991dc99360",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 49,
+      "path": "techops-comic/revision-g/049.webp",
+      "bytes": 1278622,
+      "sha256": "0dd38107c7843b174ce99be97cec073acf6729430de1eef400880a92de5f5c58",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 50,
+      "path": "techops-comic/revision-g/050.webp",
+      "bytes": 1177546,
+      "sha256": "ffacc215954f06c571c0359fcc46fa80ff065c99723baf721a11c8f10f70fe27",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 51,
+      "path": "techops-comic/revision-g/051.webp",
+      "bytes": 981328,
+      "sha256": "733c68c426a2c9787a94ffa112bc241c90bc4cb3630f767ac403d4bef02fc777",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 52,
+      "path": "techops-comic/revision-g/052.webp",
+      "bytes": 402976,
+      "sha256": "32748016c4f6144554e0ccd3fcf2ddaf67b1684dd0590951a7ca84b8b15bfcea",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 53,
+      "path": "techops-comic/revision-g/053.webp",
+      "bytes": 1215350,
+      "sha256": "956fe5f29030455588d0fb14d002d02a53cf4d9e8e270c65dbd051ef73c2c628",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 54,
+      "path": "techops-comic/revision-g/054.webp",
+      "bytes": 1060608,
+      "sha256": "4a14b7cfa401aacde6e15f96c0c3730fa9fa119f26846538f0511bd6dce9d5ff",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 55,
+      "path": "techops-comic/revision-g/055.webp",
+      "bytes": 1266538,
+      "sha256": "fcf3d389656ba3cda4dddc175c3f51cafd840bd238916da8b2e367d2504eb61b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 56,
+      "path": "techops-comic/revision-g/056.webp",
+      "bytes": 1227708,
+      "sha256": "02b38ab0bd08c62b705067c8ddeff38a4a6e537f8ddb22c727aea93e917fa11d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 57,
+      "path": "techops-comic/revision-g/057.webp",
+      "bytes": 563910,
+      "sha256": "c77a386ff0077c537c486ffb0b495725c0544f99f7bcacd13a41608fecd44d58",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 58,
+      "path": "techops-comic/revision-g/058.webp",
+      "bytes": 1209112,
+      "sha256": "7071bcd86302fd16bb68639da3a946f9acdff1b859d7ead63b4a33ee9223c470",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 59,
+      "path": "techops-comic/revision-g/059.webp",
+      "bytes": 964984,
+      "sha256": "a5169f87590d204926602972b9e8db711252029612d93502192df54b46ba5f7e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 60,
+      "path": "techops-comic/revision-g/060.webp",
+      "bytes": 757606,
+      "sha256": "7bfc0542c564d485731eb9be7d6446acf2bd5bf3afd4b2d3cbf76b9ce058bbd7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 61,
+      "path": "techops-comic/revision-g/061.webp",
+      "bytes": 1155704,
+      "sha256": "eabec8c4a93c12700e3693274f60a00fc9c39750dda6ba88fbefe6c36e2b76af",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 62,
+      "path": "techops-comic/revision-g/062.webp",
+      "bytes": 1236012,
+      "sha256": "5be4b075957e3cd59a16fce46d3bf30f7e901bf4837d176e61158a5104590386",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 63,
+      "path": "techops-comic/revision-g/063.webp",
+      "bytes": 1326182,
+      "sha256": "d919902467e61e184a943f955ff4268594667a70615912d93d8b6e9f37b3b2e2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 64,
+      "path": "techops-comic/revision-g/064.webp",
+      "bytes": 1043330,
+      "sha256": "6deb85d1033dbaea0e65c8c6b4cb9034c2f1545f6cddaf4327608ac31c71433b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 65,
+      "path": "techops-comic/revision-g/065.webp",
+      "bytes": 991308,
+      "sha256": "9a95ed2ad6124e29868edd45288dfd0e4cb135611623b314bf12ebad46229306",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 66,
+      "path": "techops-comic/revision-g/066.webp",
+      "bytes": 1002528,
+      "sha256": "243a5299a27e38ad9056d9c0247a85719f7bcbad446f61fe9a48a633c23b7a9a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 67,
+      "path": "techops-comic/revision-g/067.webp",
+      "bytes": 1126230,
+      "sha256": "e75759b4cbb314aa8abe4711160da8ad5541dccfbb76d47428979a3badfc869f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 68,
+      "path": "techops-comic/revision-g/068.webp",
+      "bytes": 1037802,
+      "sha256": "d2106a2b4e14712352acf3eb5f4af791dbe5fde8c718c0b16cfa63870eb55c37",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 69,
+      "path": "techops-comic/revision-g/069.webp",
+      "bytes": 1148828,
+      "sha256": "c1e20ca9042a36edb15e92b54df8a5af0c74f58ed8879d02acea24ee18a055ca",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 70,
+      "path": "techops-comic/revision-g/070.webp",
+      "bytes": 1137052,
+      "sha256": "a7f86b5f719a26eb50235f95c63cc0dacbed891935fc91baed4eba26e86dc452",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 71,
+      "path": "techops-comic/revision-g/071.webp",
+      "bytes": 2060538,
+      "sha256": "14104d80a56c7ebfa440115972f25a806a35e334676655f49f64405c74f6c2bf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 72,
+      "path": "techops-comic/revision-g/072.webp",
+      "bytes": 1105972,
+      "sha256": "97d5e4bb5394e2e95b3a7e5526bae9d86beaa9eed5853e38fdc6c525d43ca25f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 73,
+      "path": "techops-comic/revision-g/073.webp",
+      "bytes": 1249986,
+      "sha256": "35f263ed4ec66223fc5a18e069b5581b5706097194560043724aec6dbf679fe1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 74,
+      "path": "techops-comic/revision-g/074.webp",
+      "bytes": 1133274,
+      "sha256": "5f095013a61d5b00429c509f8e54b14e1cc47d4337d2d484264b673556748b98",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 75,
+      "path": "techops-comic/revision-g/075.webp",
+      "bytes": 1352002,
+      "sha256": "0a4a079fbb643c4fe3d79e74945b493a21bcf46feff43a5d6d7ded1473d7a2cf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 76,
+      "path": "techops-comic/revision-g/076.webp",
+      "bytes": 1199676,
+      "sha256": "c36c3a18578dc822d6c03d1b22dc42d468aadac1e95a8f3492b1d2f66fa35faa",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 77,
+      "path": "techops-comic/revision-g/077.webp",
+      "bytes": 1259842,
+      "sha256": "7037b768718b4363241570cb2d3c3e7b6096b7222b03e32ef93e71872a732d9f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 78,
+      "path": "techops-comic/revision-g/078.webp",
+      "bytes": 1081162,
+      "sha256": "f71d3d18efd073965880a58c33efab1281ecabead418d90bab013f9b581265d7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 79,
+      "path": "techops-comic/revision-g/079.webp",
+      "bytes": 1069816,
+      "sha256": "56c0fd9e7a907d18f5b10851d22a1d69a41cd4c015df9ebdf095c1d6b79347a3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 80,
+      "path": "techops-comic/revision-g/080.webp",
+      "bytes": 1458576,
+      "sha256": "07a2aeb944525a15610ae091fa0c7fcab2769873ef241e89a181485f6f510d52",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 81,
+      "path": "techops-comic/revision-g/081.webp",
+      "bytes": 2071794,
+      "sha256": "28cbcf028c648734885eff1f59466e786ff734be8560f95247eab8b8bce71b13",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 82,
+      "path": "techops-comic/revision-g/082.webp",
+      "bytes": 2033424,
+      "sha256": "2f230aded2133f5892d7fb8533e28dd061333dcf968c9ab995e0c75f35ebaecf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 83,
+      "path": "techops-comic/revision-g/083.webp",
+      "bytes": 1348306,
+      "sha256": "1bfce3a3698b24f9b2471ac6b70aa3ffdf81b1ac52fbd3a651ed6d25f7033d31",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 84,
+      "path": "techops-comic/revision-g/084.webp",
+      "bytes": 1268718,
+      "sha256": "cdb725f514a796f9830cac91c38f977e6c4b5387a11f162c89e53e0ea547cfba",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 85,
+      "path": "techops-comic/revision-g/085.webp",
+      "bytes": 1599796,
+      "sha256": "e1808553bcdef78890f7be5274329add00a63e2ee5ce97ef07e96ee410aa198c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 86,
+      "path": "techops-comic/revision-g/086.webp",
+      "bytes": 773390,
+      "sha256": "ed20207e8d9554e07d868bdaaebd279412b297d0750ecd69fb4fafb16422ae8d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 87,
+      "path": "techops-comic/revision-g/087.webp",
+      "bytes": 959066,
+      "sha256": "2e14a726361106a7c204a4499d521d7f741e7aaa8509116e362aa64e9adc223f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 88,
+      "path": "techops-comic/revision-g/088.webp",
+      "bytes": 1490150,
+      "sha256": "167c2106efb6fa673174965d26670a9445b0a40a18f9fcc696e4968fd230daf6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 89,
+      "path": "techops-comic/revision-g/089.webp",
+      "bytes": 624732,
+      "sha256": "e0eea0d857490ebda7c6166913c5afa8403434626ef43b4d860e1575258ecdab",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 90,
+      "path": "techops-comic/revision-g/090.webp",
+      "bytes": 690320,
+      "sha256": "7ffea8bc3cebd1623090434723feb5e19d06d460995a8820c95a0c2363c338f1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 91,
+      "path": "techops-comic/revision-g/091.webp",
+      "bytes": 1158208,
+      "sha256": "82c49474b877f25b8d233bf0f7a0ffacf660080bbae8141899910341aa3fd84e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 92,
+      "path": "techops-comic/revision-g/092.webp",
+      "bytes": 526728,
+      "sha256": "ecbf158442552c60040153991322c7a3902ccb64165961b4c7e600033e6c43d2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 93,
+      "path": "techops-comic/revision-g/093.webp",
+      "bytes": 1304380,
+      "sha256": "6c1400736fc7a524f6a143c9ca27a7149a6a11a2be63b3fa89d459db7e33c2a9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 94,
+      "path": "techops-comic/revision-g/094.webp",
+      "bytes": 1557270,
+      "sha256": "494575242573c1fecec40a6ed301b07e91dece95f8d2dc4be4263c93b636b5eb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 95,
+      "path": "techops-comic/revision-g/095.webp",
+      "bytes": 924092,
+      "sha256": "0e9c6af1d6efd1610e3bbce4e786f0101e437aeed02de44392dd1b150c3ac897",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 96,
+      "path": "techops-comic/revision-g/096.webp",
+      "bytes": 1106722,
+      "sha256": "76485813adf4499b522dba842efc22db86a1add8bd367799942f8e00b43a0ab7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 97,
+      "path": "techops-comic/revision-g/097.webp",
+      "bytes": 789536,
+      "sha256": "ea95f811f3bac03f9462581359ad194175c9965257538cf15e7cbee23ae570a9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 98,
+      "path": "techops-comic/revision-g/098.webp",
+      "bytes": 804866,
+      "sha256": "c64d48235d9f9f0d6935674e41480f053e374150a3a6d598d4c5373d7c3be5ff",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 99,
+      "path": "techops-comic/revision-g/099.webp",
+      "bytes": 842296,
+      "sha256": "f8a3d0375daf62f75d976d8d4380bdc3ee1975e73e1717b41e3f0c593c7b1bff",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 100,
+      "path": "techops-comic/revision-g/100.webp",
+      "bytes": 672756,
+      "sha256": "9ceaafea0ad52408cb79a2a346bcb11ace9267ee700280bb2be02ca585312b7c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 101,
+      "path": "techops-comic/revision-g/101.webp",
+      "bytes": 723110,
+      "sha256": "133538e4e3a5179ab06545d0be5f100770866b7956888fe8a148df25c2886192",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 102,
+      "path": "techops-comic/revision-g/102.webp",
+      "bytes": 611190,
+      "sha256": "e2f80af2012036113a390ced6f06df8d4f2f8705d80a8ecb2bfa1e7d9ea21070",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 103,
+      "path": "techops-comic/revision-g/103.webp",
+      "bytes": 1194780,
+      "sha256": "68911b5dd5f91558274c2cace98858e75f223ec4b8813f136913f6dd44282db4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 104,
+      "path": "techops-comic/revision-g/104.webp",
+      "bytes": 1043730,
+      "sha256": "5339a73112c21b7f256a569dfe817907632a2159c53b336c861fb4e666a1f0e8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 105,
+      "path": "techops-comic/revision-g/105.webp",
+      "bytes": 781598,
+      "sha256": "6e8f6471d51b3767bbfaf78b9c2e8525ca17e275542dc726c8b2ffeb730c6027",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 106,
+      "path": "techops-comic/revision-g/106.webp",
+      "bytes": 530356,
+      "sha256": "35e214a4fb3a1def1ed32187362d5fc65cdca933bfc570fd931e5a2a342705a1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 107,
+      "path": "techops-comic/revision-g/107.webp",
+      "bytes": 634252,
+      "sha256": "88c1885f79b1ef2408cd910815d4694a6ea0867742d755bfbd21d4c3fcb8f7ed",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 108,
+      "path": "techops-comic/revision-g/108.webp",
+      "bytes": 921276,
+      "sha256": "229f908e5314ecbb42e8dd47ae9c7cc39103a39a073aeb279b4f4d359f54acd4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 109,
+      "path": "techops-comic/revision-g/109.webp",
+      "bytes": 898370,
+      "sha256": "437a5cefa84e36ea61ccc14e06e7b2d685eff6a318f38586736104cb4fd3db16",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 110,
+      "path": "techops-comic/revision-g/110.webp",
+      "bytes": 704448,
+      "sha256": "cab78a80b0d6274a3967c10659893f174017ee3ca7cad42cd804831c9db25737",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 111,
+      "path": "techops-comic/revision-g/111.webp",
+      "bytes": 1325996,
+      "sha256": "0eacccc7caf28308781f21f2212e9a09176649aa5005f4f2193112ae5b4a463e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 112,
+      "path": "techops-comic/revision-g/112.webp",
+      "bytes": 657100,
+      "sha256": "1b3c3361a79e41669bd89aa74b0433824a75ea7445d64c3053c8d005b00cfa80",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 113,
+      "path": "techops-comic/revision-g/113.webp",
+      "bytes": 1070942,
+      "sha256": "3dfe7458d5b21de6e3739b081ececdb9bbdc7fe7721e879f09bfc88548567390",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 114,
+      "path": "techops-comic/revision-g/114.webp",
+      "bytes": 869246,
+      "sha256": "ae2723954678cd75e33ae2ca6394a04babda3f334952be75cde6328fdc8ce91e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 115,
+      "path": "techops-comic/revision-g/115.webp",
+      "bytes": 809294,
+      "sha256": "a34c11a5fd6847cb763c47f12b3f0a6fb8e33b3461c9429e133f7500eaf62297",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 116,
+      "path": "techops-comic/revision-g/116.webp",
+      "bytes": 1036172,
+      "sha256": "24a1b214f79f36924fd684fcbcb4bc773c4580453fface395abf744eede09dd8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 117,
+      "path": "techops-comic/revision-g/117.webp",
+      "bytes": 1329630,
+      "sha256": "b64744df83ea34267a600ade3871a74bfa7ca4e43171ede47e4ff5ef25e0aa60",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 118,
+      "path": "techops-comic/revision-g/118.webp",
+      "bytes": 1436902,
+      "sha256": "090043a7048bf90bd9421fd82398d2465ab006320fb81580003694f9be6211b0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 119,
+      "path": "techops-comic/revision-g/119.webp",
+      "bytes": 1218426,
+      "sha256": "91e6bd19a503bedaa2d483de86f4a19538da64dd152f56fa29051578a1c6b1d0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 120,
+      "path": "techops-comic/revision-g/120.webp",
+      "bytes": 1260596,
+      "sha256": "0fa5f984777fe28cc06198f2a92925a1283de5059ede9f22f2719cf2ea759526",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 121,
+      "path": "techops-comic/revision-g/121.webp",
+      "bytes": 875174,
+      "sha256": "0e9e49239e2dd97d1888cc04dde3ab68015598e9b6cae3072ebebc72fb782fc9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 122,
+      "path": "techops-comic/revision-g/122.webp",
+      "bytes": 597244,
+      "sha256": "868f2480e80a28c035c384dc93f3b2abd6b03ab2a5a094abb5fdfdba7ddd69ed",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 123,
+      "path": "techops-comic/revision-g/123.webp",
+      "bytes": 1011534,
+      "sha256": "34b55613e1e4715bfa583db8953ea3c32bff82265c3204e53ad4ca623881a20f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 124,
+      "path": "techops-comic/revision-g/124.webp",
+      "bytes": 1082386,
+      "sha256": "c3051a1b6c9fb26997887e4f43351a8c573216227f8ba31c82e0c8eb541e2056",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 125,
+      "path": "techops-comic/revision-g/125.webp",
+      "bytes": 755870,
+      "sha256": "01db45cdd3379ab6e767f2e869155b95185b24977363658822de0d899e87ce3c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 126,
+      "path": "techops-comic/revision-g/126.webp",
+      "bytes": 689816,
+      "sha256": "c91690f1021ec42dd897812c6ed93a310a5f5c2d0ef516ef1849464a7488c3c8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 127,
+      "path": "techops-comic/revision-g/127.webp",
+      "bytes": 774318,
+      "sha256": "9bbf85315b6a3ede1d9f1a07389be5342a016ffb17f0365836af93b5138e50c6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 128,
+      "path": "techops-comic/revision-g/128.webp",
+      "bytes": 1137828,
+      "sha256": "aa3336886e744fb4704ad713765d8e2dbfa28ebc2e7bd67a48940a2bf894d8b1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 129,
+      "path": "techops-comic/revision-g/129.webp",
+      "bytes": 942090,
+      "sha256": "4a3f70b86f2a409e1122dd15e8225922de7737e8afdaa8aaa1f65b2c99558c37",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 130,
+      "path": "techops-comic/revision-g/130.webp",
+      "bytes": 784590,
+      "sha256": "a612175b39086c9d877b81c343aa10f06a363e190c5cdc01125b37e6b1e3ce40",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 131,
+      "path": "techops-comic/revision-g/131.webp",
+      "bytes": 731660,
+      "sha256": "159da790b235d3b4b69fe026d63a6ebbab156a1cc109e8387f4ba65f835a3c52",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 132,
+      "path": "techops-comic/revision-g/132.webp",
+      "bytes": 1422396,
+      "sha256": "d3a5a6a3cf389c60c5ffb82af8a1feb7af4362a5f1fb2a9f4b1bc988976176aa",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 133,
+      "path": "techops-comic/revision-g/133.webp",
+      "bytes": 1279106,
+      "sha256": "72467ef39337cf7284bd341836b2f73f4c61e5f563fe84331a5726fc77852a41",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 134,
+      "path": "techops-comic/revision-g/134.webp",
+      "bytes": 983910,
+      "sha256": "acee6d1d038505636ff12f4266f86efcde342d5585baa434232773c38cad2436",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 135,
+      "path": "techops-comic/revision-g/135.webp",
+      "bytes": 709630,
+      "sha256": "61d81ba4e2b4b27b846245af094e8ed86d3bd532d6f9ab7a49df09791fd29c64",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 136,
+      "path": "techops-comic/revision-g/136.webp",
+      "bytes": 1005936,
+      "sha256": "f9925d47aa2e216ce00b095dc09d6c6da8d28ca0ca00835570b5902199cb6e18",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 137,
+      "path": "techops-comic/revision-g/137.webp",
+      "bytes": 1755662,
+      "sha256": "7c1f6ab2cdd9298e7f1dd1521391d7ad580d39d1a1286b876a43595d86ec64d0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 138,
+      "path": "techops-comic/revision-g/138.webp",
+      "bytes": 836354,
+      "sha256": "a9b9b2cf206ae81086da9668108d2bda818b7cc94034ced8c2a938fbbde21fd6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 139,
+      "path": "techops-comic/revision-g/139.webp",
+      "bytes": 921836,
+      "sha256": "7847ffd1cf7a6843cf301d1c30f5404021a1379c77edc8cb5ecb06a723811f0c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 140,
+      "path": "techops-comic/revision-g/140.webp",
+      "bytes": 998022,
+      "sha256": "1d53ba036ebdd4ddd05b2cd6aaeb7f492fef8f1c773c2edfbf7cb57732b2f619",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 141,
+      "path": "techops-comic/revision-g/141.webp",
+      "bytes": 826494,
+      "sha256": "1b790b298c47b89bd47351edd3e304f785bad96190f19beea787227e3aa1577a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 142,
+      "path": "techops-comic/revision-g/142.webp",
+      "bytes": 592308,
+      "sha256": "1fac8a31eedfef4f992f5867d76b6847438d65ccc5ede53c318bc1fdc3ccbbc4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 143,
+      "path": "techops-comic/revision-g/143.webp",
+      "bytes": 1466972,
+      "sha256": "acb8564a43e9c8ed77333bd8433593ac24c0b132adc93f27c8fec0b4c473af2d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 144,
+      "path": "techops-comic/revision-g/144.webp",
+      "bytes": 1031538,
+      "sha256": "2d917060a321cf69e619985039cfc3e5deff201920de6f1274da5764aca1c2ea",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 145,
+      "path": "techops-comic/revision-g/145.webp",
+      "bytes": 1005822,
+      "sha256": "fc143f9aa7b33278799694612b174c63b9c60bbd750106298c24f680aa0a170f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 146,
+      "path": "techops-comic/revision-g/146.webp",
+      "bytes": 1420048,
+      "sha256": "1ccd7a2b8db81d62aaca2f6e49bd1fef34db6bb8a293cae9292b3d7a52fd1aee",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 147,
+      "path": "techops-comic/revision-g/147.webp",
+      "bytes": 1325504,
+      "sha256": "6fe6f0e39b5ed6911b51d15afba15d1287e0a54923894431f2aaf20139da9091",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 148,
+      "path": "techops-comic/revision-g/148.webp",
+      "bytes": 1195990,
+      "sha256": "fc6add4334d6807a483b3d4721e66dd3196ec197c258c4be71498ebf7f6e600d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 149,
+      "path": "techops-comic/revision-g/149.webp",
+      "bytes": 1624806,
+      "sha256": "d543a9731ed25d7cc7d82f6a0ba8f0bfc850695642423a3d9352b57f9af355ec",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 150,
+      "path": "techops-comic/revision-g/150.webp",
+      "bytes": 1008784,
+      "sha256": "03a9e75aa3e31739cae06af0a3fa5b7ac8eb8e25921acb436cd085839cf3faf5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 151,
+      "path": "techops-comic/revision-g/151.webp",
+      "bytes": 987584,
+      "sha256": "4d63792081defed35013bd16bc2617c45da5a883f3d958de879b908ee82dcd56",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 152,
+      "path": "techops-comic/revision-g/152.webp",
+      "bytes": 1156548,
+      "sha256": "8a56cad315a2c75bc51aee6b45808638d39208e6cc58757db8d4ad7585d457a6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 153,
+      "path": "techops-comic/revision-g/153.webp",
+      "bytes": 1263870,
+      "sha256": "49e62cc160c2c8a1dacc0e9a5eb64995a59b1f42a2e506463df86700d6126a35",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 154,
+      "path": "techops-comic/revision-g/154.webp",
+      "bytes": 1189138,
+      "sha256": "910760da9e5d71ceef34135db16d593c6f5b029da2cea2a52514077637ac51d4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 155,
+      "path": "techops-comic/revision-g/155.webp",
+      "bytes": 1344530,
+      "sha256": "8b5bb86844ac055b202ed70124125bb2907b2005e900d1bdb1aee251e93089a2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 156,
+      "path": "techops-comic/revision-g/156.webp",
+      "bytes": 1319534,
+      "sha256": "d2b5b2d3c1c8a07c2d182c52d07f43ae9a33c058eabed7c441de9c821057d8c9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 157,
+      "path": "techops-comic/revision-g/157.webp",
+      "bytes": 1154492,
+      "sha256": "2e73caeb5af580acaabf669d28f68606e4f771de5cf1068aac2039d15a7af260",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 158,
+      "path": "techops-comic/revision-g/158.webp",
+      "bytes": 1202910,
+      "sha256": "0b283e9dbc874db060d2618d21893e50fa8c255af210866a3f489f8054fdcd46",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 159,
+      "path": "techops-comic/revision-g/159.webp",
+      "bytes": 1006674,
+      "sha256": "229737ef8d4bd7fd816f5fc65ab1fc0ffb89381b436903874933a08b717c6f8a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 160,
+      "path": "techops-comic/revision-g/160.webp",
+      "bytes": 1088634,
+      "sha256": "2b307e5adb04d0a0d757a737af9d4b8c5d4e58844f7928a9f7487cb7f9c9bc1b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 161,
+      "path": "techops-comic/revision-g/161.webp",
+      "bytes": 1077318,
+      "sha256": "da7282ec8dc5a73833dce02f8b29cb06ff89eebeaa987fa54f1a8bebdcc02ad1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 162,
+      "path": "techops-comic/revision-g/162.webp",
+      "bytes": 1242358,
+      "sha256": "fecc6d4a5566a7e422b8a11e5d3510e9abee08275661413abc45d5f779d8f6dc",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 163,
+      "path": "techops-comic/revision-g/163.webp",
+      "bytes": 1218008,
+      "sha256": "a12c06d670f217dbac3e856817a07957ca05e3551ce4428188c33d2988cc8107",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 164,
+      "path": "techops-comic/revision-g/164.webp",
+      "bytes": 158896,
+      "sha256": "ef40a5c74c673b1e449d7ab5c60d3f79bfbad159d6c4e2828b06d32b22b38322",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 165,
+      "path": "techops-comic/revision-g/165.webp",
+      "bytes": 723314,
+      "sha256": "9261a17287438fa294c7cc79d645e63163f920692ac258f85dc88a3ed7927b65",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 166,
+      "path": "techops-comic/revision-g/166.webp",
+      "bytes": 1319308,
+      "sha256": "0ad1fa138d513237d0566847fd0a056270002391e97968651be62639f172b7e7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 167,
+      "path": "techops-comic/revision-g/167.webp",
+      "bytes": 1078882,
+      "sha256": "e22c24cd48c37818024bd18a643fa89f82a9e3b6bd73cc9c80ada2dfadd64b5a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 168,
+      "path": "techops-comic/revision-g/168.webp",
+      "bytes": 1279032,
+      "sha256": "c7beec3f5016acb13c5db748f805769a9e7286691149dc08d48c8c16536fa45b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 169,
+      "path": "techops-comic/revision-g/169.webp",
+      "bytes": 1256520,
+      "sha256": "355871ee23514387e30c8538937d50006c0662a1ec83f2637c242454f38adc31",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 170,
+      "path": "techops-comic/revision-g/170.webp",
+      "bytes": 1201892,
+      "sha256": "39479781bed2ca89b5d378b48f0e3f2d70c2362a37346271dfa647c8b94d2b9d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 171,
+      "path": "techops-comic/revision-g/171.webp",
+      "bytes": 1144402,
+      "sha256": "af4850e4886e9864a92f8a8e58425023b9652b2cd690f1b147f7609277170920",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 172,
+      "path": "techops-comic/revision-g/172.webp",
+      "bytes": 1209942,
+      "sha256": "d87da9c22208138d71b743b61903358e3207dc214cab206c668c10d74992c5a3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 173,
+      "path": "techops-comic/revision-g/173.webp",
+      "bytes": 1223282,
+      "sha256": "1d00c25e848e55307a72611d5129dc9487a62cbeba31a59c3714dd917239ed3c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 174,
+      "path": "techops-comic/revision-g/174.webp",
+      "bytes": 159176,
+      "sha256": "7a1dcf4c4bbab5e1b05d891f894523c11dfd4c6d88c938438ab53a29e2b4913c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 175,
+      "path": "techops-comic/revision-g/175.webp",
+      "bytes": 752688,
+      "sha256": "5f3df86a8c4e34da4aa298cae22f2aa4ef663e8b995d2c215e26a2d1ec43258e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 176,
+      "path": "techops-comic/revision-g/176.webp",
+      "bytes": 1049156,
+      "sha256": "5507ceea4b14ba89296379c87e786f549dc2d3bb589d7f597c67e03385dd57d9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 177,
+      "path": "techops-comic/revision-g/177.webp",
+      "bytes": 930718,
+      "sha256": "2fcbce0700facdc4d9c68f585bf69da1f6c1df2630d06f7e425160ff53353531",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 178,
+      "path": "techops-comic/revision-g/178.webp",
+      "bytes": 1049276,
+      "sha256": "4b3b33673c4bd7025661fcc6f39e1f787ab612d7627b3ee9ca18574dac3a5243",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 179,
+      "path": "techops-comic/revision-g/179.webp",
+      "bytes": 886544,
+      "sha256": "65d68d8f41739868637ccfea3ea3bb8762baa7bcc7cfdcb6d3b485135cdeaa13",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 180,
+      "path": "techops-comic/revision-g/180.webp",
+      "bytes": 945640,
+      "sha256": "f1e7b5963892e404d331ce9fd23ff936ec677dd811d4fda25bf64310a29b1ce9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 181,
+      "path": "techops-comic/revision-g/181.webp",
+      "bytes": 968494,
+      "sha256": "1839159af0e5ef554b303d738bfafb5daa331e26ee076443ff5f278127b1a3bf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 182,
+      "path": "techops-comic/revision-g/182.webp",
+      "bytes": 1045204,
+      "sha256": "947ed7a55d5093c31a3a5ebeadcd30567b81932177e3d59dbe9ab4c0784e97e1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 183,
+      "path": "techops-comic/revision-g/183.webp",
+      "bytes": 1167688,
+      "sha256": "a41cdf301c8a96f7bead115b31e0499400e97eddf05488059c7f816ff28e425e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 184,
+      "path": "techops-comic/revision-g/184.webp",
+      "bytes": 1070220,
+      "sha256": "11dd7ba98ecffb056d8e7785348f6cb05fa71d54840c9d059286c8fe35994fbe",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 185,
+      "path": "techops-comic/revision-g/185.webp",
+      "bytes": 947080,
+      "sha256": "f969cc967b5209409fa44f38aae135b081c7554ca98d740f94afc3896b289c66",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 186,
+      "path": "techops-comic/revision-g/186.webp",
+      "bytes": 962254,
+      "sha256": "5982f181f0ad6cb651d1b3c03828eacc4a3c3b5ba514955b56d2bf9257000cf8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 187,
+      "path": "techops-comic/revision-g/187.webp",
+      "bytes": 758250,
+      "sha256": "428b8661014cfa17adf12344e5d052fe0f64c36afa5802657b9b10bfead6d7c1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 188,
+      "path": "techops-comic/revision-g/188.webp",
+      "bytes": 969242,
+      "sha256": "449140f01f33e5a6eb037f5b061e210445389a0d924f513b7016c731dd5bc0c9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 189,
+      "path": "techops-comic/revision-g/189.webp",
+      "bytes": 930144,
+      "sha256": "69f47fe157b4ae734280599ba61cdb066d4be0d5cf51de53f89b7c70c0a65f7d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 190,
+      "path": "techops-comic/revision-g/190.webp",
+      "bytes": 877224,
+      "sha256": "fa8d9d92622cc41d67c043504ffda15cc04200ca3b77e1cdec09aab14ef80743",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 191,
+      "path": "techops-comic/revision-g/191.webp",
+      "bytes": 888126,
+      "sha256": "72f432174df3908a3e460086b68de96297e84fafcdad7689cd21d5bdcc8d031e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 192,
+      "path": "techops-comic/revision-g/192.webp",
+      "bytes": 708530,
+      "sha256": "8cc2aae146f5d54fdc362b9f4ddcfa0334701859b0cc2d172d2cb3e98a588a16",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 193,
+      "path": "techops-comic/revision-g/193.webp",
+      "bytes": 952072,
+      "sha256": "87ab10bed28ee316a70a56b62bb0ccfbb8cb8239bd7ee3eb1be4d7c6e84f3991",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 194,
+      "path": "techops-comic/revision-g/194.webp",
+      "bytes": 1058388,
+      "sha256": "fb1b763ea848b37ec9ff32c854fce683f11ea2a5ed2f6b400b83fdbe719f4001",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 195,
+      "path": "techops-comic/revision-g/195.webp",
+      "bytes": 974536,
+      "sha256": "d02312ec511ce7957ab945a90028ceb921a0049f1ed295948e84fec00a323cf6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 196,
+      "path": "techops-comic/revision-g/196.webp",
+      "bytes": 1084032,
+      "sha256": "42c7cacd2c4b25cff3841c5c922679342e673eddd1462bec64eff05a6c8f071b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 197,
+      "path": "techops-comic/revision-g/197.webp",
+      "bytes": 894678,
+      "sha256": "42ee89947a97ce68d243e26ec8a3a0f546047baf16279215a476ed66c92dfe8f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 198,
+      "path": "techops-comic/revision-g/198.webp",
+      "bytes": 826436,
+      "sha256": "c7285df4ad7e2f2c387eb5bfc5901e7c99590facec721b9c3a021dc2112eb7bc",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 199,
+      "path": "techops-comic/revision-g/199.webp",
+      "bytes": 664728,
+      "sha256": "a5caa7204bce64da36b2cb807ff1c4e56154a8e5497398a2dd67936676bd34e8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 200,
+      "path": "techops-comic/revision-g/200.webp",
+      "bytes": 734460,
+      "sha256": "1ad2802a7dca01e02640b0cbad493f8db59f390af18df06903d6b19e9454a8de",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 201,
+      "path": "techops-comic/revision-g/201.webp",
+      "bytes": 777634,
+      "sha256": "4aa43ee1ca62bf7aa812f3d1876f93722a9b6cce6c53b45e29189a1d19523805",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 202,
+      "path": "techops-comic/revision-g/202.webp",
+      "bytes": 861902,
+      "sha256": "14b8f30c51b80a9e74ca5ba390e33cd1dce5fc1f76ce72470513e5fd67a7d4ea",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 203,
+      "path": "techops-comic/revision-g/203.webp",
+      "bytes": 813974,
+      "sha256": "ddf803ee9ae3c270bd579a71435f705d9c35ac437daa8687edadaa6ce2445da5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 204,
+      "path": "techops-comic/revision-g/204.webp",
+      "bytes": 844256,
+      "sha256": "7160f22f40148e34dec8aea0c5397707f6c0e482542168ebe3b8a321aed92336",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 205,
+      "path": "techops-comic/revision-g/205.webp",
+      "bytes": 947758,
+      "sha256": "9dba750c5b14c4a66d7b5bfffc8f3d1856e3fd70a1ee80c7bb3eb30faf46d33d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 206,
+      "path": "techops-comic/revision-g/206.webp",
+      "bytes": 1053450,
+      "sha256": "406e354c7585380b6253fb20ab374e572a4fe6e3bb8eef733804114847d784b8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 207,
+      "path": "techops-comic/revision-g/207.webp",
+      "bytes": 913242,
+      "sha256": "bdcf1a9200250589b1761d0ef0b1dd850d1764ee805e0710d4f46565f1c6e488",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 208,
+      "path": "techops-comic/revision-g/208.webp",
+      "bytes": 973734,
+      "sha256": "b96e1cdbed7617e032001a46f6098746c2fc76ff6e3789591654a4496028c8a3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 209,
+      "path": "techops-comic/revision-g/209.webp",
+      "bytes": 892106,
+      "sha256": "4a62152a4446d7cb2334978274f45c0040e57ff9401f125c33a4d85353027d34",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 210,
+      "path": "techops-comic/revision-g/210.webp",
+      "bytes": 1001396,
+      "sha256": "54e55d77545d8ca0e584726559194434cfb6b9cb3bca841cdd4197db80fd1869",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 211,
+      "path": "techops-comic/revision-g/211.webp",
+      "bytes": 1058964,
+      "sha256": "cb6cc76f933e2acfae92b945272e8ddb36af770bba496cb42bc58b0a4447e351",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 212,
+      "path": "techops-comic/revision-g/212.webp",
+      "bytes": 1070176,
+      "sha256": "749a4d1e85123c247e489d0cc0129d95561e5949a134e0b7c05e17a4896868c0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 213,
+      "path": "techops-comic/revision-g/213.webp",
+      "bytes": 997938,
+      "sha256": "c60e96f446bdf6119d31b23178cb9fb42d356cbd2fc0aa098c75d4ae81cee3ff",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 214,
+      "path": "techops-comic/revision-g/214.webp",
+      "bytes": 584336,
+      "sha256": "3b23e0fb6c6b1580eb1454429586f9218f33fa09c84c6156337203aa01d6df9b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 215,
+      "path": "techops-comic/revision-g/215.webp",
+      "bytes": 547444,
+      "sha256": "bf6fc6db9b43fd4411cbaa1b9ba538f123a88986c7aa6dde5558a58b9f6395b2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 216,
+      "path": "techops-comic/revision-g/216.webp",
+      "bytes": 406438,
+      "sha256": "ac7f12ce26c513abcaa042e69a8b55ba4ee48b025d52de04e7c1611e2e0c5498",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 217,
+      "path": "techops-comic/revision-g/217.webp",
+      "bytes": 487642,
+      "sha256": "4816cdde07e6a4a70bd6b22b546cb5bafbc0c1bf515c02dd8c10110cae8e1724",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 218,
+      "path": "techops-comic/revision-g/218.webp",
+      "bytes": 1060158,
+      "sha256": "47bbf00124f4a50c97d21013c03af67827eeaad8f3c1ffc8a58711436414ee78",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 219,
+      "path": "techops-comic/revision-g/219.webp",
+      "bytes": 222186,
+      "sha256": "702dff983d85a6912ce5523dfd72bc8a636ac11849fb11720e88bba2bb92bb3d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 220,
+      "path": "techops-comic/revision-g/220.webp",
+      "bytes": 68494,
+      "sha256": "d0050220f3bef14fc3d81bcf4a16004563bbd17d139eeb4f8ecd1ad7ba5e7990",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 221,
+      "path": "techops-comic/revision-g/221.webp",
+      "bytes": 1036964,
+      "sha256": "09e2a0ce76cacc02aa4a497f10578fdee43e7477ab01580845508f106890f23f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 222,
+      "path": "techops-comic/revision-g/222.webp",
+      "bytes": 1022032,
+      "sha256": "5a4690385e6c2653ebf1b4ed369fb890b58cc88ed10c7cb03bed30a520b0b7e4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 223,
+      "path": "techops-comic/revision-g/223.webp",
+      "bytes": 1167408,
+      "sha256": "0ecd334abd69848b5639290e2a8abb7a22fa5826941ad2dea27031d05ef7515d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 224,
+      "path": "techops-comic/revision-g/224.webp",
+      "bytes": 1214014,
+      "sha256": "55998984b2448587a77b3e689b334f966ed7a860aca2ea044215e69ddb8397d4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 225,
+      "path": "techops-comic/revision-g/225.webp",
+      "bytes": 1140320,
+      "sha256": "11b96930dc2b247de717b561ac1661fe581575e07351adabea89eb06a499dcc3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 226,
+      "path": "techops-comic/revision-g/226.webp",
+      "bytes": 647462,
+      "sha256": "4a62989bffc98802791bfa303dfe6f50283a172fa554acdc9a9d8631c2fcd0ff",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 227,
+      "path": "techops-comic/revision-g/227.webp",
+      "bytes": 1026216,
+      "sha256": "9812fd4b57b86ed72e03efe145b5178e1cbc7d7f984b74947c0880ec27de2201",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 228,
+      "path": "techops-comic/revision-g/228.webp",
+      "bytes": 1142402,
+      "sha256": "aa1f42e2aafdffead48e8fce6056d567c0f72bbaf04bc01c6f9a8f989b70a7a4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 229,
+      "path": "techops-comic/revision-g/229.webp",
+      "bytes": 1051654,
+      "sha256": "4f33ac7289cf8402df70607bc439b890d1c025c111c3574f89e43c21fcd48417",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 230,
+      "path": "techops-comic/revision-g/230.webp",
+      "bytes": 786834,
+      "sha256": "27b4a958941006317f2ed1f23f53b349409202f81ac529e5a707f3dcf2e638ce",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 231,
+      "path": "techops-comic/revision-g/231.webp",
+      "bytes": 1040454,
+      "sha256": "27cac9700e5fbdf851cbd6b4b6e45a6c3a2436ce73688f72ce67e034a8dee138",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 232,
+      "path": "techops-comic/revision-g/232.webp",
+      "bytes": 1077002,
+      "sha256": "140595d782cd36b4875988f02aff5353b56841930a7aabc90fe4cd11e004b2e9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 233,
+      "path": "techops-comic/revision-g/233.webp",
+      "bytes": 68704,
+      "sha256": "b1e2e80d67e60d3a8d3187b823c5d6004fc507fb4f97366062d1fbcb3de3698b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 234,
+      "path": "techops-comic/revision-g/234.webp",
+      "bytes": 1124062,
+      "sha256": "973a24a2b823dc266729c3c8931bbba221658f3963cf23eea8f9c331bc47a399",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 235,
+      "path": "techops-comic/revision-g/235.webp",
+      "bytes": 1107896,
+      "sha256": "67251b728904e6e97b98e7f0205f9fabce9ad507f670ad97a11f6a234e5b1d34",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 236,
+      "path": "techops-comic/revision-g/236.webp",
+      "bytes": 1087486,
+      "sha256": "84cea2e2aa860ea78649aedbf1029d4b7312cbcb2e886a20a01aae54ff3170bb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 237,
+      "path": "techops-comic/revision-g/237.webp",
+      "bytes": 1010460,
+      "sha256": "67b5103cfb76fe749200305209de0850fafd82238f2c196f94d83563e53ee13a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 238,
+      "path": "techops-comic/revision-g/238.webp",
+      "bytes": 742560,
+      "sha256": "115733bd0a8a515d4f54264fcc36a68858e8d826852033b2126fbe1fe12ba898",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 239,
+      "path": "techops-comic/revision-g/239.webp",
+      "bytes": 1152482,
+      "sha256": "a9934eb968600f7a194997fd7551f14897aaa5fd1d5c7f24af7309ed7e8ec0ee",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 240,
+      "path": "techops-comic/revision-g/240.webp",
+      "bytes": 1153872,
+      "sha256": "0b14f213982cefed71aa71121452b7b2833694153b03391ed23ef79f03979434",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 241,
+      "path": "techops-comic/revision-g/241.webp",
+      "bytes": 1197748,
+      "sha256": "f6572302780a5e8b4f483bab120b6720aff9a2607bf9c677ca3695687c43e8c1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 242,
+      "path": "techops-comic/revision-g/242.webp",
+      "bytes": 1181450,
+      "sha256": "4331960f7791051b153fbf54b2bf3b41abee9c2708e5bd384a1eaab3be165f0e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 243,
+      "path": "techops-comic/revision-g/243.webp",
+      "bytes": 1056848,
+      "sha256": "1849818c1e0d2313cdc4cedc3a37c78d21229a29fbdf08b6a78203b88b888f66",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 244,
+      "path": "techops-comic/revision-g/244.webp",
+      "bytes": 1089798,
+      "sha256": "5e50370f5eb0e568aef3fbf689df9ba4615bdfc9816eb38c26bd06471d538611",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 245,
+      "path": "techops-comic/revision-g/245.webp",
+      "bytes": 838220,
+      "sha256": "7e2fd3508613beae13cfe07261d7195f62c358632c0ecfdf347e4927ea64fdc3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 246,
+      "path": "techops-comic/revision-g/246.webp",
+      "bytes": 70384,
+      "sha256": "fda43cc55483c37269f921e04bf874ae4f679f9dc014f15f38ea73b9d6052cc5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 247,
+      "path": "techops-comic/revision-g/247.webp",
+      "bytes": 1013284,
+      "sha256": "62e2fb8d6e6a4971d0639569f535872bd23cf231c31dcbd7d57b6162625ae5eb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 248,
+      "path": "techops-comic/revision-g/248.webp",
+      "bytes": 1022846,
+      "sha256": "ddd1cc0591796026e4e1d34d44f7e1c5400012dc4f126bd8b1f829e7d500dcf0",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 249,
+      "path": "techops-comic/revision-g/249.webp",
+      "bytes": 1055504,
+      "sha256": "52cfcfb197ab55d6b3a23df77be0808f5505e25990914f0821b990430eaa402f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 250,
+      "path": "techops-comic/revision-g/250.webp",
+      "bytes": 973750,
+      "sha256": "21ecf766aff38008e8f2c71cd98f325f473a5c2ef87accc7f3fdafce656d2a02",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 251,
+      "path": "techops-comic/revision-g/251.webp",
+      "bytes": 1089156,
+      "sha256": "28276390466dd5b0acfd788daeb48dff331f1590da21bf4138533a2ae4c6c9bd",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 252,
+      "path": "techops-comic/revision-g/252.webp",
+      "bytes": 1026012,
+      "sha256": "d16805775357867398509f63e44df55011933826f60c8a0d46357f7fb36776dd",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 253,
+      "path": "techops-comic/revision-g/253.webp",
+      "bytes": 1115612,
+      "sha256": "c678407d96ddea87c08adb169334b594eaf9d0693789789a13cbe01c3541e259",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 254,
+      "path": "techops-comic/revision-g/254.webp",
+      "bytes": 1114196,
+      "sha256": "c06b166a4d9394aeb69e84c0cfbdcf01ff59527763d93fdd2a367a9f568684a8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 255,
+      "path": "techops-comic/revision-g/255.webp",
+      "bytes": 1442652,
+      "sha256": "59707f1a8a87d8a3c177893dee7bb41b369824865f60388c6518b54f3997ba14",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 256,
+      "path": "techops-comic/revision-g/256.webp",
+      "bytes": 1204356,
+      "sha256": "39e9817a1a8af648f09d8b5977793b557a282735ab80aa2b1817fee5d66bf6f7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 257,
+      "path": "techops-comic/revision-g/257.webp",
+      "bytes": 1028044,
+      "sha256": "2b0e877414e67ee96e37d7989bb3808fa71ec6147446460c3a128c9c81c1714b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 258,
+      "path": "techops-comic/revision-g/258.webp",
+      "bytes": 1326780,
+      "sha256": "5684ea92706676fccb050e65fd6dd2a9e9f8523d687759d4c88cf94912d2de83",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 259,
+      "path": "techops-comic/revision-g/259.webp",
+      "bytes": 68844,
+      "sha256": "bb6140a84f9cc302186fe6f8050792f6ad948d8af39a630bd9dd46d553300642",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 260,
+      "path": "techops-comic/revision-g/260.webp",
+      "bytes": 928234,
+      "sha256": "c22030bc1ec50dfeffa1bcb46ec97e651905200eb09f96690ded9298a3cd10b3",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 261,
+      "path": "techops-comic/revision-g/261.webp",
+      "bytes": 1148158,
+      "sha256": "7af5b7827e7d1a9c67e02a4586a19152cd1c3bc110dfac8f7b3ee80d10dc9757",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 262,
+      "path": "techops-comic/revision-g/262.webp",
+      "bytes": 1373098,
+      "sha256": "df48d3f1a70748144179f61bcaa690e5109b4805b2cdf13b9a4bc88fdbf097ac",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 263,
+      "path": "techops-comic/revision-g/263.webp",
+      "bytes": 1279722,
+      "sha256": "d91c5455ad3b9810d443d540b38b3887f9256fb214bd163acc7869215df017fe",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 264,
+      "path": "techops-comic/revision-g/264.webp",
+      "bytes": 882736,
+      "sha256": "962ba099346ad6e3720df0633a9000843841716c0e2c7c837cfee21774e65812",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 265,
+      "path": "techops-comic/revision-g/265.webp",
+      "bytes": 667562,
+      "sha256": "20e19e801fafc1781ead53763163bb13be37e77c6ed21d7682cd626cd30ba63c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 266,
+      "path": "techops-comic/revision-g/266.webp",
+      "bytes": 865680,
+      "sha256": "d2bf8e33f828a41c0bd512c4db3410b2fd0d0440996c736f0415e67aadee9baa",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 267,
+      "path": "techops-comic/revision-g/267.webp",
+      "bytes": 1068222,
+      "sha256": "1e432d0eb00698d3aa4b5b9d09bcc5a2d636f273b455404a17ed22646569c2d9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 268,
+      "path": "techops-comic/revision-g/268.webp",
+      "bytes": 1064786,
+      "sha256": "180c5e68522caaa9df631c0c669ea6291f473171720e24769472e7e2c817be98",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 269,
+      "path": "techops-comic/revision-g/269.webp",
+      "bytes": 1224156,
+      "sha256": "832a59cea8f75787e9eedb30c5ea83fbb6db6f92af09c66639a20c9f3ba8e025",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 270,
+      "path": "techops-comic/revision-g/270.webp",
+      "bytes": 1142108,
+      "sha256": "a18b7dafbd63d079f73f5af0e673b2d0a1717e9f029d2c30abd57183dd08498d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 271,
+      "path": "techops-comic/revision-g/271.webp",
+      "bytes": 679200,
+      "sha256": "e94dc881c549e99af3a715486a3724b8cc1745d7dda76f92f833967671004fe6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 272,
+      "path": "techops-comic/revision-g/272.webp",
+      "bytes": 61324,
+      "sha256": "60497aa39004f0f684c2064a8cf088247c8f6db200a844c24ace52f4cf3aeccb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 273,
+      "path": "techops-comic/revision-g/273.webp",
+      "bytes": 881164,
+      "sha256": "7823f7c63a93d49757c6510eb9799320c577ea43fb67e00b4dd97a632c4abc3e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 274,
+      "path": "techops-comic/revision-g/274.webp",
+      "bytes": 845786,
+      "sha256": "5fae2fc482f4a573f50d2d2a30b2cb5d796556b8e611f3eef9b0464dfade92a8",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 275,
+      "path": "techops-comic/revision-g/275.webp",
+      "bytes": 918154,
+      "sha256": "fe68ba29b616c8dcf7b92162d85b0885ddd32c59320fc879635f73bca2f4d310",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 276,
+      "path": "techops-comic/revision-g/276.webp",
+      "bytes": 1278466,
+      "sha256": "7af84c24107af46e8739e94cf18aa1f6603bc93a91a4215a3dca871fcaee469e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 277,
+      "path": "techops-comic/revision-g/277.webp",
+      "bytes": 1032402,
+      "sha256": "45e10f235bbd46754f04ac80931aee61274eea195ce02e4c368750c5a9eb9a0d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 278,
+      "path": "techops-comic/revision-g/278.webp",
+      "bytes": 1246868,
+      "sha256": "d2d1792432a3ac2e1433c5c52caad336e5a72c4c12cb272bfc44eff9a4ba473e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 279,
+      "path": "techops-comic/revision-g/279.webp",
+      "bytes": 1069448,
+      "sha256": "5e23fb0abc921237a9ccae6265b06d67a514a38af08f56a3bda40930c11161bc",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 280,
+      "path": "techops-comic/revision-g/280.webp",
+      "bytes": 1089272,
+      "sha256": "132507da743144d44f13a2ef2707138ce89affd542650f93177c809f22cae783",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 281,
+      "path": "techops-comic/revision-g/281.webp",
+      "bytes": 1023272,
+      "sha256": "40aec1b8a5b23cc451b46571a588f66cb4af9bec372a5d8bdd571e6f553c3e70",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 282,
+      "path": "techops-comic/revision-g/282.webp",
+      "bytes": 1334820,
+      "sha256": "7909c22e5620a9b37ed150e4211db4fe122f4bb04a4ac1192bde3d523056231b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 283,
+      "path": "techops-comic/revision-g/283.webp",
+      "bytes": 1391046,
+      "sha256": "c8acf16ccef2b6ac52a3576847f9490490d5cf36e95c615b1ce95ab50e02a45b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 284,
+      "path": "techops-comic/revision-g/284.webp",
+      "bytes": 1185572,
+      "sha256": "d44eb24c163691b39c5fd0993de5fc603f134db3b01d5ac7558efa4ff7b385b9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 285,
+      "path": "techops-comic/revision-g/285.webp",
+      "bytes": 1324108,
+      "sha256": "8119c9150a84d0ca8f661fb3a7bf5b267951036c5643a8bf975f0298a074433a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 286,
+      "path": "techops-comic/revision-g/286.webp",
+      "bytes": 1775416,
+      "sha256": "3a2a03dd12b9b4d886b5d38e962b1cf811b297d0b0aada7fdc9e695bfc54ebc9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 287,
+      "path": "techops-comic/revision-g/287.webp",
+      "bytes": 1150106,
+      "sha256": "1c0a5daedee4c60e3f2d8cd0034b6a312efe4adcd36c62243e7ee3651169078d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 288,
+      "path": "techops-comic/revision-g/288.webp",
+      "bytes": 1062266,
+      "sha256": "a4e837797417d0e327ffde6abdfbd7d9c1a24cbf66e4a5b2d5bae02f351d6294",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 289,
+      "path": "techops-comic/revision-g/289.webp",
+      "bytes": 206786,
+      "sha256": "07a4aa07fc87640cd810c7ba04763949aa5cdcdabe09df3e17fe33da1a800a75",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 290,
+      "path": "techops-comic/revision-g/290.webp",
+      "bytes": 77114,
+      "sha256": "dde2c787922c0208447741914f219425f059dfed8284975b0d2a01dc1384d7a9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 291,
+      "path": "techops-comic/revision-g/291.webp",
+      "bytes": 1145276,
+      "sha256": "52a535a7bc0c34efe765c941f64a38cb14cf7d3e6b792ca9c3f72a35e72d0d25",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 292,
+      "path": "techops-comic/revision-g/292.webp",
+      "bytes": 1215116,
+      "sha256": "0fd16b8208bbcf3f8ce49551b631de4fd920ae72fa5e0ae999c0a01b553b8dd6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 293,
+      "path": "techops-comic/revision-g/293.webp",
+      "bytes": 1033096,
+      "sha256": "8d9cc274c011784b89ab80c6d1fee9a95e9d8860875470a35c0ae9f5f418df4e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 294,
+      "path": "techops-comic/revision-g/294.webp",
+      "bytes": 1013430,
+      "sha256": "0c34e8f265abf84d06a8a1271f9813e5412a4222b0d0072acf86dcb7507f05a5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 295,
+      "path": "techops-comic/revision-g/295.webp",
+      "bytes": 983652,
+      "sha256": "df6e2b92b0861f3a7e7ebb63b49447a2b34c977f3b68188c4e7520e8cc956ccb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 296,
+      "path": "techops-comic/revision-g/296.webp",
+      "bytes": 1177302,
+      "sha256": "86edc11a5b65babcf674322b55504af62cd5ac224357ea9e522666017570c1b2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 297,
+      "path": "techops-comic/revision-g/297.webp",
+      "bytes": 1128044,
+      "sha256": "761f589174b9ea78a9f0ad82de823cd6ab90e2977425df7797927ce2171137fc",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 298,
+      "path": "techops-comic/revision-g/298.webp",
+      "bytes": 1294370,
+      "sha256": "8f987ef078c6ba9c925a4853ae1c68b5780fc6c926859a4105b3c3fb2b38b351",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 299,
+      "path": "techops-comic/revision-g/299.webp",
+      "bytes": 1169766,
+      "sha256": "3573f5ac8e587adc1f379cdccecab47527bc6a2646f30d6b805be0af6c989092",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 300,
+      "path": "techops-comic/revision-g/300.webp",
+      "bytes": 1099692,
+      "sha256": "b8646e3c8074b6f0cd46cc510c4fb5319236ceb77d24911be5026fc2b6a2af81",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 301,
+      "path": "techops-comic/revision-g/301.webp",
+      "bytes": 1220044,
+      "sha256": "8aee5b2cbc6cabb0ef0142e60411957f97255ae0c7652faef01611ea0ed090e5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 302,
+      "path": "techops-comic/revision-g/302.webp",
+      "bytes": 1135170,
+      "sha256": "881014e6a2920e3c4f5338566b012ac875a79a3a90c7ba6f3664da7578d89e5a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 303,
+      "path": "techops-comic/revision-g/303.webp",
+      "bytes": 76230,
+      "sha256": "62d828d745c6bf54d42d56c9317612b71f13124e9f8dd2068527acc8b950a5d9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 304,
+      "path": "techops-comic/revision-g/304.webp",
+      "bytes": 1283484,
+      "sha256": "8fedc456f5f4e41b461b8d2184ba1e2e5f9221f234c9dda4d2669eb249e542b5",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 305,
+      "path": "techops-comic/revision-g/305.webp",
+      "bytes": 1062076,
+      "sha256": "2b18af524705dce9934f9095df323e72838ddbe3a9a9905ead4a48b8807ff112",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 306,
+      "path": "techops-comic/revision-g/306.webp",
+      "bytes": 1003108,
+      "sha256": "dcbb2d8f77da361a272d930c77d0ff54b91b71bace7a298d6bd3a186e378702f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 307,
+      "path": "techops-comic/revision-g/307.webp",
+      "bytes": 1191928,
+      "sha256": "159ed84ff6e16f67cbce1db222388ecf303849367068b520affda7e51e941e86",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 308,
+      "path": "techops-comic/revision-g/308.webp",
+      "bytes": 1304572,
+      "sha256": "2c8d070acd0cc4943f03d5b966abc9396edc86216e7c5e6ecf62a273581af75d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 309,
+      "path": "techops-comic/revision-g/309.webp",
+      "bytes": 1274430,
+      "sha256": "36c747a0cd2f7d7c3dedfbfb7e4ea56802b1a232b5b7780d83ed4e365aba6156",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 310,
+      "path": "techops-comic/revision-g/310.webp",
+      "bytes": 1017322,
+      "sha256": "c6d5c06f7afba607437f85ed254f32fdd5eb24a9ff156ee3e1ac5db179920acf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 311,
+      "path": "techops-comic/revision-g/311.webp",
+      "bytes": 1495420,
+      "sha256": "ef7e6a41ef98d770e9d10926a294e8cafbe565785987104bce971aff8cfc354c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 312,
+      "path": "techops-comic/revision-g/312.webp",
+      "bytes": 1134588,
+      "sha256": "a0650c74bef108d03963efd07418a89f15d3a5c7b636382c92c32579083e6d41",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 313,
+      "path": "techops-comic/revision-g/313.webp",
+      "bytes": 1079882,
+      "sha256": "f51a4462a584bb0d0c2dcba55d27676271e25d41338ed2ef17f840d9fc17bd09",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 314,
+      "path": "techops-comic/revision-g/314.webp",
+      "bytes": 1406728,
+      "sha256": "72f39e7655c45856de80794a1f49aa884f7434937688a2f6117d8836ee76f159",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 315,
+      "path": "techops-comic/revision-g/315.webp",
+      "bytes": 1382552,
+      "sha256": "724b813365e05ef9ecf8ab3650c37689cf7b06f72780b2821654dff83904caa1",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "g",
+      "page": 316,
+      "path": "techops-comic/revision-g/316.webp",
+      "bytes": 1395286,
+      "sha256": "a03ecda19eecc5fa5a914f92559bfd81dc024c50a7442e007d496100181a802a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 1,
+      "path": "techops-comic/volume-xiii-revised/001.webp",
+      "bytes": 1385668,
+      "sha256": "0f002024470b5ca4103857cbde2ed620315c21eb4bdaa76fcef9659aed0ad59f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 2,
+      "path": "techops-comic/volume-xiii-revised/002.webp",
+      "bytes": 111404,
+      "sha256": "a1e86768e2d456e40b3617accaa5d7e3f18607142a9e724b123d446291a19093",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 3,
+      "path": "techops-comic/volume-xiii-revised/003.webp",
+      "bytes": 975208,
+      "sha256": "e3ef975d2cfb62f95a25c243be8c991873dad4d1f8c45cf6ad0f45bcecbafd72",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 4,
+      "path": "techops-comic/volume-xiii-revised/004.webp",
+      "bytes": 1054750,
+      "sha256": "c3a5d35bbac70adc81b42112d34dd0a1289a70fbf6f2bdb0db028bb6c6eb11cf",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 5,
+      "path": "techops-comic/volume-xiii-revised/005.webp",
+      "bytes": 970188,
+      "sha256": "129069a1cf43f57b4e89d42d03145c95de94c9d29e4313e0ccdaca03571377a6",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 6,
+      "path": "techops-comic/volume-xiii-revised/006.webp",
+      "bytes": 894588,
+      "sha256": "d5063c18fad6d8bd4b2e966202159d26e646e5fdac956548fcc323a5b447d5d7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 7,
+      "path": "techops-comic/volume-xiii-revised/007.webp",
+      "bytes": 854518,
+      "sha256": "007a54d3f64bb9e8ad6331740934f417dee36705f8bd5b7c88b19572fb1a7d54",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 8,
+      "path": "techops-comic/volume-xiii-revised/008.webp",
+      "bytes": 829180,
+      "sha256": "e7e3f599720b1431bc4d0768cff9a6958bd9bf74c56dfbd2101e5d571db29510",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 9,
+      "path": "techops-comic/volume-xiii-revised/009.webp",
+      "bytes": 988180,
+      "sha256": "ec220d8a06cbbc0e3fe8f00df4f47bf1997c051f7e5d64e7e229c9f7100cc581",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 10,
+      "path": "techops-comic/volume-xiii-revised/010.webp",
+      "bytes": 753670,
+      "sha256": "bd8d6976b8685165a29f8d5d3fbd63177484154d8046981700981b4ec75fc03e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 11,
+      "path": "techops-comic/volume-xiii-revised/011.webp",
+      "bytes": 880020,
+      "sha256": "1c417cc4b29e3cfcae589b6c0454ca0bc6b3fc974544e75c0b2d66261d090883",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 12,
+      "path": "techops-comic/volume-xiii-revised/012.webp",
+      "bytes": 887800,
+      "sha256": "246642d6a2da208125542781a5a11db7fe6807c663ba6072e86b84b5aad7e75c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 13,
+      "path": "techops-comic/volume-xiii-revised/013.webp",
+      "bytes": 997438,
+      "sha256": "8b5baa00012d77de01c1b0e72f5ec133d329e37bea7e065a2c3bc8c61def59dd",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 14,
+      "path": "techops-comic/volume-xiii-revised/014.webp",
+      "bytes": 1050532,
+      "sha256": "3486390382831af145b3cbde0cf96e29e80d271deebc82efed84212b143ed063",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 15,
+      "path": "techops-comic/volume-xiii-revised/015.webp",
+      "bytes": 932830,
+      "sha256": "5122deb3fb7fde95f3eae89cb2e4e29f40b4af3b25f44b8cf7c71be003bc709a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 16,
+      "path": "techops-comic/volume-xiii-revised/016.webp",
+      "bytes": 1019526,
+      "sha256": "01fe434f1dd022d440dbc02f30e411ba50e1f741023d839357ef3fe918c30d91",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 17,
+      "path": "techops-comic/volume-xiii-revised/017.webp",
+      "bytes": 882156,
+      "sha256": "b9dd4070afe6ccb8364107c8035ff2a8a5a60b2e57c61151c0e8d1022c8eab74",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 18,
+      "path": "techops-comic/volume-xiii-revised/018.webp",
+      "bytes": 873206,
+      "sha256": "466472d9feb5c34f7720e97bc7e9d4a5535825d8b66532d4b70631f28bc7d91c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 19,
+      "path": "techops-comic/volume-xiii-revised/019.webp",
+      "bytes": 883972,
+      "sha256": "a246381f828124f453d0b1ec0c86fddaa2af2397863f214f434375771a928149",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 20,
+      "path": "techops-comic/volume-xiii-revised/020.webp",
+      "bytes": 832584,
+      "sha256": "fa4732b9d2ad34831c5f9c62b6b1adef39b17618dc1b98d169550ba138db5bf2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 21,
+      "path": "techops-comic/volume-xiii-revised/021.webp",
+      "bytes": 1138132,
+      "sha256": "eaccf847e880de8188ea08232c6fb7fec9369639827a2b39f6443d5f46247599",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 22,
+      "path": "techops-comic/volume-xiii-revised/022.webp",
+      "bytes": 786120,
+      "sha256": "5702a5fd0a1220fb61f9747c64a29979fabf027cfe20bc2be1f63d5946b84d0e",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 23,
+      "path": "techops-comic/volume-xiii-revised/023.webp",
+      "bytes": 762660,
+      "sha256": "89ffb29d5371e5446f2c4ff9b97b89f649a3355e436a64f5ac2c8f3f303830eb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 24,
+      "path": "techops-comic/volume-xiii-revised/024.webp",
+      "bytes": 1171300,
+      "sha256": "7024fa08aecf5afa03677e318ece9d5c77e9fcbe4882997feeea50d4c11ac777",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 25,
+      "path": "techops-comic/volume-xiii-revised/025.webp",
+      "bytes": 944746,
+      "sha256": "4861b3cc86bf6600443cd33d5bc635a0e74f673ea32083081fd21758b74d38fe",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 26,
+      "path": "techops-comic/volume-xiii-revised/026.webp",
+      "bytes": 973114,
+      "sha256": "f9481e990b16b03c0bf8fb4078a1a4ffeb21c58afc6270dc2611798b055a7c51",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 27,
+      "path": "techops-comic/volume-xiii-revised/027.webp",
+      "bytes": 967912,
+      "sha256": "24fd3618fe226ba505e2f4287af89d478d22574f62e1efa647aed0456c8fae3d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 28,
+      "path": "techops-comic/volume-xiii-revised/028.webp",
+      "bytes": 641288,
+      "sha256": "20cde2bbbf014ed9396a465cfd55cb089e79cac18a6c8c03ddd11f11dc939c4b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 29,
+      "path": "techops-comic/volume-xiii-revised/029.webp",
+      "bytes": 974052,
+      "sha256": "bac95cf54f1eb992e2ce393f653d85b5be2bee21f29b26382dc94174d4ab47c9",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 30,
+      "path": "techops-comic/volume-xiii-revised/030.webp",
+      "bytes": 1049436,
+      "sha256": "3d6b6d4a990b722c86d3b77d058d63fdf8faf7588fe2ccea9a78b566eb9ac0fa",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 31,
+      "path": "techops-comic/volume-xiii-revised/031.webp",
+      "bytes": 1051118,
+      "sha256": "02eb3e8277807b385926c2b8130167131e2bde1e655a19bafb00ee166c25a7af",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 32,
+      "path": "techops-comic/volume-xiii-revised/032.webp",
+      "bytes": 908892,
+      "sha256": "2856faf825da66b5e717e7baa2ee4f60bf031a41272ea3b50e826d1034e5238a",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 33,
+      "path": "techops-comic/volume-xiii-revised/033.webp",
+      "bytes": 958276,
+      "sha256": "e90aa8a37f3b90a245602ff5b4949af677e88eafd395e3a04a92b3ba4139d97f",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 34,
+      "path": "techops-comic/volume-xiii-revised/034.webp",
+      "bytes": 915978,
+      "sha256": "f362fd30b62108c476385a3b04d3fe253de672e7c762c78696d6ad74f80a8a85",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 35,
+      "path": "techops-comic/volume-xiii-revised/035.webp",
+      "bytes": 788532,
+      "sha256": "48e693a02d044b032adc1860c19a0133e18000967d6e5edcd43d5f3064dcc8e2",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 36,
+      "path": "techops-comic/volume-xiii-revised/036.webp",
+      "bytes": 841642,
+      "sha256": "d44dc49fa59873536ce99be68d7d978b88f2b5fcf296f4b80d7110b1870f31b4",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 37,
+      "path": "techops-comic/volume-xiii-revised/037.webp",
+      "bytes": 847126,
+      "sha256": "41bb4e4323fc6f1dbdd6cb8582f1b3b3c7e469a9c4b53c57af46f49ee20e517d",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 38,
+      "path": "techops-comic/volume-xiii-revised/038.webp",
+      "bytes": 823640,
+      "sha256": "6a7a204438d303b4bfee66dee89ffa706494191b8d3c7c889021641373c733af",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 39,
+      "path": "techops-comic/volume-xiii-revised/039.webp",
+      "bytes": 888468,
+      "sha256": "7eb4c24d14b502976afefe599984e20396008a8e9479d789587705bf38d0376c",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 40,
+      "path": "techops-comic/volume-xiii-revised/040.webp",
+      "bytes": 892390,
+      "sha256": "b447836b55abc177bbc5220f25e61cc4740c4a37f4dd302e497e6e89a6ba3966",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 41,
+      "path": "techops-comic/volume-xiii-revised/041.webp",
+      "bytes": 729272,
+      "sha256": "50f442fb2314a628ca658a601bfef695e6e46825708658c174c1589de21cfa37",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 42,
+      "path": "techops-comic/volume-xiii-revised/042.webp",
+      "bytes": 907486,
+      "sha256": "69b65023e85f7b3f2d1c43acef515b9945d94cd5ece50e573c94b826cd44b90b",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 43,
+      "path": "techops-comic/volume-xiii-revised/043.webp",
+      "bytes": 878276,
+      "sha256": "39709adbf1b59a80e75ba62ea5a53fa6996c6fa7ef73324277c48cb1f8f66c31",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 44,
+      "path": "techops-comic/volume-xiii-revised/044.webp",
+      "bytes": 883806,
+      "sha256": "c93af6e9d641ac1512e1ff881a83819bbb86ba163e6ba8f6677d9a50c89c91b7",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 45,
+      "path": "techops-comic/volume-xiii-revised/045.webp",
+      "bytes": 909786,
+      "sha256": "9773cb6d896e6f3516483db324de309bc18d2a0f6ac7e5ee7009868c447940bb",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 46,
+      "path": "techops-comic/volume-xiii-revised/046.webp",
+      "bytes": 818018,
+      "sha256": "87b8da49d1223ccc7502f64552dab3e803a7aa149c291344cc15f6acf7e06959",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 47,
+      "path": "techops-comic/volume-xiii-revised/047.webp",
+      "bytes": 995914,
+      "sha256": "817794eb12274329ee790494f71079e077843805eb3d5b33c6372a7deabeaa38",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 48,
+      "path": "techops-comic/volume-xiii-revised/048.webp",
+      "bytes": 866710,
+      "sha256": "d707796f292b3977782f36e9c2cc566f585f0c8231549ee6591a15d736a8c5de",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiii-r",
+      "page": 49,
+      "path": "techops-comic/volume-xiii-revised/049.webp",
+      "bytes": 37556,
+      "sha256": "64ce0513a5dcc2a827793c43118bcd512c08f8c88d3436c642f82be719014e13",
+      "dimensions": [
+        2160,
+        3240
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 1,
+      "path": "techops-comic/volume-xiv/001.webp",
+      "bytes": 626076,
+      "sha256": "48cd155f085833196b1b062e9f79b3aaa94ed57f567de853e29a06e89599990d",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 2,
+      "path": "techops-comic/volume-xiv/002.webp",
+      "bytes": 719150,
+      "sha256": "ce5eb53047b4a30ea574573728ac8fd53fe0e81365b9b6efad4fdd4d44bb6304",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 3,
+      "path": "techops-comic/volume-xiv/003.webp",
+      "bytes": 586784,
+      "sha256": "2f90525d497d85db6d266aa8e3cea25547266a20122cec5f41cc6b36a3d31c16",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 4,
+      "path": "techops-comic/volume-xiv/004.webp",
+      "bytes": 762418,
+      "sha256": "59aad03ce524b0edb79f796e5b4ca571fda959386af1ed5a16dbd542a77b074f",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 5,
+      "path": "techops-comic/volume-xiv/005.webp",
+      "bytes": 779302,
+      "sha256": "05fcb9ea85eaa2215d2e67a7c91de10f06351bb693b2d8b4cb5e0101c9e85c8d",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 6,
+      "path": "techops-comic/volume-xiv/006.webp",
+      "bytes": 728176,
+      "sha256": "9747695a51e26f6d08964d7d589cb6cc9cf32e709d059fa5ce6331141faabbfa",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 7,
+      "path": "techops-comic/volume-xiv/007.webp",
+      "bytes": 720394,
+      "sha256": "24cca8a5716872c74a52edf4ae7ede09155ef05a272072c485802217d3644e7f",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 8,
+      "path": "techops-comic/volume-xiv/008.webp",
+      "bytes": 707436,
+      "sha256": "75107e3499a58d5add1e93c12c4a07c67c79e65c609febf988974a7deedff0f8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 9,
+      "path": "techops-comic/volume-xiv/009.webp",
+      "bytes": 766880,
+      "sha256": "3f808ac64d5f588a578a984fa6cac43bde54dc261bef4167fc22239bcddbc42d",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 10,
+      "path": "techops-comic/volume-xiv/010.webp",
+      "bytes": 804586,
+      "sha256": "2ce53c53b363801b6a75d1e264ed3f9a12d176d8a05b52b71ab06118ea6c5cbf",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 11,
+      "path": "techops-comic/volume-xiv/011.webp",
+      "bytes": 715432,
+      "sha256": "6c8ed21b226a2ed8147c2943d9d3cdecb15821b3335f81cc7078e34bc93314ac",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 12,
+      "path": "techops-comic/volume-xiv/012.webp",
+      "bytes": 691474,
+      "sha256": "c7781ca084697e90ba4f0d121a09fcaf8200dd8f69977f82d5d935ae7c26ebc6",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 13,
+      "path": "techops-comic/volume-xiv/013.webp",
+      "bytes": 730416,
+      "sha256": "0afbb49c72adf4c1151809bb4c525001ea305740124ff73e5c8dc614f2e90307",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 14,
+      "path": "techops-comic/volume-xiv/014.webp",
+      "bytes": 751478,
+      "sha256": "08eeca3292c3578e67e7c2430ef5668e75fc7820e6818c0abd44dd19a22a2a62",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 15,
+      "path": "techops-comic/volume-xiv/015.webp",
+      "bytes": 673060,
+      "sha256": "d18164b34ae3df2f52f4f72324c6e51df60e96e955325c2953982d6f5e3e82b3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 16,
+      "path": "techops-comic/volume-xiv/016.webp",
+      "bytes": 599294,
+      "sha256": "8d231bcd0291a2fb91b9343375b92fbaa30d806c1a2abd557e99d9353c4d80c2",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 17,
+      "path": "techops-comic/volume-xiv/017.webp",
+      "bytes": 700118,
+      "sha256": "692906453b5190256e393af14fa87d5daa5d308fa39226d776fd424f65b3ccf3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 18,
+      "path": "techops-comic/volume-xiv/018.webp",
+      "bytes": 741632,
+      "sha256": "1f4da35d2002cadf4201941c7df52a9326a982b89259294581a6b6d79d8f8e04",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 19,
+      "path": "techops-comic/volume-xiv/019.webp",
+      "bytes": 995702,
+      "sha256": "3907321060d1f4873ac01c1fe7e966e29bb4b0def73035129a28c2ac2af0ee8b",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 20,
+      "path": "techops-comic/volume-xiv/020.webp",
+      "bytes": 871536,
+      "sha256": "9a2cc9a1be905e604ee224732fb266a76e060acabfda0ee79360de11a6cefab2",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 21,
+      "path": "techops-comic/volume-xiv/021.webp",
+      "bytes": 806028,
+      "sha256": "fbcc5d01f330ae33e8c656553fa9c3bc19356a337d4eb38c1c43adc0f3c2f3c4",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 22,
+      "path": "techops-comic/volume-xiv/022.webp",
+      "bytes": 928714,
+      "sha256": "e387a4be1779687f58ecc8242dce39145f5f8c2cb9b0c4ca11b120cd4ce332fc",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 23,
+      "path": "techops-comic/volume-xiv/023.webp",
+      "bytes": 764524,
+      "sha256": "9bc2f52e886e1a00cdd053179e96ee29f65d7ac305b8eefa1cb4bffa7e896a43",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 24,
+      "path": "techops-comic/volume-xiv/024.webp",
+      "bytes": 577572,
+      "sha256": "55632541cfe3426b548fcaa5b03324a1de274199a1cc410807bcac65de4f6ae8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 25,
+      "path": "techops-comic/volume-xiv/025.webp",
+      "bytes": 752562,
+      "sha256": "24317d783a2f08c777c49903484542861ff4d0328f04b131b612ef697a89dee6",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 26,
+      "path": "techops-comic/volume-xiv/026.webp",
+      "bytes": 641854,
+      "sha256": "ee2c4a97b3a6a3c20d3858e6687ecb93322558c88c94ff7cd3226e6cc84b9a24",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 27,
+      "path": "techops-comic/volume-xiv/027.webp",
+      "bytes": 652060,
+      "sha256": "4cf46a71d6b2973c74c71086a47b51c8535d18893848db6c94f448dcd620f450",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 28,
+      "path": "techops-comic/volume-xiv/028.webp",
+      "bytes": 484410,
+      "sha256": "948057a4e9e44451c931165844f1fc17a091b8d755558c22ad4ed7cb9f9db447",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 29,
+      "path": "techops-comic/volume-xiv/029.webp",
+      "bytes": 664514,
+      "sha256": "9a78f19a87632148f352b38efd80da96a01c619700d1a68d6036adccf777e4a2",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 30,
+      "path": "techops-comic/volume-xiv/030.webp",
+      "bytes": 684422,
+      "sha256": "31da6de7fd1d9d69ddfc5f39abbd60b0604a343c9e9d0c05dfa2a72868ecb315",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 31,
+      "path": "techops-comic/volume-xiv/031.webp",
+      "bytes": 523034,
+      "sha256": "67cf8032112d21ef4619847555746a66f40b2c799f4b0932e9840845949335a4",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 32,
+      "path": "techops-comic/volume-xiv/032.webp",
+      "bytes": 726296,
+      "sha256": "784e655bdd613e6acac8a3bdbf39516de01d44479170ef4a46a3747fe68e9fc4",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 33,
+      "path": "techops-comic/volume-xiv/033.webp",
+      "bytes": 674146,
+      "sha256": "097a243d8e7eaa5631249216bc93b6acdc6aac7c396c0c08dc213495db73050e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 34,
+      "path": "techops-comic/volume-xiv/034.webp",
+      "bytes": 780906,
+      "sha256": "4f0323615a87d4f69aec76ce9060c1a7e1effb6abc13b5a7e1545c5e5702726c",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 35,
+      "path": "techops-comic/volume-xiv/035.webp",
+      "bytes": 820432,
+      "sha256": "61220a3bfde73696b2dab657806af1cb576baf15969f79b8a4f111d414245ee5",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 36,
+      "path": "techops-comic/volume-xiv/036.webp",
+      "bytes": 620566,
+      "sha256": "e24834797a210fa7b6e7913b6b4c09f31511f976093b438d1cd0fa9328c78328",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 37,
+      "path": "techops-comic/volume-xiv/037.webp",
+      "bytes": 724336,
+      "sha256": "ab9514360a09fb6a573eb30ef97154534cefd909ee1077c3a4a8089dff2729bf",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 38,
+      "path": "techops-comic/volume-xiv/038.webp",
+      "bytes": 704624,
+      "sha256": "e41e63f82ac3c01f688e2665b019861bfc3e5e89f694628414744d863f6d37b8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 39,
+      "path": "techops-comic/volume-xiv/039.webp",
+      "bytes": 562812,
+      "sha256": "be1fc5435cdc304da01e7cea8c8f19f7d4da49f91b66dc12230e66d8bd78a091",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 40,
+      "path": "techops-comic/volume-xiv/040.webp",
+      "bytes": 701918,
+      "sha256": "5fb718d7447e451b3bec205e9cc391b8cc767bb965db13044a479efd48688a52",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 41,
+      "path": "techops-comic/volume-xiv/041.webp",
+      "bytes": 603146,
+      "sha256": "884598b0936e81e9ec35e0f4a7afcfc28bb2eb923fd4abd46ec7bcfb0e6f25db",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 42,
+      "path": "techops-comic/volume-xiv/042.webp",
+      "bytes": 628448,
+      "sha256": "2710eaa733fc2d4b1a0f6b6fa49ba8271036063c6577a85388a2ebfbd18dd69e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 43,
+      "path": "techops-comic/volume-xiv/043.webp",
+      "bytes": 599814,
+      "sha256": "86af5d724638de5f0a85a17c974372bd65ba8029852b68c2dc6890454b489632",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 44,
+      "path": "techops-comic/volume-xiv/044.webp",
+      "bytes": 642900,
+      "sha256": "38778ec723f9a36401ac988780c6e0546ed1caab441c19a622122e1487e8c3b9",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 45,
+      "path": "techops-comic/volume-xiv/045.webp",
+      "bytes": 760714,
+      "sha256": "902cf611f2acfbb099b771020c0cdea0c44c831b27ff6e0df76e69d28d4e7be1",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 46,
+      "path": "techops-comic/volume-xiv/046.webp",
+      "bytes": 1123024,
+      "sha256": "6998d3cbc427be8ce98c3effc6121f3818e61ac39cbe813d6e501f11f56dfea0",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 47,
+      "path": "techops-comic/volume-xiv/047.webp",
+      "bytes": 874854,
+      "sha256": "12021ce376c5116ac90e4ec1f057026a2208152360d3c7317b46c5727dbd1b01",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 48,
+      "path": "techops-comic/volume-xiv/048.webp",
+      "bytes": 1113456,
+      "sha256": "7186d3e844f6de445cb4870149530f211dd6f631c05ad92790909a9a54a9aa1a",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 49,
+      "path": "techops-comic/volume-xiv/049.webp",
+      "bytes": 677112,
+      "sha256": "996a34880b58d2090c3f8ca62139c6563614974202352f45d623ed551c0d6897",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 50,
+      "path": "techops-comic/volume-xiv/050.webp",
+      "bytes": 940588,
+      "sha256": "e99fd22bc31ddc2197ffb3014fc400988f1d5d60c36852fe1310a0c6cb5cced5",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 51,
+      "path": "techops-comic/volume-xiv/051.webp",
+      "bytes": 986390,
+      "sha256": "abbeb39356518a3aab546b1eb703257e97bc3b4c4747edd458c161b839e89012",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 52,
+      "path": "techops-comic/volume-xiv/052.webp",
+      "bytes": 866448,
+      "sha256": "cae450ff5f2c5609bcba10ebd258b4a08829abe3e9835732924d2bb4ba2dae06",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 53,
+      "path": "techops-comic/volume-xiv/053.webp",
+      "bytes": 697154,
+      "sha256": "3618902351287ce12f9f0f48930c0d9b48b1832a73836eb7d7c4eefd5a719eb2",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 54,
+      "path": "techops-comic/volume-xiv/054.webp",
+      "bytes": 728252,
+      "sha256": "da66202d3302395094c1c48ebe70ed71b824fe7caa69a9b0d82669ee0e2ee523",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 55,
+      "path": "techops-comic/volume-xiv/055.webp",
+      "bytes": 885042,
+      "sha256": "1dec94598d31ee11bc497a4fba51096f3b97c006d50e161a5238f5a297759446",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 56,
+      "path": "techops-comic/volume-xiv/056.webp",
+      "bytes": 1277414,
+      "sha256": "31d299902ef612b6c7cfbb54e63f474067b5ff7a3ba84c31b539df394a6c79d9",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 57,
+      "path": "techops-comic/volume-xiv/057.webp",
+      "bytes": 1231800,
+      "sha256": "6d950b600e683adc751fe02f208455b1b77c44f526e6358affb5ff1d59d798b5",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 58,
+      "path": "techops-comic/volume-xiv/058.webp",
+      "bytes": 814378,
+      "sha256": "47c14232ea11d4bb080ba7b065f05ebe8dfc5f651f7f38aa11e5d9705f6602b6",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 59,
+      "path": "techops-comic/volume-xiv/059.webp",
+      "bytes": 718984,
+      "sha256": "e1f91c213af82f65edb51790944a096f794296343f1da25c2dff94f0a658c241",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 60,
+      "path": "techops-comic/volume-xiv/060.webp",
+      "bytes": 808838,
+      "sha256": "a6dec8eead345fe6d9d47ad67a69eb98a4a61fe3e091de718fcc6802110f4c6c",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 61,
+      "path": "techops-comic/volume-xiv/061.webp",
+      "bytes": 1278740,
+      "sha256": "aac279beb6b62f4a6db8f16d60ae30cede7dc01d177071d1b2d2d84d150c102b",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 62,
+      "path": "techops-comic/volume-xiv/062.webp",
+      "bytes": 982460,
+      "sha256": "f8a882bb82de59dda799d8eba6fce64b463fa8ae5cd5b3dfcbbfcae39805bc4e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 63,
+      "path": "techops-comic/volume-xiv/063.webp",
+      "bytes": 935996,
+      "sha256": "c5724898c8bb7d5b38b656b02d52954209b288d71c87a88f8052dac22aba2480",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 64,
+      "path": "techops-comic/volume-xiv/064.webp",
+      "bytes": 784754,
+      "sha256": "4aadaa014971bda9c9184c8bda33fd7cc0974de2c145bedf5206632210e11f9a",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 65,
+      "path": "techops-comic/volume-xiv/065.webp",
+      "bytes": 768656,
+      "sha256": "e8473f8a465efda5a0e195816ee05d55596f331477877a4b8c620e1b6b9e34af",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 66,
+      "path": "techops-comic/volume-xiv/066.webp",
+      "bytes": 887508,
+      "sha256": "9f3dadcf94845dd3527fca6700f8a17963c374de3506e9d9c7e3c5fd87ededa5",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 67,
+      "path": "techops-comic/volume-xiv/067.webp",
+      "bytes": 1018674,
+      "sha256": "bb900dfce95165eb79a78a5bbdc336f52e3076bb24a92f4d732b145e4d17c9ab",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 68,
+      "path": "techops-comic/volume-xiv/068.webp",
+      "bytes": 763802,
+      "sha256": "99e7cb3e040ca314c43d40af22ed58c19a3fc07cb005d71b1e2c2ddd8dd75db3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 69,
+      "path": "techops-comic/volume-xiv/069.webp",
+      "bytes": 921196,
+      "sha256": "a2a520d33473716e767da3d63f584667212fb1f9532a5c919511d487e9296380",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 70,
+      "path": "techops-comic/volume-xiv/070.webp",
+      "bytes": 779774,
+      "sha256": "0a8cac46bc0e68f8915f56a99024975b4ba37d09a559c8dc48e3c433c46f1d9f",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 71,
+      "path": "techops-comic/volume-xiv/071.webp",
+      "bytes": 923994,
+      "sha256": "5fc4bdeba66146f647d74006e55cc2a764db08515aa68804c99afdf7403973ab",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 72,
+      "path": "techops-comic/volume-xiv/072.webp",
+      "bytes": 747374,
+      "sha256": "cda6e30844e279ed1d247b86f8030df3a99aa54903cfba6ed5c26b8863881d12",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 73,
+      "path": "techops-comic/volume-xiv/073.webp",
+      "bytes": 818728,
+      "sha256": "dd415bd05211abc08820c9fe2b283f6f90a2c4e43800ca089f560ca382bd3808",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 74,
+      "path": "techops-comic/volume-xiv/074.webp",
+      "bytes": 701966,
+      "sha256": "61af6c40bdd61b6eae266e96fd85519c402a2628ccc1054e9a504d6cba457a20",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 75,
+      "path": "techops-comic/volume-xiv/075.webp",
+      "bytes": 698536,
+      "sha256": "07d2eebed614110407698e3fe19233dc97a297b958148f278eb7a4a6bebb2b0c",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 76,
+      "path": "techops-comic/volume-xiv/076.webp",
+      "bytes": 765584,
+      "sha256": "8e35011f513de176a0c3e426d04c3089a1babc10e67851f015c3b955f3671402",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 77,
+      "path": "techops-comic/volume-xiv/077.webp",
+      "bytes": 831764,
+      "sha256": "22bbc86a545f3b8be12f5ed22ada152f388d3dc2a1c1bfb352ee3ae242089519",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 78,
+      "path": "techops-comic/volume-xiv/078.webp",
+      "bytes": 761090,
+      "sha256": "4f8ad4e5f9b0601cd7467131ab4b26fa4c972f0f1873a5d5e6427c966912bbd9",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 79,
+      "path": "techops-comic/volume-xiv/079.webp",
+      "bytes": 843156,
+      "sha256": "2e482c5d8180f2f3bf602046118bfa74617d9b0210d31bdde54c7690285859ea",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 80,
+      "path": "techops-comic/volume-xiv/080.webp",
+      "bytes": 721994,
+      "sha256": "7c2006f0e2414f2de2feb2c19e62b94e4a9637a9251ecd944a32b8faf598a924",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 81,
+      "path": "techops-comic/volume-xiv/081.webp",
+      "bytes": 756424,
+      "sha256": "c2f91934bd96aeb30a4d7d8d3030f82478226c25ff1e7435aace376d5f6a8b81",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 82,
+      "path": "techops-comic/volume-xiv/082.webp",
+      "bytes": 839602,
+      "sha256": "c9f222bfd09202f350828e5ff41440c529b2217d6b002aed7977699309c0b370",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 83,
+      "path": "techops-comic/volume-xiv/083.webp",
+      "bytes": 768198,
+      "sha256": "97ab04bafb1115dc5f29a164771b457e52a47af42c6ae76af0f83a47f56a38bc",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 84,
+      "path": "techops-comic/volume-xiv/084.webp",
+      "bytes": 672654,
+      "sha256": "9a27d1676fe07ac96d3de159460f3b436d057754720f8830f14090ce5aa80366",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 85,
+      "path": "techops-comic/volume-xiv/085.webp",
+      "bytes": 727334,
+      "sha256": "1bf4291680a94463dcb143cdc99acdfb66b3355ea2883ba059c8378b0871b168",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 86,
+      "path": "techops-comic/volume-xiv/086.webp",
+      "bytes": 722796,
+      "sha256": "a541ddcc702c092b52191bebc25e30b75d2482d71412d370ce8392768b3471e3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 87,
+      "path": "techops-comic/volume-xiv/087.webp",
+      "bytes": 720004,
+      "sha256": "a14ad441edc1992e96de801afb844ac32a21c957b5788b5791509b7adbbcfff9",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 88,
+      "path": "techops-comic/volume-xiv/088.webp",
+      "bytes": 825552,
+      "sha256": "0d2436bde3eb8753c88bc66dd47391fce9d260e3adffc937b95e264920c9cee4",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 89,
+      "path": "techops-comic/volume-xiv/089.webp",
+      "bytes": 992884,
+      "sha256": "1cf0a3910ea78f06d9f89b6a1ea355d9581d85e72a496752bb4452f2aebd6398",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 90,
+      "path": "techops-comic/volume-xiv/090.webp",
+      "bytes": 833344,
+      "sha256": "7999238f16f1aa27952f3cd754294319b51bf7a58caf8fe2c372ccd2aafc8e0e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 91,
+      "path": "techops-comic/volume-xiv/091.webp",
+      "bytes": 569062,
+      "sha256": "883f4ec123eae8ad6af25669b4a41c8a276e27a12bf08383f72ce16a82821eeb",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 92,
+      "path": "techops-comic/volume-xiv/092.webp",
+      "bytes": 636142,
+      "sha256": "115b994a14a2e12f8b1f72234b99feea4bdf34380ff56cf27dbd43f62e460abc",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 93,
+      "path": "techops-comic/volume-xiv/093.webp",
+      "bytes": 672088,
+      "sha256": "9c0645a4b2215a1649e16ff3a542a1bce6e6e3a17ea66baf4142d2c81f412f2b",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 94,
+      "path": "techops-comic/volume-xiv/094.webp",
+      "bytes": 504012,
+      "sha256": "a457b41d496841a7d57331312073039b02f996fa0f3db4aa2c3316eadf2b7923",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 95,
+      "path": "techops-comic/volume-xiv/095.webp",
+      "bytes": 537092,
+      "sha256": "4bb912e2e4451df87d1c09f0d93ed5e777a759e4ebe978756c2b2538337b0df3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 96,
+      "path": "techops-comic/volume-xiv/096.webp",
+      "bytes": 639232,
+      "sha256": "66bdece61d17ce0914cd9160dc8fa3cc23de12675ab46c1c979ff729bfcc8591",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 97,
+      "path": "techops-comic/volume-xiv/097.webp",
+      "bytes": 543260,
+      "sha256": "9a98d1e530235f82d18f0c1641e47e6f1ba3432ae90a1d7173e43da49deca09f",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 98,
+      "path": "techops-comic/volume-xiv/098.webp",
+      "bytes": 690596,
+      "sha256": "241d8be6a9511e88ca2a6f911fe942d5373dff26cffc44e0dbcd7398a156fd50",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 99,
+      "path": "techops-comic/volume-xiv/099.webp",
+      "bytes": 452358,
+      "sha256": "4bda11ac3f9f0d628de576db2912ac4b04a52e42526a05a439c2ca92e32f924f",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 100,
+      "path": "techops-comic/volume-xiv/100.webp",
+      "bytes": 534536,
+      "sha256": "94df37034319c9e202e72e25dcb92e2c083ac652a9572107407fde47c4fce65a",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 101,
+      "path": "techops-comic/volume-xiv/101.webp",
+      "bytes": 513860,
+      "sha256": "f2865f75782555fd9121c5c37b37e6b7e43aedc3b4b6aaeaa0675d9a6811a604",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 102,
+      "path": "techops-comic/volume-xiv/102.webp",
+      "bytes": 587894,
+      "sha256": "dff8aaa930372335ce73d0abdf1f24e2eb3b64c7bb00b71b4aab295aee24f0ea",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 103,
+      "path": "techops-comic/volume-xiv/103.webp",
+      "bytes": 440450,
+      "sha256": "1e26914d959aafedfe6a450affb101ea7a56c8c2854954d7e0d0301481806585",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 104,
+      "path": "techops-comic/volume-xiv/104.webp",
+      "bytes": 460390,
+      "sha256": "ec9ab66a1482f29ca9cd57aa251a293fc1d029c8c9c98685475136b1660081d1",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 105,
+      "path": "techops-comic/volume-xiv/105.webp",
+      "bytes": 493408,
+      "sha256": "a4da492f0c6bdbc0d162974998ae8ce20a588060f04e716570820ba4bde50569",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 106,
+      "path": "techops-comic/volume-xiv/106.webp",
+      "bytes": 456118,
+      "sha256": "4a77445126b514e76f6ac29cb98d0e839807ce9d8d32572f0edabf25c9fba245",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 107,
+      "path": "techops-comic/volume-xiv/107.webp",
+      "bytes": 443102,
+      "sha256": "9a573c58c9642675b32db1883eada5404b09b5418bf6fc7238d410ca0f45dc0a",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 108,
+      "path": "techops-comic/volume-xiv/108.webp",
+      "bytes": 480806,
+      "sha256": "2ab0755a5eca40bf8344d22e8c8daf98ffcfa9d00b1d9dc3ac4fcf8a8cdc9b97",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 109,
+      "path": "techops-comic/volume-xiv/109.webp",
+      "bytes": 514166,
+      "sha256": "3336b29872922a200dd43dd79e38f6ef31ac30a071fc88705b8f7f059d32fff8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 110,
+      "path": "techops-comic/volume-xiv/110.webp",
+      "bytes": 584670,
+      "sha256": "4d4998edc6d2a9eb48d26f8eb92c27c6d6bc85164da79385ec87df7e442fae3d",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 111,
+      "path": "techops-comic/volume-xiv/111.webp",
+      "bytes": 727550,
+      "sha256": "5af8ef4adefc63660f1811e2ef9879ef1824db55506f6b1bc9c40c8d6a56842e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 112,
+      "path": "techops-comic/volume-xiv/112.webp",
+      "bytes": 731338,
+      "sha256": "f2aefcae3b765b5f33f59f926bcd83925b3d4aee98e3573a01e21a12d4c1be23",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 113,
+      "path": "techops-comic/volume-xiv/113.webp",
+      "bytes": 585500,
+      "sha256": "1be8116e5357d965c73b33a020fdd6d71fdf70b224aa71204d95ef2c60ad6f2c",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 114,
+      "path": "techops-comic/volume-xiv/114.webp",
+      "bytes": 736092,
+      "sha256": "e1d228b4dcbe11cf1b9cf9f66a554d8997ef7480e4c397de02d7222e6a98e08e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 115,
+      "path": "techops-comic/volume-xiv/115.webp",
+      "bytes": 688642,
+      "sha256": "93e53efa82b7c600fcb181c4f7bae613cbd8b2317929ef6c08dfd45a761d23b7",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 116,
+      "path": "techops-comic/volume-xiv/116.webp",
+      "bytes": 691546,
+      "sha256": "68137e9bd42c818fce7da38e457ef6286a116a21723e9614faed504093427d0e",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 117,
+      "path": "techops-comic/volume-xiv/117.webp",
+      "bytes": 1101222,
+      "sha256": "02fb2574f62c21b28fd1152fbdd669cc55b53ad4ee7d44fe5b89c8a63fe33397",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 118,
+      "path": "techops-comic/volume-xiv/118.webp",
+      "bytes": 720306,
+      "sha256": "61f9d9cc92bad2db6408d37fb6f01bc63fef3804bc0b1b9442338e72383df5e9",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 119,
+      "path": "techops-comic/volume-xiv/119.webp",
+      "bytes": 744642,
+      "sha256": "f352b7baf63febc7ded9dc98042618910536319924b50515a8f3bf12393d2100",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 120,
+      "path": "techops-comic/volume-xiv/120.webp",
+      "bytes": 694124,
+      "sha256": "1f9770f69d4a2311939431b60b1bf58e6d2e9aed8e3886fb38358ee9087b436c",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 121,
+      "path": "techops-comic/volume-xiv/121.webp",
+      "bytes": 764422,
+      "sha256": "62afb4459404cc48224a4b4dc67a5fec7d498ae5d10c8433a55ed08ab8870ff3",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 122,
+      "path": "techops-comic/volume-xiv/122.webp",
+      "bytes": 732320,
+      "sha256": "31abe3acf15b2a19475128c54dd85ebdfb4be078f57fcf839af082ce6e11bee8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 123,
+      "path": "techops-comic/volume-xiv/123.webp",
+      "bytes": 596114,
+      "sha256": "496935e55e977c7e7eea31b2f7585982ea203f04d16f4a325a81b49be594e4da",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 124,
+      "path": "techops-comic/volume-xiv/124.webp",
+      "bytes": 688432,
+      "sha256": "0cabac9d670c650db8f9f7686da6c8130590cc4000d3a092916c62f668076a71",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 125,
+      "path": "techops-comic/volume-xiv/125.webp",
+      "bytes": 627444,
+      "sha256": "8332e578821f9da9781461a56cf57ea032d536549e7dc742f5b1a871a2400f5b",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 126,
+      "path": "techops-comic/volume-xiv/126.webp",
+      "bytes": 853034,
+      "sha256": "d911555d632b3be260effd2f06b874c028fddcc75d4530789eb0745660b8c588",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 127,
+      "path": "techops-comic/volume-xiv/127.webp",
+      "bytes": 603888,
+      "sha256": "bdd31b5c65c91d2293470541645548e1ab966598ae08557f9398cc0520411859",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 128,
+      "path": "techops-comic/volume-xiv/128.webp",
+      "bytes": 725354,
+      "sha256": "2fe7a48e5b23db60a50243595a9fc776da04b80b79df4803a689f15bbfcad9b6",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 129,
+      "path": "techops-comic/volume-xiv/129.webp",
+      "bytes": 625774,
+      "sha256": "5fa4b6cf2074f290ca2d15ee9eb5d7b76b8ca32e66a22ae0554843515071ccb8",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 130,
+      "path": "techops-comic/volume-xiv/130.webp",
+      "bytes": 851852,
+      "sha256": "5c6f1b305d4b86dd918ebba89bc5c99fa52422c1e4abd4fe9d005453e08598bb",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 131,
+      "path": "techops-comic/volume-xiv/131.webp",
+      "bytes": 588400,
+      "sha256": "a4bc554be6cfeb973dd7cd2dcc4516c2ee9b237269fc0ded21ffa29b25b4ab1b",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 132,
+      "path": "techops-comic/volume-xiv/132.webp",
+      "bytes": 799814,
+      "sha256": "5e14434456a75eb9ba2f28f88ac1856823ff640f6c8233414f5d15e191a09bdc",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    },
+    {
+      "edition": "xiv",
+      "page": 133,
+      "path": "techops-comic/volume-xiv/133.webp",
+      "bytes": 756876,
+      "sha256": "61c397a26c15c6ef5902da9fcae9099dee0f30a305c2f2f29abbd81c72914c72",
+      "dimensions": [
+        2160,
+        3330
+      ]
+    }
+  ],
+  "imageBytes": 471100010,
+  "imageCount": 498,
+  "notes": "Original PDFs preserved byte-for-byte. G and revised XIII rendered directly at 2160px width, WebP quality 92. XIV retains the already verified Q75 2160x3330 exports. No artwork regeneration."
+}
