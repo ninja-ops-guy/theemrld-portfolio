@@ -1,0 +1,59 @@
+name: Read-only Comic Production Health
+on:
+  pull_request:
+    paths:
+      - 'scripts/check-comic-retirement.py'
+      - 'tests/test_comic_retirement.py'
+      - 'tests/comic-final-browser.py'
+      - '.github/workflows/comic-live-health.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: comic-production-health-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  production-health:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Pin the current production source without modifying it
+        run: |
+          set -euo pipefail
+          expected="$(git ls-remote origin refs/heads/main | cut -f1)"
+          [[ "$expected" =~ ^[a-f0-9]{40}$ ]]
+          git fetch --no-tags --depth=1 origin "$expected"
+          # Run the candidate verifier against the contract at the pinned live SHA,
+          # not against potentially different artwork/catalogue data in this PR.
+          for source in src/data/comic-current-editions.json src/data/comic-display-labels.json; do
+            git show "$expected:$source" > "$source"
+          done
+          echo "COMIC_EXPECTED_COMMIT=$expected" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Lint the read-only workflow
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -shellcheck= -pyflakes= .github/workflows/comic-live-health.yml
+      - name: Test retirement verification safeguards
+        run: python3 -m unittest discover -s tests -p 'test_comic_retirement.py' -v
+      - name: Install read-only browser runner
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Verify exact live publication, retirement, PDFs and current readers
+        env:
+          COMIC_BASE_URL: https://kterminal.site/
+          COMIC_QA_DIR: qa/comic-production-health
+        run: python tests/comic-final-browser.py
+      - name: Retain independent checks and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comic-production-health
+          path: qa/comic-production-health/
+          if-no-files-found: warn
+          retention-days: 14

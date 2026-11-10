@@ -1,5 +1,6 @@
 """Current-only comic library acceptance. Chromium emulation, not physical-device certification."""
 import json
+import importlib.util
 import os
 import re
 import time
@@ -17,7 +18,11 @@ OUT.mkdir(parents=True, exist_ok=True)
 MANIFEST = json.loads((ROOT / 'src/data/comic-current-editions.json').read_text())
 LABELS = json.loads((ROOT / 'src/data/comic-display-labels.json').read_text())
 CHECKS = []
-receipt = {'baseUrl': BASE, 'sourceCommit': os.environ.get('GITHUB_SHA'), 'checks': CHECKS, 'physicalDeviceTest': False}
+EXPECTED_COMMIT = os.environ.get('COMIC_EXPECTED_COMMIT', os.environ.get('GITHUB_SHA'))
+retirement_spec = importlib.util.spec_from_file_location('retirement', ROOT / 'scripts/check-comic-retirement.py')
+retirement = importlib.util.module_from_spec(retirement_spec)
+retirement_spec.loader.exec_module(retirement)
+receipt = {'baseUrl': BASE, 'sourceCommit': EXPECTED_COMMIT, 'checks': CHECKS, 'physicalDeviceTest': False}
 
 def checked(name):
     CHECKS.append(name)
@@ -47,17 +52,19 @@ try:
     assert publication['earlierEditionsPublic'] is False
     assert [b['pageCount'] for b in publication['books']] == [316,49,133]
     assert publication['books'][0]['label'] == 'Full collection'
-    if os.environ.get('GITHUB_SHA'):
-        assert publication['sourceCommit'] == os.environ['GITHUB_SHA'], publication
+    if EXPECTED_COMMIT:
+        assert publication['sourceCommit'] == EXPECTED_COMMIT, publication
     checked('exact-commit public manifest and 316/49/133 counts')
 
-    for asset in ['TechOps-Hero-Revision-11.pdf', 'TechOps-Hero-Revision-11.1.pdf', 'TechOps-Hero-Revision-F-Complete.pdf', 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf', 'revision-f/001.webp', 'volume-xiii/001.webp', 'volume-v/001.webp', '001.webp']:
-        try:
-            with urlopen(BASE + 'techops-comic/' + asset + '?retired=' + str(time.time_ns()), timeout=30) as response:
-                raise AssertionError(f'Retired asset still public: {asset}: {response.status}')
-        except HTTPError as failure:
-            assert failure.code in (404,410), (asset, failure.code)
-    checked('retired PDFs and reader page assets return 404/410')
+    retirement_receipt = retirement.check_retirement(BASE, EXPECTED_COMMIT or 'local-qualification')
+    receipt['retirement'] = retirement_receipt
+    (OUT / 'retirement.json').write_text(json.dumps(retirement_receipt, indent=2) + '\n')
+    if retirement_receipt['result'] == 'PASS':
+        checked('retired PDFs and reader page assets return 404/410')
+    else:
+        # Keep independent current-reader evidence even if an old URL has a service error.
+        # Overall acceptance remains failed until every retired URL is verified absent.
+        print('Retirement verification failed; continuing independent reader checks:', json.dumps(retirement_receipt), flush=True)
 
     for id, book in MANIFEST['books'].items():
         # Inspect the real PDF response without fetching hundreds of megabytes again.
@@ -159,6 +166,8 @@ try:
             checked(f'{name}: no uncaught browser errors')
             context.close()
         browser.close()
+    if retirement_receipt['result'] != 'PASS':
+        raise AssertionError('Retired-path removal is unverified; see retirement.json. Current-reader checks are independent.')
     receipt['result'] = 'PASS'
 except Exception as failure:
     receipt['result'] = 'FAIL'
@@ -170,3 +179,4 @@ finally:
     print(json.dumps(receipt, indent=2), flush=True)
 if receipt['result'] != 'PASS':
     raise SystemExit(1)
+
