@@ -33,6 +33,23 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Keep Pages release below the 1GB site limit
+        run: |
+          set -euo pipefail
+          # These files are superseded source-controlled snapshots, not linked by the current comic reader.
+          # Preserve them in Git, exclude them only from the deployed static site.
+          rm -f dist/techops-comic/TechOps-Hero-Revision-11.pdf
+          rm -f dist/techops-comic/TechOps-Hero-Revision-11.1.pdf
+          rm -f dist/techops-comic/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('dist')
+          size=sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
+          print(f'GitHub Pages published payload: {size:,} bytes')
+          if size > 1_000_000_000:
+              raise SystemExit('Exceeds 1GB Pages site limit; do not publish partial comic')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
