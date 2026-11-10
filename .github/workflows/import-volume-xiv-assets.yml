@@ -1,0 +1,90 @@
+name: Import verified Volume XIV assets
+on:
+  workflow_dispatch:
+    inputs:
+      archive_url:
+        description: "HTTPS direct-download URL to ZIP containing print-source/ and public/techops-comic/volume-xiv/"
+        required: true
+      archive_sha256:
+        description: "SHA-256 of the ZIP (64 hex characters)"
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: comic-xiv-asset-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/techops-volume-xiv-20261110
+          persist-credentials: true
+      - name: Download, verify, and safely extract
+        env:
+          SOURCE_URL: ${{ inputs.archive_url }}
+          SOURCE_SHA: ${{ inputs.archive_sha256 }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,os,pathlib,re,sys,urllib.parse,urllib.request,zipfile
+          url=os.environ['SOURCE_URL']
+          digest=os.environ['SOURCE_SHA'].lower()
+          u=urllib.parse.urlsplit(url)
+          if u.scheme!='https' or not u.hostname or u.username or u.password or not re.fullmatch('[0-9a-f]{64}',digest):
+              sys.exit('Require a direct HTTPS URL and a 64-character SHA-256')
+          req=urllib.request.Request(url,headers={'User-Agent':'TechOps-Comic-Asset-Importer'})
+          archive=pathlib.Path('/tmp/volume-xiv-assets.zip')
+          h=hashlib.sha256()
+          with urllib.request.urlopen(req,timeout=90) as response, archive.open('wb') as output:
+              if urllib.parse.urlsplit(response.url).scheme!='https': sys.exit('Redirect downgraded HTTPS')
+              total=0
+              while block:=response.read(1024*1024):
+                  total+=len(block)
+                  if total>650_000_000: sys.exit('Archive exceeds 650 MB')
+                  h.update(block); output.write(block)
+          if h.hexdigest()!=digest: sys.exit('Archive checksum mismatch')
+          allowed_parts={f'print-source/volume-xiv.part{i}' for i in range(3)}
+          image_root='public/techops-comic/volume-xiv/'
+          extracted=set()
+          with zipfile.ZipFile(archive) as z:
+              for entry in z.infolist():
+                  name=entry.filename
+                  if entry.is_dir(): continue
+                  if name not in allowed_parts and not re.fullmatch(r'public/techops-comic/volume-xiv/(?:0[0-9]{2})\.webp',name):
+                      sys.exit('Unexpected archive entry: '+name)
+                  if name in extracted or entry.file_size>100_000_000: sys.exit('Duplicate or oversized entry')
+                  extracted.add(name)
+              expected=allowed_parts|{f'{image_root}{i:03d}.webp' for i in range(1,134)}
+              if extracted!=expected: sys.exit(f'Missing or unexpected assets: {len(expected-extracted)} missing')
+              if sum(z.getinfo(n).file_size for n in extracted)>400_000_000: sys.exit('Uncompressed payload too large')
+              for name in sorted(extracted):
+                  target=pathlib.Path(name)
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  with z.open(name) as source,target.open('wb') as dest:
+                      import shutil
+                      shutil.copyfileobj(source,dest)
+          sizes=[pathlib.Path(f'print-source/volume-xiv.part{i}').stat().st_size for i in range(3)]
+          if sizes!=[75000000,75000000,31907121]: sys.exit('Incorrect PDF part sizes')
+          h=hashlib.sha256()
+          for i in range(3):
+              with open(f'print-source/volume-xiv.part{i}','rb') as f:
+                  while chunk:=f.read(1024*1024): h.update(chunk)
+          if h.hexdigest()!='97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae':
+              sys.exit('Corrected XIV PDF hash mismatch')
+          print('Verified 133 WebPs, three source parts, and exact corrected PDF SHA-256')
+          PY
+      - name: Commit assets to the existing XIV release branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- print-source/volume-xiv.part0 print-source/volume-xiv.part1 print-source/volume-xiv.part2 public/techops-comic/volume-xiv
+          if git diff --cached --quiet; then
+            echo "No changes; assets already imported"
+          else
+            git commit -m "Import checksum-verified Volume XIV binary assets"
+            git push origin HEAD:release/techops-volume-xiv-20261110
+          fi
