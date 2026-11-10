@@ -1,4 +1,4 @@
-export type GuidedEdition = 'f' | 'xiii' | 'legacy';
+export type GuidedEdition = 'f' | 'xiii' | 'legacy' | 'g' | 'xiii-r' | 'xiv';
 export interface GuidedCue { id: string; edition: GuidedEdition; startPage: number; endPage: number; title: string; url: string }
 export interface GuidedScore { schemaVersion: 1; editions: Partial<Record<GuidedEdition, string>>; cues: GuidedCue[] }
 export interface GuidedPosition { edition: GuidedEdition; page: number; revision: string }
