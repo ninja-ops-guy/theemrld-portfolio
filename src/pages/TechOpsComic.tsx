@@ -88,7 +88,8 @@ const books = {
     cards: revisionFVolumes.map(section => ({ ...section, cover: revisionFImageUrl(section.start) })),
     scenes: revisionF.scenes,
     links: revisionF.links as Record<number, { page: number; rect: number[] }[]>,
-    describe: (page: number) => page === 34 ? 'Waldo removes his mask and shaves before K meets Mike' : revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
+    describe: (page: number) => revisionF.descriptions[page - 1]
+      ?? revisionF.sections.find(section => page >= section.start && page <= section.end)?.title ?? 'Revision F',
     imageUrl: revisionFImageUrl,
     bookmarkKey: 'techops-hero:revision-f:waldo-continuity:page',
   },
@@ -222,11 +223,12 @@ export default function TechOpsComic() {
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
       <nav className="comic-downloads" aria-label="PDF downloads">
-        <a className="comic-download" href={volumeThirteenPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Vol. XIII · The Last Launch PDF</a>
-        {revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete {revisionF.pageCount}-page Revision F PDF</a>}
-        {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
-        {(!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
-        {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
+        {/* Offer only the current edition's downloads. */}
+        {(isVolumeThirteen || (isRevisionF && !page)) && <a className="comic-download" href={volumeThirteenPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Vol. XIII · The Last Launch PDF</a>}
+        {isRevisionF && revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete {revisionF.pageCount}-page Revision F PDF</a>}
+        {edition === 'legacy' && !readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
+        {edition === 'legacy' && (!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
+        {edition === 'legacy' && readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
       </nav>
     </header>
     <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
