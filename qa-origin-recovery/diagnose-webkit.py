@@ -57,6 +57,23 @@ once("        c.unroute('**/see-world/linked.mjs');offline.reload(wait_until='do
 once("        observations['preservedRun']=run_id", "        companion_snapshot(offline,'restored-selected-run')\n        observations['preservedRun']=run_id")
 once("        for label,p in pages:\n            if label=='native':native_probe(p,'failure-before-screenshots')", "        if name=='18-companion-outage-ownership-reload-recovery':\n            for label,p in pages:\n                companion_snapshot(p,label+'-failure-before-screenshots')\n        for label,p in pages:\n            if label.startswith('native'):native_probe(p,label+'-failure-before-screenshots')")
 
+
+geometry_probe = r'''def geometry_snapshot(p,label,layout=False):
+    try:
+        data=p.locator('html').evaluate("""()=>{const rect=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {tag:e.tagName,id:e.id,className:String(e.className),text:e.textContent?.trim().slice(0,100),rect:r.toJSON(),display:s.display,visibility:s.visibility,position:s.position,zIndex:s.zIndex,pointerEvents:s.pointerEvents,overflowX:s.overflowX,minWidth:s.minWidth,width:s.width,font:s.font,disabled:e.disabled}};const vw=innerWidth,sw=document.documentElement.scrollWidth;const buttons=[...document.querySelectorAll('#dlg-options button,#btn-start')].map(e=>{const r=e.getBoundingClientRect();return {...rect(e),hit:r.width&&r.height?rect(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)||document.documentElement):null}});return {fits:sw<=vw,innerWidth:vw,scrollWidth:sw,clientWidth:document.documentElement.clientWidth,bodyWidth:document.body?.scrollWidth,readyState:document.readyState,fontStatus:document.fonts?.status,url:location.href,bodyClass:document.body?.className,titleReadiness:window.__productionTitleReadiness,night:!!window.S?.nightMode,inDialog:window.S?.inDialog,paused:window.S?.paused,buttons,dialogs:[...document.querySelectorAll('[role=dialog],dialog,#dialog,#dlg,#dlg-options')].map(rect),overflow:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.right>vw+.1||r.left<-.1)}).slice(0,80).map(rect)}}""",timeout=2000)
+        event('geometry-snapshot',label=label,state=data)
+        return data['fits']
+    except Exception as error:
+        event('geometry-unavailable',label=label,error=str(error))
+        if layout:raise
+
+'''
+once('def native_probe(p,label):',geometry_probe+'def native_probe(p,label):')
+once("    n.locator('#btn-start').click();n.locator('#dlg-options button').filter(has_text='Standard').first.click()", "    n.locator('#btn-start').click()\n    geometry_snapshot(n,'bootstrap-before-standard')\n    try:n.locator('#dlg-options button').filter(has_text='Standard').first.click()\n    except Exception:\n        geometry_snapshot(n,'bootstrap-standard-failure-before-screenshot')\n        raise\n    geometry_snapshot(n,'bootstrap-after-standard')")
+once("v.reload();assert v.evaluate('document.documentElement.scrollWidth<=innerWidth'),f'hub overflow {width}'", "v.reload();assert geometry_snapshot(v,'hub-width-'+str(width),layout=True),f'hub overflow {width}'")
+once(".click();assert v.evaluate('document.documentElement.scrollWidth<=innerWidth'),f'story overflow {width}'", ".click();assert geometry_snapshot(v,'story-width-'+str(width),layout=True),f'story overflow {width}'")
+once("        for label,p in pages:\n            if label.startswith('native'):native_probe(p,label+'-failure-before-screenshots')", "        for label,p in pages:\n            geometry_snapshot(p,label+'-case-failure-before-screenshots')\n            if label.startswith('native'):native_probe(p,label+'-failure-before-screenshots')")
+
 expanded=out/'diagnostic-executed-test.py';expanded.write_text(source)
 (out/'diagnostic-source-sha256.txt').write_text(hashlib.sha256(Path(__file__).read_bytes()).hexdigest()+'\n')
 if os.environ.get('DIAG_EXPAND_ONLY')!='1':runpy.run_path(str(expanded),run_name='__main__')
