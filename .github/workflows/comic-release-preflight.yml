@@ -1,0 +1,81 @@
+name: Comic release preflight
+on:
+  workflow_dispatch:
+    inputs:
+      volume:
+        description: "Volume label (e.g. XIV)"
+        required: true
+        default: "XIV"
+      expected_pages:
+        description: "Expected numbered web images; 0 skips count"
+        required: true
+        default: "133"
+      artwork_dir:
+        description: "Path within public/ holding numbered pages"
+        required: true
+        default: "comic/volume-xiv"
+      pdf_path:
+        description: "Path to the original PDF within public/"
+        required: true
+        default: "TechOps-Hero-Volume-XIV.pdf"
+  pull_request:
+    paths:
+      - "public/**"
+      - ".github/workflows/pages.yml"
+      - ".github/workflows/comic-release-preflight.yml"
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify inputs and asset completeness
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ARTWORK_DIR: ${{ inputs.artwork_dir }}
+          PDF_PATH: ${{ inputs.pdf_path }}
+          EXPECTED_PAGES: ${{ inputs.expected_pages }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, sys
+          root=pathlib.Path('public').resolve()
+          def safe(s):
+              p=(root / s).resolve()
+              if not p.is_relative_to(root): sys.exit('Unsafe path')
+              return p
+          folder=safe(os.environ['ARTWORK_DIR'])
+          pdf=safe(os.environ['PDF_PATH'])
+          expected=int(os.environ['EXPECTED_PAGES'])
+          images=[p for p in folder.rglob('*') if p.suffix.lower() in ('.jpg','.jpeg','.png','.webp')] if folder.is_dir() else []
+          print(f"Artwork files: {len(images)}; PDF exists: {pdf.is_file()}")
+          if expected and len(images)!=expected: sys.exit(f'Expected {expected} images; got {len(images)}')
+          if not pdf.is_file() or pdf.stat().st_size==0: sys.exit('Missing or empty original PDF')
+          PY
+      - name: Build and inspect Pages payload
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          python3 - <<'PY'
+          import pathlib,sys
+          root=pathlib.Path('dist')
+          size=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
+          mib=size/1024/1024
+          print(f'Deployment payload: {mib:.1f} MiB')
+          with open('release-preflight.txt','w') as f: f.write(f'Payload: {mib:.1f} MiB\n')
+          if size>950*1024*1024: sys.exit('Deployment exceeds 950 MiB safety budget; externalize older PDFs or artwork')
+          PY
+      - name: Store preflight receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comic-release-preflight
+          path: release-preflight.txt
+          if-no-files-found: ignore
