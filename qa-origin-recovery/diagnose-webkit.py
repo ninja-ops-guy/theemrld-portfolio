@@ -1,0 +1,41 @@
+"""Read-only observations around unchanged original or bounded QA movement.
+Application inputs remain immutable. This focused probe is not a full-suite PASS.
+"""
+from pathlib import Path
+import os,runpy,hashlib,json
+out=Path(os.environ['QA_OUTPUT']);out.mkdir(parents=True,exist_ok=True)
+os.environ['QA_EXPAND_ONLY']='1'
+runpy.run_path(str(Path(__file__).with_name('exact-recovery.py')),run_name='diagnostic_expand')
+source=(out/'exact-executed-test.py').read_text()
+def once(old,new):
+    global source
+    assert source.count(old)==1,'Diagnostic source drift: '+old[:100]
+    source=source.replace(old,new,1)
+start=source.index('def travel(n,i):')
+end=source.index('\ndef run(name,fn):',start)
+if os.environ.get('QA_MOVEMENT')=='original':
+    source=source[:start]+'''def travel(n,i):
+    target=[420,820,1220][i];n.keyboard.down('ArrowRight')
+    try:n.wait_for_function('(x)=>NM.x+NM.w/2>=x-60',arg=target,timeout=12000)
+    finally:n.keyboard.up('ArrowRight')
+    expect(n.get_by_role('button',name='Inspect objective',exact=True)).to_be_enabled(timeout=4000)
+    n.get_by_role('button',name='Inspect objective',exact=True).click()
+'''+source[end:]
+else:assert os.environ.get('QA_MOVEMENT')=='bounded'
+probe='''def native_probe(p,label):
+    try:
+        state=p.locator('body').evaluate("""()=>{let context,error;try{context=window.TechOpsLinked?.context()}catch(e){error=String(e)}const s=window.S,n=s?.nightMode,m=window.TechOpsLinked?.mission(),b=[...document.querySelectorAll('button')].find(b=>b.textContent==='Inspect objective');return {nightExists:!!n,nightIsNM:n===(typeof NM!=='undefined'?NM:null),x:n?.x,y:n?.y,w:n?.w,vx:n?.vx,vy:n?.vy,center:n?n.x+n.w/2:null,district:n?.district,drive:!!n?.drive,sector:!!n?._sector04,goodDogs:!!n?._v736,inBattle:!!s?.inBattle,inDialog:!!s?.inDialog,paused:!!s?.paused,active:n?window.TechOpsNightRuntime?.active(n):false,mission:m?{id:m.id,step:m.step,target:m.position?.[m.step],district:m.district,runId:m.runId,profileId:m.profileId}:null,identity:s?.meta?.seeWorldLink,health:window.TechOpsLinked?.health(),contextIdentity:context?{runId:context.runId,profileId:context.profileId}:null,contextError:error,objective:b?{disabled:b.disabled,rect:b.getBoundingClientRect().toJSON()}:null}}""",timeout=1500)
+        event('native-probe',label=label,state=state)
+    except Exception as e:event('native-probe-unavailable',label=label,error=str(e))
+
+'''
+once('def travel(n,i):',probe+"def travel(n,i):\n    native_probe(n,'before-movement-'+str(i))")
+once("    finally:n.keyboard.up('ArrowRight')", "    finally:\n        native_probe(n,'before-key-release-'+str(i))\n        n.keyboard.up('ArrowRight')\n        native_probe(n,'after-key-release-'+str(i))")
+if os.environ['QA_MOVEMENT']=='bounded':
+    once("    expect(control).to_be_enabled(timeout=4000)","    native_probe(n,'after-bounded-steps-'+str(i))\n    expect(control).to_be_enabled(timeout=4000)")
+once("        row.update(status='FAIL',error=str(error),traceback=traceback.format_exc());event('case-failure',error=str(error))", "        row.update(status='FAIL',error=str(error),traceback=traceback.format_exc());event('case-failure',error=str(error))\n        for label,p in pages:\n            if label=='native':native_probe(p,'failure-before-screenshots')")
+once("    contexts=[];pages=[];page_errors=[];observations={};row={'name':name};start=time.monotonic();case_name=name;phase='test';event('case-start')", "    if name!=os.environ['QA_CASE']:return\n    contexts=[];pages=[];page_errors=[];observations={};row={'name':name};start=time.monotonic();case_name=name;phase='test';event('case-start')")
+once("REPORT['browserVersion']=browser.version;", "REPORT['diagnosticOnly']=True;REPORT['movementVariant']=os.environ['QA_MOVEMENT'];REPORT['scope']='Focused native objective observation; one named case per process, not full recovery certification. Original assertions retained. Read-only probes can affect scheduling.';REPORT['browserVersion']=browser.version;")
+expanded=out/'diagnostic-executed-test.py';expanded.write_text(source)
+(out/'diagnostic-source-sha256.txt').write_text(hashlib.sha256(Path(__file__).read_bytes()).hexdigest()+'\n')
+if os.environ.get('DIAG_EXPAND_ONLY')!='1':runpy.run_path(str(expanded),run_name='__main__')

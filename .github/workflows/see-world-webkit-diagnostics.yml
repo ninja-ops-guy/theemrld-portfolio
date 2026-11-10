@@ -1,0 +1,105 @@
+name: See World WebKit Objective Diagnostics
+on:
+  pull_request:
+    paths:
+      - 'qa-origin-recovery/**'
+      - '.github/workflows/see-world-webkit-diagnostics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        movement: [original, bounded]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: harness
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: b9a0a85ee47b617ab4a72cba5f8bf7013016cea1
+          path: portfolio
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: 8d3ac165863857a4cf29a4aed6251b347fde0d2f
+          path: native
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 78bdb1a55d61cd1a9cf738da1f39ac9f8a4fd97c
+          path: qa-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record and enforce immutable inputs
+        run: |
+          mkdir -p results
+          for repo in portfolio native harness qa-source; do
+            git -C "$repo" rev-parse HEAD > "results/$repo-head.txt"
+            git -C "$repo" rev-parse HEAD^{tree} > "results/$repo-tree.txt"
+            git -C "$repo" status --porcelain > "results/$repo-status-before.txt"
+          done
+          test "$(cat results/portfolio-head.txt)" = b9a0a85ee47b617ab4a72cba5f8bf7013016cea1
+          test "$(cat results/native-head.txt)" = 8d3ac165863857a4cf29a4aed6251b347fde0d2f
+          test "$(cat results/qa-source-head.txt)" = 78bdb1a55d61cd1a9cf738da1f39ac9f8a4fd97c
+          test ! -s results/portfolio-status-before.txt
+          test ! -s results/native-status-before.txt
+          sha256sum harness/qa-origin-recovery/*.py > results/harness-source-sha256.txt
+          cd portfolio
+          TECHOPS_SOURCE=../native node --test scripts/see-world*.test.mjs > ../results/contracts.tap
+      - name: Install pinned browser
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps webkit
+      - name: Serve unchanged pair
+        run: |
+          mkdir web
+          ln -s "$PWD/native" web/techops-hero
+          ln -s "$PWD/portfolio/public" web/theemrld-portfolio
+          nohup python -m http.server 8765 --bind 127.0.0.1 --directory web > results/server.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/techops-hero/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Run four isolated diagnostic cases (not full recovery certification)
+        env:
+          QA_ENGINE: webkit
+          QA_MOVEMENT: ${{ matrix.movement }}
+          QA_BASE: http://127.0.0.1:8765
+          QA_OUTPUT: results/browser
+          QA_SOURCE: qa-source
+          PORTFOLIO_SOURCE: portfolio
+          PORTFOLIO_HEAD: b9a0a85ee47b617ab4a72cba5f8bf7013016cea1
+          NATIVE_HEAD: 8d3ac165863857a4cf29a4aed6251b347fde0d2f
+          HARNESS_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEBUG: pw:browser
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=15s 13m python harness/qa-origin-recovery/run-diagnostic-cases.py 2>&1 | tee results/runner.log
+      - name: Verify application trees stayed unchanged
+        if: always()
+        run: |
+          git -C portfolio status --porcelain > results/portfolio-status-after.txt
+          git -C native status --porcelain > results/native-status-after.txt
+          test ! -s results/portfolio-status-after.txt
+          test ! -s results/native-status-after.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webkit-objective-diagnostic-${{ matrix.movement }}
+          path: results/
+          retention-days: 14
+
