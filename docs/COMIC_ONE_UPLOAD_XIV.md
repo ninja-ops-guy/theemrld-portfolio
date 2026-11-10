@@ -5,9 +5,8 @@ The corrected 133-page PDF is already validated: 181,907,121 bytes; SHA-256 `97f
 ## Only manual transfer step
 
 1. Download `TechOps-Hero-XIV-GitHub-Import.zip` (279,556,589 bytes) from the prepared ChatGPT release kit.
-2. In this repository open **Releases → Draft a new release** (https://github.com/ninja-ops-guy/theemrld-portfolio/releases/new).
-3. Set **Tag** to exactly `techops-xiv-source-20261110`, title `TechOps Hero XIV source assets`, and check **Set as a pre-release**. Do not make it Latest.
-4. Attach that one ZIP as the release binary asset, wait for the browser to finish its upload, then **Publish release**.
+2. Open the automatically created **draft release** under **Releases** (https://github.com/ninja-ops-guy/theemrld-portfolio/releases), tagged `techops-xiv-source-20261110`. The `prepare-upload-slot` job creates it after this workflow merges to `main`. If absent, check that job before proceeding.
+3. Edit that draft release and attach the ZIP as its binary asset. Wait for upload to finish, then **Publish release** as a **pre-release**. Do not mark it Latest.
 
 The `Import verified Volume XIV assets` GitHub Actions workflow automatically runs on the release's **published** event. Alternatively, after uploading, run the same workflow manually from the Actions tab. It downloads the ZIP **inside GitHub**, verifies the pinned ZIP SHA-256 and size, checks the original PDF and 133 page images, and writes the assets to the existing `release/techops-volume-xiv-20261110` branch / PR #72. Wrong/missing bytes stop it before a commit. No private token, signed cloud-storage URL, or ChatGPT upload is required.
 
