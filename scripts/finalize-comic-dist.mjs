@@ -37,6 +37,15 @@ export async function retireEarlierComicAssets(distRoot) {
   }
   return removed;
 }
+export function validateBookPins(manifest, id) {
+    const book = manifest.books[id];
+    const mediaCommit = book.mediaCommit || manifest.mediaCommit;
+    const releaseTag = book.releaseTag || manifest.releaseTag;
+    if (!/^[a-f0-9]{40}$/.test(mediaCommit) || !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}$/.test(releaseTag)) throw new Error(`Invalid media pin: ${id}`);
+    if (book.pdfUrl !== `https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/${releaseTag}/${book.pdfFilename}`) throw new Error(`Unpinned PDF URL: ${id}`);
+    if (book.imageBase !== `https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/${mediaCommit}/${book.imagePath}`) throw new Error(`Unpinned image source: ${id}`);
+    return { mediaCommit, releaseTag };
+}
 export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   const manifest = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-current-editions.json'), 'utf8'));
   const labels = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-display-labels.json'), 'utf8'));
@@ -44,8 +53,7 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   for (const [id, count] of Object.entries(expected)) {
     const book = manifest.books[id];
     if (book?.pageCount !== count || !/^[a-f0-9]{64}$/.test(book.pdfSha256)) throw new Error(`Invalid current book: ${id}`);
-    if (!book.pdfUrl.startsWith(`https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/${manifest.releaseTag}/`)) throw new Error(`Unpinned PDF URL: ${id}`);
-    if (!book.imageBase.includes(`/${manifest.mediaCommit}/`)) throw new Error(`Unpinned image source: ${id}`);
+    validateBookPins(manifest, id);
   }
   const removed = await retireEarlierComicAssets(distRoot);
   const publication = {
@@ -54,7 +62,7 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
     sourceCommit: process.env.GITHUB_SHA || null,
     earlierEditionsPublic: false,
     imageCount: manifest.imageCount,
-    books: Object.entries(expected).map(([id]) => ({ id, ...labels[id], pageCount: manifest.books[id].pageCount, pdfUrl: manifest.books[id].pdfUrl, pdfSha256: manifest.books[id].pdfSha256 })),
+    books: Object.entries(expected).map(([id]) => ({ id, ...labels[id], pageCount: manifest.books[id].pageCount, pdfUrl: manifest.books[id].pdfUrl, pdfSha256: manifest.books[id].pdfSha256, pdfBytes: manifest.books[id].pdfBytes, mediaCommit: manifest.books[id].mediaCommit || manifest.mediaCommit, imageBase: manifest.books[id].imageBase, publisherRelease: manifest.books[id].publisherRelease || null, contentRevision: manifest.books[id].contentRevision || null })),
     removedAssetCount: removed.length,
     removedBytes: removed.reduce((sum, item) => sum + item.bytes, 0),
   };
@@ -66,3 +74,4 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   return publication;
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await finalizePublication();
+
