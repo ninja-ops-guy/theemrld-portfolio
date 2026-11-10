@@ -8,6 +8,8 @@ import tempfile
 REPOSITORY = 'ninja-ops-guy/theemrld-portfolio'
 TAG = 'techops-hero-pdf-archive-20261110'
 SOURCE = '558244a8fc55358fdaf816d3a384ae1cb8bed131'
+PREVIOUS_LATEST_ID = 436108024
+PREVIOUS_LATEST_TAG = 'techops-hero-r11-2'
 
 
 def gh(*args):
@@ -91,9 +93,21 @@ def main():
     target = json.loads(gh('api', f'repos/{REPOSITORY}/git/ref/tags/{TAG}'))
     if target['object']['type'] != 'commit' or target['object']['sha'] != SOURCE:
         raise ValueError('Published archive tag does not match approved source')
+    # Explicitly retain the release that was latest before this archive. An
+    # immediate GET after publishing can be stale even with --latest=false.
+    previous = json.loads(gh('api', f'repos/{REPOSITORY}/releases/{PREVIOUS_LATEST_ID}'))
+    if previous['tag_name'] != PREVIOUS_LATEST_TAG or previous['draft'] or previous['prerelease']:
+        raise ValueError('Previous latest release identity changed')
     latest = json.loads(gh('api', f'repos/{REPOSITORY}/releases/latest'))
-    if latest['tag_name'] == TAG:
-        raise ValueError('Historical archive must not be marked latest')
+    if latest['tag_name'] not in {TAG, PREVIOUS_LATEST_TAG}:
+        raise ValueError('A newer release exists; do not change its latest designation')
+    gh('api', '--method', 'PATCH', f'repos/{REPOSITORY}/releases/{final["id"]}',
+       '-f', 'make_latest=false')
+    gh('api', '--method', 'PATCH', f'repos/{REPOSITORY}/releases/{PREVIOUS_LATEST_ID}',
+       '-f', 'make_latest=true')
+    latest = json.loads(gh('api', f'repos/{REPOSITORY}/releases/latest'))
+    if latest['tag_name'] != PREVIOUS_LATEST_TAG:
+        raise ValueError('Previous latest release was not preserved')
     print('Published and verified exact historical PDFs:', final['html_url'])
     for asset in final['assets']:
         print(asset['name'], asset['size'], asset['browser_download_url'])
