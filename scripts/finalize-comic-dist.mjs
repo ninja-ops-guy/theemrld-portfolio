@@ -3,6 +3,30 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
+const REPOSITORY = 'ninja-ops-guy/theemrld-portfolio';
+const CURRENT_COUNTS = { g: 316, 'xiii-r': 49, xiv: 133 };
+
+/** Each independently revised book retains an exact immutable media/PDF source. */
+export function validateCurrentBookSources(manifest) {
+  const sources = {};
+  for (const [id, count] of Object.entries(CURRENT_COUNTS)) {
+    const book = manifest.books?.[id];
+    if (book?.pageCount !== count || !/^[a-f0-9]{64}$/.test(book.pdfSha256)) throw new Error(`Invalid current book: ${id}`);
+    const mediaCommit = Object.hasOwn(book, 'mediaCommit') ? book.mediaCommit : manifest.mediaCommit;
+    const releaseTag = Object.hasOwn(book, 'releaseTag') ? book.releaseTag : manifest.releaseTag;
+    if (typeof mediaCommit !== 'string' || !/^[a-f0-9]{40}$/.test(mediaCommit)) throw new Error(`Invalid media commit: ${id}`);
+    if (typeof releaseTag !== 'string' || !/^[a-z0-9][a-z0-9._-]*$/.test(releaseTag)) throw new Error(`Invalid PDF release tag: ${id}`);
+    if (typeof book.imagePath !== 'string' || !/^techops-comic\/[a-z0-9-]+\/$/.test(book.imagePath)) throw new Error(`Invalid image path: ${id}`);
+    if (typeof book.pdfFilename !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]*\.pdf$/.test(book.pdfFilename)) throw new Error(`Invalid PDF filename: ${id}`);
+    const pdfUrl = `https://github.com/${REPOSITORY}/releases/download/${releaseTag}/${book.pdfFilename}`;
+    const imageBase = `https://raw.githubusercontent.com/${REPOSITORY}/${mediaCommit}/${book.imagePath}`;
+    if (book.pdfUrl !== pdfUrl) throw new Error(`Unpinned PDF URL: ${id}`);
+    if (book.imageBase !== imageBase) throw new Error(`Unpinned image source: ${id}`);
+    sources[id] = { mediaCommit, releaseTag };
+  }
+  return sources;
+}
+
 export function isRetiredComicAsset(relative) {
   const name = relative.replaceAll('\\', '/');
   return /^(revision-f|volume-xiii)\//.test(name)
@@ -40,13 +64,7 @@ export async function retireEarlierComicAssets(distRoot) {
 export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   const manifest = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-current-editions.json'), 'utf8'));
   const labels = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-display-labels.json'), 'utf8'));
-  const expected = { g: 316, 'xiii-r': 49, xiv: 133 };
-  for (const [id, count] of Object.entries(expected)) {
-    const book = manifest.books[id];
-    if (book?.pageCount !== count || !/^[a-f0-9]{64}$/.test(book.pdfSha256)) throw new Error(`Invalid current book: ${id}`);
-    if (!book.pdfUrl.startsWith(`https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/${manifest.releaseTag}/`)) throw new Error(`Unpinned PDF URL: ${id}`);
-    if (!book.imageBase.includes(`/${manifest.mediaCommit}/`)) throw new Error(`Unpinned image source: ${id}`);
-  }
+  const sources = validateCurrentBookSources(manifest);
   const removed = await retireEarlierComicAssets(distRoot);
   const publication = {
     schemaVersion: 1,
@@ -54,7 +72,7 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
     sourceCommit: process.env.GITHUB_SHA || null,
     earlierEditionsPublic: false,
     imageCount: manifest.imageCount,
-    books: Object.entries(expected).map(([id]) => ({ id, ...labels[id], pageCount: manifest.books[id].pageCount, pdfUrl: manifest.books[id].pdfUrl, pdfSha256: manifest.books[id].pdfSha256 })),
+    books: Object.keys(CURRENT_COUNTS).map(id => ({ id, ...labels[id], pageCount: manifest.books[id].pageCount, pdfUrl: manifest.books[id].pdfUrl, pdfSha256: manifest.books[id].pdfSha256, pdfBytes: manifest.books[id].pdfBytes, imageBase: manifest.books[id].imageBase, ...sources[id], contentRevision: manifest.books[id].contentRevision || manifest.books[id].revision })),
     removedAssetCount: removed.length,
     removedBytes: removed.reduce((sum, item) => sum + item.bytes, 0),
   };
@@ -66,3 +84,4 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   return publication;
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await finalizePublication();
+
