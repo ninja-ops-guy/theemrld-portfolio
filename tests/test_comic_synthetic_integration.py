@@ -1,8 +1,9 @@
 """Network-free publisher integration: real CLIs, ZIP verification and local Git.
 
 Run: python3 -m unittest discover -s tests -p 'test_comic_synthetic_integration.py' -v
-Only the GitHub API/asset transport is fake. Git network verbs are redirected to a
-fresh local bare repository; no credentials or external remotes are contacted.
+Only the GitHub API/asset transport is fake. Git fetch/push are redirected to a
+fresh local bare repository; all non-file Git transports are disabled for every
+verb, so new/unexpected commands cannot contact external remotes.
 """
 import base64
 import hashlib
@@ -129,7 +130,7 @@ class SyntheticIntegrationTests(unittest.TestCase):
             k.startswith(('GH_', 'GITHUB_', 'GIT_')) or k in ('SSH_AUTH_SOCK',))}
         home = self.root / 'home'; home.mkdir()
         self.env.update(HOME=str(home), GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull,
-                        GIT_TERMINAL_PROMPT='0', GIT_NO_REPLACE_OBJECTS='1',
+                        GIT_TERMINAL_PROMPT='0', GIT_NO_REPLACE_OBJECTS='1', GIT_ALLOW_PROTOCOL='file',
                         GIT_AUTHOR_NAME='Synthetic Test', GIT_AUTHOR_EMAIL='synthetic@example.invalid',
                         GIT_COMMITTER_NAME='Synthetic Test', GIT_COMMITTER_EMAIL='synthetic@example.invalid',
                         SYNTHETIC_ROOT=str(self.root), SYNTHETIC_REAL_GIT=self.real_git)
@@ -208,6 +209,18 @@ class SyntheticIntegrationTests(unittest.TestCase):
     def prepare_source(self):
         self.upload('--stage', '--request-id', 'synthetic-stage')
         self.update_state(pr_reads=0)
+
+    def test_unexpected_git_verb_cannot_use_https_transport(self):
+        # ls-remote is deliberately not rewritten by the shim. Git must reject
+        # HTTPS before starting a transport, even for a newly introduced verb.
+        before = self.state()
+        result = sh(['git', 'ls-remote', 'origin'], cwd=self.candidate,
+                    env=self.env, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("transport 'https' not allowed", result.stderr)
+        self.assertEqual(result.stdout, '')
+        self.assertEqual(self.state(), before)
+        self.assertEqual(self.ref('main'), self.original)
 
     def test_real_upload_stage_qualification_and_deployment_recovery(self):
         self.upload(); self.upload()

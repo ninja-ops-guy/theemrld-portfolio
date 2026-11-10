@@ -1,6 +1,8 @@
 import importlib.util
+import io
 from pathlib import Path
 import unittest
+from urllib.error import HTTPError
 
 spec = importlib.util.spec_from_file_location('retirement', Path(__file__).resolve().parents[1] / 'scripts/check-comic-retirement.py')
 retirement = importlib.util.module_from_spec(spec)
@@ -8,6 +10,16 @@ spec.loader.exec_module(retirement)
 
 
 class RetirementTests(unittest.TestCase):
+    def test_error_body_timeout_is_retryable_transport_failure(self):
+        class SlowBody(io.BytesIO):
+            def read(self, *_args):
+                raise TimeoutError('Synthetic slow error body')
+        def opener(request, **_kwargs):
+            raise HTTPError(request.full_url, 503, 'Unavailable', {}, SlowBody())
+        result = retirement.probe('https://example.test/old.pdf', opener=opener)
+        self.assertIsNone(result['status'])
+        self.assertIn('TimeoutError', result['error'])
+
     def check(self, statuses, *, redirect=False):
         self.calls = []
         self.delays = []
@@ -51,6 +63,16 @@ class RetirementTests(unittest.TestCase):
 
     def test_redirected_missing_page_is_not_proof(self):
         self.assertEqual(self.check([404], redirect=True)['result'], 'UNVERIFIED_REDIRECT')
+
+    def test_pages_and_collection_acceptance_use_same_strict_verifier(self):
+        root = Path(__file__).resolve().parents[1]
+        pages = (root / '.github/workflows/pages.yml').read_text()
+        browser = (root / 'tests/comic-final-browser.py').read_text()
+        self.assertIn('path: scripts/check-comic-retirement.py', pages)
+        self.assertIn('python3 retirement-verifier/check-comic-retirement.py --url "$SITE_URL" --commit "$GITHUB_SHA" --receipt comic-retirement-receipt.json', pages)
+        self.assertIn('retirement.check_retirement(BASE, EXPECTED_COMMIT', browser)
+        self.assertIn("if retirement_receipt['result'] != 'PASS':", browser)
+        self.assertNotIn('Retired asset still public:', pages)
 
     def test_all_paths_are_examined_even_after_one_failure(self):
         seen = []

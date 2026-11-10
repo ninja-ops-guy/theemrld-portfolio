@@ -26,6 +26,12 @@ jobs:
           set -euo pipefail
           expected="$(git ls-remote origin refs/heads/main | cut -f1)"
           [[ "$expected" =~ ^[a-f0-9]{40}$ ]]
+          git fetch --no-tags --depth=1 origin "$expected"
+          # Run the candidate verifier against the contract at the pinned live SHA,
+          # not against potentially different artwork/catalogue data in this PR.
+          for source in src/data/comic-current-editions.json src/data/comic-display-labels.json; do
+            git show "$expected:$source" > "$source"
+          done
           echo "COMIC_EXPECTED_COMMIT=$expected" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v5
         with:

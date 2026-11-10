@@ -20,16 +20,15 @@ RETRYABLE = {408, 429, 500, 502, 503, 504}
 def probe(url, opener=urlopen):
     request = Request(url, headers={'User-Agent': 'TechOps-Retirement-Check/1.0'})
     try:
-        with opener(request, timeout=15) as response:
+        try:
+            response = opener(request, timeout=15)
+        except HTTPError as failure:
+            response = failure
+        with response:
             # Bound body reads: never download a possibly superseded PDF.
             return {'status': response.status, 'url': response.geturl(),
                     'content_type': response.headers.get('Content-Type', ''),
                     'prefix': response.read(160).decode('utf-8', errors='replace')}
-    except HTTPError as error:
-        with error:
-            return {'status': error.code, 'url': error.geturl(),
-                    'content_type': error.headers.get('Content-Type', ''),
-                    'prefix': error.read(160).decode('utf-8', errors='replace')}
     except (URLError, TimeoutError, OSError) as error:
         return {'status': None, 'url': url, 'error': type(error).__name__ + ': ' + str(error)}
 
