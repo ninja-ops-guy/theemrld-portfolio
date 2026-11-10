@@ -31,12 +31,12 @@ try:
         report['native_provenance']['files'].append({'path':filename,'sha256':actual,'matched':True})
     with sync_playwright() as pw:
         b=pw.chromium.launch(headless=True);c=b.new_context(viewport={'width':390,'height':844})
-        def safe(route):
+        def safe(route, candidate=True):
             request=route.request
             parsed=urlsplit(request.url)
             if parsed.scheme!='https' or parsed.netloc not in ['ninja-ops-guy.github.io','kterminal.site'] or request.method not in ['GET','HEAD']:
                 route.abort();return
-            if CANDIDATE and parsed.netloc=='kterminal.site':
+            if candidate and CANDIDATE and parsed.netloc=='kterminal.site':
                 target=(CANDIDATE/parsed.path.lstrip('/')).resolve()
                 if target.is_dir():target=target/'index.html'
                 assert target.is_relative_to(CANDIDATE),'Candidate path escape'
@@ -46,8 +46,8 @@ try:
                 route.fulfill(status=200,body=target.read_bytes(),content_type=kind);return
             route.continue_()
         c.route('**/*',safe)
-        def page(label):
-            q=c.new_page();q.on('pageerror',lambda e:report['page_errors'].append(label+': '+str(e)));return q
+        def page(label, context=c):
+            q=context.new_page();q.on('pageerror',lambda e:report['page_errors'].append(label+': '+str(e)));return q
         p=page('hub')
         p.goto(BASE+'/#/links');p.locator('.media-hub').wait_for()
         assert p.evaluate('document.documentElement.scrollWidth<=innerWidth')
@@ -87,11 +87,14 @@ try:
         shortcut.wait_for_function('window.__productionTitleReadiness?.ready===true',timeout=120000)
         assert shortcut.evaluate("Object.keys(localStorage).every(k=>['techops_settings','setItem','getItem'].includes(k)) && typeof localStorage.setItem==='function' && typeof localStorage.getItem==='function'"),'Native shortcut has unexpected storage or non-callable storage API'
         shortcut.close()
-        legacy=page('legacy');legacy.goto(LEGACY+'#/links');legacy.locator('.media-hub').wait_for()
+        # Live legacy redirect proof is isolated from candidate asset interception.
+        live=c.browser.new_context(viewport={'width':390,'height':844})
+        live.route('**/*',lambda route:safe(route,candidate=False))
+        legacy=page('live-legacy',live);legacy.goto(LEGACY+'#/links');legacy.locator('.media-hub').wait_for()
         assert legacy.url==BASE+'/#/links'
         assert legacy.evaluate('Object.keys(localStorage).length')==0
-        legacy.close()
-        report['passed'].append('Legacy hub redirect and custom game bookmark preserve intended navigation')
+        legacy.close();live.close()
+        report['passed'].append('LIVE legacy hub redirects to live canonical hub with empty storage; CANDIDATE custom game bookmark preserves query/hash and reaches ready native game')
         p.screenshot(path=str(OUT/'live-media-mobile.png'),full_page=True)
         report['passed'].append('Public media hub and main-game route at 390px')
         p.locator('a[href="#/see-world"]').click();f=p.frame_locator('iframe[title="See World — interactive stories"]')
