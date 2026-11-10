@@ -56,6 +56,25 @@ try:
         game.wait_for_function('window.__productionTitleReadiness?.ready===true',timeout=120000)
         expect(game.locator('#btn-start')).to_be_enabled()
         assert game.url==GAME
+        # Aggregate classification only in this disposable context: no storage names or values exported.
+        report['native_title_storage_categories']=game.evaluate("""() => {
+            const groups = {
+                settings: ['techops_settings'],
+                audio_preference: ['techops_hero_day_audio_v1'],
+                character_choice: ['techops_char'],
+                primary_progress: ['techops_save','techops_day_checkpoint_v1','techops_nightcrawler_session_v1','techops_good_dogs_session_v1'],
+                campaign_progress: ['techops_hero_campaign_v1']
+            };
+            const keys = Object.keys(localStorage);
+            const known = new Set(Object.values(groups).flat());
+            const linked = k => k.startsWith('techops:linked:');
+            return {
+                ...Object.fromEntries(Object.entries(groups).map(([category, names]) => [category, names.some(k => keys.includes(k))])),
+                linked_progress_present: keys.some(linked),
+                unknown_count: keys.filter(k => !known.has(k) && !linked(k)).length,
+                total_count: keys.length
+            };
+        }""")
         assert game.evaluate("Object.keys(localStorage).every(k=>k==='techops_settings')"),'Native title wrote a non-preference key'
         game.close()
         report['passed'].append('Actual game link reaches ready original-origin game; only documented techops_settings startup preference allowed')
