@@ -98,7 +98,7 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
   const addCue = (event: FormEvent) => {
     event.preventDefault();
     try {
-      if (!Object.hasOwn(displayLabels, form.edition)) throw Error('Choose a current book before adding a cue.');
+      if (!Object.prototype.hasOwnProperty.call(displayLabels, form.edition)) throw Error('Choose a current book before adding a cue.');
       if (score.editions[form.edition] && score.editions[form.edition] !== GUIDED_EDITIONS[form.edition].revision) {
         throw Error('This draft uses an older edition. Review the existing page ranges and update its revision stamp in JSON before adding cues.');
       }
@@ -114,7 +114,7 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
   };
 
   const edit = (cue: GuidedCue) => {
-    if (!Object.hasOwn(displayLabels, cue.edition)) {
+    if (!Object.prototype.hasOwnProperty.call(displayLabels, cue.edition)) {
       setError('This cue belongs to a retired book. It is preserved for export, but must be recreated for a current book after reviewing its page placement.');
       return;
     }
