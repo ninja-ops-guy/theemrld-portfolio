@@ -1,0 +1,924 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-11-10",
+  "releaseTag": "techops-corrected-20261110-c18407af-97f16edf",
+  "releaseUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/tag/techops-corrected-20261110-c18407af-97f16edf",
+  "mediaCommit": "aa8c132035a46e73fb47ee14e05e371909799d64",
+  "imageCount": 498,
+  "originalPdfsUnchanged": true,
+  "books": {
+    "g": {
+      "id": "g",
+      "label": "Revision G · Volumes I–XII",
+      "title": "The corrected collection",
+      "pageCount": 316,
+      "revision": "corrected-c18407af88e9",
+      "pdfFilename": "TechOps-Hero-Revision-G-Complete.pdf",
+      "pdfSha256": "c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b",
+      "pdfBytes": 336208773,
+      "imagePath": "techops-comic/revision-g/",
+      "width": 2160,
+      "height": 3240,
+      "sections": [
+        {
+          "start": 1,
+          "end": 2,
+          "label": "Guide",
+          "title": "Collection index and reader key",
+          "kind": "guide"
+        },
+        {
+          "start": 3,
+          "label": "Vol. I",
+          "title": "Engineering the Human Connection",
+          "kind": "volume",
+          "end": 51
+        },
+        {
+          "start": 52,
+          "label": "Vol. II",
+          "title": "The Vessel",
+          "kind": "volume",
+          "end": 86
+        },
+        {
+          "start": 87,
+          "label": "Interlude",
+          "title": "Iona · The World He Left Running",
+          "kind": "volume",
+          "end": 141
+        },
+        {
+          "start": 142,
+          "label": "Vol. III",
+          "title": "The Return Signal",
+          "kind": "volume",
+          "end": 164
+        },
+        {
+          "start": 165,
+          "label": "Vol. IV",
+          "title": "The False Bearing",
+          "kind": "volume",
+          "end": 174
+        },
+        {
+          "start": 175,
+          "label": "Vol. V",
+          "title": "The House That Didn’t Ask",
+          "kind": "volume",
+          "end": 218
+        },
+        {
+          "start": 219,
+          "label": "Guide",
+          "title": "Later collection index",
+          "kind": "guide",
+          "end": 219
+        },
+        {
+          "start": 220,
+          "label": "Vol. VI",
+          "title": "The Stolen Teaching",
+          "kind": "volume",
+          "end": 232
+        },
+        {
+          "start": 233,
+          "label": "Vol. VII",
+          "title": "The Wanting Mind",
+          "kind": "volume",
+          "end": 245
+        },
+        {
+          "start": 246,
+          "label": "Vol. VIII",
+          "title": "The Better Prison",
+          "kind": "volume",
+          "end": 258
+        },
+        {
+          "start": 259,
+          "label": "Vol. IX",
+          "title": "The Name Before",
+          "kind": "volume",
+          "end": 271
+        },
+        {
+          "start": 272,
+          "label": "Vol. X",
+          "title": "Evan's K",
+          "kind": "volume",
+          "end": 287
+        },
+        {
+          "start": 288,
+          "label": "Continuation",
+          "title": "Volumes XI–XII · Reader note",
+          "kind": "guide",
+          "end": 289
+        },
+        {
+          "start": 290,
+          "label": "Vol. XI",
+          "title": "The Room He Returns To",
+          "kind": "volume",
+          "end": 302
+        },
+        {
+          "start": 303,
+          "label": "Vol. XII",
+          "title": "What He Stays For",
+          "kind": "volume",
+          "end": 316
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Full collection index"
+        },
+        {
+          "page": 2,
+          "title": "Reader key"
+        },
+        {
+          "page": 3,
+          "title": "Volume I / Engineering the Human Connection"
+        },
+        {
+          "page": 21,
+          "title": "The Way In / restored arrival"
+        },
+        {
+          "page": 22,
+          "title": "Sector 4 crash"
+        },
+        {
+          "page": 23,
+          "title": "Found by the Dogs / Cell 118 then Cell 1984"
+        },
+        {
+          "page": 24,
+          "title": "Through the vents"
+        },
+        {
+          "page": 34,
+          "title": "Waldo / Before the knock"
+        },
+        {
+          "page": 52,
+          "title": "Volume II / The Vessel"
+        },
+        {
+          "page": 87,
+          "title": "Iona / The World He Left Running / After Volume II"
+        },
+        {
+          "page": 142,
+          "title": "Volume III / The Return Signal"
+        },
+        {
+          "page": 149,
+          "title": "Iona / The archive choice"
+        },
+        {
+          "page": 165,
+          "title": "Volume IV / The False Bearing"
+        },
+        {
+          "page": 175,
+          "title": "Volume V / The House That Didn’t Ask"
+        },
+        {
+          "page": 219,
+          "title": "Later collection index"
+        },
+        {
+          "page": 220,
+          "title": "Volume VI / The Stolen Teaching"
+        },
+        {
+          "page": 233,
+          "title": "Volume VII / The Wanting Mind"
+        },
+        {
+          "page": 246,
+          "title": "Volume VIII / The Better Prison"
+        },
+        {
+          "page": 259,
+          "title": "Volume IX / The Name Before"
+        },
+        {
+          "page": 272,
+          "title": "Volume X / Evan's K"
+        },
+        {
+          "page": 288,
+          "title": "XI-XII continuation cover and reader note"
+        },
+        {
+          "page": 290,
+          "title": "Volume XI / The Room He Returns To / continuation"
+        },
+        {
+          "page": 291,
+          "title": "Chapter 21"
+        },
+        {
+          "page": 294,
+          "title": "Chapter 22"
+        },
+        {
+          "page": 297,
+          "title": "Chapter 23"
+        },
+        {
+          "page": 300,
+          "title": "Chapter 24"
+        },
+        {
+          "page": 303,
+          "title": "Volume XII / What He Stays For"
+        },
+        {
+          "page": 304,
+          "title": "Chapter 25"
+        },
+        {
+          "page": 307,
+          "title": "Chapter 26"
+        },
+        {
+          "page": 310,
+          "title": "Chapter 27"
+        },
+        {
+          "page": 313,
+          "title": "Chapter 28"
+        }
+      ],
+      "links": {
+        "1": [
+          {
+            "page": 3,
+            "rect": [
+              5.324074074074074,
+              17.901234567901234,
+              94.21296296296296,
+              22.376543209876544
+            ]
+          },
+          {
+            "page": 52,
+            "rect": [
+              5.324074074074074,
+              22.685185185185187,
+              94.21296296296296,
+              27.160493827160494
+            ]
+          },
+          {
+            "page": 87,
+            "rect": [
+              5.324074074074074,
+              27.469135802469136,
+              94.21296296296296,
+              31.944444444444443
+            ]
+          },
+          {
+            "page": 142,
+            "rect": [
+              5.324074074074074,
+              32.25308641975309,
+              94.21296296296296,
+              36.72839506172839
+            ]
+          },
+          {
+            "page": 165,
+            "rect": [
+              5.324074074074074,
+              37.03703703703704,
+              94.21296296296296,
+              41.51234567901235
+            ]
+          },
+          {
+            "page": 175,
+            "rect": [
+              5.324074074074074,
+              41.82098765432099,
+              94.21296296296296,
+              46.2962962962963
+            ]
+          },
+          {
+            "page": 220,
+            "rect": [
+              5.324074074074074,
+              46.60493827160494,
+              94.21296296296296,
+              51.08024691358025
+            ]
+          },
+          {
+            "page": 233,
+            "rect": [
+              5.324074074074074,
+              51.388888888888886,
+              94.21296296296296,
+              55.864197530864196
+            ]
+          },
+          {
+            "page": 246,
+            "rect": [
+              5.324074074074074,
+              56.17283950617284,
+              94.21296296296296,
+              60.648148148148145
+            ]
+          },
+          {
+            "page": 259,
+            "rect": [
+              5.324074074074074,
+              60.95679012345679,
+              94.21296296296296,
+              65.4320987654321
+            ]
+          },
+          {
+            "page": 272,
+            "rect": [
+              5.324074074074074,
+              65.74074074074075,
+              94.21296296296296,
+              70.21604938271605
+            ]
+          },
+          {
+            "page": 290,
+            "rect": [
+              5.324074074074074,
+              70.5246913580247,
+              94.21296296296296,
+              75.0
+            ]
+          },
+          {
+            "page": 303,
+            "rect": [
+              5.324074074074074,
+              75.30864197530865,
+              94.21296296296296,
+              79.78395061728395
+            ]
+          }
+        ],
+        "2": [
+          {
+            "page": 3,
+            "rect": [
+              6.481481481481482,
+              18.82716049382716,
+              49.074074074074076,
+              26.080246913580247
+            ]
+          },
+          {
+            "page": 52,
+            "rect": [
+              50.925925925925924,
+              18.82716049382716,
+              93.51851851851852,
+              26.080246913580247
+            ]
+          },
+          {
+            "page": 87,
+            "rect": [
+              6.481481481481482,
+              27.314814814814813,
+              49.074074074074076,
+              34.5679012345679
+            ]
+          },
+          {
+            "page": 142,
+            "rect": [
+              50.925925925925924,
+              27.314814814814813,
+              93.51851851851852,
+              34.5679012345679
+            ]
+          },
+          {
+            "page": 165,
+            "rect": [
+              6.481481481481482,
+              35.80246913580247,
+              49.074074074074076,
+              43.05555555555556
+            ]
+          },
+          {
+            "page": 175,
+            "rect": [
+              50.925925925925924,
+              35.80246913580247,
+              93.51851851851852,
+              43.05555555555556
+            ]
+          },
+          {
+            "page": 1,
+            "rect": [
+              6.481481481481482,
+              44.29012345679013,
+              49.074074074074076,
+              51.54320987654321
+            ]
+          }
+        ],
+        "5": [
+          {
+            "page": 6,
+            "rect": [
+              5.787037037037037,
+              21.604938271604937,
+              93.75,
+              24.691358024691358
+            ]
+          },
+          {
+            "page": 9,
+            "rect": [
+              5.787037037037037,
+              25.771604938271604,
+              93.75,
+              28.858024691358025
+            ]
+          },
+          {
+            "page": 14,
+            "rect": [
+              5.787037037037037,
+              29.938271604938272,
+              93.75,
+              33.02469135802469
+            ]
+          },
+          {
+            "page": 18,
+            "rect": [
+              5.787037037037037,
+              34.10493827160494,
+              93.75,
+              37.19135802469136
+            ]
+          },
+          {
+            "page": 19,
+            "rect": [
+              5.787037037037037,
+              38.27160493827161,
+              93.75,
+              41.358024691358025
+            ]
+          },
+          {
+            "page": 21,
+            "rect": [
+              5.787037037037037,
+              42.43827160493827,
+              93.75,
+              45.52469135802469
+            ]
+          },
+          {
+            "page": 25,
+            "rect": [
+              5.787037037037037,
+              46.60493827160494,
+              93.75,
+              49.69135802469136
+            ]
+          },
+          {
+            "page": 28,
+            "rect": [
+              5.787037037037037,
+              50.77160493827161,
+              93.75,
+              53.858024691358025
+            ]
+          },
+          {
+            "page": 31,
+            "rect": [
+              5.787037037037037,
+              54.93827160493827,
+              93.75,
+              58.02469135802469
+            ]
+          },
+          {
+            "page": 35,
+            "rect": [
+              5.787037037037037,
+              59.10493827160494,
+              93.75,
+              62.19135802469136
+            ]
+          },
+          {
+            "page": 38,
+            "rect": [
+              5.787037037037037,
+              63.27160493827161,
+              93.75,
+              66.35802469135803
+            ]
+          },
+          {
+            "page": 43,
+            "rect": [
+              5.787037037037037,
+              67.43827160493827,
+              93.75,
+              70.5246913580247
+            ]
+          },
+          {
+            "page": 44,
+            "rect": [
+              5.787037037037037,
+              71.60493827160494,
+              93.75,
+              74.69135802469135
+            ]
+          },
+          {
+            "page": 46,
+            "rect": [
+              5.787037037037037,
+              75.77160493827161,
+              93.75,
+              78.85802469135803
+            ]
+          },
+          {
+            "page": 48,
+            "rect": [
+              5.787037037037037,
+              79.93827160493827,
+              93.75,
+              83.0246913580247
+            ]
+          },
+          {
+            "page": 50,
+            "rect": [
+              5.787037037037037,
+              84.10493827160494,
+              93.75,
+              87.19135802469135
+            ]
+          }
+        ],
+        "86": [
+          {
+            "page": 87,
+            "rect": [
+              18.51851851851852,
+              95.67901234567901,
+              81.48148148148148,
+              99.07407407407408
+            ]
+          }
+        ],
+        "141": [
+          {
+            "page": 142,
+            "rect": [
+              2.5462962962962963,
+              96.91358024691358,
+              86.3425925925926,
+              99.53703703703704
+            ]
+          }
+        ],
+        "214": [
+          {
+            "page": 220,
+            "rect": [
+              5.324074074074074,
+              87.5,
+              50.46296296296296,
+              95.06172839506173
+            ]
+          }
+        ],
+        "219": [
+          {
+            "page": 220,
+            "rect": [
+              6.481481481481482,
+              19.753086419753085,
+              49.074074074074076,
+              27.006172839506174
+            ]
+          },
+          {
+            "page": 233,
+            "rect": [
+              50.925925925925924,
+              19.753086419753085,
+              93.51851851851852,
+              27.006172839506174
+            ]
+          },
+          {
+            "page": 246,
+            "rect": [
+              6.481481481481482,
+              28.549382716049383,
+              49.074074074074076,
+              35.80246913580247
+            ]
+          },
+          {
+            "page": 259,
+            "rect": [
+              50.925925925925924,
+              28.549382716049383,
+              93.51851851851852,
+              35.80246913580247
+            ]
+          },
+          {
+            "page": 272,
+            "rect": [
+              6.481481481481482,
+              37.34567901234568,
+              49.074074074074076,
+              44.598765432098766
+            ]
+          },
+          {
+            "page": 1,
+            "rect": [
+              50.925925925925924,
+              37.34567901234568,
+              93.51851851851852,
+              44.598765432098766
+            ]
+          }
+        ],
+        "289": [
+          {
+            "page": 290,
+            "rect": [
+              5.787037037037037,
+              21.91358024691358,
+              93.75,
+              33.02469135802469
+            ]
+          },
+          {
+            "page": 303,
+            "rect": [
+              5.787037037037037,
+              39.660493827160494,
+              93.75,
+              50.77160493827161
+            ]
+          }
+        ]
+      },
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/aa8c132035a46e73fb47ee14e05e371909799d64/techops-comic/revision-g/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-corrected-20261110-c18407af-97f16edf/TechOps-Hero-Revision-G-Complete.pdf"
+    },
+    "xiii-r": {
+      "id": "xiii-r",
+      "label": "Volume XIII · Revised",
+      "title": "The Last Launch",
+      "pageCount": 49,
+      "revision": "corrected-85c2fbd8c80b",
+      "pdfFilename": "TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf",
+      "pdfSha256": "85c2fbd8c80b8704c884cdfe2f1771f2bbd856bbfaabde57ca855112c4580637",
+      "pdfBytes": 65854157,
+      "imagePath": "techops-comic/volume-xiii-revised/",
+      "width": 2160,
+      "height": 3240,
+      "sections": [
+        {
+          "start": 1,
+          "end": 49,
+          "label": "Vol. XIII",
+          "title": "The Last Launch",
+          "kind": "volume"
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Volume XIII / The Last Launch"
+        },
+        {
+          "page": 2,
+          "title": "Volume XIII contents"
+        },
+        {
+          "page": 3,
+          "title": "29 / The count after"
+        },
+        {
+          "page": 7,
+          "title": "30 / What the station held"
+        },
+        {
+          "page": 11,
+          "title": "31 / The route they left"
+        },
+        {
+          "page": 29,
+          "title": "32 / What survived the file"
+        },
+        {
+          "page": 33,
+          "title": "33 / A table for four"
+        },
+        {
+          "page": 41,
+          "title": "34 / The names we carry"
+        },
+        {
+          "page": 49,
+          "title": "Volume XIII / To be continued"
+        }
+      ],
+      "links": {
+        "2": [
+          {
+            "page": 3,
+            "rect": [
+              5.787037037037037,
+              23.30246913580247,
+              94.21296296296296,
+              29.166666666666668
+            ]
+          },
+          {
+            "page": 7,
+            "rect": [
+              5.787037037037037,
+              31.635802469135804,
+              94.21296296296296,
+              37.5
+            ]
+          },
+          {
+            "page": 11,
+            "rect": [
+              5.787037037037037,
+              39.96913580246913,
+              94.21296296296296,
+              45.833333333333336
+            ]
+          },
+          {
+            "page": 29,
+            "rect": [
+              5.787037037037037,
+              48.30246913580247,
+              94.21296296296296,
+              54.166666666666664
+            ]
+          },
+          {
+            "page": 33,
+            "rect": [
+              5.787037037037037,
+              56.635802469135804,
+              94.21296296296296,
+              62.5
+            ]
+          },
+          {
+            "page": 41,
+            "rect": [
+              5.787037037037037,
+              64.96913580246914,
+              94.21296296296296,
+              70.83333333333333
+            ]
+          }
+        ]
+      },
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/aa8c132035a46e73fb47ee14e05e371909799d64/techops-comic/volume-xiii-revised/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-corrected-20261110-c18407af-97f16edf/TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf"
+    },
+    "xiv": {
+      "id": "xiv",
+      "label": "Volume XIV",
+      "title": "The System Is Healthy",
+      "pageCount": 133,
+      "revision": "corrected-97f16edf9df0",
+      "pdfFilename": "TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf",
+      "pdfSha256": "97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae",
+      "pdfBytes": 181907121,
+      "imagePath": "techops-comic/volume-xiv/",
+      "width": 2160,
+      "height": 3330,
+      "sections": [
+        {
+          "start": 1,
+          "end": 1,
+          "label": "Cover",
+          "title": "The System Is Healthy",
+          "kind": "guide"
+        },
+        {
+          "start": 2,
+          "end": 23,
+          "label": "Chapter 35",
+          "title": "No Incident Report for This",
+          "kind": "chapter"
+        },
+        {
+          "start": 24,
+          "end": 45,
+          "label": "Chapter 36",
+          "title": "Recover by Policy",
+          "kind": "chapter"
+        },
+        {
+          "start": 46,
+          "end": 67,
+          "label": "Chapter 37",
+          "title": "The Approval Chain",
+          "kind": "chapter"
+        },
+        {
+          "start": 68,
+          "end": 89,
+          "label": "Chapter 38",
+          "title": "A Clean Life",
+          "kind": "chapter"
+        },
+        {
+          "start": 90,
+          "end": 111,
+          "label": "Chapter 39",
+          "title": "What You Can Prove",
+          "kind": "chapter"
+        },
+        {
+          "start": 112,
+          "end": 133,
+          "label": "Chapter 40",
+          "title": "The System Is Healthy",
+          "kind": "chapter"
+        }
+      ],
+      "scenes": [
+        {
+          "page": 1,
+          "title": "Cover · The System Is Healthy"
+        },
+        {
+          "page": 2,
+          "title": "Chapter 35 · No Incident Report for This"
+        },
+        {
+          "page": 24,
+          "title": "Chapter 36 · Recover by Policy"
+        },
+        {
+          "page": 46,
+          "title": "Chapter 37 · The Approval Chain"
+        },
+        {
+          "page": 68,
+          "title": "Chapter 38 · A Clean Life"
+        },
+        {
+          "page": 90,
+          "title": "Chapter 39 · What You Can Prove"
+        },
+        {
+          "page": 112,
+          "title": "Chapter 40 · The System Is Healthy"
+        }
+      ],
+      "links": {},
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/aa8c132035a46e73fb47ee14e05e371909799d64/techops-comic/volume-xiv/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-corrected-20261110-c18407af-97f16edf/TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf"
+    }
+  }
+}

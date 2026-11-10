@@ -9,6 +9,7 @@ import volumeFive from '../data/comic-volume-five.json';
 import volumeThirteen from '../data/comic-volume-thirteen.json';
 import ComicMusicBar from '../components/ComicMusicBar';
 import './TechOpsComic.css';
+import LatestComicReader from './LatestComicReader';
 
 const base = import.meta.env.BASE_URL + 'techops-comic/';
 const splashArt = base + 'intro-panels-hq.webp';
@@ -120,7 +121,7 @@ function readBookmark(book: (typeof books)[keyof typeof books]) {
   } catch { return 0; }
 }
 
-export default function TechOpsComic() {
+function LegacyTechOpsComic() {
   const [params, setParams] = useSearchParams();
   const requestedEdition = params.get('edition');
   // Old URLs used page numbers from a different edition.
@@ -206,6 +207,7 @@ export default function TechOpsComic() {
   }, [page, choosePage, edition, bookmarkKey, total, imageUrl]);
 
   return <main className={'comic-shell ' + (page ? 'comic-reading' : '')}>
+    <div className="comic-previous-edition">Earlier edition retained for existing bookmarks. <Link to={`/comic?edition=g${fromWorld ? '&from=world' : ''}`}>Read the latest corrected editions →</Link></div>
     {intro && !page && <dialog ref={splash} className="comic-reel" aria-label="Tech Ops Hero introduction"
       onCancel={() => setIntro(false)}>
       <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet': `url("${splashArt}")`} as CSSProperties}
@@ -322,4 +324,13 @@ export default function TechOpsComic() {
       </details>}
     </>}
   </main>;
+}
+
+// Preserve every explicitly selected earlier edition and old page-only URL.
+// New visits and explicitly selected corrected editions use the current masters.
+export default function TechOpsComic() {
+  const [params] = useSearchParams();
+  const edition = params.get('edition');
+  const latest = edition === 'g' || edition === 'xiii-r' || edition === 'xiv' || (!edition && !params.has('page'));
+  return latest ? <LatestComicReader/> : <LegacyTechOpsComic/>;
 }
