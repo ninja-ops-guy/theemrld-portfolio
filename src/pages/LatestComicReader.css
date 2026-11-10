@@ -1,0 +1,36 @@
+.comic-current-books{grid-template-columns:repeat(3,minmax(0,1fr))}
+.comic-current-card{min-width:0}
+.comic-current-card>button{width:100%;height:auto;text-align:left}
+.comic-current-card>button>img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain;background:#0b1119}
+.comic-current-card .comic-edition-link{display:inline-flex;margin:12px 0 0}
+.comic-current-chapters{margin:38px 0 18px}
+.comic-current-toc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px}
+.comic-current-toc button{display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left;padding:12px 14px;color:inherit;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:6px}
+.comic-current-toc button:hover,.comic-current-toc button:focus-visible{border-color:#b6da8e}
+.comic-current-toc small{white-space:nowrap;opacity:.7}
+.comic-current-error,.comic-current-continue{text-align:center;padding:32px 16px}
+.comic-current-error a,.comic-current-error button{display:inline-block;padding:10px;margin:4px;color:inherit;text-decoration:underline}
+.comic-current-continue .comic-primary{margin:auto}
+.comic-current-edition{display:flex;align-items:center;gap:8px}
+.comic-current .comic-sheet{position:relative}
+.comic-current .comic-controls select{max-width:min(100%,310px)}
+@media(max-width:760px){
+  .comic-current-books{grid-template-columns:1fr}
+  .comic-current-card{max-width:440px;margin:auto;width:100%}
+  .comic-current-toc{grid-template-columns:1fr}
+  .comic-current .comic-mast{flex-wrap:wrap}
+  .comic-current .comic-downloads{min-width:0;max-width:100%}
+  .comic-current .comic-download{white-space:normal;overflow-wrap:anywhere}
+  .comic-current .comic-reader-head h1{font-size:14px}
+  .comic-current .comic-current-edition{width:100%;justify-content:center}
+  .comic-current .comic-reader-head{gap:8px}
+  .comic-current .comic-reader-head button{font-size:12px}
+  .comic-current .comic-hero-copy{min-width:0;width:calc(100% - 44px);max-width:calc(100% - 44px);margin-inline:22px}
+  .comic-current .comic-hero h1{font-size:clamp(40px,13.5vw,82px)}
+  .comic-current .comic-actions{flex-wrap:wrap;align-items:flex-start;gap:14px}
+  .comic-current .comic-actions>.comic-primary{max-width:100%;min-height:48px;white-space:normal}
+  .comic-current .comic-actions>.comic-primary svg{flex:none}
+  .comic-current .comic-actions>span{flex-basis:100%;max-width:100%;overflow-wrap:anywhere}
+  .comic-current .comic-library-heading{flex-direction:column;align-items:flex-start;gap:10px}
+  .comic-current .comic-library-heading>span{white-space:nowrap}
+}

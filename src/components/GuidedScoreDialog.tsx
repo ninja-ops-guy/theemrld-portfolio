@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { GuidedCue, GuidedEdition, GuidedScore } from '../../public/k-world/guided.js';
+import displayLabels from '../data/comic-display-labels.json';
 import './GuidedScoreDialog.css';
 
 export interface GuidedScoreDialogProps {
@@ -10,7 +11,8 @@ export interface GuidedScoreDialogProps {
   onUsePublished?: () => void;
 }
 
-const emptyForm = { edition: 'f' as GuidedEdition, startPage: '1', endPage: '1', title: '', url: '' };
+const emptyForm = { edition: 'g' as GuidedEdition, startPage: '1', endPage: '1', title: '', url: '' };
+const editionLabel = (id: string) => displayLabels[id as keyof typeof displayLabels]?.label ?? 'Retired book';
 const serialize = (score: GuidedScore) => JSON.stringify(score, null, 2);
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : 'The soundtrack could not be read.';
 
@@ -96,6 +98,7 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
   const addCue = (event: FormEvent) => {
     event.preventDefault();
     try {
+      if (!Object.prototype.hasOwnProperty.call(displayLabels, form.edition)) throw Error('Choose a current book before adding a cue.');
       if (score.editions[form.edition] && score.editions[form.edition] !== GUIDED_EDITIONS[form.edition].revision) {
         throw Error('This draft uses an older edition. Review the existing page ranges and update its revision stamp in JSON before adding cues.');
       }
@@ -111,6 +114,10 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
   };
 
   const edit = (cue: GuidedCue) => {
+    if (!Object.prototype.hasOwnProperty.call(displayLabels, cue.edition)) {
+      setError('This cue belongs to a retired book. It is preserved for export, but must be recreated for a current book after reviewing its page placement.');
+      return;
+    }
     setEditingId(cue.id);
     setForm({ edition: cue.edition, startPage: String(cue.startPage), endPage: String(cue.endPage), title: cue.title, url: cue.url });
     setError(''); initialFocus.current?.focus();
@@ -146,11 +153,11 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
     <div className="guided-editor-body">
       <p id="guided-editor-description">Choose a song and the comic pages where it belongs. A song continues through its range; unassigned pages are silent in guided mode.</p>
       <p className="guided-local-note">LOCAL PREVIEW · These changes are saved on this device. Export the score to publish it for every reader.</p>
-      {stale.length > 0 && <p className="guided-warning" role="status">Edition changed: {stale.map(([id]) => GUIDED_EDITIONS[id as GuidedEdition].label).join(', ')}. Cues for an old revision stay silent until their page ranges and revision stamps are reviewed.</p>}
+      {stale.length > 0 && <p className="guided-warning" role="status">Edition changed: {stale.map(([id]) => editionLabel(id)).join(', ')}. Cues for an old revision stay silent until their page ranges and revision stamps are reviewed.</p>}
       <form className="guided-cue-form" onSubmit={addCue}>
-        <label className="guided-edition">COMIC EDITION
-          <select ref={initialFocus} value={form.edition} onChange={event => setForm({ ...form, edition: event.target.value as GuidedEdition })}>
-            {Object.entries(GUIDED_EDITIONS).map(([id, edition]) => <option key={id} value={id}>{edition.label} · {edition.pageCount} pages</option>)}
+        <label className="guided-edition">COMIC BOOK
+          <select ref={initialFocus} aria-label="Soundtrack book" value={form.edition} onChange={event => setForm({ ...form, edition: event.target.value as GuidedEdition })}>
+            {Object.entries(displayLabels).map(([id, edition]) => <option key={id} value={id}>{edition.label} · {GUIDED_EDITIONS[id as GuidedEdition].pageCount} pages</option>)}
           </select>
         </label>
         <label>FROM PAGE<input type="number" min="1" max={GUIDED_EDITIONS[form.edition].pageCount} required value={form.startPage} onChange={event => setForm({ ...form, startPage: event.target.value })} /></label>
@@ -163,7 +170,7 @@ function GuidedScoreEditor({ open, onClose, onApply, initialScore, onUsePublishe
       <section className="guided-cue-list" aria-labelledby="guided-cues-title">
         <h3 id="guided-cues-title">YOUR CUES <span>{score.cues.length}</span></h3>
         {score.cues.length === 0 ? <p className="guided-empty">The score is open. Add your first song when you know where it belongs.</p> : <ol>
-          {score.cues.map(cue => <li key={cue.id}><div><small>{GUIDED_EDITIONS[cue.edition].label} · pp. {cue.startPage}–{cue.endPage}</small><strong>{cue.title}</strong><a href={cue.url} target="_blank" rel="noopener noreferrer">Open song ↗</a></div><div className="guided-cue-actions"><button type="button" onClick={() => edit(cue)} aria-label={`Edit ${cue.title}`}>EDIT</button><button type="button" onClick={() => { save({ ...score, cues: score.cues.filter(item => item.id !== cue.id) }); if (editingId === cue.id) { setEditingId(null); setForm(emptyForm); } setStatus('Cue removed from the local draft.'); }} aria-label={`Remove ${cue.title}`}>REMOVE</button></div></li>)}
+          {score.cues.map(cue => <li key={cue.id}><div><small>{editionLabel(cue.edition)} · pp. {cue.startPage}–{cue.endPage}</small><strong>{cue.title}</strong><a href={cue.url} target="_blank" rel="noopener noreferrer">Open song ↗</a></div><div className="guided-cue-actions"><button type="button" onClick={() => edit(cue)} aria-label={`Edit ${cue.title}`}>EDIT</button><button type="button" onClick={() => { save({ ...score, cues: score.cues.filter(item => item.id !== cue.id) }); if (editingId === cue.id) { setEditingId(null); setForm(emptyForm); } setStatus('Cue removed from the local draft.'); }} aria-label={`Remove ${cue.title}`}>REMOVE</button></div></li>)}
         </ol>}
       </section>
       <details className="guided-json"><summary>IMPORT / EXPORT JSON</summary><p>Keep the edition stamps with your cues. After a comic revision, check the page ranges before changing a stamp.</p>

@@ -9,6 +9,8 @@ const base=process.env.TEST_BASE || 'http://127.0.0.1:4173';
 if(base!=='http://127.0.0.1:4173') throw new Error('This qualification smoke runs only against the local built candidate');
 await fs.mkdir('browser-receipts',{recursive:true});
 const results=[];
+const marker = m.schema_version === 2 ? await (await fetch(base + '/publishing/deployment.json')).json() : null;
+if (marker && (marker.release_id !== m.id || !/^[a-f0-9]{40}$/.test(marker.media_commit))) throw new Error('Wrong candidate release marker');
 try {
   for(const [name,engine,viewport,mobile] of [
     ['desktop-chromium',chromium,{width:1280,height:800},false],
@@ -26,9 +28,12 @@ try {
         await page.waitForFunction(()=>{const i=document.querySelector('.comic-page-image');return i?.complete && i.naturalWidth>0;},{},{timeout:30000});
         const actual=await img.evaluate(i=>({src:i.currentSrc,width:i.naturalWidth,height:i.naturalHeight}));
         const expected=m.images[n-1];
-        if(new URL(actual.src).pathname!=='/'+expected.path.slice(7) || actual.width!==expected.width || actual.height!==expected.height) throw new Error(`${name} page ${n}: wrong artwork or dimensions`);
-        const pdf=m.pdf.path.split('/').pop();
-        await page.locator(`.comic-downloads a[href*="${pdf}"]`).first().waitFor({state:'visible',timeout:30000});
+        const expectedURL = m.schema_version === 2 ? `https://raw.githubusercontent.com/${m.repository}/${marker.media_commit}/${expected.path}` : base + '/' + expected.path.slice(7);
+        if(new URL(actual.src).href !== expectedURL || actual.width!==expected.width || actual.height!==expected.height) throw new Error(`${name} page ${n}: wrong artwork or dimensions`);
+        const pdf=m.schema_version === 2 ? m.pdf.filename : m.pdf.path.split('/').pop();
+        const pdfLink = page.locator(`.comic-downloads a[href*="${pdf}"]`).first();
+        await pdfLink.waitFor({state:'visible',timeout:30000});
+        if (m.schema_version === 2 && await pdfLink.getAttribute('href') !== `https://github.com/${m.repository}/releases/download/${m.source.tag}/${pdf}`) throw new Error('Wrong master link');
         await page.screenshot({path:`browser-receipts/${name}-${n}.png`,fullPage:false});
         results.push({profile:name,page:n,result:'PASS',...actual});
       }
@@ -39,3 +44,4 @@ try {
   await fs.writeFile('browser-receipts/result.json',JSON.stringify({release_id:m.id,physical_device_test:false,checks:results},null,2));
 }
 console.log(JSON.stringify({release_id:m.id,result:'PASS',checks:results.length,physical_device_test:false}));
+

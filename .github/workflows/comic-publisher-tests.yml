@@ -5,7 +5,10 @@ on:
   pull_request:
     paths:
       - scripts/*comic*
-      - tests/test_comic_publisher.py
+      - tests/test_comic*.py
+      - tests/publisher-control.test.mjs
+      - tests/comic-publisher-pins.test.mjs
+      - scripts/publisher-control.mjs
       - publishing/**
       - .github/workflows/comic-publisher*.yml
       - .github/workflows/pages.yml
@@ -24,7 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: python3 -m unittest discover -s tests -p test_comic_publisher.py -v
+      - run: python3 -m unittest discover -s tests -p 'test_comic*.py' -v
+      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs
       - name: Validate registered manifests
         run: |
           for manifest in publishing/releases/*.json; do
@@ -37,4 +41,7 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npm run build
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
+          node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
           python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA"
+

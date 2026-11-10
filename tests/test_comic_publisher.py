@@ -125,3 +125,4 @@ class PublisherTests(unittest.TestCase):
             op.return_value.open.return_value=R();p.live_file('https://kterminal.site/test',{'bytes':5,'sha256':'0'*64})
 
 if __name__=='__main__':unittest.main()
+

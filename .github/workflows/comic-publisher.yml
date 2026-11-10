@@ -1,29 +1,30 @@
 name: Comic Publisher
-run-name: Comic Publisher · ${{ inputs.release_id || github.event.release.tag_name || 'saved request' }} · ${{ inputs.action || github.event_name }}
+run-name: Comic Publisher · ${{ inputs.release_id || 'saved request' }} · ${{ inputs.action || github.event_name }}
 on:
   workflow_dispatch:
     inputs:
       release_id:
-        description: Registered release ID
+        description: Exact registered revision, not a volume nickname
         required: true
         type: string
       action:
-        description: status, prepare upload slot, stage and qualify, or publish
+        description: Status, prepare, stage, publish qualified art, or resume deployment
         required: true
         type: choice
-        options: [status, prepare, stage, publish]
+        options: [status, prepare, stage, publish, resume]
         default: status
+      request_id:
+        description: Unique request ID; reuse only with identical inputs
+        type: string
       expected_head:
-        description: Exact reviewed PR head SHA (required for publish)
+        description: Exact reviewed PR head SHA for publication or resume
         type: string
       manifest_sha256:
-        description: Exact manifest file SHA-256 (required for publish)
+        description: SHA-256 of exact registered manifest bytes for mutations
         type: string
   push:
-    branches: [main]
+    branches: [publisher-requests]
     paths: [publishing/request.json]
-  release:
-    types: [published]
 permissions:
   contents: read
   pull-requests: read
@@ -32,19 +33,23 @@ concurrency:
   cancel-in-progress: false
 jobs:
   resolve:
-    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && (github.actor == github.repository_owner || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch' && inputs.action == 'stage'))
-    runs-on: ubuntu-latest
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio'
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
     outputs:
       id: ${{ steps.plan.outputs.id }}
       action: ${{ steps.plan.outputs.action }}
       head: ${{ steps.plan.outputs.head }}
       base: ${{ steps.plan.outputs.base }}
       branch: ${{ steps.plan.outputs.branch }}
-      pr: ${{ steps.plan.outputs.pr }}
-      manifest_hash: ${{ steps.plan.outputs.manifest_hash }}
+      media: ${{ steps.plan.outputs.media }}
       tag: ${{ steps.plan.outputs.tag }}
       asset: ${{ steps.plan.outputs.asset }}
+      recover: ${{ steps.plan.outputs.recover }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,59 +60,59 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const crypto = require('crypto');
             const cp = require('child_process');
+            const c = await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
             let request;
             if (context.eventName === 'push') {
+              if(context.ref!=='refs/heads/publisher-requests') throw new Error('Unexpected request branch');
               const file = (await github.rest.repos.getContent({...context.repo,path:'publishing/request.json',ref:context.sha})).data;
               request = JSON.parse(Buffer.from(file.content,'base64').toString('utf8'));
-            } else if (context.eventName === 'release') {
-              const files = fs.readdirSync('publishing/releases').filter(f => f.endsWith('.json'));
-              const matches = files.map(f => JSON.parse(fs.readFileSync('publishing/releases/' + f, 'utf8')))
-                .filter(m => m.source.tag === context.payload.release.tag_name);
-              if (!matches.length) { core.notice('Unregistered release; no publishing action.'); return; }
-              if (matches.length !== 1) throw new Error('Ambiguous source release tag');
-              request = {release_id: matches[0].id, action: 'stage'};
-            } else { request = context.payload.inputs; }
-            if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(request.release_id || '')) throw new Error('Invalid release ID');
-            if (!['status', 'prepare', 'stage', 'publish'].includes(request.action)) throw new Error('Invalid action');
-            const path = `publishing/releases/${request.release_id}.json`;
-            cp.execFileSync('python3', ['scripts/comic-publisher.py', 'check', '--manifest', path], {stdio:'inherit'});
-            const bytes = fs.readFileSync(path);
-            const m = JSON.parse(bytes);
-            const hash = crypto.createHash('sha256').update(bytes).digest('hex');
-            const pr = (await github.rest.pulls.get({...context.repo, pull_number:m.target.pr})).data;
-            const base = cp.execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
-            if (pr.head.repo.full_name !== m.repository || pr.head.ref !== m.target.branch || pr.base.ref !== 'main') throw new Error('PR target identity mismatch');
-            if (request.action !== 'status' && (pr.state !== 'open' || pr.merged)) throw new Error('Release PR is not open; inspect its existing deployment instead');
-            if (request.expected_head && request.expected_head !== pr.head.sha) throw new Error('STALE_REQUEST: PR head changed; re-read and qualify the new head');
-            if (request.manifest_sha256 && request.manifest_sha256 !== hash) throw new Error('STALE_REQUEST: manifest changed');
-            if (request.action === 'publish' && (!request.expected_head || !request.manifest_sha256)) throw new Error('Publication requires reviewed head and manifest binding');
-            const plan = {id:m.id, action:request.action, head:pr.head.sha, base, branch:m.target.branch,
-              pr:String(m.target.pr), manifest_hash:hash, tag:m.source.tag, asset:m.source.asset};
-            for (const [k,v] of Object.entries(plan)) core.setOutput(k,v);
-            fs.writeFileSync('publisher-plan.json', JSON.stringify(plan,null,2));
-            let release;
-            try { release = (await github.rest.repos.getReleaseByTag({...context.repo,tag:m.source.tag})).data; }
-            catch(e) { if(e.status !== 404) throw e; }
-            const assets = release ? await github.paginate(github.rest.repos.listReleaseAssets,{...context.repo,release_id:release.id,per_page:100}) : [];
-            const asset = assets.find(a => a.name === m.source.asset && a.state === 'uploaded');
-            const status = asset && asset.size === m.source.bytes ? 'SOURCE_AVAILABLE_NOT_YET_VERIFIED' : 'AWAITING_SOURCE_UPLOAD';
-            fs.writeFileSync('publisher-status.json',JSON.stringify({...plan,status,source_release:release?.html_url || null,
-              next_action:status === 'AWAITING_SOURCE_UPLOAD' ? 'Attach the approved ZIP to the source release, or use scripts/upload-comic.py. Do not regenerate approved art.' : 'Stage and qualify the exact archive before publishing.'},null,2));
-            await core.summary.addHeading(`Comic Publisher: ${m.id}`).addRaw(`${status}\n\nAction: ${request.action}; PR #${m.target.pr}. No website publication has occurred.`).write();
-            if (['stage','publish'].includes(request.action) && status === 'AWAITING_SOURCE_UPLOAD') throw new Error('AWAITING_SOURCE_UPLOAD: approved ZIP is not attached to the source release');
+            } else {
+              if(context.eventName!=='workflow_dispatch' || context.ref!=='refs/heads/main') throw new Error('Manual publisher requests must originate from main');
+              request=context.payload.inputs;
+            }
+            if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(request.release_id||'')) throw new Error('Invalid release ID');
+            const path=`publishing/releases/${request.release_id}.json`;
+            const raw=fs.readFileSync(path),m=JSON.parse(raw);
+            cp.execFileSync('python3',['scripts/comic-publisher.py','check','--manifest',path],{stdio:'inherit'});
+            request=c.validateRequest(request,m,raw,context.actor,context.repo.owner);
+            const base=cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+            const pr=(await github.rest.pulls.get({...context.repo,pull_number:m.target.pr})).data;
+            if(pr.head.repo.full_name!==m.repository || pr.head.ref!==m.target.branch || pr.base.ref!=='main') throw new Error('PR identity changed');
+            let record=await c.readState(github,context.repo,m.id);
+            const pendingUpdate=['MAIN_UPDATE_REQUESTED','MAIN_UPDATED_AWAITING_PR'].includes(record.value?.phase);
+            const recover=(pr.merged || pendingUpdate) && ['publish','resume'].includes(request.action);
+            const source=m.lifecycle==='retired'?{phase:'RELEASE_RETIRED',hash_verified:false}:
+              recover?{phase:'SOURCE_NOT_REQUIRED_FOR_RECOVERY',hash_verified:false}:await c.inspectSource(github,context.repo,m);
+            const sourceBlocked=!recover && ['stage','publish'].includes(request.action) && source.phase!=='SOURCE_AVAILABLE_NOT_YET_VERIFIED';
+            if(request.action!=='status') {
+              await c.assertNoOtherRun(github,context.repo,context.runId);
+              if(!recover && (pr.state!=='open'||pr.merged)) throw new Error('Release PR closed; use status or explicit resume');
+              if(request.expected_head && request.expected_head!==pr.head.sha && request.expected_head!==record.value?.qualification?.reviewed_head) throw new Error('STALE_REQUEST: head changed');
+              if(request.action==='resume' && !pr.merged && !pendingUpdate) throw new Error('Resume is only for a previously merged qualified release');
+              record=c.claimRequest(record,request,m,context.runId);
+              record.value.source=source;
+              if(sourceBlocked) record.value.phase=source.phase;
+              await c.saveState(github,context.repo,record,base);
+            }
+            const plan={id:m.id,action:request.action,head:pr.head.sha,base,branch:m.target.branch,
+              media:m.base_media_commit||'',tag:m.source.tag,asset:m.source.asset,recover:String(recover),request,source};
+            fs.writeFileSync('publisher-plan.json',JSON.stringify(plan,null,2));
+            for(const [k,v] of Object.entries(plan)) if(!['request','source'].includes(k)) core.setOutput(k,v);
+            const phase=m.lifecycle==='retired'?'RELEASE_RETIRED':record.value?.phase||source.phase;
+            await core.summary.addHeading(`${m.id}: ${phase}`).addRaw(`PR #${m.target.pr}; action ${request.action}; source ${source.phase}. Metadata does not verify source hashes. A request or merge is not live verification.\n`).write();
+            if(sourceBlocked) throw new Error(`${source.phase}: ${source.reason}`);
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: publisher-plan
-          path: publisher-*.json
+          path: publisher-plan.json
           if-no-files-found: warn
           retention-days: 90
   prepare:
     needs: resolve
     if: needs.resolve.outputs.action == 'prepare'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: write
@@ -120,23 +125,25 @@ jobs:
         with:
           script: |
             let release;
-            try { release = (await github.rest.repos.getReleaseByTag({...context.repo,tag:process.env.TAG})).data; }
+            try { release=(await github.rest.repos.getReleaseByTag({...context.repo,tag:process.env.TAG})).data; }
             catch(e) {
-              if(e.status !== 404) throw e;
-              release = (await github.rest.repos.createRelease({...context.repo,tag_name:process.env.TAG,
-                target_commitish:process.env.BASE,name:`Comic source upload: ${process.env.TAG}`,draft:true,prerelease:true,make_latest:'false',
-                body:`Attach ${process.env.ASSET}. This is a source handoff, not website publication. Use Comic Publisher to stage or publish after upload.`})).data;
+              if(e.status!==404) throw e;
+              release=(await github.rest.repos.createRelease({...context.repo,tag_name:process.env.TAG,target_commitish:process.env.BASE,
+                name:`Comic source: ${process.env.TAG}`,draft:true,prerelease:true,make_latest:'false',
+                body:`Attach ${process.env.ASSET}. Source upload is not website publication.`})).data;
             }
-            await core.summary.addHeading('Upload slot ready').addLink('Open source release',release.html_url).addRaw('\nExisting release assets were not overwritten.').write();
+            await core.summary.addHeading('UPLOAD_SLOT_READY').addLink('Source release',release.html_url).write();
   stage:
     needs: resolve
-    if: needs.resolve.outputs.action == 'stage' || needs.resolve.outputs.action == 'publish'
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
+    if: (needs.resolve.outputs.action == 'stage' || needs.resolve.outputs.action == 'publish') && needs.resolve.outputs.recover != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     permissions:
       contents: write
+      pull-requests: read
     outputs:
-      head: ${{ steps.commit.outputs.head }}
+      head: ${{ steps.stage.outputs.head }}
+      media_commit: ${{ steps.stage.outputs.media_commit }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -149,54 +156,78 @@ jobs:
           path: candidate
           fetch-depth: 0
           persist-credentials: false
-      - name: Download source inside GitHub
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.media }}
+          path: media
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Download and stage exact approved source
+        id: stage
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE: ${{ needs.resolve.outputs.id }}
           TAG: ${{ needs.resolve.outputs.tag }}
           ASSET: ${{ needs.resolve.outputs.asset }}
-        run: |
-          mkdir -p source
-          gh release download "$TAG" --pattern "$ASSET" --dir source
-      - name: Import only checksum-approved assets
-        env:
-          RELEASE: ${{ needs.resolve.outputs.id }}
-          ASSET: ${{ needs.resolve.outputs.asset }}
           BASE: ${{ needs.resolve.outputs.base }}
+          HEAD: ${{ needs.resolve.outputs.head }}
         run: |
           set -euo pipefail
+          mkdir source
+          gh release download "$TAG" --pattern "$ASSET" --dir source
           git -C candidate config user.name 'github-actions[bot]'
           git -C candidate config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C candidate merge --no-edit "$BASE"
-          python3 control/scripts/comic-publisher.py extract \
-            --manifest "control/publishing/releases/$RELEASE.json" \
-            --archive "source/$ASSET" --root candidate
-      - name: Commit without force-pushing or touching unrelated files
-        id: commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE: ${{ needs.resolve.outputs.id }}
-          BRANCH: ${{ needs.resolve.outputs.branch }}
-        run: |
-          set -euo pipefail
           gh auth setup-git
+          python3 control/scripts/stage-comic.py --manifest "control/publishing/releases/$RELEASE.json" --archive "source/$ASSET" --candidate candidate --media media --receipt publisher-staged.json --expected-head "$HEAD"
           python3 - <<'PY'
-          import json,os,subprocess
-          m=json.load(open('control/publishing/releases/'+os.environ['RELEASE']+'.json'))
-          paths=[x['path'] for x in m['pdf']['parts']+m['images']]
-          subprocess.run(['git','-C','candidate','add','--',*paths],check=True)
-          if subprocess.run(['git','-C','candidate','diff','--cached','--quiet']).returncode:
-              subprocess.run(['git','-C','candidate','commit','-m','Stage manifest-verified comic '+m['id']],check=True)
-          subprocess.run(['git','-C','candidate','push','origin','HEAD:refs/heads/'+os.environ['BRANCH']],check=True)
-          head=subprocess.check_output(['git','-C','candidate','rev-parse','HEAD'],text=True).strip()
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('head='+head+'\n')
+          import json,os,re
+          s=json.load(open('publisher-staged.json'))
+          if not re.fullmatch('[a-f0-9]{40}',s['head']):raise SystemExit('Invalid staged head')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('head='+s['head']+'\n')
+              f.write('media_commit='+s['media_commit']+'\n')
           PY
-  qualify:
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: publisher-staged
+          path: publisher-staged.json
+          if-no-files-found: warn
+          retention-days: 90
+  staged:
     needs: [resolve, stage]
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          persist-credentials: false
+      - uses: actions/github-script@v7
+        env:
+          RELEASE: ${{ needs.resolve.outputs.id }}
+          HEAD: ${{ needs.stage.outputs.head }}
+          MEDIA: ${{ needs.stage.outputs.media_commit }}
+        with:
+          script: |
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
+            const record=await c.readState(github,context.repo,process.env.RELEASE);
+            record.value.phase='STAGED_NOT_PUBLISHED';
+            record.value.staged_head=process.env.HEAD;
+            record.value.media_commit=process.env.MEDIA;
+            await c.saveState(github,context.repo,record);
+  qualify:
+    needs: [resolve, stage, staged]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
     permissions:
       contents: read
+    outputs:
+      tree: ${{ steps.identity.outputs.tree }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -211,37 +242,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test and build without write credentials
+      - name: Build and preserve current-only publication policy
         working-directory: candidate
+        env:
+          GITHUB_SHA: ${{ needs.stage.outputs.head }}
         run: |
           set -euo pipefail
-          if [ -d tests ]; then python3 -m unittest discover -s tests -p 'test_comic*.py' -v; fi
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
           npm run build
-      - name: Preserve old downloads, verify every new file, and enforce capacity
+          node scripts/finalize-comic-dist.mjs > ../comic-finalization-receipt.json
+      - name: Verify every declared immutable asset and approved PDF
         env:
           RELEASE: ${{ needs.resolve.outputs.id }}
           HEAD: ${{ needs.stage.outputs.head }}
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import json,os,pathlib,subprocess
-          m=json.load(open('control/publishing/releases/'+os.environ['RELEASE']+'.json'))
-          gate=pathlib.Path('candidate/scripts/prepare-pages-comic-release.py')
-          if m['archive_gate'] and not gate.is_file():raise SystemExit('Required historical-download preservation gate is missing')
-          if gate.is_file():subprocess.run(['python3','scripts/prepare-pages-comic-release.py'],cwd='candidate',check=True)
-          PY
+          cmp "control/publishing/releases/$RELEASE.json" "candidate/publishing/releases/$RELEASE.json"
           python3 control/scripts/comic-publisher.py stamp --manifest "control/publishing/releases/$RELEASE.json" --root candidate/dist --commit "$HEAD"
       - name: Install pinned browser qualification tools
         run: |
           npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
           node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
-      - name: Qualify desktop and phone browser readers
+      - name: Qualify desktop and phone-emulated readers
         env:
           MANIFEST: control/publishing/releases/${{ needs.resolve.outputs.id }}.json
         run: |
           set -euo pipefail
-          python3 -m http.server 4173 --bind 127.0.0.1 --directory candidate/dist >browser-server.log 2>&1 &
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory candidate/dist > browser-server.log 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in {1..30}; do
@@ -249,91 +277,107 @@ jobs:
             sleep 1
           done
           node control/scripts/comic-browser-smoke.mjs
+      - name: Record exact qualified tree
+        id: identity
+        run: echo "tree=$(git -C candidate rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: publisher-browser-receipts
-          path: browser-receipts
+          name: publisher-qualification
+          path: |
+            browser-receipts
+            comic-finalization-receipt.json
+            candidate/dist/publishing/deployment.json
           if-no-files-found: warn
           retention-days: 90
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: publisher-qualified
-          path: candidate/dist/publishing/deployment.json
-          if-no-files-found: warn
-          retention-days: 90
-  publish:
+  checkpoint:
     needs: [resolve, stage, qualify]
-    if: needs.resolve.outputs.action == 'publish'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          persist-credentials: false
+      - uses: actions/github-script@v7
+        env:
+          RELEASE: ${{ needs.resolve.outputs.id }}
+          HEAD: ${{ needs.stage.outputs.head }}
+          BASE: ${{ needs.resolve.outputs.base }}
+          REVIEWED_HEAD: ${{ needs.resolve.outputs.head }}
+          TREE: ${{ needs.qualify.outputs.tree }}
+        with:
+          script: |
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
+            const record=await c.readState(github,context.repo,process.env.RELEASE);
+            await c.recordQualified(github,context.repo,record,{head:process.env.HEAD,base:process.env.BASE,tree:process.env.TREE,reviewedHead:process.env.REVIEWED_HEAD,runId:context.runId});
+  publish:
+    needs: [resolve, checkpoint]
+    if: always() && needs.resolve.result == 'success' && (needs.resolve.outputs.action == 'publish' || needs.resolve.outputs.action == 'resume') && (needs.checkpoint.result == 'success' || needs.resolve.outputs.recover == 'true')
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: write
       pull-requests: write
       actions: write
-      statuses: write
       checks: read
+      statuses: read
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: publisher-plan
+      - name: Configure authenticated Git for exact-base fast-forward
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh auth setup-git
       - uses: actions/github-script@v7
         env:
-          PR: ${{ needs.resolve.outputs.pr }}
-          HEAD: ${{ needs.stage.outputs.head }}
-          BASE: ${{ needs.resolve.outputs.base }}
-          RELEASE: ${{ needs.resolve.outputs.id }}
+          GH_TOKEN: ${{ github.token }}
         with:
           script: |
-            const number = Number(process.env.PR);
-            const pr = (await github.rest.pulls.get({...context.repo,pull_number:number})).data;
-            const base = (await github.rest.repos.getBranch({...context.repo,branch:'main'})).data.commit.sha;
-            if(pr.head.sha !== process.env.HEAD || base !== process.env.BASE) throw new Error('STALE_QUALIFICATION: branch or main moved; run a fresh qualification');
-            const checks = await github.paginate(github.rest.checks.listForRef,{...context.repo,ref:process.env.HEAD,per_page:100});
-            if(checks.some(c => !['success','skipped','neutral'].includes(c.conclusion))) throw new Error('Other exact-head checks are failed or unfinished');
-            const status = (await github.rest.repos.getCombinedStatusForRef({...context.repo,ref:process.env.HEAD})).data;
-            if(status.statuses.some(s => s.state !== 'success')) throw new Error('Other exact-head status checks are not successful');
-            const run = `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            await github.rest.repos.createCommitStatus({...context.repo,sha:process.env.HEAD,state:'success',context:'comic-publisher/qualified',target_url:run,description:'Exact assets, build, preservation gate and Pages size verified'});
-            if(pr.draft) await github.graphql('mutation($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){pullRequest{id}}}',{id:pr.node_id});
-            const merged = (await github.rest.pulls.merge({...context.repo,pull_number:number,sha:process.env.HEAD,merge_method:'merge'})).data;
-            if(!merged.merged) throw new Error('Merge was not completed');
-            const candidate = (await github.rest.git.getCommit({...context.repo,commit_sha:process.env.HEAD})).data;
-            const result = (await github.rest.git.getCommit({...context.repo,commit_sha:merged.sha})).data;
-            if(candidate.tree.sha !== result.tree.sha) throw new Error('Merged tree differs from qualified tree; deployment stopped');
-            await github.rest.actions.createWorkflowDispatch({...context.repo,workflow_id:'pages.yml',ref:'main',
-              inputs:{release_id:process.env.RELEASE,expected_sha:merged.sha}});
-            await core.summary.addHeading('Merged; deployment explicitly requested').addRaw(`Commit: ${merged.sha}. This is not yet a live verification receipt.`).write();
+            const fs=require('fs');
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
+            const plan=JSON.parse(fs.readFileSync('publisher-plan.json'));
+            const m=JSON.parse(fs.readFileSync(`publishing/releases/${plan.id}.json`));
+            const record=await c.readState(github,context.repo,m.id);
+            const result=await c.publishOrResume(github,context.repo,record,m,plan.request,context.runId,c.atomicFastForwardWithGit);
+            await core.summary.addHeading(result.phase).addRaw(`Release: ${m.id}; merge: ${result.merge_sha}. Only PUBLISHED_HASH_VERIFIED confirms completion.\n`).write();
   report:
-    needs: [resolve, prepare, stage, qualify, publish]
-    if: always() && needs.resolve.outputs.pr != ''
-    runs-on: ubuntu-latest
+    needs: [resolve, prepare, stage, staged, qualify, checkpoint, publish]
+    if: always() && needs.resolve.outputs.id != ''
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
-      contents: read
-      pull-requests: write
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          persist-credentials: false
       - uses: actions/github-script@v7
         env:
           RELEASE: ${{ needs.resolve.outputs.id }}
-          PR: ${{ needs.resolve.outputs.pr }}
-          ACTION: ${{ needs.resolve.outputs.action }}
-          HEAD: ${{ needs.stage.outputs.head }}
           RESULTS: ${{ toJSON(needs) }}
         with:
           script: |
-            const fs = require('fs');
-            const n=JSON.parse(process.env.RESULTS);
-            const status=n.publish.result==='success' ? 'MERGED_DEPLOYMENT_REQUESTED' :
-              n.qualify.result==='success' ? 'QUALIFIED_NOT_PUBLISHED' :
-              n.stage.result==='success' ? 'STAGED_QUALIFICATION_BLOCKED' :
-              n.prepare.result==='success' ? 'UPLOAD_SLOT_READY' :
-              n.resolve.result==='success' ? 'STATUS_ONLY' : 'BLOCKED_BEFORE_STAGING';
-            const url=`${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const receipt={release_id:process.env.RELEASE,action:process.env.ACTION,status,head:process.env.HEAD || null,run:url,
-              jobs:Object.fromEntries(Object.entries(n).map(([k,v])=>[k,v.result]))};
+            const fs=require('fs');
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
+            const record=await c.readState(github,context.repo,process.env.RELEASE);
+            const receipt={release_id:process.env.RELEASE,checkpoint:record.value,jobs:JSON.parse(process.env.RESULTS),run:`${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`};
+            if(record.value && receipt.jobs.resolve.outputs.action!=='status') {
+              record.value.last_outcome={run:receipt.run,jobs:Object.fromEntries(Object.entries(receipt.jobs).map(([k,v])=>[k,v.result]))};
+              if(receipt.jobs.prepare.result==='success') record.value.phase='UPLOAD_SLOT_READY';
+              if(receipt.jobs.staged.result==='success' && receipt.jobs.qualify.result!=='success') record.value.phase='STAGED_QUALIFICATION_BLOCKED';
+              await c.saveState(github,context.repo,record);
+            }
             fs.writeFileSync('publisher-receipt.json',JSON.stringify(receipt,null,2));
-            if(process.env.ACTION !== 'status') await github.rest.issues.createComment({...context.repo,issue_number:Number(process.env.PR),
-              body:`Comic Publisher: **${status}**\n\nRelease: ${process.env.RELEASE}\nExact staged head: ${process.env.HEAD || 'none'}\n[Run and receipt](${url})\n\nOnly a successful Pages live-verification receipt means published. No safeguards were bypassed.`});
-            await core.summary.addHeading(status).addLink('Run and receipt',url).write();
+            await core.summary.addHeading('Publisher checkpoint').addLink('Run and stage results',receipt.run).addRaw('\nThe persistent checkpoint is on the publisher-state branch; failed steps do not establish publication.').write();
       - uses: actions/upload-artifact@v4
         with:
           name: publisher-receipt

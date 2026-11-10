@@ -1,4 +1,5 @@
 name: Deploy portfolio to GitHub Pages
+run-name: ${{ inputs.release_id && format('Comic deployment · {0} · {1}', inputs.release_id, inputs.expected_sha) || github.workflow }}
 # public Pages publish trigger
 
 on:
@@ -8,10 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       release_id:
-        description: Optional manifest-bound comic release to verify
+        description: Exact registered revision to verify
         type: string
       expected_sha:
-        description: Exact main commit; required for comic publication
+        description: Exact main commit required for a comic release
+        type: string
+      manifest_sha256:
+        description: Exact approved manifest hash
         type: string
 
 permissions:
@@ -25,62 +29,59 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Check requested release identity
+      - name: Check exact release and deployment identity
         env:
           RELEASE: ${{ inputs.release_id }}
           EXPECTED_SHA: ${{ inputs.expected_sha }}
+          MANIFEST_HASH: ${{ inputs.manifest_sha256 }}
         run: |
-          python3 - <<'PY'
-          import os,re
-          r=os.environ['RELEASE'];expected=os.environ['EXPECTED_SHA']
-          if r and (not re.fullmatch('[a-z0-9][a-z0-9-]{0,79}',r) or expected!=os.environ['GITHUB_SHA']):
-              raise SystemExit('Requested release or main commit moved; refuse a stale deployment')
-          if expected and expected!=os.environ['GITHUB_SHA']:raise SystemExit('Wrong deployment SHA')
-          if os.environ['GITHUB_REF']!='refs/heads/main':raise SystemExit('Deployments must originate from main')
-          PY
-
+          python3 - <<'PYCODE'
+          import hashlib,json,os,pathlib,re
+          release=os.environ['RELEASE'];expected=os.environ['EXPECTED_SHA']
+          if os.environ['GITHUB_REF']!='refs/heads/main':raise SystemExit('Deploy only from main')
+          if expected and expected!=os.environ['GITHUB_SHA']:raise SystemExit('STALE_DEPLOYMENT: main changed')
+          if release:
+              if not re.fullmatch('[a-z0-9][a-z0-9-]{0,79}',release) or not expected:raise SystemExit('Release identity and exact SHA required')
+              raw=pathlib.Path('publishing/releases/'+release+'.json').read_bytes()
+              if hashlib.sha256(raw).hexdigest()!=os.environ['MANIFEST_HASH']:raise SystemExit('Manifest changed')
+              if json.loads(raw).get('lifecycle')=='retired':raise SystemExit('Retired release')
+          PYCODE
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-
+          node-version: 20
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-
       - name: Build
         run: npm run build
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Stamp exact commit and verify comic bytes and site capacity
+      - name: Publish current comic books only
+        run: |
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
+          node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
+          cat comic-finalization-receipt.json
+      - name: Verify approved immutable source and stamp exact deployment
+        if: inputs.release_id != ''
         env:
           RELEASE: ${{ inputs.release_id }}
-        run: |
-          set -euo pipefail
-          args=()
-          if [ -n "$RELEASE" ]; then args=(--manifest "publishing/releases/$RELEASE.json"); fi
-          python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA" "${args[@]}"
-
-      - name: Install pinned browsers for the actual deployment artifact
+        run: python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA" --manifest "publishing/releases/$RELEASE.json"
+      - name: Install browser verification
         if: inputs.release_id != ''
         run: |
           npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
           node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
-      - name: Verify the rebuilt reader before uploading it to Pages
+      - name: Verify rebuilt reader before deployment
         if: inputs.release_id != ''
         env:
           MANIFEST: publishing/releases/${{ inputs.release_id }}.json
         run: |
           set -euo pipefail
-          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist >browser-server.log 2>&1 &
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > browser-server.log 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in {1..30}; do
@@ -91,75 +92,96 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always() && inputs.release_id != ''
         with:
-          name: deployed-artifact-browser-receipts
+          name: publisher-browser-receipts
           path: browser-receipts
           if-no-files-found: warn
           retention-days: 90
-
-      - name: Preserve small live verifier
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: inputs.release_id != ''
         with:
-          name: comic-live-verifier
+          name: publisher-verifier
           path: |
             scripts/comic-publisher.py
+            scripts/publisher-control.mjs
             publishing/releases/*.json
-          retention-days: 7
-
+          retention-days: 90
+      - name: Retain publication receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: comic-finalization-receipt
+          path: comic-finalization-receipt.json
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
-
   deploy:
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 20
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Smoke test deployed portfolio
+      - name: Smoke test exact deployed publication
         env:
-          DEPLOY_URL: ${{ steps.deployment.outputs.page_url }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
-          for i in {1..12}; do
-            html="$(curl --max-time 30 -fsSL "$DEPLOY_URL" || true)"
-            if echo "$html" | grep -q 'assets/' && ! echo "$html" | grep -q 'src="/src/main.tsx"'; then
-              echo "Deployed Vite bundle detected."
-              exit 0
+          for i in {1..18}; do
+            if curl -fsSL "${SITE_URL%/}/techops-comic/publication.json?check=${GITHUB_SHA}" -o publication.json && python3 -c 'import json,os; p=json.load(open("publication.json")); assert p["sourceCommit"]==os.environ["GITHUB_SHA"]; assert p["earlierEditionsPublic"] is False; assert p["books"][0]["label"]=="Full collection"; assert [b["pageCount"] for b in p["books"]]==[316,49,133]'; then
+              break
             fi
+            if [ "$i" = 18 ]; then exit 1; fi
             sleep 10
           done
-          echo "GitHub Pages is not serving the built Vite artifact." >&2
-          exit 1
+          for asset in TechOps-Hero-Revision-11.pdf TechOps-Hero-Revision-11.1.pdf TechOps-Hero-Revision-F-Complete.pdf revision-f/001.webp volume-xiii/001.webp; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' "${SITE_URL%/}/techops-comic/${asset}?retired=${GITHUB_SHA}")"
+            test "$code" = 404 || test "$code" = 410 || { echo "Retired asset still public: $asset ($code)"; exit 1; }
+          done
+          echo 'Exact current publication and retired-asset removal verified.'
+
       - uses: actions/download-artifact@v4
+        if: inputs.release_id != ''
         with:
-          name: comic-live-verifier
+          name: publisher-verifier
           path: verifier
-      - name: Verify live exact commit and every declared release file
+      - name: Verify live exact release and every declared byte
+        if: inputs.release_id != ''
         env:
           RELEASE: ${{ inputs.release_id }}
-          DEPLOY_URL: ${{ steps.deployment.outputs.page_url }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          python3 - <<'PY'
-          import json,os,subprocess,pathlib
-          release=os.environ['RELEASE'];url=os.environ['DEPLOY_URL'].rstrip('/')+'/'
-          command=['python3','verifier/scripts/comic-publisher.py','live','--url',url,'--commit',os.environ['GITHUB_SHA']]
-          if release:command += ['--manifest','verifier/publishing/releases/'+release+'.json']
-          result=subprocess.run(command)
-          receipt={'status':('PUBLISHED_HASH_VERIFIED' if release else 'SITE_COMMIT_VERIFIED') if result.returncode==0 else 'LIVE_VERIFICATION_FAILED',
-            'release_id':release or None,'commit':os.environ['GITHUB_SHA'],'url':url,'physical_mobile_test':False}
+          python3 - <<'PYCODE'
+          import json,os,pathlib,subprocess
+          release=os.environ['RELEASE'];url=os.environ['SITE_URL'].rstrip('/')+'/'
+          result=subprocess.run(['python3','verifier/scripts/comic-publisher.py','live','--manifest','verifier/publishing/releases/'+release+'.json','--url',url,'--commit',os.environ['GITHUB_SHA']])
+          receipt={'status':'PUBLISHED_HASH_VERIFIED' if result.returncode==0 else 'LIVE_VERIFICATION_FAILED','release_id':release,'commit':os.environ['GITHUB_SHA'],'url':url,'physical_mobile_test':False}
           pathlib.Path('publisher-live-receipt.json').write_text(json.dumps(receipt,indent=2))
-          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:f.write('## '+receipt['status']+'\n\nCommit: '+receipt['commit']+'\n')
           raise SystemExit(result.returncode)
-          PY
+          PYCODE
+      - name: Persist verified completion independently of chat and artifact expiry
+        if: inputs.release_id != ''
+        uses: actions/github-script@v7
+        env:
+          RELEASE: ${{ inputs.release_id }}
+          MANIFEST_HASH: ${{ inputs.manifest_sha256 }}
+        with:
+          script: |
+            const fs=require('fs');
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/verifier/scripts/publisher-control.mjs`);
+            const receipt=JSON.parse(fs.readFileSync('publisher-live-receipt.json'));
+            await c.recordLiveReceipt(github,context.repo,process.env.RELEASE,process.env.MANIFEST_HASH,context.sha,receipt,context.runId);
+            await core.summary.addHeading(receipt.status).addRaw(`Release: ${receipt.release_id}; commit: ${receipt.commit}. Emulated browser tests are not physical-device certification.`).write();
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && inputs.release_id != ''
         with:
           name: publisher-live-receipt
           path: publisher-live-receipt.json

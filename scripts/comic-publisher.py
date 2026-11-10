@@ -50,7 +50,9 @@ def file_spec(spec: dict, prefix: str) -> None:
 
 def load_manifest(path: Path) -> dict:
     m = json.loads(path.read_text(encoding='utf-8'))
-    need(m['schema_version'] == 1 and m['repository'] == REPO, 'Wrong schema or repository')
+    need(m['schema_version'] in (1, 2) and m['repository'] == REPO, 'Wrong schema or repository')
+    if m['schema_version'] == 2:
+        return validate_v2(m)
     need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,79}', m['id'])), 'Invalid release ID')
     source = m['source']
     need(bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', source['tag'])), 'Invalid source tag')
@@ -82,6 +84,82 @@ def load_manifest(path: Path) -> dict:
     need(type(m['archive_gate']) is bool, 'archive_gate must be explicit')
     need(m['site_url'] in ('https://kterminal.site/', 'https://ninja-ops-guy.github.io/theemrld-portfolio/'), 'Unapproved website origin')
     return m
+
+def validate_v2(m: dict) -> dict:
+    need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,79}', m['id'])), 'Invalid release ID')
+    need(m.get('publication_policy') == 'current-only', 'Current-only publication policy required')
+    need(m['edition'] in ('g', 'xiii-r', 'xiv'), 'Unknown current edition')
+    need(bool(re.fullmatch('[a-f0-9]{40}', m['base_media_commit'])), 'Immutable base media commit required')
+    target, source, pdf = m['target'], m['source'], m['pdf']
+    need(bool(re.fullmatch(r'(?:release|publisher)/[A-Za-z0-9_./-]+', target['branch']))
+         and '..' not in target['branch'] and not target['branch'].endswith('/'), 'Unsafe release branch')
+    need(type(target['pr']) is int and target['pr'] > 0, 'Existing PR required')
+    need(bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', source['tag'])), 'Invalid source tag')
+    need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.zip', source['asset'])), 'Invalid ZIP name')
+    sha(source['sha256'])
+    need(type(source['bytes']) is int and 0 < source['bytes'] < 2_000_000_000, 'Invalid ZIP size')
+    need(pdf['path'] == 'master.pdf', 'Source master must be master.pdf')
+    need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.pdf', pdf['filename'])), 'Invalid master filename')
+    file_spec(pdf, 'master.pdf')
+    need(type(m['page_count']) is int and 0 < m['page_count'] <= 5000
+         and len(m['images']) == m['page_count'], 'Page count mismatch')
+    for i, spec in enumerate(m['images'], 1):
+        file_spec(spec, 'techops-comic/')
+        need(PurePosixPath(spec['path']).name == f'{i:03d}.webp', 'Non-contiguous numbered artwork')
+        need(all(type(spec[k]) is int and 0 < spec[k] <= 16383 for k in ('width', 'height')), 'Invalid image dimensions')
+    need(len({str(PurePosixPath(i['path']).parent) for i in m['images']}) == 1, 'Images must use one volume directory')
+    need(sum(x['bytes'] for x in m['images']) + pdf['bytes'] <= 2 * BUDGET, 'Expanded source exceeds safety budget')
+    changed = m['changed_pages']
+    need(isinstance(changed, list) and changed and all(type(n) is int and 1 <= n <= m['page_count'] for n in changed)
+         and changed == sorted(set(changed)), 'Changed pages must be unique sorted page numbers')
+    for field in ('content_revision', 'compatibility_revision'):
+        need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,119}', m[field])), 'Invalid revision identity')
+    corrections = m['corrections']
+    need(isinstance(corrections, list) and corrections, 'Explicit correction dispositions required')
+    need(len({c['id'] for c in corrections}) == len(corrections), 'Duplicate correction ID')
+    for correction in corrections:
+        need(isinstance(correction.get('id'), str) and 0 < len(correction['id']) <= 120, 'Invalid correction ID')
+        need(correction.get('status') in ('included', 'not_applicable'), 'Unresolved correction blocks registration')
+        need(isinstance(correction.get('evidence'), str) and 0 < len(correction['evidence']) <= 2000, 'Correction evidence required')
+    need(m['site_url'] in ('https://kterminal.site/', 'https://ninja-ops-guy.github.io/theemrld-portfolio/'), 'Unapproved website origin')
+    need(m['reader_path'] == '/#/comic?edition=' + m['edition'] + '&page={page}', 'Unapproved reader route')
+    return m
+
+
+def source_specs(m: dict) -> list[dict]:
+    if m['schema_version'] == 2:
+        return [m['pdf']] + [m['images'][n - 1] for n in m['changed_pages']]
+    return m['pdf']['parts'] + m['images']
+
+
+def verify_source(m: dict, root: Path) -> None:
+    if m['schema_version'] != 2:
+        verify_tree(m, root)
+        return
+    for spec in source_specs(m):
+        path = joined(root, spec['path'])
+        verify_file(path, spec)
+        if spec['path'] != 'master.pdf':
+            need(webp_dimensions(path) == (spec['width'], spec['height']), 'Image dimensions changed')
+    with (root / 'master.pdf').open('rb') as f:
+        need(f.read(5) == b'%PDF-', 'Master has no PDF header')
+
+
+def verify_publication(m: dict, root: Path) -> dict:
+    pub = json.loads((root / 'techops-comic/publication.json').read_text())
+    need(pub.get('earlierEditionsPublic') is False, 'Earlier website editions must remain retired')
+    book = next((b for b in pub['books'] if b['id'] == m['edition']), None)
+    need(book is not None, 'Published edition missing')
+    media = book.get('mediaCommit', '')
+    need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Immutable edition media commit required')
+    need(book['pageCount'] == m['page_count'] and book['pdfSha256'] == m['pdf']['sha256'], 'Published master identity mismatch')
+    need(book.get('publisherRelease') == m['id'] and book.get('contentRevision') == m['content_revision'], 'Published release identity mismatch')
+    prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
+    expected_base = prefix + str(PurePosixPath(m['images'][0]['path']).parent) + '/'
+    expected_pdf = 'https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename']
+    need(book.get('imageBase') == expected_base and book['pdfUrl'] == expected_pdf, 'Published source URLs mismatch')
+    return book
+
 
 def joined(root: Path, name: str) -> Path:
     root = root.resolve()
@@ -119,11 +197,16 @@ def verify_file(path: Path, spec: dict) -> None:
     need(digest(path) == spec['sha256'], 'SHA-256 mismatch: ' + str(path))
 
 def verify_tree(m: dict, root: Path, built: bool = False) -> None:
+    if m['schema_version'] == 2 and built:
+        verify_publication(m, root)
+        return
     for image in m['images']:
         name = image['path'][7:] if built else image['path']
         p = joined(root, name)
         verify_file(p, image)
         need(webp_dimensions(p) == (image['width'], image['height']), 'Image dimensions changed: ' + name)
+    if m['schema_version'] == 2:
+        return
     if built:
         p = joined(root, m['pdf']['path'][7:])
         verify_file(p, m['pdf'])
@@ -144,7 +227,7 @@ def verify_tree(m: dict, root: Path, built: bool = False) -> None:
 
 def extract(m: dict, archive: Path, root: Path) -> None:
     verify_file(archive, m['source'])
-    specs = {s['path']: s for s in m['pdf']['parts'] + m['images']}
+    specs = {s['path']: s for s in source_specs(m)}
     # Nothing is copied to the repository until every archived file is verified.
     with tempfile.TemporaryDirectory(prefix='comic-verified-') as tmp:
         stage = Path(tmp)
@@ -166,7 +249,7 @@ def extract(m: dict, archive: Path, root: Path) -> None:
                 p.parent.mkdir(parents=True, exist_ok=True)
                 with z.open(entry) as src, p.open('wb') as dst:
                     shutil.copyfileobj(src, dst, CHUNK)
-            verify_tree(m, stage)
+            verify_source(m, stage)
         # Preflight all destination paths before performing the first copy.
         for name in specs:
             joined(root, name)
@@ -174,7 +257,7 @@ def extract(m: dict, archive: Path, root: Path) -> None:
             p = joined(root, name)
             p.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(stage / name, p)
-    verify_tree(m, root)
+    verify_source(m, root)
 
 def size_gate(root: Path) -> int:
     need(root.is_dir(), 'Build output is missing')
@@ -195,6 +278,10 @@ def marker(root: Path, commit: str, m: dict | None = None) -> dict:
              'pdf_sha256': m['pdf']['sha256'] if m else None,
              'page_count': m['page_count'] if m else None,
              'status': 'BUILT_NOT_YET_LIVE'}
+    if m and m['schema_version'] == 2:
+        book = verify_publication(m, root)
+        verify_remote(m, book['mediaCommit'])
+        state.update(media_commit=book['mediaCommit'], pdf_url=book['pdfUrl'], image_base=book['imageBase'])
     p = root / 'publishing/deployment.json'
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(state, sort_keys=True) + '\n')
@@ -221,6 +308,22 @@ def live_file(url: str, spec: dict) -> None:
             h.update(b)
     need(total == spec['bytes'] and h.hexdigest() == spec['sha256'], 'Live bytes differ: ' + url)
 
+def verify_remote(m: dict, media: str) -> None:
+    need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Immutable media identity required')
+    prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
+    assets = [(prefix + spec['path'], spec) for spec in m['images']]
+    assets += [('https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename'], m['pdf'])]
+    for url, spec in assets:
+        for attempt in range(3):
+            try:
+                live_file(url, spec)
+                break
+            except (OSError, ValueError):
+                if attempt == 2:
+                    raise
+                time.sleep(3)
+
+
 def verify_live(base: str, commit: str, m: dict | None) -> None:
     need(base in ('https://kterminal.site/', 'https://ninja-ops-guy.github.io/theemrld-portfolio/'), 'Unapproved live origin')
     need(bool(re.fullmatch('[a-f0-9]{40}', commit)), 'Exact commit required')
@@ -238,10 +341,19 @@ def verify_live(base: str, commit: str, m: dict | None) -> None:
                 raise GateError('LIVE_VERIFICATION_BLOCKED: exact deployed commit not observable')
             time.sleep(10)
     if m:
-        for spec in m['images'] + [m['pdf']]:
+        if m['schema_version'] == 2:
+            media = got.get('media_commit', '')
+            need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Live media commit missing')
+            image_base = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
+            pdf_url = 'https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename']
+            specs = [(image_base + spec['path'], spec) for spec in m['images']] + [(pdf_url, m['pdf'])]
+            need(got.get('pdf_url') == pdf_url, 'Wrong live master URL')
+        else:
+            specs = [(base + spec['path'][7:] + '?release=' + m['id'], spec) for spec in m['images'] + [m['pdf']]]
+        for file_url, spec in specs:
             for attempt in range(3):
                 try:
-                    live_file(base + spec['path'][7:] + '?release=' + m['id'], spec)
+                    live_file(file_url, spec)
                     break
                 except (OSError, ValueError):
                     if attempt == 2:
@@ -279,3 +391,4 @@ if __name__ == '__main__':
     except (GateError, KeyError, OSError, zipfile.BadZipFile, json.JSONDecodeError) as exc:
         print(f'PUBLISHING_BLOCKED: {exc}', file=sys.stderr)
         sys.exit(2)
+

@@ -1,19 +1,14 @@
-name: Import verified Volume XIV assets
-# Compatibility entrypoint. Source release events are owned by Comic Publisher.
+name: Legacy Volume XIV importer (retired)
 on:
   workflow_dispatch:
 permissions:
   contents: read
-  actions: write
 jobs:
-  forward:
-    if: github.actor == github.repository_owner
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({...context.repo,workflow_id:'comic-publisher.yml',ref:'main',
-              inputs:{release_id:'xiv-corrected-20261110',action:'stage'}});
-            await core.summary.addHeading('Handed off to Comic Publisher').addRaw('The general publisher now owns verification and staging. This dispatch is not evidence of publication.').write();
+      - name: Explain safe revision publishing
+        run: |
+          echo 'The old #72 importer is retired. Do not upload its old ZIP.'
+          echo 'Use Comic Publisher with a reconciled v2 release manifest and the existing revision PR.'
+          echo 'See docs/COMIC_PUBLISHER.md. Nothing was uploaded, staged, merged or deployed.'
