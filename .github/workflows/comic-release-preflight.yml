@@ -13,11 +13,11 @@ on:
       artwork_dir:
         description: "Path within public/ holding numbered pages"
         required: true
-        default: "comic/volume-xiv"
+        default: "techops-comic/volume-xiv"
       pdf_path:
         description: "Path to the original PDF within public/"
         required: true
-        default: "TechOps-Hero-Volume-XIV.pdf"
+        default: "techops-comic/volume-xiv/TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf"
   pull_request:
     paths:
       - "public/**"
@@ -70,7 +70,7 @@ jobs:
           mib=size/1024/1024
           print(f'Deployment payload: {mib:.1f} MiB')
           with open('release-preflight.txt','w') as f: f.write(f'Payload: {mib:.1f} MiB\n')
-          if size>950*1024*1024: sys.exit('Deployment exceeds 950 MiB safety budget; externalize older PDFs or artwork')
+          if size>1000000000: sys.exit('Deployment exceeds 1,000,000,000-byte Pages limit; externalize older PDFs or artwork')
           PY
       - name: Store preflight receipt
         if: always()
