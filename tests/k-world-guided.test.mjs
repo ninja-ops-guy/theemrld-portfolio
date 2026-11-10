@@ -33,7 +33,7 @@ test('Soundtrack creation offers current books only and never silently remaps re
   assert.ok(source.includes("edition: 'g' as GuidedEdition"));
   assert.ok(source.includes('Object.entries(displayLabels).map'));
   assert.ok(!source.includes('Object.entries(GUIDED_EDITIONS).map'));
-  assert.ok(source.includes('if (!Object.hasOwn(displayLabels, cue.edition))'));
+  assert.ok(source.includes('if (!Object.prototype.hasOwnProperty.call(displayLabels, cue.edition))'));
   const historical = scoreWith(cue());
   assert.equal(resolveGuidedCue(historical, at(3, 'g')), null);
   assert.equal(resolveGuidedCue(historical, at(3, 'xiii-r')), null);
