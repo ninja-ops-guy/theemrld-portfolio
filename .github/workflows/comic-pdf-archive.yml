@@ -1,0 +1,32 @@
+name: Preserve approved historical comic PDFs
+
+on:
+  push:
+    branches: [release/techops-volume-xiv-20261110]
+    paths:
+      - .github/workflows/comic-pdf-archive.yml
+      - scripts/publish-comic-pdf-archive.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: techops-hero-pdf-archive-20261110
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && github.ref == 'refs/heads/release/techops-volume-xiv-20261110'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout approved archive inputs
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify, archive, and verify readback of the three PDFs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish-comic-pdf-archive.py
