@@ -7,6 +7,7 @@ import revisionF from '../data/comic-revision-f.json';
 import coverArt from '../data/comic-revision-f-covers.json';
 import volumeFive from '../data/comic-volume-five.json';
 import volumeThirteen from '../data/comic-volume-thirteen.json';
+import volumeFourteen from '../data/comic-volume-fourteen.json';
 import ComicMusicBar from '../components/ComicMusicBar';
 import './TechOpsComic.css';
 
@@ -16,6 +17,9 @@ const revision = '11.2';
 const collectedPdf = base + `TechOps-Hero-Revision-${revision}.pdf`;
 const revisionFArtRevision = 'continuity-hq-46943e14';
 const revisionFPdf = base + `TechOps-Hero-Revision-F-Complete.pdf?rev=${revisionFArtRevision}`;
+const volumeFourteenBase = base + 'volume-xiv/';
+const volumeFourteenPdf = `${volumeFourteenBase}TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf?rev=${volumeFourteen.artRevision}`;
+const volumeFourteenImageUrl = (page: number) => `${volumeFourteenBase}${String(page).padStart(3, '0')}.webp?rev=${volumeFourteen.artRevision}`;
 const volumeThirteenBase = base + 'volume-xiii/';
 const volumeThirteenPdf = `${volumeThirteenBase}TechOps-Hero-Volume-XIII-The-Last-Launch.pdf?rev=${volumeThirteen.artRevision}`;
 const volumeThirteenImageUrl = (page: number) => `${volumeThirteenBase}${String(page).padStart(3, '0')}.webp?rev=${volumeThirteen.artRevision}`;
@@ -72,6 +76,16 @@ function IllustratedCover({ art, label, title, inReader = false, onError }: {
 }
 
 const books = {
+  xiv: {
+    total: volumeFourteen.pageCount,
+    sections: volumeFourteen.sections,
+    cards: volumeFourteen.sections.map(section => ({ ...section, cover: volumeFourteenImageUrl(section.start) })),
+    scenes: volumeFourteen.scenes,
+    links: volumeFourteen.links as Record<number, { page: number; rect: number[] }[]>,
+    describe: (page: number) => volumeFourteen.descriptions[page - 1],
+    imageUrl: volumeFourteenImageUrl,
+    bookmarkKey: 'techops-hero:volume-xiv:corrected:page',
+  },
   xiii: {
     total: volumeThirteen.pageCount,
     sections: volumeThirteen.sections,
@@ -124,18 +138,27 @@ export default function TechOpsComic() {
   const [params, setParams] = useSearchParams();
   const requestedEdition = params.get('edition');
   // Old URLs used page numbers from a different edition.
-  const edition = requestedEdition === 'xiii' ? 'xiii' : requestedEdition === 'f' || (!params.has('page') && requestedEdition !== 'legacy') ? 'f' : 'legacy';
+  const edition = requestedEdition === 'xiv' ? 'xiv' : requestedEdition === 'xiii' ? 'xiii' : requestedEdition === 'f' || (!params.has('page') && requestedEdition !== 'legacy') ? 'f' : 'legacy';
   const isRevisionF = edition === 'f';
   const isVolumeThirteen = edition === 'xiii';
+  const isVolumeFourteen = edition === 'xiv';
   const { total, sections, cards, scenes, links, describe, imageUrl, bookmarkKey } = books[edition];
   const page = validPage(params.get('page'), total);
   const fromWorld = params.get('from') === 'world';
-  const [bookmarks, setBookmarks] = useState(() => ({ f: readBookmark(books.f), legacy: readBookmark(books.legacy), xiii: readBookmark(books.xiii) }));
+  const [bookmarks, setBookmarks] = useState(() => ({ f: readBookmark(books.f), legacy: readBookmark(books.legacy), xiii: readBookmark(books.xiii), xiv: readBookmark(books.xiv) }));
   const savedPage = bookmarks[edition];
   const alternateEdition = new URLSearchParams();
   if (fromWorld) alternateEdition.set('from', 'world');
   if (isRevisionF) alternateEdition.set('edition', 'legacy');
   const [revisionFReady, setRevisionFReady] = useState(false);
+  const [volumeFourteenReady, setVolumeFourteenReady] = useState(false);
+  useEffect(() => {
+    let active = true;
+    fetch(volumeFourteenPdf, {method: 'HEAD'}).then(response => {
+      if (active) setVolumeFourteenReady(response.ok && /application\/pdf/i.test(response.headers.get('content-type') ?? ''));
+    }).catch(() => { if (active) setVolumeFourteenReady(false); });
+    return () => { active = false; };
+  }, []);
   useEffect(() => {
     let active = true;
     // Never advertise a download until its actual PDF asset is on the public site.
@@ -172,18 +195,19 @@ export default function TechOpsComic() {
   const openingCover = isRevisionF && page === section.start && section.label !== 'Interlude'
     ? illustratedCovers[page] : undefined;
   const readingVolumeFive = page > 0 && section.label === 'Vol. V';
-  const pdfUrl = isVolumeThirteen ? `${volumeThirteenPdf}#page=${page}` : isRevisionF ? `${revisionFPdf}#page=${page}` : readingVolumeFive ? mobilePdf : collectedPdf;
+  const pdfUrl = isVolumeFourteen ? `${volumeFourteenPdf}#page=${page}` : isVolumeThirteen ? `${volumeThirteenPdf}#page=${page}` : isRevisionF ? `${revisionFPdf}#page=${page}` : readingVolumeFive ? mobilePdf : collectedPdf;
   const choosePage = useCallback((number: number) => {
     setIntro(false);
     const q = new URLSearchParams();
     if (fromWorld) q.set('from', 'world');
-    if (isVolumeThirteen) q.set('edition', 'xiii');
+    if (isVolumeFourteen) q.set('edition', 'xiv');
+    else if (isVolumeThirteen) q.set('edition', 'xiii');
     else if (isRevisionF && number) q.set('edition', 'f');
     else if (!isRevisionF && !number) q.set('edition', 'legacy');
     if (number) q.set('page', String(number));
     setParams(q, { replace: page > 0 && number > 0 });
     setFailedPage(0);
-  }, [fromWorld, isRevisionF, isVolumeThirteen, page, setParams]);
+  }, [fromWorld, isRevisionF, isVolumeThirteen, isVolumeFourteen, page, setParams]);
 
   useEffect(() => {
     const original = document.title;
@@ -222,6 +246,7 @@ export default function TechOpsComic() {
       <Link to={fromWorld ? '/k/terminal' : '/terminal'}><ArrowLeft size={16} /> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
       <nav className="comic-downloads" aria-label="PDF downloads">
+        {volumeFourteenReady && <a className="comic-download" href={volumeFourteenPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Vol. XIV · The System Is Healthy PDF</a>}
         <a className="comic-download" href={volumeThirteenPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Vol. XIII · The Last Launch PDF</a>
         {revisionFReady && <a className="comic-download" href={revisionFPdf} target="_blank" rel="noopener noreferrer"><BookOpen size={16} /> Complete {revisionF.pageCount}-page Revision F PDF</a>}
         {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
@@ -229,33 +254,33 @@ export default function TechOpsComic() {
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
       </nav>
     </header>
-    <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
+    <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeFourteen ? volumeFourteen.artRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
     {!page ? <>
       <section className="comic-hero" style={{'--dock': `url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true" />
         <button type="button" className="comic-reel-toggle" onClick={() => setIntro(true)}>Replay intro</button>
         <div className="comic-hero-copy">
-          <p className="comic-overline"><span /> {isVolumeThirteen ? 'VOLUME XIII · THE LAST LAUNCH' : 'THE COLLECTED EDITION'}</p>
+          <p className="comic-overline"><span /> {isVolumeFourteen ? 'VOLUME XIV · THE SYSTEM IS HEALTHY' : isVolumeThirteen ? 'VOLUME XIII · THE LAST LAUNCH' : 'THE COLLECTED EDITION'}</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line, row) =>
             <span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i) =>
               <b key={i} style={{'--i': row * 7 + i} as CSSProperties}>{c === ' ' ? '\u00a0' : c}</b>)}</span>)}</h1>
           <p className="comic-byline">By Mike Olivares</p>
           <div className="comic-actions">
             <button className="comic-primary" onClick={() => choosePage(savedPage > 1 ? savedPage : 1)}>{savedPage > 1 ? `Resume · p. ${savedPage}` : 'Read the comic'} <ArrowRight size={18}/></button>
-            <span>{isVolumeThirteen ? 'Volume XIII' : `${isRevisionF ? 12 : legacyVolumes.length} volumes`} <i> / </i> {total} pages</span>
+            <span>{isVolumeFourteen ? 'Volume XIV' : isVolumeThirteen ? 'Volume XIII' : `${isRevisionF ? 12 : legacyVolumes.length} volumes`} <i> / </i> {total} pages</span>
           </div>
         </div>
       </section>
       <section className="comic-library" aria-label="Volumes">
         <div className="comic-library-heading">
-          <h2>{isVolumeThirteen ? 'The Last Launch' : 'The volumes'}</h2><span>{isVolumeThirteen ? 'VOL. XIII · REVISED EDITION' : isRevisionF ? 'VOLS. I–XII · REVISION F' : 'VOLS. I–V · EARLIER EDITION'}</span>
+          <h2>{isVolumeFourteen ? 'The System Is Healthy' : isVolumeThirteen ? 'The Last Launch' : 'The volumes'}</h2><span>{isVolumeFourteen ? 'VOL. XIV · CORRECTED EDITION' : isVolumeThirteen ? 'VOL. XIII · REVISED EDITION' : isRevisionF ? 'VOLS. I–XII · REVISION F' : 'VOLS. I–V · EARLIER EDITION'}</span>
         </div>
-        <div className={'comic-volumes' + (isRevisionF || isVolumeThirteen ? ' comic-volumes-complete' : '')}>{cards.map(item => {
+        <div className={'comic-volumes' + (isRevisionF || isVolumeThirteen || isVolumeFourteen ? ' comic-volumes-complete' : '')}>{cards.map(item => {
           const art = isRevisionF ? illustratedCovers[item.start] : undefined;
           return <button key={item.start} onClick={() => choosePage(item.start)}>
             {art
               ? <IllustratedCover art={art} label={item.label} title={item.title} />
-              : <img src={item.cover} alt="" loading="lazy" width={isRevisionF || isVolumeThirteen ? 1080 : 420} height={isRevisionF || isVolumeThirteen ? 1620 : 180} />}
+              : <img src={item.cover} alt="" loading="lazy" width={isRevisionF || isVolumeThirteen || isVolumeFourteen ? 1080 : 420} height={isVolumeFourteen ? 1665 : isRevisionF || isVolumeThirteen ? 1620 : 180} />}
             <div className="comic-vol-meta">{item.label}<span>PP. {item.start}–{item.end}</span></div>
             <div className="comic-vol-title">{item.title} <ArrowRight size={18}/></div>
           </button>;
@@ -267,9 +292,20 @@ export default function TechOpsComic() {
           <img src={volumeThirteenImageUrl(1)} alt="" loading="lazy" width="1080" height="1620" />
           <div className="comic-vol-meta">Vol. XIII<span>PP. {revisionF.pageCount + 1}–{revisionF.pageCount + volumeThirteen.pageCount}</span></div>
           <div className="comic-vol-title">{volumeThirteen.title} <ArrowRight size={18}/></div>
+        </button>}{(isRevisionF || isVolumeThirteen) && volumeFourteenReady && <button onClick={() => {
+          const q = new URLSearchParams({ edition: 'xiv', page: '1' });
+          if (fromWorld) q.set('from', 'world');
+          setParams(q);
+        }}>
+          <img src={volumeFourteenImageUrl(1)} alt="" loading="lazy" width="1080" height="1665" />
+          <div className="comic-vol-meta">Vol. XIV<span>PP. 1–{volumeFourteen.pageCount}</span></div>
+          <div className="comic-vol-title">{volumeFourteen.title} <ArrowRight size={18}/></div>
         </button>}</div>
-        {!isVolumeThirteen && <p><Link className="comic-edition-link" to={`/comic?edition=xiii&page=1${fromWorld ? '&from=world' : ''}`}>
+        {!isVolumeThirteen && !isVolumeFourteen && <p><Link className="comic-edition-link" to={`/comic?edition=xiii&page=1${fromWorld ? '&from=world' : ''}`}>
           Continue with Volume XIII · The Last Launch <ArrowRight size={18}/>
+        </Link></p>}
+        {volumeFourteenReady && !isVolumeFourteen && <p><Link className="comic-edition-link" to={`/comic?edition=xiv&page=1${fromWorld ? '&from=world' : ''}`}>
+          Continue with Volume XIV · The System Is Healthy <ArrowRight size={18}/>
         </Link></p>}
         <Link className="comic-edition-link" to={{ pathname: '/comic', search: alternateEdition.toString() }}>
           {isRevisionF ? 'Earlier Volumes I–V reader' : 'Read the complete Revision F collection'}
@@ -297,7 +333,7 @@ export default function TechOpsComic() {
               ? <IllustratedCover key={page} art={openingCover} label={section.label} title={section.title}
                   inReader onError={() => setFailedPage(page)} />
               : <img key={`${edition}-${page}`} className="comic-page-image" src={imageUrl(page)} alt={`Page ${page}. ${describe(page)}`} width="1080" height="1620" onError={() => setFailedPage(page)} />}
-            {isVolumeThirteen && page === total && <div className="comic-end-card">To be continued.</div>}
+            {(isVolumeThirteen || isVolumeFourteen) && page === total && <div className="comic-end-card">To be continued.</div>}
             {links[page]?.map(({page:target,rect:[x1,y1,x2,y2]}, i) =>
               <button key={i} aria-label={`Read page ${target}: ${describe(target)}`} className="comic-hotspot" onClick={() => choosePage(target)}
                 style={{left:`${100*x1/432}%`,top:`${100*y1/648}%`,width:`${100*(x2-x1)/432}%`,height:`${100*(y2-y1)/648}%`}} />)}
