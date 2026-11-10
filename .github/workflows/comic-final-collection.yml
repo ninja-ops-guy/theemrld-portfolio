@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'src/pages/*Comic*'
+      - 'src/components/GuidedScoreDialog.tsx'
       - 'src/data/comic-*'
       - 'scripts/finalize-comic-dist.mjs'
       - 'tests/comic-*'
@@ -14,6 +15,7 @@ on:
     branches: [main]
     paths:
       - 'src/pages/*Comic*'
+      - 'src/components/GuidedScoreDialog.tsx'
       - 'src/data/comic-*'
       - 'scripts/finalize-comic-dist.mjs'
       - 'tests/comic-*'
@@ -38,7 +40,7 @@ jobs:
       - name: Build and qualify current-only publication
         run: |
           npm install --no-audit --no-fund
-          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs tests/k-world-guided*.test.mjs
           npm run build
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
       - uses: actions/setup-python@v5
@@ -60,7 +62,9 @@ jobs:
         env:
           COMIC_BASE_URL: http://127.0.0.1:4173/
           COMIC_QA_DIR: qa/comic-final-local
-        run: python tests/comic-final-browser.py
+        run: |
+          python tests/comic-final-browser.py
+          python tests/comic-final-polish.py
       - name: Await exact production publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -74,7 +78,9 @@ jobs:
         env:
           COMIC_BASE_URL: https://kterminal.site/
           COMIC_QA_DIR: qa/comic-final-live
-        run: python tests/comic-final-browser.py
+        run: |
+          python tests/comic-final-browser.py
+          python tests/comic-final-polish.py
       - name: Retain qualification receipts and screenshots
         if: always()
         uses: actions/upload-artifact@v4
