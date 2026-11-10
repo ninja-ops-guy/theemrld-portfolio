@@ -53,7 +53,7 @@ jobs:
               for entry in z.infolist():
                   name=entry.filename
                   if entry.is_dir(): continue
-                  if name not in allowed_parts and not re.fullmatch(r'public/techops-comic/volume-xiv/(?:0[0-9]{2})\.webp',name):
+                  if name not in allowed_parts and not re.fullmatch(r'public/techops-comic/volume-xiv/(?:[0-9]{3})\.webp',name):
                       sys.exit('Unexpected archive entry: '+name)
                   if name in extracted or entry.file_size>100_000_000: sys.exit('Duplicate or oversized entry')
                   extracted.add(name)
