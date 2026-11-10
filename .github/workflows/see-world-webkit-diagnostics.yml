@@ -10,11 +10,11 @@ permissions:
 jobs:
   recovery:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        movement: [original, bounded]
+        movement: [original]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,10 +74,11 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Run four isolated diagnostic cases (not full recovery certification)
+      - name: Run original full ordering in one browser with crash diagnostics
         env:
           QA_ENGINE: webkit
           QA_MOVEMENT: ${{ matrix.movement }}
+          QA_SCOPE: full
           QA_BASE: http://127.0.0.1:8765
           QA_OUTPUT: results/browser
           QA_SOURCE: qa-source
@@ -88,7 +89,11 @@ jobs:
           DEBUG: pw:browser
         run: |
           set -o pipefail
-          timeout --signal=TERM --kill-after=15s 13m python harness/qa-origin-recovery/run-diagnostic-cases.py 2>&1 | tee results/runner.log
+          set +e
+          timeout --signal=TERM --kill-after=15s 15m python -u harness/qa-origin-recovery/diagnose-webkit.py 2>&1 | tee results/runner.log
+          status=${PIPESTATUS[0]}
+          printf '{"exit":%s,"watchdogSeconds":900,"killGraceSeconds":15}\n' "$status" > results/full-process-receipt.json
+          exit "$status"
       - name: Verify application trees stayed unchanged
         if: always()
         run: |
@@ -99,7 +104,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: webkit-objective-diagnostic-${{ matrix.movement }}
+          name: webkit-full-order-diagnostic-${{ matrix.movement }}
           path: results/
           retention-days: 14
 
