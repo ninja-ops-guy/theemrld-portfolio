@@ -105,6 +105,11 @@ jobs:
             scripts/publisher-control.mjs
             publishing/releases/*.json
           retention-days: 90
+      - name: Retain expected publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: expected-comic-publication
+          path: dist/techops-comic/publication.json
       - name: Retain publication receipt
         uses: actions/upload-artifact@v4
         with:
@@ -130,13 +135,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: expected-comic-publication
+          path: expected-publication
       - name: Smoke test exact deployed publication
         env:
           SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
           for i in {1..18}; do
-            if curl -fsSL "${SITE_URL%/}/techops-comic/publication.json?check=${GITHUB_SHA}" -o publication.json && python3 -c 'import json,os; p=json.load(open("publication.json")); assert p["sourceCommit"]==os.environ["GITHUB_SHA"]; assert p["earlierEditionsPublic"] is False; assert p["books"][0]["label"]=="Full collection"; assert [b["pageCount"] for b in p["books"]]==[316,49,133]'; then
+            if curl -fsSL "${SITE_URL%/}/techops-comic/publication.json?check=${GITHUB_SHA}" -o publication.json && python3 -c 'import json,os; p=json.load(open("publication.json")); assert p["sourceCommit"]==os.environ["GITHUB_SHA"]; assert p["earlierEditionsPublic"] is False; expected=json.load(open("expected-publication/publication.json")); assert p==expected'; then
               break
             fi
             if [ "$i" = 18 ]; then exit 1; fi

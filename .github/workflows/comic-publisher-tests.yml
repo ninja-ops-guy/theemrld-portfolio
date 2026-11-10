@@ -8,7 +8,10 @@ on:
       - tests/test_comic*.py
       - tests/publisher-control.test.mjs
       - tests/comic-publisher-pins.test.mjs
+      - tests/comic-publication-catalogue.test.mjs
       - scripts/publisher-control.mjs
+      - src/data/comic-publication-catalogue.json
+      - scripts/finalize-comic-dist.mjs
       - publishing/**
       - .github/workflows/comic-publisher*.yml
       - .github/workflows/pages.yml
@@ -28,7 +31,7 @@ jobs:
         with:
           node-version: '22'
       - run: python3 -m unittest discover -s tests -p 'test_comic*.py' -v
-      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs
+      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs tests/comic-publication-catalogue.test.mjs
       - name: Validate registered manifests
         run: |
           for manifest in publishing/releases/*.json; do
@@ -44,4 +47,3 @@ jobs:
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
           python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA"
-
