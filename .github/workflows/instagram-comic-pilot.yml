@@ -1,92 +1,32 @@
-name: Instagram Comic Pilot Preview
-
+name: Instagram Full collection review
 on:
   pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/instagram-comic-pilot.yml'
-      - 'scripts/render_instagram_comic.py'
-      - 'scripts/test_instagram_comic.py'
-      - 'docs/COMIC_CURRENT_RELEASE.json'
-      - 'public/techops-comic/revision-f/**'
+    paths: ['scripts/*instagram*', 'docs/INSTAGRAM_APPROVED_SOURCE.json', '.github/workflows/instagram-comic-pilot.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
-  preview:
+  review:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          filter: blob:none
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /docs/COMIC_CURRENT_RELEASE.json
-            /scripts/render_instagram_comic.py
-            /scripts/test_instagram_comic.py
-            /public/techops-comic/revision-f/006.webp
-            /public/techops-comic/revision-f/007.webp
-            /public/techops-comic/revision-f/008.webp
-            /public/techops-comic/revision-f/009.webp
-            /public/techops-comic/revision-f/010.webp
-            /public/techops-comic/revision-f/011.webp
-            /public/techops-comic/revision-f/012.webp
-            /public/techops-comic/revision-f/013.webp
-            /public/techops-comic/revision-f/014.webp
-            /public/techops-comic/revision-f/015.webp
-            /public/techops-comic/revision-f/016.webp
-            /public/techops-comic/revision-f/017.webp
-            /public/techops-comic/revision-f/018.webp
-            /public/techops-comic/revision-f/019.webp
-            /public/techops-comic/revision-f/020.webp
-            /public/techops-comic/revision-f/021.webp
-            /public/techops-comic/revision-f/022.webp
-            /public/techops-comic/revision-f/023.webp
-            /public/techops-comic/revision-f/024.webp
-            /public/techops-comic/revision-f/025.webp
-            /public/techops-comic/revision-f/026.webp
-            /public/techops-comic/revision-f/027.webp
-            /public/techops-comic/revision-f/028.webp
-            /public/techops-comic/revision-f/029.webp
-            /public/techops-comic/revision-f/030.webp
-            /public/techops-comic/revision-f/031.webp
-            /public/techops-comic/revision-f/032.webp
-            /public/techops-comic/revision-f/033.webp
-            /public/techops-comic/revision-f/034.webp
-            /public/techops-comic/revision-f/035.webp
-            /public/techops-comic/revision-f/036.webp
-            /public/techops-comic/revision-f/037.webp
-            /public/techops-comic/revision-f/038.webp
-            /public/techops-comic/revision-f/039.webp
-            /public/techops-comic/revision-f/040.webp
-            /public/techops-comic/revision-f/041.webp
-            /public/techops-comic/revision-f/042.webp
-            /public/techops-comic/revision-f/043.webp
-            /public/techops-comic/revision-f/044.webp
-            /public/techops-comic/revision-f/045.webp
-            /public/techops-comic/revision-f/046.webp
-            /public/techops-comic/revision-f/047.webp
-            /public/techops-comic/revision-f/048.webp
-            /public/techops-comic/revision-f/049.webp
-            /public/techops-comic/revision-f/050.webp
-            /public/techops-comic/revision-f/051.webp
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: aa8c132035a46e73fb47ee14e05e371909799d64
+          path: current-media
+          persist-credentials: false
+          sparse-checkout: techops-comic/revision-g
+      - run: mkdir -p sources/g && cp current-media/techops-comic/revision-g/*.webp sources/g/
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install image converter
-        run: python -m pip install 'Pillow==11.3.0'
-      - name: Test page order and no-crop framing
-        run: python -m unittest discover -s scripts -p 'test_instagram_comic.py' -v
-      - name: Render all eight Instagram-ready carousels from verified release pages
-        run: python scripts/render_instagram_comic.py --post ALL
-      - name: Retain approval-only preview and provenance
-        if: success()
-        uses: actions/upload-artifact@v4
+      - run: python -m pip install 'Pillow==11.3.0'
+      - run: python -m unittest discover -s scripts -p 'test_instagram_comic.py' -v
+      - run: python scripts/render_instagram_comic.py --post ALL
+      - uses: actions/upload-artifact@v4
         with:
-          name: techops-instagram-volume-i-review-only
+          name: techops-instagram-full-collection-review-only
           path: qa/instagram-pilot/
           retention-days: 14
-          if-no-files-found: error

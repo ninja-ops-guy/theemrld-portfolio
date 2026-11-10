@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Faithful, review-only Instagram export of the approved Revision F comic pages."""
+"""Faithful, review-only Instagram export of the current Full collection comic pages."""
 import argparse
 import hashlib
 import io
@@ -45,11 +45,11 @@ def render_one(raw, dest):
                 "padding_pixels":[x,y,1080-img.width-x,1350-img.height-y],"background_rgb":list(background)}
 
 def build(root,output,post_id):
-    receipt = json.loads((root/"docs/COMIC_CURRENT_RELEASE.json").read_text())
-    if (receipt.get("edition"),receipt.get("pages")) != ("Revision F - continuity reviewed",316):
-        raise ValueError("Release identity is not approved 316-page Revision F")
-    if not receipt.get("reader_revision","").startswith("continuity-hq-"):
-        raise ValueError("Unexpected reader revision")
+    receipt = json.loads((root/"docs/INSTAGRAM_APPROVED_SOURCE.json").read_text())
+    if (receipt.get("edition"),receipt.get("pages"),receipt.get("media_commit"),receipt.get("source_pdf_sha256")) != (
+        "Full collection",316,"aa8c132035a46e73fb47ee14e05e371909799d64",
+        "c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b"):
+        raise ValueError("Source identity is not the compared Full collection release")
     for post in (POSTS if post_id == "ALL" else [post_id]):
         slides=[]
         for position,page in enumerate(POSTS[post],1):
@@ -62,11 +62,14 @@ def build(root,output,post_id):
             evidence=render_one(raw,dest)
             encoded=dest.read_bytes()
             slides.append({"slide":position,"comic_page":page,"source_path":expected["path"],
-                "source_sha256":expected["sha256"],"instagram_file":str(dest.relative_to(output)),
+                "source_sha256":expected["sha256"],
+                "baseline_source_sha256":expected["baseline_source_sha256"],
+                "source_disposition":expected["source_disposition"],
+                "comparison_finding":expected["comparison_finding"],"instagram_file":str(dest.relative_to(output)),
                 "instagram_sha256":sha256(encoded),"instagram_bytes":len(encoded),**evidence})
         packet={"status":"REVIEW_ONLY_NOT_SCHEDULED","approval_required":True,
             "account":"@defied_stars","post_id":post,"edition":receipt["edition"],
-            "reader_revision":receipt["reader_revision"],"source_pdf_sha256":receipt["output_sha256"],
+            "reader_revision":receipt["reader_revision"],"media_commit":receipt["media_commit"],"source_pdf_sha256":receipt["source_pdf_sha256"],
             "caption":CAPTIONS[post],"format":"Instagram carousel 1080x1350 JPEG; no audio; no original art cropping",
             "proposed_time":"PENDING APPROVAL","slides":slides}
         folder=output/post
