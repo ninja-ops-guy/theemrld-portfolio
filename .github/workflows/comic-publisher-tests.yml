@@ -1,0 +1,33 @@
+name: Comic Publisher Tests
+on:
+  pull_request:
+    paths:
+      - scripts/*comic*
+      - tests/test_comic_publisher.py
+      - publishing/**
+      - .github/workflows/comic-publisher*.yml
+      - .github/workflows/pages.yml
+      - .github/workflows/import-volume-xiv-assets.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 -m unittest discover -s tests -p test_comic_publisher.py -v
+      - name: Validate registered manifests
+        run: |
+          for manifest in publishing/releases/*.json; do
+            python3 scripts/comic-publisher.py check --manifest "$manifest"
+          done
+      - run: node --check scripts/comic-browser-smoke.mjs
+      - name: Lint publisher workflow syntax
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -shellcheck= -pyflakes= .github/workflows/comic-publisher.yml .github/workflows/comic-publisher-tests.yml .github/workflows/pages.yml .github/workflows/import-volume-xiv-assets.yml

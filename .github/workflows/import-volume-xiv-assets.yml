@@ -1,120 +1,19 @@
 name: Import verified Volume XIV assets
+# Compatibility entrypoint. Source release events are owned by Comic Publisher.
 on:
-  release:
-    types: [published]
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: [.github/workflows/import-volume-xiv-assets.yml]
 permissions:
-  contents: write
-concurrency:
-  group: comic-xiv-asset-import
-  cancel-in-progress: false
+  contents: read
+  actions: write
 jobs:
-  prepare-upload-slot:
-    if: github.event_name == 'push'
+  forward:
+    if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Create an editable draft GitHub Release for the one ZIP upload
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          if gh release view techops-xiv-source-20261110 >/dev/null 2>&1; then
-            echo 'XIV source release already exists; leaving unchanged'
-          else
-            gh release create techops-xiv-source-20261110 \
-              --target main --draft --prerelease \
-              --title 'TechOps Hero XIV — source asset upload slot' \
-              --notes 'Upload exactly TechOps-Hero-XIV-GitHub-Import.zip, then Publish this prerelease. The separate importer verifies all 133 pages and the corrected PDF, and stages them on PR #72. This does not publish the comic website.'
-          fi
-  import:
-    if: github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'techops-xiv-source-20261110'
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
-      - name: Checkout existing XIV release branch
-        uses: actions/checkout@v4
+      - uses: actions/github-script@v7
         with:
-          ref: release/techops-volume-xiv-20261110
-          persist-credentials: true
-      - name: Download pinned source ZIP from GitHub Releases
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/xiv-release
-          gh release download techops-xiv-source-20261110 \
-            --pattern 'TechOps-Hero-XIV-GitHub-Import.zip' \
-            --dir /tmp/xiv-release
-          test -s /tmp/xiv-release/TechOps-Hero-XIV-GitHub-Import.zip
-      - name: Check archived PDF and every illustrated page before writing files
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import hashlib,json,pathlib,shutil,sys,zipfile
-          file=pathlib.Path('/tmp/xiv-release/TechOps-Hero-XIV-GitHub-Import.zip')
-          want_zip='af9e9408e354658e6f0e9a015b335a5121dbee2f0c5ebf8fae9522f653287916'
-          want_pdf='97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae'
-          want_art='1bda4a192f668d6aa8f4f11553b8da6907bb2dd652bdabce92342c880172fac4'
-          sizes=[75000000,75000000,31907121]
-          if file.stat().st_size!=279556589: sys.exit('Wrong uploaded ZIP size')
-          sha=hashlib.sha256()
-          with file.open('rb') as src:
-              while data:=src.read(1024*1024): sha.update(data)
-          if sha.hexdigest()!=want_zip: sys.exit('ZIP SHA-256 mismatch — wrong upload, stop')
-          prefix='public/techops-comic/volume-xiv/'
-          names=[f'{prefix}{i:03d}.webp' for i in range(1,134)]
-          parts=[f'print-source/volume-xiv.part{i}' for i in range(3)]
-          expected=set(names+parts)
-          with zipfile.ZipFile(file) as z:
-              infos=[x for x in z.infolist() if not x.is_dir()]
-              actual=[x.filename for x in infos]
-              if len(actual)!=136 or set(actual)!=expected: sys.exit('Incorrect page names/count or source parts')
-              if z.testzip() is not None: sys.exit('ZIP CRC check failed')
-              if [z.getinfo(n).file_size for n in parts]!=sizes: sys.exit('PDF part sizes differ')
-              if sum(z.getinfo(n).file_size for n in names)!=97628296: sys.exit('Art bytes differ from reviewed render')
-              pdf_sha=hashlib.sha256()
-              art_sha=hashlib.sha256()
-              for name in parts:
-                  with z.open(name) as src:
-                      while data:=src.read(1024*1024): pdf_sha.update(data)
-              if pdf_sha.hexdigest()!=want_pdf: sys.exit('Corrected PDF SHA-256 mismatch')
-              for name in names:
-                  with z.open(name) as src:
-                      while data:=src.read(1024*1024): art_sha.update(data)
-              if art_sha.hexdigest()!=want_art: sys.exit('Illustrated page SHA-256 mismatch')
-              for name in parts+names:
-                  target=pathlib.Path(name)
-                  target.parent.mkdir(parents=True,exist_ok=True)
-                  with z.open(name) as src,target.open('wb') as dst: shutil.copyfileobj(src,dst)
-          receipt_file=pathlib.Path('docs/COMIC_VOLUME_XIV_RELEASE.json')
-          receipt=json.loads(receipt_file.read_text())
-          if receipt.get('output_sha256')!=want_pdf or receipt.get('page_count')!=133:
-              sys.exit('Release manifest disagrees with verified source')
-          receipt['publication_status']='assets imported to staging branch; not yet live'
-          receipt['source_archive_sha256']=want_zip
-          receipt['web_render']['concat_sha256']=want_art
-          receipt_file.write_text(json.dumps(receipt,indent=2,ensure_ascii=False)+'\n')
-          print('Verified complete XIV assets; staged for existing PR #72')
-          PY
-      - name: Push verified files to existing PR #72 branch
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- docs/COMIC_VOLUME_XIV_RELEASE.json \
-            print-source/volume-xiv.part0 print-source/volume-xiv.part1 print-source/volume-xiv.part2 \
-            public/techops-comic/volume-xiv
-          if git diff --cached --quiet; then
-            echo 'Everything was already imported — safe no-op'
-          else
-            git commit -m "Stage verified Volume XIV source PDF and 133 reader images"
-            git push origin HEAD:release/techops-volume-xiv-20261110
-          fi
-          echo '### Volume XIV import complete' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Validated 133 WebPs and original corrected PDF; staged on PR #72, not published.' >> "$GITHUB_STEP_SUMMARY"
+          script: |
+            await github.rest.actions.createWorkflowDispatch({...context.repo,workflow_id:'comic-publisher.yml',ref:'main',
+              inputs:{release_id:'xiv-corrected-20261110',action:'stage'}});
+            await core.summary.addHeading('Handed off to Comic Publisher').addRaw('The general publisher now owns verification and staging. This dispatch is not evidence of publication.').write();
