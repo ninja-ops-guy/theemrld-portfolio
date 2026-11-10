@@ -72,6 +72,10 @@ try:
                 ...Object.fromEntries(Object.entries(groups).map(([category, names]) => [category, names.some(k => keys.includes(k))])),
                 linked_progress_present: keys.some(linked),
                 unknown_count: keys.filter(k => !known.has(k) && !linked(k)).length,
+                startup_setter_name_present: keys.includes('setItem'),
+                startup_getter_name_present: keys.includes('getItem'),
+                storage_setter_remains_callable: typeof localStorage.setItem === 'function',
+                storage_getter_remains_callable: typeof localStorage.getItem === 'function',
                 total_count: keys.length
             };
         }""")
