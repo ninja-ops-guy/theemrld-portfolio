@@ -1,0 +1,66 @@
+{
+  "source_commit": "558244a8fc55358fdaf816d3a384ae1cb8bed131",
+  "archive_tag": "techops-hero-pdf-archive-20261110",
+  "max_deployment_bytes": 1000000000,
+  "archives": [
+    {
+      "label": "Revision 11.1 \u2014 historical I\u2013IV reading PDF",
+      "path": "techops-comic/TechOps-Hero-Revision-11.1.pdf",
+      "bytes": 56623730,
+      "sha256": "469b32b8ea96260afaaf71bcca1231db7760a35f8f4644ec34bd3d4cab4b71c6",
+      "git_blob_sha": "3d2b4943c661d0bcf57300c19397fc2a157c1137",
+      "legacy_url": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-11.1.pdf",
+      "github_pages_url": "https://ninja-ops-guy.github.io/theemrld-portfolio/techops-comic/TechOps-Hero-Revision-11.1.pdf",
+      "archive_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-hero-pdf-archive-20261110/TechOps-Hero-Revision-11.1.pdf"
+    },
+    {
+      "label": "Revision 11 \u2014 historical I\u2013IV reading PDF",
+      "path": "techops-comic/TechOps-Hero-Revision-11.pdf",
+      "bytes": 54930089,
+      "sha256": "e241448d8d1a47de51943a94643c00808bf86116e617bd201b154f16f88521b0",
+      "git_blob_sha": "490c1419114559ea36ad10e074bb2301857ba016",
+      "legacy_url": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-11.pdf",
+      "github_pages_url": "https://ninja-ops-guy.github.io/theemrld-portfolio/techops-comic/TechOps-Hero-Revision-11.pdf",
+      "archive_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-hero-pdf-archive-20261110/TechOps-Hero-Revision-11.pdf"
+    },
+    {
+      "label": "Revision F annotation update \u2014 historical 315-page PDF",
+      "path": "techops-comic/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf",
+      "bytes": 104551279,
+      "sha256": "85c46dcd1c0233d341fa6ba03ad60b42dc4b5ef50fce26d0430de611b55b6d6d",
+      "git_blob_sha": "0ac2b2471ceba712c341edcfba2b7a6d286d0fa7",
+      "legacy_url": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf",
+      "github_pages_url": "https://ninja-ops-guy.github.io/theemrld-portfolio/techops-comic/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf",
+      "archive_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-hero-pdf-archive-20261110/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf"
+    }
+  ],
+  "protected_pdfs": [
+    {
+      "path": "techops-comic/TechOps-Hero-Revision-F-Complete.pdf",
+      "bytes": 151835204,
+      "sha256": "46943e144014e61b6b556b13722b8d9548b59a17d066c3ade066f9c735282733"
+    },
+    {
+      "path": "techops-comic/volume-xiii/TechOps-Hero-Volume-XIII-The-Last-Launch.pdf",
+      "bytes": 41011805,
+      "sha256": "1c74863c3583039e22fd13b498e8c25c227c116a8b77e475f21f6429c9317787"
+    },
+    {
+      "path": "techops-comic/volume-xiv/TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf",
+      "bytes": 181907121,
+      "sha256": "97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae"
+    },
+    {
+      "path": "techops-comic/TechOps-Hero-Revision-11.2.pdf",
+      "bytes": 56833938
+    },
+    {
+      "path": "techops-comic/volume-v/TechOps-Hero-Volume-5-Mobile.pdf",
+      "bytes": 6564988
+    },
+    {
+      "path": "techops-comic/volume-v/TechOps-Hero-Volume-5.pdf",
+      "bytes": 14786368
+    }
+  ]
+}

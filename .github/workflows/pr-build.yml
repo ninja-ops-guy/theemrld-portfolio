@@ -20,5 +20,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Test PDF preservation gate
+        run: python3 -m unittest discover -s tests -p test_comic_archive_gate.py -v
       - name: TypeScript + Vite build
         run: npm run build
+      - name: Verify archive readiness and projected Pages size
+        run: python3 scripts/prepare-pages-comic-release.py --verify-only

@@ -252,6 +252,7 @@ export default function TechOpsComic() {
         {!readingVolumeFive && <a className="comic-download" href={collectedPdf} download><ArrowDownToLine size={16} /> Vols. I–IV PDF</a>}
         {(!page || readingVolumeFive) && <a className="comic-download" href={mobilePdf} download><ArrowDownToLine size={16} /> Vol. V mobile PDF</a>}
         {readingVolumeFive && <a className="comic-download" href={printPdf} download>Print PDF</a>}
+        <a className="comic-download" href={`${base}archives.html`}>Archived PDFs</a>
       </nav>
     </header>
     <ComicMusicBar edition={edition} page={failedPage === page ? 0 : page} revision={isRevisionF ? revisionFArtRevision : isVolumeFourteen ? volumeFourteen.artRevision : isVolumeThirteen ? volumeThirteen.artRevision : revision} />
@@ -290,7 +291,7 @@ export default function TechOpsComic() {
           setParams(q);
         }}>
           <img src={volumeThirteenImageUrl(1)} alt="" loading="lazy" width="1080" height="1620" />
-          <div className="comic-vol-meta">Vol. XIII<span>PP. {revisionF.pageCount + 1}–{revisionF.pageCount + volumeThirteen.pageCount}</span></div>
+          <div className="comic-vol-meta">Vol. XIII<span>PP. 1–{volumeThirteen.pageCount}</span></div>
           <div className="comic-vol-title">{volumeThirteen.title} <ArrowRight size={18}/></div>
         </button>}{(isRevisionF || isVolumeThirteen) && volumeFourteenReady && <button onClick={() => {
           const q = new URLSearchParams({ edition: 'xiv', page: '1' });

@@ -1,0 +1,20 @@
+{
+  "name": "techops-comic-pdf-redirects",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-10",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-11.1.pdf*",
+      "zone_name": "kterminal.site"
+    },
+    {
+      "pattern": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-11.pdf*",
+      "zone_name": "kterminal.site"
+    },
+    {
+      "pattern": "https://kterminal.site/techops-comic/TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf*",
+      "zone_name": "kterminal.site"
+    }
+  ]
+}
