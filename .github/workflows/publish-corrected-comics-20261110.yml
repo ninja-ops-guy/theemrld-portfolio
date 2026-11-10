@@ -31,8 +31,8 @@ jobs:
       - name: Fetch exact reviewed publication bundle
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 --output "$RUNNER_TEMP/publisher.zip" 'https://d2ol7oe51mr4n9.cloudfront.net/user_3KUGKm6rb5ZYG1d6wZeiyLW1uHj/f76520f6-c406-4f2e-a35a-ed27d7c50ad2.zip'
-          echo "f1145226bddb45ef167dd2a2f86ad5e4876a323814e662d8cdb116aec0d2718d  $RUNNER_TEMP/publisher.zip" | sha256sum --check --strict
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/publisher.zip" 'https://d2ol7oe51mr4n9.cloudfront.net/user_3KUGKm6rb5ZYG1d6wZeiyLW1uHj/8e2fa12c-f411-4931-8e13-6182bdda68c0.zip'
+          echo "4b1c9d8d951b7b1463df09eeb90f123a42ff45005a55886dab9142a394ce17f6  $RUNNER_TEMP/publisher.zip" | sha256sum --check --strict
           mkdir -p "$RUNNER_TEMP/techops-publisher"
           python -m zipfile -e "$RUNNER_TEMP/publisher.zip" "$RUNNER_TEMP/techops-publisher"
       - name: Verify originals, publish immutable media, and test additive reader
