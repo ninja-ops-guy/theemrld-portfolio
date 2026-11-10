@@ -20,12 +20,18 @@ replace_once("""def travel(n,i):
     finally:n.keyboard.up('ArrowRight')
     expect(n.get_by_role('button',name='Inspect objective',exact=True)).to_be_enabled(timeout=4000)
     n.get_by_role('button',name='Inspect objective',exact=True).click()""", """def travel(n,i):
-    target=[420,820,1220][i];n.keyboard.down('ArrowRight')
-    try:
-        n.wait_for_function('(x)=>NM.x+NM.w/2>=x-60',arg=target,timeout=12000)
-        expect(n.get_by_role('button',name='Inspect objective',exact=True)).to_be_enabled(timeout=8000)
+    target=[420,820,1220][i]
+    n.keyboard.down('ArrowRight')
+    try:n.wait_for_function('(x)=>NM.x+NM.w/2>=x-60',arg=target,timeout=12000)
     finally:n.keyboard.up('ArrowRight')
-    n.get_by_role('button',name='Inspect objective',exact=True).click()""")
+    control=n.get_by_role('button',name='Inspect objective',exact=True)
+    for _ in range(40):
+        if control.is_enabled():break
+        x=n.evaluate('NM.x+NM.w/2')
+        if x>=target+25:break
+        n.keyboard.down('ArrowRight');n.wait_for_timeout(50);n.keyboard.up('ArrowRight')
+    expect(control).to_be_enabled(timeout=4000)
+    control.click()""")
 replace_once('contexts=[];pages=[];page_errors=[];observations={}\n', '''contexts=[];pages=[];page_errors=[];observations={}
 events=[];phase='initialization';case_name='none'
 def event(kind,**data):
