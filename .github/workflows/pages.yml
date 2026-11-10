@@ -25,8 +25,8 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -68,6 +68,33 @@ jobs:
           args=()
           if [ -n "$RELEASE" ]; then args=(--manifest "publishing/releases/$RELEASE.json"); fi
           python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA" "${args[@]}"
+
+      - name: Install pinned browsers for the actual deployment artifact
+        if: inputs.release_id != ''
+        run: |
+          npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
+          node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
+      - name: Verify the rebuilt reader before uploading it to Pages
+        if: inputs.release_id != ''
+        env:
+          MANIFEST: publishing/releases/${{ inputs.release_id }}.json
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist >browser-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/comic-browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.release_id != ''
+        with:
+          name: deployed-artifact-browser-receipts
+          path: browser-receipts
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Preserve small live verifier
         uses: actions/upload-artifact@v4
