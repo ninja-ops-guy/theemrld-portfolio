@@ -56,13 +56,13 @@ try:
         game.wait_for_function('window.__productionTitleReadiness?.ready===true',timeout=120000)
         expect(game.locator('#btn-start')).to_be_enabled()
         assert game.url==GAME
-        assert game.evaluate('Object.keys(localStorage).length')==0
+        assert game.evaluate("Object.keys(localStorage).every(k=>k==='techops_settings')"),'Native title wrote a non-preference key'
         game.close()
-        report['passed'].append('Actual game link reaches ready original-origin game without creating saves')
+        report['passed'].append('Actual game link reaches ready original-origin game; only documented techops_settings startup preference allowed')
         shortcut=page('shortcut');shortcut.goto(BASE+'/techops-hero/?routing-check=1#routing-check')
         shortcut.wait_for_url(GAME+'?routing-check=1#routing-check')
         shortcut.wait_for_function('window.__productionTitleReadiness?.ready===true',timeout=120000)
-        assert shortcut.evaluate('Object.keys(localStorage).length')==0
+        assert shortcut.evaluate("Object.keys(localStorage).every(k=>k==='techops_settings')"),'Native shortcut wrote a non-preference key'
         shortcut.close()
         legacy=page('legacy');legacy.goto(LEGACY+'#/links');legacy.locator('.media-hub').wait_for()
         assert legacy.url==BASE+'/#/links'
