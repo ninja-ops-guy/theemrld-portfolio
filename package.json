@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prebuild": "node scripts/assemble-volume-five.mjs && node scripts/assemble-revision-f.mjs",
+    "prebuild": "node scripts/assemble-volume-five.mjs && node scripts/assemble-revision-f.mjs && node scripts/assemble-volume-xiv.mjs && node scripts/verify-volume-xiv-assets.mjs",
     "predev": "node scripts/assemble-volume-five.mjs && node scripts/assemble-revision-f.mjs"
   },
   "dependencies": {
