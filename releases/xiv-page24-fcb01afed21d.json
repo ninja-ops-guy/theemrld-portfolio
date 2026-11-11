@@ -28,7 +28,7 @@
       "first_run": "42971531502"
     }
   },
-  "phase": "MAIN_UPDATE_REQUESTED",
+  "phase": "MAIN_UPDATED_AWAITING_PR",
   "last_request": "xiv-page24-fcb01afed21d-publish-staged",
   "last_run": "42971531502",
   "source": {
@@ -58,5 +58,6 @@
     "reviewed_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
     "run_id": "42971531502",
     "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
-  }
+  },
+  "merge_sha": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac"
 }
