@@ -18,11 +18,19 @@
         "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
       },
       "first_run": "42971092947"
+    },
+    "xiv-page24-fcb01afed21d-publish-staged": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
+        "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
+      },
+      "first_run": "42971531502"
     }
   },
   "phase": "REGISTERED",
-  "last_request": "xiv-page24-fcb01afed21d-publish-retry",
-  "last_run": "42971092947",
+  "last_request": "xiv-page24-fcb01afed21d-publish-staged",
+  "last_run": "42971531502",
   "source": {
     "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
     "reason": "ZIP metadata matches; source bytes have not yet been verified.",
