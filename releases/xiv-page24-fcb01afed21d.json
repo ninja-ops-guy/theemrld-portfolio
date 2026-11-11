@@ -26,15 +26,21 @@
         "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
       },
       "first_run": "42971531502"
+    },
+    "xiv-page24-fcb01afed21d-resume": {
+      "binding": {
+        "action": "resume",
+        "expected_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
+        "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
+      },
+      "first_run": "42972522786"
     }
   },
   "phase": "MAIN_UPDATED_AWAITING_PR",
-  "last_request": "xiv-page24-fcb01afed21d-publish-staged",
-  "last_run": "42971531502",
+  "last_request": "xiv-page24-fcb01afed21d-resume",
+  "last_run": "42972522786",
   "source": {
-    "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
-    "reason": "ZIP metadata matches; source bytes have not yet been verified.",
-    "source_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/tag/techops-xiv-page24-fcb01afed21d",
+    "phase": "SOURCE_NOT_REQUIRED_FOR_RECOVERY",
     "hash_verified": false
   },
   "last_outcome": {
