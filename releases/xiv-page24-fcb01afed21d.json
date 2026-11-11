@@ -28,7 +28,7 @@
       "first_run": "42971531502"
     }
   },
-  "phase": "REGISTERED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "xiv-page24-fcb01afed21d-publish-staged",
   "last_run": "42971531502",
   "source": {
@@ -48,5 +48,7 @@
       "checkpoint": "skipped",
       "publish": "skipped"
     }
-  }
+  },
+  "staged_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
+  "media_commit": "c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb"
 }
