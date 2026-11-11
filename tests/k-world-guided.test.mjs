@@ -10,15 +10,17 @@ const at = (page, edition = 'f', revision = GUIDED_EDITIONS[edition].revision) =
 test('The published score follows the approved Iona scenes in the Full collection', () => {
   const score = parseGuidedScore(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
   assert.deepEqual(score.cues.map(({ edition, startPage, endPage, title }) => [edition, startPage, endPage, title]), [
-    ['g', 55, 55, 'Time Crumbles'],
+    ['g', 54, 55, 'Time Crumbles'],
     ['g', 56, 56, 'RIDE OR DIE'],
-    ['g', 57, 57, 'Somewhere Deep Down Below'],
-    ['g', 117, 119, 'AGAMEMNON'],
-    ['g', 137, 138, 'The Mercy I Buried'],
-    ['g', 207, 211, 'RIDE OR DIE'],
+    ['g', 57, 60, 'Somewhere Deep Down Below'],
+    ['g', 117, 121, 'AGAMEMNON'],
+    ['g', 137, 139, 'The Mercy I Buried'],
+    ['g', 206, 213, 'RIDE OR DIE'],
   ]);
+  assert.equal(score.minimumPlayMs, 30000);
+  assert.deepEqual(score.quietPages, [{ edition: 'g', number: 136 }]);
   assert.equal(resolveGuidedCue(score, at(137, 'g')).id, 'iona-building-blast');
-  for (const page of [54, 58, 116, 120, 136, 139, 206, 212]) {
+  for (const page of [53, 61, 116, 122, 136, 140, 205, 214]) {
     assert.equal(resolveGuidedCue(score, at(page, 'g')), null);
   }
   assert.equal(resolveGuidedCue(score, at(137, 'g', 'future-revision')), null);
