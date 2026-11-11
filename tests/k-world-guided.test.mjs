@@ -7,10 +7,21 @@ const cue = (overrides = {}) => ({ id: 'opening-song', edition: 'f', startPage: 
 const scoreWith = (...cues) => validateGuidedScore({ ...emptyGuidedScore(), cues });
 const at = (page, edition = 'f', revision = GUIDED_EDITIONS[edition].revision) => ({ edition, page, revision });
 
-test('The published score makes no unsolicited music placements', () => {
+test('The published score follows the approved Iona scenes in the Full collection', () => {
   const score = parseGuidedScore(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
-  assert.deepEqual(score.cues, []);
-  assert.equal(resolveGuidedCue(score, at(3)), null);
+  assert.deepEqual(score.cues.map(({ edition, startPage, endPage, title }) => [edition, startPage, endPage, title]), [
+    ['g', 55, 55, 'Time Crumbles'],
+    ['g', 56, 56, 'RIDE OR DIE'],
+    ['g', 57, 57, 'Somewhere Deep Down Below'],
+    ['g', 117, 119, 'AGAMEMNON'],
+    ['g', 137, 138, 'The Mercy I Buried'],
+    ['g', 207, 211, 'RIDE OR DIE'],
+  ]);
+  assert.equal(resolveGuidedCue(score, at(137, 'g')).id, 'iona-building-blast');
+  for (const page of [54, 58, 116, 120, 136, 139, 206, 212]) {
+    assert.equal(resolveGuidedCue(score, at(page, 'g')), null);
+  }
+  assert.equal(resolveGuidedCue(score, at(137, 'g', 'future-revision')), null);
 });
 
 test('Current edition limits bind to the publication; archived scores retain their original stamps', () => {

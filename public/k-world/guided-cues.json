@@ -3,7 +3,57 @@
   "editions": {
     "f": "continuity-hq-46943e14",
     "xiii": "reviewed-1c74863c",
-    "legacy": "11.2"
+    "legacy": "11.2",
+    "g": "corrected-c18407af88e9"
   },
-  "cues": []
+  "cues": [
+    {
+      "id": "iona-escape",
+      "edition": "g",
+      "startPage": 55,
+      "endPage": 55,
+      "title": "Time Crumbles",
+      "url": "https://soundcloud.com/raikouno/time-crumbles-wav"
+    },
+    {
+      "id": "iona-dock-jump",
+      "edition": "g",
+      "startPage": 56,
+      "endPage": 56,
+      "title": "RIDE OR DIE",
+      "url": "https://soundcloud.com/raikouno/ride-or-die"
+    },
+    {
+      "id": "iona-escape-dawn",
+      "edition": "g",
+      "startPage": 57,
+      "endPage": 57,
+      "title": "Somewhere Deep Down Below",
+      "url": "https://soundcloud.com/raikouno/somewhere-deep-down-below"
+    },
+    {
+      "id": "iona-stair-fight",
+      "edition": "g",
+      "startPage": 117,
+      "endPage": 119,
+      "title": "AGAMEMNON",
+      "url": "https://soundcloud.com/raikouno/agamemnon"
+    },
+    {
+      "id": "iona-building-blast",
+      "edition": "g",
+      "startPage": 137,
+      "endPage": 138,
+      "title": "The Mercy I Buried",
+      "url": "https://soundcloud.com/raikouno/the-mercy-i-buried"
+    },
+    {
+      "id": "iona-musical-coda",
+      "edition": "g",
+      "startPage": 207,
+      "endPage": 211,
+      "title": "RIDE OR DIE",
+      "url": "https://soundcloud.com/raikouno/ride-or-die"
+    }
+  ]
 }
