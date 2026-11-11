@@ -1,0 +1,19 @@
+{
+  "id": "xiv-page24-fcb01afed21d",
+  "base_media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599",
+  "changed_pages": [
+    24
+  ],
+  "pdf": {
+    "path": "master.pdf",
+    "filename": "TechOps-Hero-Volume-XIV-Page-24-Repair-Candidate.pdf",
+    "bytes": 228916231,
+    "sha256": "fcb01afed21d790aeef43f7a88ff88de3b0ce3904909f18d33fb127db37e5ce8"
+  },
+  "source": {
+    "tag": "techops-xiv-page24-fcb01afed21d",
+    "asset": "TechOps-Hero-Volume-XIV-Page-24-Source.zip",
+    "bytes": 230154325,
+    "sha256": "ac4d91ca8dc0af5f427032790d958ce99a6c6329d1edb28c363a563529a45bcb"
+  }
+}
