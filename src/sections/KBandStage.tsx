@@ -11,10 +11,10 @@ type Props = {
 };
 
 const FRAMES = {
-  vocals: [0, 1, 9, 21],
-  control: [2, 8, 18, 20],
-  keys: [3, 14, 22, 3],
-  hype: [10, 16, 19, 23],
+  vocals: [0, 1, 10, 0],
+  control: [2, 3, 2, 3],
+  keys: [3, 2, 3, 2],
+  hype: [10, 11, 10, 11],
 };
 
 export default function KBandStage({ isPlaying, progress, positionMs = 0, intensity, trackTitle, enabled = true }: Props) {

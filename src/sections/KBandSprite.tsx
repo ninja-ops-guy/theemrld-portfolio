@@ -17,7 +17,7 @@ export default function KBandSprite({ cell, size = 92, className = '', glow = fa
   const style: CSSProperties = {
     width: size,
     height: size,
-    backgroundImage: `url(${import.meta.env.BASE_URL}assets/k-band-sheet.webp)`,
+    backgroundImage: `url(${import.meta.env.BASE_URL}k-world/assets/k-band.webp)`,
     backgroundRepeat: 'no-repeat',
     backgroundSize: `${COLS * 100}% ${ROWS * 100}%`,
     backgroundPosition: `${(col / (COLS - 1)) * 100}% ${(row / (ROWS - 1)) * 100}%`,
