@@ -11,6 +11,12 @@ export class GuidedPlayback {
     this.activeCue = null;
     this.notice = 'Guided mode is off.';
     this.activeKey = null;
+    this.waitingForMinimum = false;
+    music.addEventListener('change', () => {
+      if (!this.waitingForMinimum) return;
+      const { position, status } = music.state;
+      if (position >= this.score.minimumPlayMs || ['finished', 'error', 'paused'].includes(status)) this.apply();
+    });
   }
 
   setScore(input) {
@@ -22,13 +28,28 @@ export class GuidedPlayback {
   }
 
   setLocation(position) {
+    const previous = this.location;
     this.location = position && typeof position === 'object' && !Array.isArray(position)
       ? { edition: position.edition, page: position.page, revision: position.revision }
       : null;
-    if (this.enabled) this.apply();
+    if (!this.enabled) return;
+    if (previous?.edition === this.location?.edition && previous?.revision === this.location?.revision && previous?.page === this.location?.page) return;
+    const movingForward = previous && this.location && previous.edition === this.location.edition
+      && previous.revision === this.location.revision && this.location.page === previous.page + 1;
+    const cue = resolveGuidedCue(this.score, this.location);
+    const quiet = this.score.quietPages?.some(page => page.edition === this.location?.edition && page.number === this.location?.page);
+    const { position: elapsed, status, pausedByUser } = this.music.state;
+    if (movingForward && !quiet && this.activeCue && cueKey(cue) !== this.activeKey && !pausedByUser
+      && ['loading', 'ready', 'playing'].includes(status) && elapsed < (this.score.minimumPlayMs ?? 0)) {
+      this.waitingForMinimum = true;
+      this.setNotice(`${this.activeCue.title} · finishing its ${this.score.minimumPlayMs / 1000}-second minimum.`);
+      return;
+    }
+    this.apply();
   }
 
   setEnabled(enabled) {
+    this.waitingForMinimum = false;
     this.enabled = Boolean(enabled);
     if (this.enabled) {
       // Explicitly choosing guided listening is a new play gesture.
@@ -44,6 +65,7 @@ export class GuidedPlayback {
   }
 
   pause() {
+    this.waitingForMinimum = false;
     if (this.enabled) this.setNotice(this.activeCue ? this.cueNotice(true) : 'Guided mode is paused.');
     this.music.pause();
   }
@@ -59,6 +81,7 @@ export class GuidedPlayback {
   }
 
   cancelForManual() {
+    this.waitingForMinimum = false;
     this.enabled = false;
     this.activeCue = null;
     this.activeKey = null;
@@ -109,6 +132,7 @@ export class GuidedPlayback {
   }
 
   apply({ resume = false } = {}) {
+    this.waitingForMinimum = false;
     const cue = resolveGuidedCue(this.score, this.location);
     if (!cue) {
       this.silence();

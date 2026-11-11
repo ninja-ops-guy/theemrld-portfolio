@@ -312,3 +312,51 @@ test('SoundCloud requests autoplay for each armed guided cue and respects pause 
   loads[2].callback();
   assert.equal(music.state.status, 'paused');
 });
+
+test('a forward page turn gives the current cue 30 seconds, then selects the visible page', () => {
+  const { guided, music, calls } = setup();
+  const timed = score();
+  timed.minimumPlayMs = 30000;
+  timed.cues[1].startPage = 5;
+  guided.setScore(timed);
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  const token = music.generation;
+  music.ready(token, 180000);
+  music.playing(token);
+  music.progress(token, 12000);
+  guided.setLocation(position(5));
+  guided.setLocation(position(6));
+  music.progress(token, 29999);
+  assert.equal(music.state.current.id, 'test-a');
+  music.progress(token, 30000);
+  assert.equal(music.state.current.id, 'test-b');
+  assert.deepEqual(loads(calls).map(call => call[1]), ['test-a', 'test-b']);
+});
+
+test('a deliberate quiet page or a direct jump cuts the current cue immediately', () => {
+  const { guided, music } = setup();
+  guided.setScore({ ...score(), minimumPlayMs: 30000, quietPages: [{ edition: 'f', number: 5 }] });
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  guided.setLocation(position(5));
+  assert.equal(music.state.current, null);
+  guided.setLocation(position(6));
+  assert.equal(music.state.current.id, 'test-b');
+  guided.setLocation(position(10));
+  assert.equal(music.state.current.id, 'test-c');
+});
+
+test('a cue finishes its minimum across an ordinary unmapped page and then goes silent', () => {
+  const { guided, music } = setup();
+  guided.setScore({ ...score(), minimumPlayMs: 30000 });
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  const token = music.generation;
+  music.ready(token, 180000);
+  music.playing(token);
+  guided.setLocation(position(5));
+  assert.equal(music.state.current.id, 'test-a');
+  music.progress(token, 30000);
+  assert.equal(music.state.current, null);
+});
