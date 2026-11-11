@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sequencer } from '../public/k-world/audio.js';
+import { Sequencer, SoundCloudPort } from '../public/k-world/audio.js';
 import { GuidedPlayback } from '../public/k-world/guided-playback.js';
 import { emptyGuidedScore, GUIDED_EDITIONS } from '../public/k-world/guided.js';
 
@@ -268,4 +268,41 @@ test('forward jumps, backwards turns, and edition changes resolve only the visib
   guided.setLocation(position(2, 'xiii'));
   assert.deepEqual(loads(calls).map(call => call[1]), ['test-a', 'test-c', 'test-a', 'test-xiii']);
   assert.equal(music.state.current.id, 'test-xiii');
+});
+
+test('SoundCloud requests autoplay for each armed guided cue and respects pause during a load', async () => {
+  const loads = [];
+  const transport = [];
+  const widget = {
+    load(url, options) { loads.push({ url, ...options }); },
+    getDuration(callback) { callback(120000); },
+    isPaused(callback) { callback(false); },
+    setVolume() {},
+    play() { transport.push('play'); },
+    pause() { transport.push('pause'); },
+  };
+  const port = new SoundCloudPort(null);
+  port.widget = widget;
+  port.later = () => {};
+  const music = new Sequencer(port);
+  music.select(track('first-cue'));
+  await Promise.resolve();
+  assert.equal(loads[0].auto_play, true);
+  loads[0].callback();
+  assert.equal(music.state.status, 'playing');
+  assert.equal(transport.includes('play'), false);
+
+  music.load(track('second-cue'));
+  await Promise.resolve();
+  assert.equal(loads[1].auto_play, true);
+  music.pause();
+  loads[1].callback();
+  assert.equal(music.state.status, 'paused');
+  assert.equal(music.state.pausedByUser, true);
+
+  music.load(track('third-cue'));
+  await Promise.resolve();
+  assert.equal(loads[2].auto_play, false);
+  loads[2].callback();
+  assert.equal(music.state.status, 'paused');
 });
