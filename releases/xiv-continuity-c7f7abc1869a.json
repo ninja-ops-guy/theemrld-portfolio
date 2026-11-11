@@ -28,7 +28,7 @@
       "first_run": "42965129618"
     }
   },
-  "phase": "MERGED_DEPLOYMENT_REQUESTED",
+  "phase": "PUBLISHED_HASH_VERIFIED",
   "last_request": "xiv-continuity-c7f7abc1869a-resume",
   "last_run": "42965129618",
   "source": {
@@ -61,5 +61,13 @@
   "dispatch_intent": {
     "run_id": "42965129618",
     "merge_sha": "3c76f4f05651e656714d64bc9c65899ae11134e1"
+  },
+  "deployment_run": 42965259408,
+  "live_receipt": {
+    "status": "PUBLISHED_HASH_VERIFIED",
+    "release_id": "xiv-continuity-c7f7abc1869a",
+    "commit": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+    "url": "https://kterminal.site/",
+    "physical_mobile_test": false
   }
 }
