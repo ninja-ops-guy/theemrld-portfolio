@@ -1,7 +1,7 @@
 {
-  "base_media_commit": "aa8c132035a46e73fb47ee14e05e371909799d64",
-  "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89",
-  "release_id": "xiv-continuity-c7f7abc1869a",
+  "base_media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599",
+  "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc",
+  "release_id": "xiv-page24-fcb01afed21d",
   "schema_version": 1,
-  "source_sha256": "d28f9671045cd7e435409209a801f619e63ece5a46dbbe3dfe4cefab20961b9a"
+  "source_sha256": "ac4d91ca8dc0af5f427032790d958ce99a6c6329d1edb28c363a563529a45bcb"
 }
