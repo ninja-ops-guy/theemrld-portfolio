@@ -10,11 +10,19 @@
         "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89"
       },
       "first_run": "42963547533"
+    },
+    "xiv-continuity-c7f7abc1869a-publish-retry": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+        "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89"
+      },
+      "first_run": "42963994661"
     }
   },
   "phase": "REGISTERED",
-  "last_request": "xiv-continuity-c7f7abc1869a-publish",
-  "last_run": "42963547533",
+  "last_request": "xiv-continuity-c7f7abc1869a-publish-retry",
+  "last_run": "42963994661",
   "source": {
     "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
     "reason": "ZIP metadata matches; source bytes have not yet been verified.",
