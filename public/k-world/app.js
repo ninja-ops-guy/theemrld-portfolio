@@ -121,6 +121,18 @@ function startLatestMusic(force=false){
 function log(text,type=''){const p=document.createElement('p');p.className=type;p.textContent=text;$('console-output').append(p);while($('console-output').children.length>120)$('console-output').firstElementChild.remove();$('console-output').scrollTop=$('console-output').scrollHeight;}
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
 function clearInput(){keyState.clear();for(const key of Object.keys(input))input[key]=false;drag=null;}
+const readerProviderClose=document.createElement('button');
+readerProviderClose.id='reader-provider-close';
+readerProviderClose.type='button';
+readerProviderClose.textContent='Close SoundCloud player';
+readerProviderClose.hidden=true;
+$('provider-details').prepend(readerProviderClose);
+readerProviderClose.addEventListener('click',()=>parentMessage({type:'k-world:provider-close'}));
+$('terminal-dialog').addEventListener('cancel',event=>{
+ if(!document.body.classList.contains('reader-provider'))return;
+ event.preventDefault();
+ parentMessage({type:'k-world:provider-close'});
+});
 function anyDialog(){return [...document.querySelectorAll('dialog')].some(d=>d.open);}
 function openDialog(id){clearInput();for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();$(id+'-dialog').showModal();if(id==='terminal')setTimeout(()=>$('command').focus(),30);}
 function closeDialog(id){$(id+'-dialog').close();clearInput();$('scene').focus({preventScroll:true});}
@@ -247,7 +259,7 @@ on(window,'message',e=>{
   case 'k-world:host':{
    const wasVisible=hostWorldVisible;
    hostWorldVisible=message.worldVisible===true;hostTerminalVisible=message.terminalVisible===true;
-   if(!hostWorldVisible){clearInput();cancelAnimationFrame(frameId);frameId=0;for(const dialog of document.querySelectorAll('dialog'))if(dialog.open)dialog.close();}
+   if(!hostWorldVisible){clearInput();cancelAnimationFrame(frameId);frameId=0;for(const dialog of document.querySelectorAll('dialog'))if(dialog.open&&!document.body.classList.contains('reader-provider'))dialog.close();}
    else if(!wasVisible){void start();if(scene&&!frameId){lastTime=0;frameId=requestAnimationFrame(animate);}}
    if(!hostWorldVisible&&!hostTerminalVisible&&!background)pauseMusic();
    publishState();break;
@@ -263,6 +275,22 @@ on(window,'message',e=>{
   }
   case 'k-world:volume':if(Number.isFinite(message.volume)){music.volume(message.volume);preferences.volume=music.state.volume;savePrefs();}break;
   case 'k-world:seek':if(Number.isFinite(message.ms))music.seek(message.ms);break;
+  case 'k-world:provider':{
+   const dialog=$('terminal-dialog'), details=$('provider-details');
+   if(message.open===true&&!hostWorldVisible){
+    document.body.classList.add('reader-provider');
+    if(!dialog.open)dialog.showModal();
+    details.open=true;
+    readerProviderClose.hidden=false;
+    readerProviderClose.focus();
+   }else{
+    const wasProvider=document.body.classList.contains('reader-provider');
+    document.body.classList.remove('reader-provider');
+    readerProviderClose.hidden=true;
+    if(wasProvider&&dialog.open)dialog.close();
+   }
+   break;
+  }
   case 'k-world:reader':guided.setLocation(message.position);publishState();break;
   case 'k-world:score':guided.setScore(validateGuidedScore(message.score));scoreFromHost=true;publishState();break;
   case 'k-world:refresh':void loadPublishedReleases();break;
