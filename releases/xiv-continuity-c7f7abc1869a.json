@@ -20,7 +20,7 @@
       "first_run": "42963994661"
     }
   },
-  "phase": "REGISTERED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "xiv-continuity-c7f7abc1869a-publish-retry",
   "last_run": "42963994661",
   "source": {
@@ -40,5 +40,7 @@
       "checkpoint": "skipped",
       "publish": "skipped"
     }
-  }
+  },
+  "staged_head": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+  "media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599"
 }
