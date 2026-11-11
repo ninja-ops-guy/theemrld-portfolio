@@ -28,7 +28,7 @@
       "first_run": "42965129618"
     }
   },
-  "phase": "MAIN_UPDATED_AWAITING_PR",
+  "phase": "MERGED_DEPLOYMENT_REQUESTED",
   "last_request": "xiv-continuity-c7f7abc1869a-resume",
   "last_run": "42965129618",
   "source": {
@@ -57,5 +57,9 @@
     "run_id": "42963994661",
     "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89"
   },
-  "merge_sha": "3c76f4f05651e656714d64bc9c65899ae11134e1"
+  "merge_sha": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+  "dispatch_intent": {
+    "run_id": "42965129618",
+    "merge_sha": "3c76f4f05651e656714d64bc9c65899ae11134e1"
+  }
 }
