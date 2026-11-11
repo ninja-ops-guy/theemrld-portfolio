@@ -20,7 +20,7 @@
       "first_run": "42963994661"
     }
   },
-  "phase": "QUALIFIED_NOT_PUBLISHED",
+  "phase": "MAIN_UPDATE_REQUESTED",
   "last_request": "xiv-continuity-c7f7abc1869a-publish-retry",
   "last_run": "42963994661",
   "source": {
