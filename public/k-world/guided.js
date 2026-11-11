@@ -75,7 +75,27 @@ export function validateGuidedScore(input) {
       throw Error(`Cues “${previous.title}” and “${current.title}” overlap in ${GUIDED_EDITIONS[current.edition].label}. Give each page one song.`);
     }
   }
-  return { schemaVersion: 1, editions, cues };
+  const score = { schemaVersion: 1, editions, cues };
+  if (input.minimumPlayMs !== undefined) {
+    if (!Number.isInteger(input.minimumPlayMs) || input.minimumPlayMs < 0 || input.minimumPlayMs > 120000) {
+      throw Error('Choose a minimum playback time between 0 and 120000 milliseconds.');
+    }
+    score.minimumPlayMs = input.minimumPlayMs;
+  }
+  if (input.quietPages !== undefined) {
+    if (!Array.isArray(input.quietPages) || input.quietPages.length > 500) throw Error('Use an array of up to 500 quiet pages.');
+    score.quietPages = input.quietPages.map(page => {
+      const { edition, number } = page ?? {};
+      if (!Object.hasOwn(editions, edition) || !Number.isInteger(number) || number < 1 || number > GUIDED_EDITIONS[edition].pageCount) {
+        throw Error('Each quiet page needs a valid page in a revision-stamped edition.');
+      }
+      if (cues.some(cue => cue.edition === edition && number >= cue.startPage && number <= cue.endPage)) {
+        throw Error('A quiet page cannot overlap a song cue.');
+      }
+      return { edition, number };
+    });
+  }
+  return score;
 }
 
 export function parseGuidedScore(source) {
