@@ -20,7 +20,7 @@
       "first_run": "42963994661"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "QUALIFIED_NOT_PUBLISHED",
   "last_request": "xiv-continuity-c7f7abc1869a-publish-retry",
   "last_run": "42963994661",
   "source": {
@@ -42,5 +42,13 @@
     }
   },
   "staged_head": "3c76f4f05651e656714d64bc9c65899ae11134e1",
-  "media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599"
+  "media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599",
+  "qualification": {
+    "head": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+    "base": "b561ec756df302bde711f2e7911114dae77d185b",
+    "tree": "b374172063013b20a802b21d58c2250a19141984",
+    "reviewed_head": "3c76f4f05651e656714d64bc9c65899ae11134e1",
+    "run_id": "42963994661",
+    "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89"
+  }
 }
