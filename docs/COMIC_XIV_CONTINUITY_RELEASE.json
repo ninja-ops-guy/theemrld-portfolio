@@ -1,0 +1,140 @@
+{
+  "status": "APPROVED_AWAITING_SOURCE_UPLOAD",
+  "release_id": "xiv-continuity-c7f7abc1869a",
+  "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89",
+  "base_media_commit": "aa8c132035a46e73fb47ee14e05e371909799d64",
+  "page_count": 133,
+  "unchanged_page_count": 121,
+  "changed_pages": [
+    {
+      "page": 2,
+      "path": "techops-comic/volume-xiv/002.webp",
+      "bytes": 1485038,
+      "sha256": "ce1faec0b1fcf63e3952f301024ec49d9f677abeb9ab3f43262c3bfc5c98f7e5",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 5,
+      "path": "techops-comic/volume-xiv/005.webp",
+      "bytes": 1552168,
+      "sha256": "d3fe5312b723c65f0c116063c6190119391cb226c77185f20b4a88c9c5169334",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 33,
+      "path": "techops-comic/volume-xiv/033.webp",
+      "bytes": 1477000,
+      "sha256": "bc0bb228ea181cad1144e7f1a43908a7243694d5067218b9e67d410e25837965",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 47,
+      "path": "techops-comic/volume-xiv/047.webp",
+      "bytes": 1840862,
+      "sha256": "083ab08d5e3e7eb86c8c2bead31a26e13133c5405617b412304d95a5195df6ed",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 54,
+      "path": "techops-comic/volume-xiv/054.webp",
+      "bytes": 1650268,
+      "sha256": "691bd23cf4f58ae7c60f1162dd134c8e2892bda02da13bd0ee2cd9ef87240e9e",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 64,
+      "path": "techops-comic/volume-xiv/064.webp",
+      "bytes": 1668294,
+      "sha256": "d485351f64bc0b4d012bc39b8317a5cab410a94f80b00238a68f2fe649df1134",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 90,
+      "path": "techops-comic/volume-xiv/090.webp",
+      "bytes": 1663756,
+      "sha256": "348fd26cfdee3ced79224e6f128054c3f2399c538de06312611ad33cf6c5e8d2",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 97,
+      "path": "techops-comic/volume-xiv/097.webp",
+      "bytes": 1274638,
+      "sha256": "bec2e34137393f23f198c058c80999546f6c38edf2c55fba28f6ae1db51857c8",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 112,
+      "path": "techops-comic/volume-xiv/112.webp",
+      "bytes": 1577000,
+      "sha256": "073670cee78299ce28d16d7673aad7c931550599bc9e43ee2e2b82a75f487f54",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 117,
+      "path": "techops-comic/volume-xiv/117.webp",
+      "bytes": 2226106,
+      "sha256": "6baf3a970028a8b74896543750016afae4db362910484a1dc1700c797c0c78f3",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 119,
+      "path": "techops-comic/volume-xiv/119.webp",
+      "bytes": 1561434,
+      "sha256": "26e963adc6f28890369883ea5e6fc44566819459ead55123807d7f584b24d1cb",
+      "width": 2160,
+      "height": 3330
+    },
+    {
+      "page": 133,
+      "path": "techops-comic/volume-xiv/133.webp",
+      "width": 2160,
+      "height": 3330,
+      "bytes": 1607280,
+      "sha256": "4f95231ca45bf13183c00d9a52d58ebda6339c0d9716bcef17d48babba6ff3fd"
+    }
+  ],
+  "pdf": {
+    "path": "master.pdf",
+    "filename": "TechOps-Hero-Volume-XIV-Face-Review-Candidate.pdf",
+    "bytes": 225770572,
+    "sha256": "c7f7abc1869a86ed49e493878bea8dcbf0cf972dffc0e01fcdc77f932bc56d7c"
+  },
+  "source": {
+    "tag": "techops-xiv-continuity-c7f7abc1869a",
+    "asset": "TechOps-Hero-Volume-XIV-Release-Source.zip",
+    "bytes": 245356238,
+    "sha256": "d28f9671045cd7e435409209a801f619e63ece5a46dbbe3dfe4cefab20961b9a"
+  },
+  "corrections": [
+    {
+      "id": "xiv-editorial-11-pages",
+      "status": "included",
+      "evidence": "Eleven original editorial WebPs retained byte for byte and the PDF pages render identically to the reviewed editorial master."
+    },
+    {
+      "id": "xiv-ch39-original",
+      "status": "included",
+      "evidence": "Page 109 exactly matches the published original at 2160 \u00d7 3330 and reuses the pinned original WebP."
+    },
+    {
+      "id": "xiv-iona-final-page",
+      "status": "included",
+      "evidence": "Page 133 is sourced from the existing reference-bound Iona facial likeness master. Candidate and donor render identically at 2160 \u00d7 3330."
+    },
+    {
+      "id": "volume-ii-portal-cables",
+      "status": "not_applicable",
+      "evidence": "Volume II, Full collection page 63. Separate release scope."
+    }
+  ]
+}

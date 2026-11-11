@@ -1,10 +1,22 @@
 name: Deploy portfolio to GitHub Pages
+run-name: ${{ inputs.release_id && format('Comic deployment · {0} · {1}', inputs.release_id, inputs.expected_sha) || github.workflow }}
 # public Pages publish trigger
 
 on:
   push:
     branches: [main]
+    paths-ignore: [publishing/request.json]
   workflow_dispatch:
+    inputs:
+      release_id:
+        description: Exact registered revision to verify
+        type: string
+      expected_sha:
+        description: Exact main commit required for a comic release
+        type: string
+      manifest_sha256:
+        description: Exact approved manifest hash
+        type: string
 
 permissions:
   contents: read
@@ -13,7 +25,7 @@ permissions:
 
 concurrency:
   group: portfolio-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -21,6 +33,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check exact release and deployment identity
+        env:
+          RELEASE: ${{ inputs.release_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          MANIFEST_HASH: ${{ inputs.manifest_sha256 }}
+        run: |
+          python3 - <<'PYCODE'
+          import hashlib,json,os,pathlib,re
+          release=os.environ['RELEASE'];expected=os.environ['EXPECTED_SHA']
+          if os.environ['GITHUB_REF']!='refs/heads/main':raise SystemExit('Deploy only from main')
+          if expected and expected!=os.environ['GITHUB_SHA']:raise SystemExit('STALE_DEPLOYMENT: main changed')
+          if release:
+              if not re.fullmatch('[a-z0-9][a-z0-9-]{0,79}',release) or not expected:raise SystemExit('Release identity and exact SHA required')
+              raw=pathlib.Path('publishing/releases/'+release+'.json').read_bytes()
+              if hashlib.sha256(raw).hexdigest()!=os.environ['MANIFEST_HASH']:raise SystemExit('Manifest changed')
+              if json.loads(raw).get('lifecycle')=='retired':raise SystemExit('Retired release')
+          PYCODE
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -34,6 +65,46 @@ jobs:
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
           cat comic-finalization-receipt.json
+      - name: Verify approved immutable source and stamp exact deployment
+        if: inputs.release_id != ''
+        env:
+          RELEASE: ${{ inputs.release_id }}
+        run: python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA" --manifest "publishing/releases/$RELEASE.json"
+      - name: Install browser verification
+        if: inputs.release_id != ''
+        run: |
+          npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
+          node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
+      - name: Verify rebuilt reader before deployment
+        if: inputs.release_id != ''
+        env:
+          MANIFEST: publishing/releases/${{ inputs.release_id }}.json
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > browser-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/comic-browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.release_id != ''
+        with:
+          name: publisher-browser-receipts
+          path: browser-receipts
+          if-no-files-found: warn
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: inputs.release_id != ''
+        with:
+          name: publisher-verifier
+          path: |
+            scripts/comic-publisher.py
+            scripts/publisher-control.mjs
+            publishing/releases/*.json
+          retention-days: 90
       - name: Retain publication receipt
         uses: actions/upload-artifact@v4
         with:
@@ -46,6 +117,10 @@ jobs:
         with:
           path: ./dist
   deploy:
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -72,3 +147,43 @@ jobs:
             test "$code" = 404 || test "$code" = 410 || { echo "Retired asset still public: $asset ($code)"; exit 1; }
           done
           echo 'Exact current publication and retired-asset removal verified.'
+
+      - uses: actions/download-artifact@v4
+        if: inputs.release_id != ''
+        with:
+          name: publisher-verifier
+          path: verifier
+      - name: Verify live exact release and every declared byte
+        if: inputs.release_id != ''
+        env:
+          RELEASE: ${{ inputs.release_id }}
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          python3 - <<'PYCODE'
+          import json,os,pathlib,subprocess
+          release=os.environ['RELEASE'];url=os.environ['SITE_URL'].rstrip('/')+'/'
+          result=subprocess.run(['python3','verifier/scripts/comic-publisher.py','live','--manifest','verifier/publishing/releases/'+release+'.json','--url',url,'--commit',os.environ['GITHUB_SHA']])
+          receipt={'status':'PUBLISHED_HASH_VERIFIED' if result.returncode==0 else 'LIVE_VERIFICATION_FAILED','release_id':release,'commit':os.environ['GITHUB_SHA'],'url':url,'physical_mobile_test':False}
+          pathlib.Path('publisher-live-receipt.json').write_text(json.dumps(receipt,indent=2))
+          raise SystemExit(result.returncode)
+          PYCODE
+      - name: Persist verified completion independently of chat and artifact expiry
+        if: inputs.release_id != ''
+        uses: actions/github-script@v7
+        env:
+          RELEASE: ${{ inputs.release_id }}
+          MANIFEST_HASH: ${{ inputs.manifest_sha256 }}
+        with:
+          script: |
+            const fs=require('fs');
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/verifier/scripts/publisher-control.mjs`);
+            const receipt=JSON.parse(fs.readFileSync('publisher-live-receipt.json'));
+            await c.recordLiveReceipt(github,context.repo,process.env.RELEASE,process.env.MANIFEST_HASH,context.sha,receipt,context.runId);
+            await core.summary.addHeading(receipt.status).addRaw(`Release: ${receipt.release_id}; commit: ${receipt.commit}. Emulated browser tests are not physical-device certification.`).write();
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.release_id != ''
+        with:
+          name: publisher-live-receipt
+          path: publisher-live-receipt.json
+          if-no-files-found: warn
+          retention-days: 90
