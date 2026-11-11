@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "release_id": "xiv-continuity-c7f7abc1869a",
+  "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89",
+  "requests": {
+    "xiv-continuity-c7f7abc1869a-publish": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "02fd416e3db56cba1c8fafb63ada957412f163e0",
+        "manifest_sha256": "e1a0618f6c7f87d9f6b47ca1de6c586c0bc22587c500cbaaaa579b702be1fd89"
+      },
+      "first_run": "42963547533"
+    }
+  },
+  "phase": "REGISTERED",
+  "last_request": "xiv-continuity-c7f7abc1869a-publish",
+  "last_run": "42963547533",
+  "source": {
+    "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
+    "reason": "ZIP metadata matches; source bytes have not yet been verified.",
+    "source_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/tag/techops-xiv-continuity-c7f7abc1869a",
+    "hash_verified": false
+  }
+}
