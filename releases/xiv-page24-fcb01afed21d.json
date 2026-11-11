@@ -28,7 +28,7 @@
       "first_run": "42971531502"
     }
   },
-  "phase": "QUALIFIED_NOT_PUBLISHED",
+  "phase": "MAIN_UPDATE_REQUESTED",
   "last_request": "xiv-page24-fcb01afed21d-publish-staged",
   "last_run": "42971531502",
   "source": {
