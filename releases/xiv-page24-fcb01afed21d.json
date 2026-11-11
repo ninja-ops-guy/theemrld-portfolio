@@ -28,7 +28,7 @@
       "first_run": "42971531502"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "QUALIFIED_NOT_PUBLISHED",
   "last_request": "xiv-page24-fcb01afed21d-publish-staged",
   "last_run": "42971531502",
   "source": {
@@ -50,5 +50,13 @@
     }
   },
   "staged_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
-  "media_commit": "c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb"
+  "media_commit": "c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb",
+  "qualification": {
+    "head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
+    "base": "2155ac27b4a34f9a6ff59df27b60a170a0de5477",
+    "tree": "de024f51177764f2a7091241419f66ea29985435",
+    "reviewed_head": "a31fe9808f6e36150f8848b9b9be82d11da1d8ac",
+    "run_id": "42971531502",
+    "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc"
+  }
 }
