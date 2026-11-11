@@ -273,30 +273,36 @@ test('forward jumps, backwards turns, and edition changes resolve only the visib
 test('SoundCloud requests autoplay for each armed guided cue and respects pause during a load', async () => {
   const loads = [];
   const transport = [];
+  const timers = [];
+  let widgetPaused = false;
   const widget = {
     load(url, options) { loads.push({ url, ...options }); },
     getDuration(callback) { callback(120000); },
-    isPaused(callback) { callback(false); },
+    isPaused(callback) { callback(widgetPaused); },
     setVolume() {},
     play() { transport.push('play'); },
     pause() { transport.push('pause'); },
   };
   const port = new SoundCloudPort(null);
   port.widget = widget;
-  port.later = () => {};
+  port.later = (callback, delay) => { if (delay === 350) timers.push(callback); };
   const music = new Sequencer(port);
   music.select(track('first-cue'));
   await Promise.resolve();
   assert.equal(loads[0].auto_play, true);
   loads[0].callback();
+  timers.shift()();
   assert.equal(music.state.status, 'playing');
   assert.equal(transport.includes('play'), false);
 
   music.load(track('second-cue'));
   await Promise.resolve();
   assert.equal(loads[1].auto_play, true);
-  music.pause();
+  widgetPaused = true;
   loads[1].callback();
+  timers.shift()();
+  assert.equal(transport.at(-1), 'play');
+  music.pause();
   assert.equal(music.state.status, 'paused');
   assert.equal(music.state.pausedByUser, true);
 
