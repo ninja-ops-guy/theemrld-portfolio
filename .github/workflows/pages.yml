@@ -27,6 +27,9 @@ concurrency:
   group: portfolio-pages
   cancel-in-progress: false
 
+env:
+  TECHOPS_COMMIT: da94b84bcf0a08c2f11fa6af156af3e16444a099
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,6 +37,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
+      - name: Checkout exact TechOps Hero companion
+        uses: actions/checkout@v4
+        with:
+          repository: ninja-ops-guy/techops-hero
+          ref: ${{ env.TECHOPS_COMMIT }}
+          path: techops-hero
           persist-credentials: false
       - name: Check exact release and deployment identity
         env:
@@ -60,6 +70,13 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Build
         run: npm run build
+      - name: Verify and package exact same-origin TechOps Hero
+        env:
+          TECHOPS_SOURCE: techops-hero
+        run: |
+          node --test scripts/see-world.test.mjs scripts/see-world-linked.test.mjs scripts/see-world-recovery.test.mjs scripts/see-world-publication.test.mjs
+          (cd techops-hero && node scripts/production_release_gate.js)
+          node scripts/package-techops-hero.mjs --source techops-hero --portfolio . --out dist/techops-hero --commit "$TECHOPS_COMMIT"
       - name: Publish current comic books only
         run: |
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
@@ -126,6 +143,35 @@ jobs:
         with:
           name: comic-finalization-receipt
           path: comic-finalization-receipt.json
+      - name: Setup linked-journey browser
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install linked-journey browser
+        run: |
+          python -m pip install 'playwright==1.57.0'
+          python -m playwright install --with-deps chromium
+      - name: Verify exact same-origin candidate before deployment
+        env:
+          LINKED_BASE_URL: http://127.0.0.1:4173
+          LINKED_QA_DIR: qa/production-linked-candidate
+        run: |
+          set -euo pipefail
+          python -c "import http.server,mimetypes; mimetypes.add_type('text/javascript','.mjs'); http.server.test(HandlerClass=http.server.SimpleHTTPRequestHandler,port=4173,bind='127.0.0.1',directory='dist')" > linked-candidate-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/techops-hero/ >/dev/null; then break; fi
+            sleep 1
+          done
+          python scripts/see-world-production-journey.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: same-origin-linked-candidate
+          path: qa/production-linked-candidate/
+          if-no-files-found: warn
+          retention-days: 30
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
