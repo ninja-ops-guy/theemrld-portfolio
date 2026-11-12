@@ -3,6 +3,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import KBandStage from './KBandStage';
 import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioZone } from '../data/kAudioZones';
 import { useKMusic } from './AsciiCityWorld';
+import { songQuery, resolveSong } from '../../public/k-world/song-search.js';
+import { attachPlayAutocomplete, type PlayAutocomplete } from '../../public/k-world/play-autocomplete.js';
+import '../../public/k-world/play-autocomplete.css';
 
 interface Track {
   id: number;
@@ -551,6 +554,22 @@ export default function KTerminal({
   const [bootText, setBootText] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [tracks, setTracks] = useState<Track[]>(defaultTracks);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const autocompleteRef = useRef<PlayAutocomplete | null>(null);
+  const searchableTracksRef = useRef(tracks);
+
+  useEffect(() => {
+    searchableTracksRef.current = tracks;
+    autocompleteRef.current?.refresh();
+  }, [tracks]);
+
+  useEffect(() => {
+    if (bootPhase !== 'done' || !inputRef.current || !suggestionsRef.current) return;
+    const autocomplete = attachPlayAutocomplete(inputRef.current, suggestionsRef.current,
+      () => searchableTracksRef.current, setInputValue);
+    autocompleteRef.current = autocomplete;
+    return () => { autocomplete.destroy(); autocompleteRef.current = null; };
+  }, [bootPhase]);
   const isPlaying = audio.status === 'playing';
   const volume = audio.volume;
   const playbackPositionMs = audio.position;
@@ -790,6 +809,7 @@ export default function KTerminal({
   <span class="tc-command">comment</span>           - Open the project feedback editor
   <span class="tc-command">list</span>              - Display available tracks
   <span class="tc-command">play [id]</span>         - Play track by ID
+  <span class="tc-command">play [song name]</span>  - Search titles; Tab to autocomplete
   <span class="tc-command">play [url]</span>        - Play any SoundCloud URL
   <span class="tc-command">add [url] [title]</span> - Add new track to playlist
   <span class="tc-command">remove [id]</span>       - Remove track from playlist
@@ -839,24 +859,26 @@ export default function KTerminal({
           addLine(`${prefix}[${track.id}] ${track.title}${playsStr}`, currentTrack && currentTrack.url === track.url ? 'playing' : '');
         });
         addLine('');
-        addLine('Click on a track above or use "play [id]" to select');
+        addLine('Use "play [song name]" and Tab to autocomplete, or "play [id]" to select.');
         break;
       }
 
-      case 'play': {
+      case 'play': case 'song': case 'track': {
         if (!args[0]) {
-          addLine('Error: No track specified. Usage: play [id] or play [url]', 'error');
+          sendCommand('resume');
+          addLine('Resuming playback. To find a song, type play followed by its name; Tab autocompletes.');
           break;
         }
-        const arg = args[0];
+        const arg = songQuery(args.join(' '));
         if (arg.toLowerCase() === 'latest') { sendCommand('latest'); addLine('Selecting the newest verified release...'); break; }
-        if (arg.includes('soundcloud.com')) {
+        if (/^https?:\/\//i.test(arg)) {
           playUrl(arg);
         } else {
-          const id = parseInt(arg);
-          const track = tracks.find((t) => t.id === id);
+          const { track, matches } = resolveSong(tracks, arg);
           if (!track) {
-            addLine(`Error: Track ${id} not found. Type "list" to see available tracks.`, 'error');
+            addLine(matches.length ? 'More than one song matches. Type more of the title or use autocomplete:'
+              : `No song found for "${arg}". Try part of the title, or sync to refresh the catalog.`, 'error');
+            matches.slice(0, 8).forEach((match) => addLine(`  [${match.id}] ${match.title}`));
             break;
           }
           playTrack(track);
@@ -1146,6 +1168,7 @@ Sequential Playback: ON (no overlap)`);
       // K//CITY's global Space handler treats spaces as flight input and
       // prevents multi-argument commands such as "play 1".
       e.stopPropagation();
+      if (e.defaultPrevented || e.nativeEvent.isComposing) return;
       if (e.key !== 'Enter') return;
       e.preventDefault();
       const value = inputValue.trim();
@@ -1155,6 +1178,7 @@ Sequential Playback: ON (no overlap)`);
       const commandHtml = `<span class="tc-prompt"><span class="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span class="kt-bashrc-k">k</span><span class="kt-bashrc-at">@</span><span class="kt-bashrc-the">the</span><span class="kt-bashrc-emrld">emrld</span></span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
       addLine(commandHtml, 'command');
       setInputValue('');
+      autocompleteRef.current?.dismiss();
       executeCommand(rawCommand.toLowerCase(), rawArgs);
     },
     [inputValue, addLine, executeCommand]
@@ -1316,6 +1340,8 @@ Sequential Playback: ON (no overlap)`);
             ref={inputRef}
             type="text"
             className="kt-input"
+            aria-label="K Terminal command"
+            placeholder="play a song name"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -1328,6 +1354,7 @@ Sequential Playback: ON (no overlap)`);
           />
           <span className="kt-cursor" />
         </div>
+        <div ref={suggestionsRef} hidden />
 
         </div>
 
