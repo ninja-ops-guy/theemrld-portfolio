@@ -19,5 +19,5 @@ export default function SeeWorld() {
   return <iframe ref={frame} src={`${import.meta.env.BASE_URL}see-world/index.html`}
     title="See World — interactive stories"
     allow="autoplay; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
-    style={{ position: 'fixed', inset: 0, width: '100%', height: '100dvh', border: 0, background: '#091310', zIndex: 20 }} />;
+    style={{ position: 'fixed', inset: 0, width: '100%', height: '100dvh', border: 0, background: '#0d0208', zIndex: 20 }} />;
 }

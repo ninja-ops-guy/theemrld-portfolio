@@ -1,0 +1,120 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import ts from 'typescript';
+
+const require = createRequire(import.meta.url);
+const urls = new Map();
+async function loadModule(path) {
+  const absolute = new URL(path, import.meta.url);
+  const key = absolute.href;
+  if (urls.has(key)) return urls.get(key);
+  let source = await readFile(absolute, 'utf8');
+  let output = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.ES2020, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  output = output.replaceAll('import.meta.env.BASE_URL', JSON.stringify('/test-base/'));
+  const imports = [...output.matchAll(/from ["']([^"']+)["']/g)];
+  for (const match of imports) {
+    const specifier = match[1];
+    let replacement;
+    if (specifier.startsWith('.')) {
+      const extension = specifier.endsWith('KBandSprite') ? '.tsx' : '.ts';
+      replacement = await loadModule(new URL(specifier + extension, absolute).href);
+    } else replacement = pathToFileURL(require.resolve(specifier)).href;
+    output = output.replace(match[0], `from ${JSON.stringify(replacement)}`);
+  }
+  const url = `data:text/javascript;base64,${Buffer.from(output).toString('base64')}`;
+  urls.set(key, url);
+  return url;
+}
+globalThis.window = { matchMedia: () => ({ matches: true }) };
+globalThis.localStorage = { getItem: () => null };
+const drummersIn = html => Array.from(html.matchAll(/data-performance="(iona-drums(?:-fast)?|manchez-drum-dance)"/g), match => match[1]);
+
+test('the idle stage shows Iona, Katrin, and the instrument choices', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0 }));
+    assert.match(html, /data-members="5"/);
+    assert.match(html, /data-performance="felicia-dance"/);
+    assert.match(html, /data-performance="waldo-dance"/);
+    assert.match(html, /Band arrangement/);
+    assert.doesNotMatch(html, /<strong>MIKE|disabled|undefined|NaN/);
+    assert.match(html, /\/test-base\/assets\/techops-band-ensemble-v1.webp/);
+    assert.match(html, /data-performance="katrin-backswing"/);
+    assert.deepEqual(drummersIn(html), ['iona-drums']);
+    assert.match(html, /\/test-base\/assets\/techops-band-katrin-backswing.webp/);
+  } finally { window.matchMedia = oldMatchMedia; }
+});
+test('saved arrangement renders six performers, with Iona holding the drum slot in reduced motion', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  try {
+    for (const felicia of ['violin', 'piano', 'synth']) {
+      localStorage.getItem = key => key.startsWith('kt-band-arrangement-v1:') ? JSON.stringify({ waldo: 'mixing', felicia, mike: 'bass' }) : null;
+      const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0, trackId: 'test-song' }));
+      assert.match(html, /data-members="6"/);
+      for (const id of ['waldo-mixing', `felicia-${felicia}`, 'mike-bass', 'katrin-backswing']) assert.ok(html.includes(`data-performance="${id}"`));
+      assert.deepEqual(drummersIn(html), ['iona-drums']);
+      assert.match(html, /\/test-base\/assets\/techops-band-instruments-v1.webp/);
+      assert.match(html, /<strong>MIKE<\/strong><small>BASS<\/small>/);
+      assert.doesNotMatch(html, /disabled|undefined|NaN/);
+    }
+  } finally { localStorage.getItem = () => null; }
+});
+test('a seek into the Marmot March renders one Katrin and returns the drum slot to Iona', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 2250, trackId: 'test-song' }));
+    assert.match(html, /data-members="5"/);
+    assert.match(html, /data-performance="katrin-marmot"/);
+    assert.deepEqual(drummersIn(html), ['iona-drums']);
+    assert.match(html, /\/test-base\/assets\/katrin-marmot-march.webp/);
+    assert.doesNotMatch(html, /data-performance="katrin-backswing"/);
+  } finally { window.matchMedia = oldMatchMedia; }
+});
+test('the drum slot alternates at each four-beat boundary, including fast tempo and beat offset', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    for (const [bpm, offsetMs, cases] of [
+      [120, 0, [[0, 'manchez-drum-dance'], [1999, 'manchez-drum-dance'], [2000, 'iona-drums'], [3999, 'iona-drums'], [4000, 'manchez-drum-dance']]],
+      [180, 500, [[499, 'iona-drums-fast'], [500, 'manchez-drum-dance'], [1833, 'manchez-drum-dance'], [1834, 'iona-drums-fast'], [3167, 'manchez-drum-dance']]],
+    ]) {
+      localStorage.getItem = key => key.startsWith('kt-band-timing-v1:') ? JSON.stringify({ bpm, offsetMs }) : null;
+      for (const [positionMs, expected] of cases) {
+        const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs, trackId: 'test-song' }));
+        assert.deepEqual(drummersIn(html), [expected], `${bpm} BPM at ${positionMs} ms`);
+        assert.match(html, /data-members="5"/);
+      }
+    }
+  } finally {
+    window.matchMedia = oldMatchMedia;
+    localStorage.getItem = () => null;
+  }
+});
+test('published electronic profile automatically switches Waldo without inventing bass guitar', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0, trackId: 'https://soundcloud.com/raikouno/ghost-town' }));
+  assert.match(html, /data-performance="waldo-mixing"/);
+  assert.match(html, /data-performance="felicia-dance"/);
+  assert.doesNotMatch(html, /data-performance="mike-bass"/);
+});
+test('single-cell sprite sheets produce finite coordinates', async () => {
+  const { default: Sprite } = await import(await loadModule('../src/sections/KBandSprite.tsx'));
+  const html = renderToStaticMarkup(React.createElement(Sprite, { cell: NaN, columns: 1, rows: 1 }));
+  assert.match(html, /background-position:0% 0%/);
+  assert.doesNotMatch(html, /NaN|Infinity/);
+  const strip = { top: 0, height: 120, atlasHeight: 120, frameWidth: 240 };
+  const cropped = renderToStaticMarkup(React.createElement(Sprite, { cell: 0, size: 100, columns: 1, rows: 1, strip }));
+  assert.match(cropped, /height:50px/);
+  assert.match(cropped, /background-position:0% 0%/);
+  assert.doesNotMatch(cropped, /NaN|Infinity/);
+});

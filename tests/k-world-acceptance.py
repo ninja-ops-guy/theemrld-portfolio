@@ -18,7 +18,7 @@ pause, queue-collapse, stale callbacks and explicit skip are deterministic.
 from __future__ import annotations
 import json, os, sys, time
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 BASE = os.environ.get("K_WORLD_BASE_URL", "http://127.0.0.1:4173/")
 OUT = Path(os.environ.get("K_WORLD_QA_DIR", "qa/k-world-acceptance"))
@@ -30,10 +30,110 @@ def record(name, ok, detail=""):
     if not ok:
         raise AssertionError(f"{name}: {detail}")
 
+def check_play_commands(browser, base, out, record):
+    titles = ['Velvet Signal', 'Velvet Signal Remix', '3 Satellites']
+    feed = {'verifiedAt': '2026-11-11T12:00:00Z', 'tracks': [
+        {'id': f'qa-song-{i}', 'title': title,
+         'url': f'https://soundcloud.com/raikouno/qa-song-{i}',
+         'createdAt': f'2026-11-{11-i:02d}T12:00:00Z'}
+        for i, title in enumerate(titles)
+    ]}
+    for mode in ['classic', 'world']:
+        for mobile in [False, True]:
+            label = f'PLAY-{mode.upper()}-{ "MOBILE" if mobile else "DESKTOP" }'
+            context = browser.new_context(viewport={'width': 390 if mobile else 1440, 'height': 844 if mobile else 1000}, has_touch=mobile)
+            context.route('**/latest-releases.json*', lambda route: route.fulfill(json=feed))
+            context.route('https://w.soundcloud.com/**', lambda route: route.abort())
+            page = context.new_page()
+            errors = []
+            page.on('pageerror', lambda error: errors.append(str(error)))
+            page.goto(base + ('#/terminal' if mode == 'classic' else 'k-world/index.html?qa=1#terminal'), wait_until='domcontentloaded', timeout=90000)
+            prompt = page.get_by_role('combobox', name='K Terminal command')
+            expect(prompt).to_be_visible(timeout=90000)
+            if mode == 'classic':
+                current = page.frame_locator('iframe[title*="shared world and music player"]').locator('#current-title')
+                output = page.locator('.kt-terminal')
+            else:
+                current = page.locator('#current-title')
+                output = page.locator('#console-output')
+            prompt.fill('play velvet')
+            options = page.get_by_role('option')
+            expect(options).to_have_count(2, timeout=30000)
+            expect(page.get_by_role('tooltip')).to_contain_text('Tab to autocomplete')
+            expect(prompt).to_have_attribute('aria-expanded', 'true')
+            prompt.press('Tab')
+            expect(prompt).to_have_value('play Velvet Signal')
+            expect(page.get_by_role('listbox')).to_be_hidden()
+            expect(current).to_have_text('NO TRACK LOADED')
+            prompt.press('Enter')
+            expect(current).to_have_text('Velvet Signal')
+            record(label+'-TAB-THEN-PLAY', True)
+
+            prompt.fill('play velvet')
+            prompt.press('Enter')
+            expect(output).to_contain_text('More than one song matches')
+            expect(current).to_have_text('Velvet Signal')
+            record(label+'-AMBIGUOUS-PRESERVES-TRACK', True)
+
+            prompt.fill('play velvet')
+            prompt.press('ArrowDown')
+            prompt.press('ArrowDown')
+            expect(options.nth(1)).to_have_attribute('aria-selected', 'true')
+            prompt.press('Enter')
+            expect(prompt).to_have_value('play Velvet Signal Remix')
+            expect(current).to_have_text('Velvet Signal')
+            prompt.press('Enter')
+            expect(current).to_have_text('Velvet Signal Remix')
+            record(label+'-ARROWS-AND-ENTER', True)
+
+            prompt.fill('play velvet')
+            prompt.press('Escape')
+            expect(prompt).to_be_focused()
+            expect(prompt).to_have_value('play velvet')
+            expect(page.get_by_role('listbox')).to_be_hidden()
+            record(label+'-ESCAPE-KEEPS-PROMPT', True)
+
+            prompt.fill('play signal')
+            if mobile:
+                options.first.tap()
+            else:
+                options.first.click()
+            expect(prompt).to_have_value('play Velvet Signal')
+            expect(current).to_have_text('Velvet Signal Remix')
+            prompt.press('Enter')
+            expect(current).to_have_text('Velvet Signal')
+            record(label+'-POINTER-COMPLETION', True)
+
+            prompt.fill('play no-such-song-xyz')
+            expect(page.get_by_role('tooltip')).to_be_hidden()
+            prompt.press('Enter')
+            expect(current).to_have_text('Velvet Signal')
+            prompt.fill('play 3 sat')
+            prompt.press('Enter')
+            expect(current).to_have_text('3 Satellites')
+            record(label+'-NO-MATCH-AND-NUMERIC-TITLE', True)
+
+            prompt.fill('play velvet')
+            prompt.press('Shift+Tab')
+            expect(prompt).not_to_be_focused()
+            expect(page.get_by_role('listbox')).to_be_hidden()
+            prompt.click()
+            prompt.fill('help')
+            expect(page.get_by_role('tooltip')).to_be_hidden()
+            prompt.fill('play velvet')
+            expect(options).to_have_count(2)
+            dimensions = page.locator('.play-autocomplete').evaluate('(el)=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,width:innerWidth})')
+            record(label+'-FITS-VIEWPORT', dimensions['left'] >= 0 and dimensions['right'] <= dimensions['width'], json.dumps(dimensions))
+            record(label+'-TOUCH-TARGET', options.first.bounding_box()['height'] >= 44)
+            page.screenshot(path=str(out / (label.lower()+'.png')), full_page=True)
+            record(label+'-NO-PAGEERRORS', not errors, json.dumps(errors))
+            context.close()
+
 def main():
     console_errors, page_errors = [], []
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, args=["--no-sandbox"])
+        check_play_commands(browser, BASE, OUT, record)
         context = browser.new_context(viewport={"width": 1440, "height": 1000})
         page = context.new_page()
         page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)

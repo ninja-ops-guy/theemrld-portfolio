@@ -53,10 +53,11 @@ export default function MediaLinks() {
               <span className="media-feature-mark" aria-hidden="true">TH</span>
             </Link>
             <div className="media-pair">
-              <a href="https://ninja-ops-guy.github.io/techops-hero/" className="media-card"><Gamepad2 size={21} aria-hidden="true" /><h3>Play TechOps Hero</h3><p>The main game. Start a run or continue your save.</p><span className="media-action">Enter the game <ArrowRight size={17} aria-hidden="true" /></span></a>
+              <a href="/techops-hero/" className="media-card"><Gamepad2 size={21} aria-hidden="true" /><h3>Play TechOps Hero</h3><p>The main game. Start a run or continue your save.</p><span className="media-action">Enter the game <ArrowRight size={17} aria-hidden="true" /></span></a>
               <Link to="/see-world" className="media-card media-card-emerald"><span className="media-diamond" aria-hidden="true">◈</span><h3>See World</h3><p>Discover character perspectives through your game progress. Your choices open new Night Walker sections.</p><span className="media-action">Explore the stories <ArrowRight size={17} aria-hidden="true" /></span></Link>
             </div>
             <p className="media-small-note">New to the universe? The comic needs no save. To connect the games, use the same browser and device.</p>
+            <p className="media-small-note"><a href="https://ninja-ops-guy.github.io/techops-hero/">Continue your original game save</a>. Saves from the original game site stay there; they do not transfer to K Terminal.</p>
           </section>
           <section aria-labelledby="explore-label">
             <div className="media-section-label"><h2 id="explore-label">FOLLOW YOUR CURIOSITY</h2><span>02 / ART & MUSIC</span></div>
@@ -76,4 +77,3 @@ export default function MediaLinks() {
     </div>
   </main>;
 }
-

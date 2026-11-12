@@ -21,7 +21,7 @@ type MusicContextValue = {
   sendCommand: (raw: string) => void;
   playTrack: (track: { url: string; title: string }, autoplay?: boolean) => void;
   setVolume: (volume: number) => void; seek: (ms: number) => void;
-  openComments: () => void; openScore: () => void;
+  openComments: () => void; openScore: () => void; openSoundCloud: () => void;
   setReader: (position: ReaderPosition | null) => void; usePublishedScore: () => void;
 };
 const MusicContext = createContext<MusicContextValue | null>(null);
@@ -66,6 +66,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   const [scoreSource, setScoreSource] = useState<'published' | 'draft'>('published');
   const [scoreOpen, setScoreOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const [providerOpen, setProviderOpen] = useState(false);
   const [sessionError, setSessionError] = useState('');
 
   const post = useCallback((message: SessionMessage) => {
@@ -81,6 +82,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   const setVolume = useCallback((volume: number) => send({ type: 'k-world:volume', volume }), [send]);
   const seek = useCallback((ms: number) => send({ type: 'k-world:seek', ms }), [send]);
   const openComments = useCallback(() => setCommentsOpen(true), []);
+  const openSoundCloud = useCallback(() => setProviderOpen(true), []);
   const openScore = useCallback(() => setScoreOpen(true), []);
   const setReader = useCallback((position: ReaderPosition | null) => {
     readerRef.current = position;
@@ -152,6 +154,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
           if (Array.isArray(data.tracks)) setCatalogue(data.tracks);
           if (typeof data.status === 'string') setCatalogueStatus(data.status);
           break;
+        case 'k-world:provider-close': setProviderOpen(false); break;
         case 'k-world:comment': setCommentsOpen(true); break;
         case 'k-world:guided-editor': setScoreOpen(true); break;
         case 'k-world:comic': navigate('/comic?from=world'); break;
@@ -189,16 +192,24 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [post]);
 
-  const value = useMemo<MusicContextValue>(() => ({ audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore }), [audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, setReader, usePublishedScore]);
   const isComic = location.pathname === '/comic';
+  const providerVisible = isComic && providerOpen;
+  useEffect(() => {
+    if (!isComic) setProviderOpen(false);
+  }, [isComic]);
+  useEffect(() => {
+    if (ready) post({ type: 'k-world:provider', open: providerVisible });
+  }, [ready, providerVisible, post]);
+
+  const value = useMemo<MusicContextValue>(() => ({ audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, openSoundCloud, setReader, usePublishedScore }), [audio, catalogue, catalogueStatus, background, guided, guidedNotice, scoreSource, sendCommand, playTrack, setVolume, seek, openComments, openScore, openSoundCloud, setReader, usePublishedScore]);
   return <MusicContext.Provider value={value}>
     {children}
     {started && <iframe
       ref={frame} src={source}
-      title="K // THE EMRLD — shared world and music player"
+      title={providerVisible ? 'SoundCloud soundtrack controls' : 'K // THE EMRLD — shared world and music player'}
       allow="autoplay; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
-      tabIndex={worldVisible ? 0 : -1} aria-hidden={!worldVisible} inert={!worldVisible}
-      className={worldVisible ? 'k-session-frame' : 'k-session-frame k-session-frame-background'}
+      tabIndex={worldVisible || providerVisible ? 0 : -1} aria-hidden={!worldVisible && !providerVisible} inert={!worldVisible && !providerVisible}
+      className={worldVisible ? 'k-session-frame' : providerVisible ? 'k-session-frame k-session-frame-provider' : 'k-session-frame k-session-frame-background'}
     />}
     {sessionError && <div className="k-session-error" role="status">{sessionError}<button onClick={() => setSessionError('')} aria-label="Dismiss music notice">×</button></div>}
     {!worldVisible && !terminalVisible && !isComic && audio.current && background && <aside className="k-music-floating" aria-label="Background music">

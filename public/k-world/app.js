@@ -6,6 +6,8 @@ import {SoundCloudPort,Sequencer,reactiveEnvelope,canonicalUrl} from './audio.js
 import {iconFrame} from './icons.js';
 import {validateGuidedScore} from './guided.js';
 import {GuidedPlayback} from './guided-playback.js';
+import {songQuery,resolveSong} from './song-search.js';
+import {attachPlayAutocomplete} from './play-autocomplete.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),qa=params.get('qa')==='1'||globalThis.__K_QA__===true;
 const KEYS='k-world:library:v6',RECENT='k-world:recent:v6',PREF='k-world:prefs:v6',LATEST='k-world:latest:v2';
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -21,6 +23,7 @@ function releaseSnapshot(value){
  const unique=tracks.filter(t=>!seen.has(t.url)&&seen.add(t.url));
  return unique.length?{verifiedAt,tracks:unique}:null;
 }
+let playAutocomplete=null;
 let lastVerified=releaseSnapshot(read(LATEST,null));
 let latestKnown=lastVerified?.tracks.slice(0,12)??[],showArchive=false;
 let preferences={ascii:DEFAULT_ASCII,volume:55,viz:true,vizStyle:'bars',vizBars:40,vizTheme:'emerald',band:true,...read(PREF,{})};preferences.ascii=resolveAsciiPreference(preferences.ascii);preferences.volume=clamp(Number.isFinite(Number(preferences.volume))?Number(preferences.volume):55,0,100);preferences.vizBars=clamp(Number(preferences.vizBars)||40,8,128);
@@ -63,7 +66,7 @@ async function loadGuidedScore(){
  catch{if(!scoreFromHost)log('Published soundtrack unavailable. Use guided edit to define a local preview.','error');}
 }
 const savePrefs=()=>write(PREF,preferences);
-function mergeLibrary(tracks){const seen=new Set(library.map(t=>t.url));let next=Math.max(0,...library.map(t=>t.slot||0))+1;for(const raw of tracks){const t=cleanTrack(raw);if(!t||seen.has(t.url)){if(t?.createdAt){const prior=library.find(old=>old.url===t.url);if(prior){prior.createdAt=t.createdAt;prior.title=t.title;}}continue;}t.slot=next++;library.push(t);seen.add(t.url);}const used=new Set();for(const t of library){if(!t.slot||used.has(t.slot))t.slot=next++;used.add(t.slot);}write(KEYS,library);renderLibrary();}
+function mergeLibrary(tracks){const seen=new Set(library.map(t=>t.url));let next=Math.max(0,...library.map(t=>t.slot||0))+1;for(const raw of tracks){const t=cleanTrack(raw);if(!t||seen.has(t.url)){if(t?.createdAt){const prior=library.find(old=>old.url===t.url);if(prior){prior.createdAt=t.createdAt;prior.title=t.title;}}continue;}t.slot=next++;library.push(t);seen.add(t.url);}const used=new Set();for(const t of library){if(!t.slot||used.has(t.slot))t.slot=next++;used.add(t.slot);}write(KEYS,library);renderLibrary();playAutocomplete?.refresh();}
 mergeLibrary(Object.values(TRACKS));
 if(lastVerified){mergeLibrary(lastVerified.tracks);latestKnown=lastVerified.tracks.slice(0,12).map(track=>library.find(entry=>entry.url===track.url)||track);music.playlists.latest=latestKnown;renderLibrary();}
 // Legacy catalogue remains accessible as an archive; it is not the latest-releases source.
@@ -121,6 +124,18 @@ function startLatestMusic(force=false){
 function log(text,type=''){const p=document.createElement('p');p.className=type;p.textContent=text;$('console-output').append(p);while($('console-output').children.length>120)$('console-output').firstElementChild.remove();$('console-output').scrollTop=$('console-output').scrollHeight;}
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
 function clearInput(){keyState.clear();for(const key of Object.keys(input))input[key]=false;drag=null;}
+const readerProviderClose=document.createElement('button');
+readerProviderClose.id='reader-provider-close';
+readerProviderClose.type='button';
+readerProviderClose.textContent='Close SoundCloud player';
+readerProviderClose.hidden=true;
+$('provider-details').prepend(readerProviderClose);
+readerProviderClose.addEventListener('click',()=>parentMessage({type:'k-world:provider-close'}));
+$('terminal-dialog').addEventListener('cancel',event=>{
+ if(!document.body.classList.contains('reader-provider'))return;
+ event.preventDefault();
+ parentMessage({type:'k-world:provider-close'});
+});
 function anyDialog(){return [...document.querySelectorAll('dialog')].some(d=>d.open);}
 function openDialog(id){clearInput();for(const d of document.querySelectorAll('dialog'))if(d.open)d.close();$(id+'-dialog').showModal();if(id==='terminal')setTimeout(()=>$('command').focus(),30);}
 function closeDialog(id){$(id+'-dialog').close();clearInput();$('scene').focus({preventScroll:true});}
@@ -157,13 +172,13 @@ function showArt(i){artIndex=((i%ART.length)+ART.length)%ART.length;const piece=
 function toggleFlight(){if(activeId!=='station'){toast('EVA is available inside K-01 Orbital.');return;}clearInput();if(!flight){flightHome={position:[...camera.position],yaw:camera.yaw};flight=true;camera.position[1]=Math.max(2.4,camera.position[1]);music.setZone('flight');toast('EVA engaged. Space / + climbs; C / − descends. F lands safely.');}else{flight=false;camera.position=[...flightHome.position];camera.yaw=flightHome.yaw;flightHome=null;music.setZone('light');toast('Airlock reentry. Position restored safely.');}$('special-toggle').textContent=flight?'F / LAND':'F / EVA';}
 function manualNext(delta){++transportIntent;guided.cancelForManual();if(music.state.mode==='auto'&&delta>0){music.skip();return;}const index=library.findIndex(t=>t.url===music.state.current?.url);if(library.length)selectTrack(library[index<0?(delta<0?library.length-1:0):(index+delta+library.length)%library.length]);}
 function command(raw){const tokens=raw.trim().match(/"[^"]*"|'[^']*'|\S+/g)?.map(s=>s.replace(/^['"]|['"]$/g,''))||[];if(!tokens.length)return;const [cmd,...args]=tokens;log('k@theemrld $ '+raw,'command-line');const key=cmd.toLowerCase();try{switch(key){
- case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · pause · resume · next · prev · stop\nsync [latest] · latest · background on|off|status\nguided on|off|status · guided edit · comment\nauto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero (game) · comic (read TechOps Hero) · clear\n\nSync refreshes the catalogue without interrupting. Background keeps music playing in the comic. Guided follows your edition/page song cues. Comment opens project feedback.');break;
+ case 'help': log('MUSIC\nplay <number|title|SoundCloud URL> · Tab to autocomplete (arrows or tap to choose) · pause · resume · next · prev · stop\nsync [latest] · latest · background on|off|status\nguided on|off|status · guided edit · comment\nauto on|off · queue · nowplaying · songs · volume 0–100\nspeed 0.5–2 (local audio only) · faster · slower\nvisualizer on|off · visualizer bars 8–128 · visualizer style bars|wave|ring\nvisualizer theme emerald|violet|amber · band on|off\n\nWORLD\ngallery · city · sol · torus · prism · tesseract · moon · station\natlas · art <number> · view ascii|phosphor · residual · techopshero (game) · comic (read TechOps Hero) · clear\n\nSync refreshes the catalogue without interrupting. Background keeps music playing in the comic. Guided follows your edition/page song cues. Comment opens project feedback.');break;
  case 'sync':if(args.length>1||(args.length&&args[0]!=='latest'))throw Error('Usage: sync or sync latest. Use latest to play the newest song.');void refreshLibrary();break;
  case 'background':{const mode=args[0]||'status';if(!['on','off','status'].includes(mode)||args.length>1)throw Error('Usage: background on|off|status');if(mode!=='status')setBackground(mode==='on');log('BACKGROUND / '+(background?'ON — music continues in the comic and other site pages.':'OFF — music pauses when you leave a terminal.'));break;}
  case 'guided':{const mode=args[0]||'status';if(mode==='edit'||mode==='define'){openHostPanel('guided');break;}if(!['on','off','status'].includes(mode)||args.length>1)throw Error('Usage: guided on|off|status or guided edit');if(mode!=='status'){++transportIntent;if(mode==='on')setBackground(true);guided.setEnabled(mode==='on');publishState();}log('GUIDED / '+(guided.enabled?'ON':'OFF')+'\n'+guided.notice);break;}
  case 'comment':openHostPanel('comment');break;
  case 'latest':void startLatestMusic(true);break;
- case 'play':case 'song':case 'track':{if(!args.length){resumeMusic();break;}const value=args.join(' '),url=canonicalUrl(value),slot=Number(value);let t=url?library.find(t=>t.url===url):Number.isInteger(slot)?library.find(t=>t.slot===slot):library.find(t=>t.title.toLowerCase()===value.toLowerCase());if(!t&&!url){const matches=library.filter(t=>t.title.toLowerCase().includes(value.toLowerCase()));if(matches.length===1)t=matches[0];else throw Error(matches.length?'More than one song matches. Use its number.':'Song not found. Use songs or the library search.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
+ case 'play':case 'song':case 'track':{if(!args.length){resumeMusic();break;}const value=songQuery(raw.trim().replace(/^\S+\s*/,''));if(value.toLowerCase()==='latest'){void startLatestMusic(true);break;}const url=canonicalUrl(value);let t=url?library.find(t=>t.url===url):null;if(!url){const result=resolveSong(library,value,'slot');t=result.track;if(!t)throw Error(result.matches.length?'More than one song matches. Type more of the title or use autocomplete:\n'+result.matches.slice(0,8).map(t=>'['+t.slot+'] '+t.title).join('\n'):'Song not found. Try part of the title, or sync to refresh the catalog.');}if(!t&&url){t={id:url,url,title:url.split('/').pop().replace(/-/g,' '),provider:'soundcloud'};mergeLibrary([t]);t=library.find(x=>x.url===url);}selectTrack(t);break;}
  case 'pause':pauseMusic();log('Paused. Walking into another room will not restart music.');break;
  case 'resume':resumeMusic();log(guided.enabled?guided.notice:'Playback requested. If the browser blocks it, open SoundCloud controls in K World.');break;
  case 'stop':++transportIntent;music.stop();log('Stopped at 00:00. Resume is explicit.');break;
@@ -234,8 +249,9 @@ function openComic(){
 on($('comic-button'),'click',openComic);
 on($('portfolio-button'),'click',()=>{if(!background)pauseMusic();if(window.parent!==window)window.parent.postMessage({type:'k-world:portfolio'},location.origin);else location.href=location.protocol==='file:'||location.protocol==='about:'?'https://ninja-ops-guy.github.io/theemrld-portfolio/':'../';});
 on($('local-audio'),'change',e=>{const file=e.target.files?.[0];if(!file)return;++transportIntent;guided.cancelForManual();const url=URL.createObjectURL(file);objectUrls.add(url);music.select({id:'local-'+Date.now(),title:file.name,url,provider:'local'});log('Local file opened. Real FFT and playback-rate controls are available. Nothing was uploaded.');});
-on($('console-form'),'submit',e=>{e.preventDefault();const raw=$('command').value;if(!raw.trim())return;history.push(raw);history=history.slice(-100);historyIndex=history.length;$('command').value='';command(raw);});
-on($('command'),'keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeDialog('terminal');}else if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);$('command').value=history[historyIndex]||'';}else if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(history.length,historyIndex+1);$('command').value=history[historyIndex]||'';}});
+playAutocomplete=attachPlayAutocomplete($('command'),$('command-suggestions'),()=>library);
+on($('console-form'),'submit',e=>{e.preventDefault();const raw=$('command').value;if(!raw.trim())return;history.push(raw);history=history.slice(-100);historyIndex=history.length;$('command').value='';playAutocomplete.dismiss();command(raw);});
+on($('command'),'keydown',e=>{e.stopPropagation();if(e.defaultPrevented||e.isComposing)return;if(e.key==='Escape'){e.preventDefault();closeDialog('terminal');}else if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);$('command').value=history[historyIndex]||'';}else if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(history.length,historyIndex+1);$('command').value=history[historyIndex]||'';}});
 const editable=e=>e.composedPath().some(el=>el?.matches?.('input,textarea,select,[contenteditable="true"]'));
 on(window,'keydown',e=>{if(editable(e)||anyDialog())return;const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keyState.add(k);if(e.repeat)return;if(k==='e')interact();if(k==='t'||k==='`')openDialog('terminal');if(k==='m')openDialog('atlas');if(k==='v')setView(!preferences.ascii);if(k==='f')toggleFlight();if(k===' '&&activeId==='moon'&&!flight&&Math.abs(vy)<.01)vy=2.3;});on(window,'keyup',e=>keyState.delete(e.key.toLowerCase()));on(window,'blur',clearInput);on(document,'visibilitychange',()=>{if(document.hidden)clearInput();});
 on($('scene'),'pointerdown',e=>{if(anyDialog()||e.button>0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};capture($('scene'),e.pointerId);$('scene').focus();});on($('scene'),'pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;camera.yaw+=(e.clientX-drag.x)*.004;camera.pitch=clamp(camera.pitch-(e.clientY-drag.y)*.003,-.95,.95);drag.x=e.clientX;drag.y=e.clientY;});for(const event of ['pointerup','pointercancel','lostpointercapture'])on($('scene'),event,()=>drag=null);
@@ -247,7 +263,7 @@ on(window,'message',e=>{
   case 'k-world:host':{
    const wasVisible=hostWorldVisible;
    hostWorldVisible=message.worldVisible===true;hostTerminalVisible=message.terminalVisible===true;
-   if(!hostWorldVisible){clearInput();cancelAnimationFrame(frameId);frameId=0;for(const dialog of document.querySelectorAll('dialog'))if(dialog.open)dialog.close();}
+   if(!hostWorldVisible){clearInput();cancelAnimationFrame(frameId);frameId=0;for(const dialog of document.querySelectorAll('dialog'))if(dialog.open&&!document.body.classList.contains('reader-provider'))dialog.close();}
    else if(!wasVisible){void start();if(scene&&!frameId){lastTime=0;frameId=requestAnimationFrame(animate);}}
    if(!hostWorldVisible&&!hostTerminalVisible&&!background)pauseMusic();
    publishState();break;
@@ -263,6 +279,22 @@ on(window,'message',e=>{
   }
   case 'k-world:volume':if(Number.isFinite(message.volume)){music.volume(message.volume);preferences.volume=music.state.volume;savePrefs();}break;
   case 'k-world:seek':if(Number.isFinite(message.ms))music.seek(message.ms);break;
+  case 'k-world:provider':{
+   const dialog=$('terminal-dialog'), details=$('provider-details');
+   if(message.open===true&&!hostWorldVisible){
+    document.body.classList.add('reader-provider');
+    if(!dialog.open)dialog.showModal();
+    details.open=true;
+    readerProviderClose.hidden=false;
+    readerProviderClose.focus();
+   }else{
+    const wasProvider=document.body.classList.contains('reader-provider');
+    document.body.classList.remove('reader-provider');
+    readerProviderClose.hidden=true;
+    if(wasProvider&&dialog.open)dialog.close();
+   }
+   break;
+  }
   case 'k-world:reader':guided.setLocation(message.position);publishState();break;
   case 'k-world:score':guided.setScore(validateGuidedScore(message.score));scoreFromHost=true;publishState();break;
   case 'k-world:refresh':void loadPublishedReleases();break;
@@ -317,4 +349,4 @@ const refreshTimer=setInterval(()=>{if(!document.hidden)void loadPublishedReleas
 on(document,'visibilitychange',()=>{if(!document.hidden)void loadPublishedReleases();});
 if(hostWorldVisible)void start();
 parentMessage({type:'k-world:ready'});publishState();
-on(window,'pagehide',()=>{cancelAnimationFrame(frameId);clearInterval(refreshTimer);clearTimeout(stateTimer);clearInput();clearTimeout(arrivalTimer);clearTimeout(toastTimer);music.destroy();renderer?.dispose();for(const url of objectUrls)URL.revokeObjectURL(url);aborter.abort();});
+on(window,'pagehide',()=>{cancelAnimationFrame(frameId);clearInterval(refreshTimer);clearTimeout(stateTimer);clearInput();clearTimeout(arrivalTimer);clearTimeout(toastTimer);playAutocomplete?.destroy();music.destroy();renderer?.dispose();for(const url of objectUrls)URL.revokeObjectURL(url);aborter.abort();});

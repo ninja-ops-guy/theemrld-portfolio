@@ -1,0 +1,179 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('node:assert/strict');
+const root = path.resolve(__dirname, '..');
+const project = root;
+const esbuild = require('esbuild');
+const { chromium } = require('playwright');
+const output = path.join(project, 'qa/band-browser');
+fs.mkdirSync(output, { recursive: true });
+(async () => {
+  await esbuild.build({ entryPoints: [path.join(project, 'tests/fixtures/band-stage-preview.tsx')], bundle: true, outfile: path.join(output, 'app.js'), define: { 'import.meta.env.BASE_URL': JSON.stringify('/') }, jsx: 'automatic' });
+  const html = '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#080d12;margin:12px"><div id="root"></div><script src="/app.js"></script></body></html>';
+  let browser;
+  const checks = [];
+  try {
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { width: 1100, height: 900 }, reducedMotion: 'no-preference' });
+    // Entire harness is fulfilled from local files; no network connection is made.
+    await page.route('**/*', route => {
+      const url = new URL(route.request().url());
+      if (url.origin !== 'http://band.test') return route.abort();
+      if (url.pathname === '/') return route.fulfill({ contentType: 'text/html', body: html });
+      const file = url.pathname === '/app.js' ? path.join(output, 'app.js') : url.pathname.startsWith('/assets/') ? path.join(project, 'public', url.pathname) : null;
+      if (!file || !fs.existsSync(file)) return route.fulfill({ status: 404 });
+      return route.fulfill({ contentType: file.endsWith('.webp') ? 'image/webp' : file.endsWith('.gif') ? 'image/gif' : 'application/javascript', body: fs.readFileSync(file) });
+    });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+    await page.goto('http://band.test/');
+    await page.locator('[data-performance="waldo-mixing"]').waitFor();
+    const katrin = page.locator('[data-performance="katrin-backswing"] > div');
+    await katrin.waitFor();
+    const drummers = page.locator('[data-performance^="iona-drums"], [data-performance="manchez-drum-dance"]');
+    const drumSlot = page.locator('.kt-band-grid > .kt-band-member').nth(1);
+    const expectDrummer = async id => {
+      await drumSlot.and(page.locator(`[data-performance="${id}"]`)).waitFor();
+      assert.equal(await drummers.count(), 1);
+    };
+    await expectDrummer('manchez-drum-dance');
+    const katrinPose = () => katrin.evaluate(node => node.style.backgroundPosition);
+    checks.push('Electronic song selects Waldo mixing board');
+    await page.getByText('Band arrangement', { exact: true }).click();
+    await page.getByLabel('Felicia', { exact: true }).selectOption('violin');
+    await page.getByLabel('Mike', { exact: true }).selectOption('bass');
+    await page.locator('[data-members="6"]').waitFor();
+    for (const instrument of ['violin', 'piano', 'synth']) {
+      await page.getByLabel('Felicia', { exact: true }).selectOption(instrument);
+      await page.locator(`[data-performance="felicia-${instrument}"]`).waitFor();
+      assert.equal(await page.locator('[data-performance]').count(), 6);
+    }
+    await page.getByLabel('Felicia', { exact: true }).selectOption('violin');
+    checks.push('All three Felicia instruments swap with six performers onstage');
+    const poses = async () => page.locator('[data-performance]>div').evaluateAll(nodes => nodes.map(node => node.style.backgroundPosition));
+    const initial = await poses();
+    const initialKatrin = await katrinPose();
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.waitForTimeout(280);
+    assert.notDeepEqual(await poses(), initial);
+    assert.notEqual(await katrinPose(), initialKatrin);
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
+    await page.waitForTimeout(100);
+    const paused = await poses();
+    await page.waitForTimeout(200);
+    assert.deepEqual(await poses(), paused);
+    checks.push('Playback animates and pause freezes all clips');
+    await page.getByRole('button', { name: 'Seek 750' }).click();
+    await page.waitForTimeout(100);
+    assert.notDeepEqual(await poses(), paused);
+    assert.equal(await katrinPose(), '0% 100%');
+    await expectDrummer('manchez-drum-dance');
+    checks.push('Paused seek selects Katrin’s exact new pose');
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    const shuffle = page.locator('[data-band-move="skeleton-shuffle"]');
+    await shuffle.waitFor();
+    const shuffleSprites = await shuffle.locator('[data-performance] > div').evaluateAll(nodes => nodes.map(node => ({
+      image: node.style.backgroundImage,
+      position: node.style.backgroundPosition.split(' '),
+    })));
+    assert.equal(shuffleSprites.length, 7);
+    assert.equal(await shuffle.locator('.kt-band-member small').count(), 0);
+    assert.ok(shuffleSprites.every(sprite => sprite.image.includes('techops-band-skeleton-shuffle-v1.webp')));
+    assert.equal(new Set(shuffleSprites.map(sprite => sprite.position[0])).size, 1);
+    assert.equal(new Set(shuffleSprites.map(sprite => sprite.position[1])).size, 7);
+    await shuffle.screenshot({ path: path.join(output, 'group-shuffle-desktop.png') });
+    checks.push('All seven performers use distinct sprites on the same shuffle beat');
+    const marmot = page.locator('[data-performance="katrin-marmot"] > div');
+    await page.getByRole('button', { name: 'Seek 1950', exact: true }).click();
+    await katrin.waitFor();
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await marmot.waitFor();
+    await shuffle.waitFor({ state: 'detached' });
+    await expectDrummer('iona-drums');
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
+    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await page.waitForFunction(() => {
+      const sprite = document.querySelector('[data-performance="katrin-marmot"] > div');
+      if (!sprite) return false;
+      const [column, row] = sprite.style.backgroundPosition.split(' ').map(Number.parseFloat);
+      return column === 0 && Math.abs(row - 100 / 7) < .001;
+    });
+    assert.equal(await katrin.count(), 0);
+    assert.notEqual(await page.locator('[data-performance="k-guitar"]').evaluate(node =>
+      node.style.getPropertyValue('--kt-guitar-rotation')), '');
+    await expectDrummer('iona-drums');
+    await page.getByText('Music sync · 120 BPM', { exact: true }).click();
+    await page.getByLabel('Tempo (BPM)').fill('180');
+    await expectDrummer('iona-drums-fast');
+    await page.getByLabel('Tempo (BPM)').fill('120');
+    await expectDrummer('iona-drums');
+    await page.getByText('Music sync · 120 BPM', { exact: true }).click();
+    await page.getByRole('button', { name: 'Seek 750', exact: true }).click();
+    await katrin.waitFor();
+    await expectDrummer('manchez-drum-dance');
+    assert.equal(await marmot.count(), 0);
+    checks.push('Iona and Manchez share a drum slot across playback, seeks, and Iona’s fast tempo');
+    checks.push('Katrin still rotates between moves alongside K’s riff');
+    await page.getByRole('button', { name: 'Switch song' }).click();
+    await page.locator('[data-performance="waldo-dance"]').waitFor();
+    assert.equal(await page.locator('[data-performance="mike-bass"]').count(), 0);
+    await page.getByRole('button', { name: 'Switch song' }).click();
+    await page.locator('[data-performance="mike-bass"]').waitFor();
+    await page.reload();
+    await page.locator('[data-performance="felicia-violin"]').waitFor();
+    await page.locator('[data-performance="mike-bass"]').waitFor();
+    checks.push('Song switch isolates choices; returning and reloading restore them');
+    await page.screenshot({ path: path.join(output, 'desktop.png'), fullPage: true });
+    await page.setViewportSize({ width: 320, height: 800 });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    assert.equal((await page.locator('.kt-band-grid').evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 3);
+    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await marmot.waitFor();
+    await page.screenshot({ path: path.join(output, 'mobile.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    await shuffle.waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    assert.equal((await shuffle.locator('.kt-band-grid').evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 4);
+    await shuffle.screenshot({ path: path.join(output, 'group-shuffle-mobile.png') });
+    await page.getByText('Band arrangement', { exact: true }).click();
+    await page.getByLabel('Mike', { exact: true }).selectOption('off');
+    const sixPerformers = page.locator('.kt-band-grid[data-members="6"]');
+    assert.equal((await sixPerformers.evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 3);
+    await page.getByLabel('Mike', { exact: true }).selectOption('bass');
+    checks.push('320px layout fits the shared drum slot and the full dance lineup');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    await shuffle.waitFor({ state: 'detached' });
+    await katrin.waitFor();
+    await page.waitForTimeout(100);
+    const neutral = await poses();
+    assert.ok(neutral.every(position => position.startsWith('0% ')));
+    assert.equal(neutral[0], '0% 0%');
+    assert.equal(neutral[3], '0% 0%');
+    assert.equal(neutral[4], '0% 100%');
+    assert.equal(await katrinPose(), '0% 0%');
+    await expectDrummer('iona-drums');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    const still = await poses();
+    await page.waitForTimeout(250);
+    assert.deepEqual(await poses(), still);
+    checks.push('Reduced motion keeps the first frame while audio clock advances');
+    assert.deepEqual(errors, []);
+    const assets = [
+      'techops-band-instruments-v1.webp', 'techops-band-katrin-backswing.webp',
+      'manchez-drum-dance-v1.webp', 'manchez-drum-dance-v1.gif', 'katrin-marmot-march.webp',
+      'techops-band-skeleton-shuffle-v1.webp', 'techops-band-skeleton-shuffle-v1.gif',
+    ];
+    const dimensions = await page.evaluate(async assets => Promise.all(assets.map(async asset => {
+      const image = new Image();
+      image.src = `/assets/${asset}`;
+      await image.decode();
+      return [image.naturalWidth, image.naturalHeight];
+    })), assets);
+    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128], [768, 1024], [2560, 896], [830, 128]]);
+    checks.push('Band atlases and both GIFs decode without browser or HTTP errors');
+    fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ checks, passed: checks.length, browser: await browser.version(), scope: 'Actual stage components and assets in a controlled playback-clock harness, not full SoundCloud end-to-end playback' }, null, 2));
+    console.log(JSON.stringify({ passed: checks.length, checks }));
+  } finally { if (browser) await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

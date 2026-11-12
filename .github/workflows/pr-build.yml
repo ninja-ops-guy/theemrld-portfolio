@@ -22,3 +22,13 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: TypeScript + Vite build
         run: npm run build
+      - name: Band timing and shared audio contracts
+        run: node --test tests/band-timing.test.mjs tests/band-performance.test.mjs tests/band-stage-render.test.mjs tests/k-world-audio.test.mjs
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image gate dependency
+        run: python -m pip install 'Pillow==12.3.0'
+      - name: Verify every source image fully decodes
+        run: python scripts/image_asset_gate.py --root public --output qa/image-assets-public.json

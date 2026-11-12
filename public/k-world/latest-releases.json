@@ -1,6 +1,34 @@
 {
-  "verifiedAt": "2026-11-10T03:26:54Z",
+  "verifiedAt": "2026-11-11T05:24:48Z",
   "tracks": [
+    {
+      "id": "losing-you",
+      "title": "Losing You",
+      "url": "https://soundcloud.com/raikouno/losing-you",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-11T05:08:19Z"
+    },
+    {
+      "id": "i-missed-you-with-your-hand",
+      "title": "I missed you (with your hand)",
+      "url": "https://soundcloud.com/raikouno/i-missed-you-with-your-hand",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-11T00:32:01Z"
+    },
+    {
+      "id": "i-still-love-you",
+      "title": "I Still Love You",
+      "url": "https://soundcloud.com/raikouno/i-still-love-you",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-10T23:51:43Z"
+    },
+    {
+      "id": "i-know-your-face",
+      "title": "I Know Your Face",
+      "url": "https://soundcloud.com/raikouno/i-know-your-face",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-08T20:55:18Z"
+    },
     {
       "id": "other-plans",
       "title": "Other Plans",

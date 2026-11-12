@@ -32,3 +32,12 @@ dialog header,dialog footer{border-color:#00ff4124}dialog header small,dialog fo
 #atlas-dialog .hub-cards button,.hub-cards button:nth-child(2){background:linear-gradient(115deg,#061408,#020602)}.hub-cards strong{color:#b7ff00}.hub-cards span,.portal-description{color:#84a98a}
 
 .reader-music-modes{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.reader-music-modes button{border:1px solid #345849;padding:8px 10px;color:#a6efc8;background:#0b1a15;font:11px/1.4 ui-monospace,monospace;min-height:36px}.reader-music-modes button[aria-pressed="true"]{border-color:#69dfa2;background:#143727;color:#d1ffe6}
+
+/* Show the existing player without moving or reloading its iframe. */
+body.reader-provider { background: #090b12; }
+body.reader-provider #terminal-dialog { inset: 0; margin: 0; width: 100%; height: 100%; max-width: none; max-height: none; overflow: hidden; border: 0; border-radius: 0; box-shadow: none; }
+body.reader-provider #terminal-dialog::backdrop { background: #090b12; backdrop-filter: none; }
+body.reader-provider :is(.terminal-shell, .terminal-columns, .music-panel) { display: block; width: 100%; height: auto; padding: 0; margin: 0; border: 0; overflow: visible; }
+body.reader-provider .terminal-shell > :not(.terminal-columns), body.reader-provider .terminal-columns > :not(.music-panel), body.reader-provider .music-panel > :not(#provider-details), body.reader-provider #provider-details > summary { display: none; }
+body.reader-provider #provider-details { margin: 0; padding: 4px 8px; border: 0; }
+body.reader-provider #reader-provider-close { min-height: 32px; margin: 0 8px; }

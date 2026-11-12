@@ -3,6 +3,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import KBandStage from './KBandStage';
 import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioZone } from '../data/kAudioZones';
 import { useKMusic } from './AsciiCityWorld';
+import { songQuery, resolveSong } from '../../public/k-world/song-search.js';
+import { attachPlayAutocomplete, type PlayAutocomplete } from '../../public/k-world/play-autocomplete.js';
+import '../../public/k-world/play-autocomplete.css';
 
 interface Track {
   id: number;
@@ -551,6 +554,22 @@ export default function KTerminal({
   const [bootText, setBootText] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [tracks, setTracks] = useState<Track[]>(defaultTracks);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const autocompleteRef = useRef<PlayAutocomplete | null>(null);
+  const searchableTracksRef = useRef(tracks);
+
+  useEffect(() => {
+    searchableTracksRef.current = tracks;
+    autocompleteRef.current?.refresh();
+  }, [tracks]);
+
+  useEffect(() => {
+    if (bootPhase !== 'done' || !inputRef.current || !suggestionsRef.current) return;
+    const autocomplete = attachPlayAutocomplete(inputRef.current, suggestionsRef.current,
+      () => searchableTracksRef.current, setInputValue);
+    autocompleteRef.current = autocomplete;
+    return () => { autocomplete.destroy(); autocompleteRef.current = null; };
+  }, [bootPhase]);
   const isPlaying = audio.status === 'playing';
   const volume = audio.volume;
   const playbackPositionMs = audio.position;
@@ -790,6 +809,7 @@ export default function KTerminal({
   <span class="tc-command">comment</span>           - Open the project feedback editor
   <span class="tc-command">list</span>              - Display available tracks
   <span class="tc-command">play [id]</span>         - Play track by ID
+  <span class="tc-command">play [song name]</span>  - Search titles; Tab to autocomplete
   <span class="tc-command">play [url]</span>        - Play any SoundCloud URL
   <span class="tc-command">add [url] [title]</span> - Add new track to playlist
   <span class="tc-command">remove [id]</span>       - Remove track from playlist
@@ -811,7 +831,7 @@ export default function KTerminal({
   <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
   <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
   <span class="tc-command">visualizer bars [8-128]</span> - Set density
-  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate\n  <span class="tc-command">band on|off</span>       - Toggle K clone ensemble
+  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate\n  <span class="tc-command">band on|off</span>       - Toggle TechOps band
   <span class="tc-command">ritual on|off</span>      - Toggle celestial ASCII audio-reactive mode
   <span class="tc-command">ritual intensity [0-100]</span> - Set reaction strength
   <span class="tc-command">ritual fps [2-20]</span>  - Set stepped animation clock
@@ -839,24 +859,26 @@ export default function KTerminal({
           addLine(`${prefix}[${track.id}] ${track.title}${playsStr}`, currentTrack && currentTrack.url === track.url ? 'playing' : '');
         });
         addLine('');
-        addLine('Click on a track above or use "play [id]" to select');
+        addLine('Use "play [song name]" and Tab to autocomplete, or "play [id]" to select.');
         break;
       }
 
-      case 'play': {
+      case 'play': case 'song': case 'track': {
         if (!args[0]) {
-          addLine('Error: No track specified. Usage: play [id] or play [url]', 'error');
+          sendCommand('resume');
+          addLine('Resuming playback. To find a song, type play followed by its name; Tab autocompletes.');
           break;
         }
-        const arg = args[0];
+        const arg = songQuery(args.join(' '));
         if (arg.toLowerCase() === 'latest') { sendCommand('latest'); addLine('Selecting the newest verified release...'); break; }
-        if (arg.includes('soundcloud.com')) {
+        if (/^https?:\/\//i.test(arg)) {
           playUrl(arg);
         } else {
-          const id = parseInt(arg);
-          const track = tracks.find((t) => t.id === id);
+          const { track, matches } = resolveSong(tracks, arg);
           if (!track) {
-            addLine(`Error: Track ${id} not found. Type "list" to see available tracks.`, 'error');
+            addLine(matches.length ? 'More than one song matches. Type more of the title or use autocomplete:'
+              : `No song found for "${arg}". Try part of the title, or sync to refresh the catalog.`, 'error');
+            matches.slice(0, 8).forEach((match) => addLine(`  [${match.id}] ${match.title}`));
             break;
           }
           playTrack(track);
@@ -1013,11 +1035,11 @@ BACKGROUND: ${music.background ? 'ON' : 'OFF'} · GUIDED: ${music.guided ? 'ON' 
 
       case 'band': {
         const sub = (args[0] || '').toLowerCase();
-        if (!sub) { addLine(`K clone ensemble: ${bandEnabled ? 'ON' : 'OFF'}`); break; }
+        if (!sub) { addLine(`TechOps band: ${bandEnabled ? 'ON' : 'OFF'}`); break; }
         if (sub === 'on' || sub === 'off') {
           const enabled = sub === 'on';
           setBandEnabled(enabled);
-          addLine(`K clone ensemble ${enabled ? 'on stage' : 'muted'}.`);
+          addLine(`TechOps band ${enabled ? 'on stage' : 'muted'}.`);
           break;
         }
         addLine('Usage: band on|off', 'error');
@@ -1146,6 +1168,7 @@ Sequential Playback: ON (no overlap)`);
       // K//CITY's global Space handler treats spaces as flight input and
       // prevents multi-argument commands such as "play 1".
       e.stopPropagation();
+      if (e.defaultPrevented || e.nativeEvent.isComposing) return;
       if (e.key !== 'Enter') return;
       e.preventDefault();
       const value = inputValue.trim();
@@ -1155,6 +1178,7 @@ Sequential Playback: ON (no overlap)`);
       const commandHtml = `<span class="tc-prompt"><span class="kt-bashrc-mark">⌐▀͡ ̯ʖ▀)︻̷┻̿═━一</span> <span class="kt-bashrc-k">k</span><span class="kt-bashrc-at">@</span><span class="kt-bashrc-the">the</span><span class="kt-bashrc-emrld">emrld</span></span> <span class="tc-shell-op">$</span> <span class="tc-command-name">${rawCommand}</span>${rawArgs.length ? ' <span class="tc-arg">' + rawArgs.join(' ') + '</span>' : ''}`;
       addLine(commandHtml, 'command');
       setInputValue('');
+      autocompleteRef.current?.dismiss();
       executeCommand(rawCommand.toLowerCase(), rawArgs);
     },
     [inputValue, addLine, executeCommand]
@@ -1316,6 +1340,8 @@ Sequential Playback: ON (no overlap)`);
             ref={inputRef}
             type="text"
             className="kt-input"
+            aria-label="K Terminal command"
+            placeholder="play a song name"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -1330,13 +1356,15 @@ Sequential Playback: ON (no overlap)`);
         </div>
 
         </div>
+        <div ref={suggestionsRef} hidden />
 
-        {/* K clone band — below CLI so the prompt stays directly under projections */}
+        {/* TechOps ensemble follows the shared audio playback clock. */}
         <KBandStage
+          key={currentTrack?.url || 'preview'}
           isPlaying={isPlaying}
-          progress={progress}
           positionMs={playbackPositionMs}
-          intensity={ritualIntensity}
+          playbackRate={audio.rate}
+          trackId={currentTrack?.url}
           trackTitle={currentTrack?.title}
           enabled={bandEnabled}
         />
@@ -1589,7 +1617,7 @@ Sequential Playback: ON (no overlap)`);
         .kt-diamond-card .kt-ascii-label,.kt-diamond-card .kt-scene-tag{color:#00ffff;border-color:rgba(0,255,255,.5);text-shadow:0 0 7px rgba(0,255,255,.72)}
         .kt-tesseract-card .kt-ascii-label,.kt-tesseract-card .kt-scene-tag{color:#ff3b3b;border-color:rgba(255,59,59,.55);text-shadow:0 0 8px rgba(255,59,59,.8)}
         .kt-moon-card .kt-ascii-label,.kt-moon-card .kt-scene-tag{color:#d8e6ff;border-color:rgba(216,230,255,.48);text-shadow:0 0 7px rgba(216,230,255,.72)}
-        .kt-rocket-card .kt-ascii-label,.kt-rocket-card .kt-scene-tag{color:#ffb000;border-color:rgba(255,176,0,.55);text-shadow:0 0 8px rgba(255,176,0,.78)}
+        .kt-rocket-card .kt-ascii-label,.kt-rocket-card .kt-scene-tag{color:#d8e6ff;border-color:rgba(216,230,255,.55);text-shadow:0 0 8px rgba(216,230,255,.78)}
 
         .kt-taino-stage,.kt-tesseract-stage,.kt-globe-stage,.kt-diamond-stage,.kt-moon-stage,.kt-rocket-stage { position:absolute; inset:18px 0 0; display:flex; align-items:center; justify-content:center; perspective:380px; }
         .kt-tesseract-card { background:radial-gradient(circle at 50% 50%,rgba(255,45,65,.18),rgba(255,0,120,.055) 42%,rgba(13,2,8,.97) 72%); border-color:rgba(255,72,72,.68); box-shadow:inset 0 0 22px rgba(255,55,75,.11),0 0 12px rgba(255,35,80,.16); }
@@ -1607,8 +1635,8 @@ Sequential Playback: ON (no overlap)`);
         .kt-diamond-card { background:radial-gradient(circle at 50% 48%,rgba(0,255,255,.13),rgba(255,0,255,.035) 46%,rgba(13,2,8,.97) 74%); }
         .kt-moon { margin:0; white-space:pre; text-align:center; color:#d8e6ff; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(216,230,255,.8),0 0 13px rgba(0,255,255,.24); animation:kt-moon-glow 2.4s steps(8) infinite; }
         .kt-moon-card { background:radial-gradient(circle at 50% 48%,rgba(180,205,255,.12),rgba(0,255,255,.025) 44%,rgba(13,2,8,.97) 75%); }
-        .kt-rocket { margin:0; white-space:pre; text-align:center; color:#ffb000; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 6px rgba(255,176,0,.84),0 0 14px rgba(255,0,255,.24); animation:kt-rocket-glow 1.7s steps(8) infinite; }
-        .kt-rocket-card { background:radial-gradient(circle at 50% 48%,rgba(255,176,0,.11),rgba(255,0,255,.025) 46%,rgba(13,2,8,.97) 75%); }
+        .kt-rocket { margin:0; white-space:pre; text-align:center; color:transparent; background:linear-gradient(180deg,#f7fafc 0%,#dbe4ed 22%,#aebdca 39%,#e74646 40%,#f7fafc 45%,#bac7d2 68%,#d94444 69%,#c83b3b 81%,#596a79 82%,#303d49 90%,#ff982f 91%,#ffe28a 100%); -webkit-background-clip:text; background-clip:text; font:8px/.82 'Share Tech Mono',monospace; text-shadow:0 0 5px rgba(230,242,255,.28),0 0 12px rgba(255,134,50,.18); animation:kt-rocket-glow 1.7s steps(8) infinite; }
+        .kt-rocket-card { background:radial-gradient(circle at 50% 38%,rgba(165,205,235,.14),rgba(232,65,65,.045) 46%,rgba(13,2,8,.97) 75%); }
         @keyframes kt-moon-glow { 0%,100%{filter:brightness(.88) contrast(1.08)} 50%{filter:brightness(1.15) contrast(1.18)} }
         @keyframes kt-rocket-glow { 0%,100%{filter:brightness(.9) contrast(1.08)} 50%{filter:brightness(1.26) contrast(1.22)} }
         @keyframes kt-poly-spin { to { transform:rotateY(360deg) rotateZ(360deg); } }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sequencer } from '../public/k-world/audio.js';
+import { Sequencer, SoundCloudPort } from '../public/k-world/audio.js';
 import { GuidedPlayback } from '../public/k-world/guided-playback.js';
 import { emptyGuidedScore, GUIDED_EDITIONS } from '../public/k-world/guided.js';
 
@@ -268,4 +268,95 @@ test('forward jumps, backwards turns, and edition changes resolve only the visib
   guided.setLocation(position(2, 'xiii'));
   assert.deepEqual(loads(calls).map(call => call[1]), ['test-a', 'test-c', 'test-a', 'test-xiii']);
   assert.equal(music.state.current.id, 'test-xiii');
+});
+
+test('SoundCloud requests autoplay for each armed guided cue and respects pause during a load', async () => {
+  const loads = [];
+  const transport = [];
+  const timers = [];
+  let widgetPaused = false;
+  const widget = {
+    load(url, options) { loads.push({ url, ...options }); },
+    getDuration(callback) { callback(120000); },
+    isPaused(callback) { callback(widgetPaused); },
+    setVolume() {},
+    play() { transport.push('play'); },
+    pause() { transport.push('pause'); },
+  };
+  const port = new SoundCloudPort(null);
+  port.widget = widget;
+  port.later = (callback, delay) => { if (delay === 350) timers.push(callback); };
+  const music = new Sequencer(port);
+  music.select(track('first-cue'));
+  await Promise.resolve();
+  assert.equal(loads[0].auto_play, true);
+  loads[0].callback();
+  timers.shift()();
+  assert.equal(music.state.status, 'playing');
+  assert.equal(transport.includes('play'), false);
+
+  music.load(track('second-cue'));
+  await Promise.resolve();
+  assert.equal(loads[1].auto_play, true);
+  widgetPaused = true;
+  loads[1].callback();
+  timers.shift()();
+  assert.equal(transport.at(-1), 'play');
+  music.pause();
+  assert.equal(music.state.status, 'paused');
+  assert.equal(music.state.pausedByUser, true);
+
+  music.load(track('third-cue'));
+  await Promise.resolve();
+  assert.equal(loads[2].auto_play, false);
+  loads[2].callback();
+  assert.equal(music.state.status, 'paused');
+});
+
+test('a forward page turn gives the current cue 30 seconds, then selects the visible page', () => {
+  const { guided, music, calls } = setup();
+  const timed = score();
+  timed.minimumPlayMs = 30000;
+  timed.cues[1].startPage = 5;
+  guided.setScore(timed);
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  const token = music.generation;
+  music.ready(token, 180000);
+  music.playing(token);
+  music.progress(token, 12000);
+  guided.setLocation(position(5));
+  guided.setLocation(position(6));
+  music.progress(token, 29999);
+  assert.equal(music.state.current.id, 'test-a');
+  music.progress(token, 30000);
+  assert.equal(music.state.current.id, 'test-b');
+  assert.deepEqual(loads(calls).map(call => call[1]), ['test-a', 'test-b']);
+});
+
+test('a deliberate quiet page or a direct jump cuts the current cue immediately', () => {
+  const { guided, music } = setup();
+  guided.setScore({ ...score(), minimumPlayMs: 30000, quietPages: [{ edition: 'f', number: 5 }] });
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  guided.setLocation(position(5));
+  assert.equal(music.state.current, null);
+  guided.setLocation(position(6));
+  assert.equal(music.state.current.id, 'test-b');
+  guided.setLocation(position(10));
+  assert.equal(music.state.current.id, 'test-c');
+});
+
+test('a cue finishes its minimum across an ordinary unmapped page and then goes silent', () => {
+  const { guided, music } = setup();
+  guided.setScore({ ...score(), minimumPlayMs: 30000 });
+  guided.setLocation(position(4));
+  guided.setEnabled(true);
+  const token = music.generation;
+  music.ready(token, 180000);
+  music.playing(token);
+  guided.setLocation(position(5));
+  assert.equal(music.state.current.id, 'test-a');
+  music.progress(token, 30000);
+  assert.equal(music.state.current, null);
 });

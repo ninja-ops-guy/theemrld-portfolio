@@ -11,7 +11,7 @@ jobs:
   deployed-presentation:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,6 +29,11 @@ jobs:
           mkdir -p public-proof
           git rev-parse HEAD > public-proof/released-head.txt
           python scripts/see-world-public-smoke.py
+      - name: Verify the deployed same-origin linked journey
+        env:
+          LINKED_BASE_URL: https://kterminal.site
+          LINKED_QA_DIR: public-proof/production-linked
+        run: python scripts/see-world-production-journey.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
