@@ -15,6 +15,13 @@ export type PerformanceId = 'k-guitar' | 'iona-drums' | 'iona-drums-fast' | 'fel
   | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass'
   | 'katrin-backswing' | 'katrin-marmot' | 'manchez-drum-dance';
 export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN' | 'MANCHEZ'; role: string };
+export const GROUP_SHUFFLE = {
+  atlas: 'assets/techops-band-skeleton-shuffle-v1.webp',
+  columns: 20,
+  rows: 7,
+  rowByActor: { K: 0, IONA: 1, FELICIA: 2, WALDO: 3, MIKE: 4, KATRIN: 5, MANCHEZ: 6 } satisfies Record<Performer['actor'], number>,
+} as const;
+
 export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
 export function isSpriteStrip(strip: SpriteStrip | undefined): strip is SpriteStrip {
   return !!strip && [strip.top, strip.height, strip.atlasHeight, strip.frameWidth].every(Number.isSafeInteger)
@@ -143,4 +150,13 @@ export function guitarRiffPose(positionMs: number, bpm: number, offsetMs: number
 export function katrinDanceAt(positionMs: number, bpm: number, offsetMs: number, reducedMotion = false): 'katrin-backswing' | 'katrin-marmot' {
   if (reducedMotion || positionMs < offsetMs) return 'katrin-backswing';
   return bandFrame(positionMs, bpm, offsetMs, 8, 2) === 1 ? 'katrin-marmot' : 'katrin-backswing';
+}
+
+export function groupShuffleFrame(positionMs: number, bpm: number, offsetMs: number, reducedMotion = false): number | null {
+  if (reducedMotion || positionMs < offsetMs) return null;
+  // The shuffle runs on beats 3 and 4 of a 16-beat rotation.
+  const framesPerBeat = GROUP_SHUFFLE.columns / 2;
+  const firstFrame = framesPerBeat * 2;
+  const frame = bandFrame(positionMs, bpm, offsetMs, 16, framesPerBeat * 16);
+  return frame >= firstFrame && frame < firstFrame + GROUP_SHUFFLE.columns ? frame - firstFrame : null;
 }
