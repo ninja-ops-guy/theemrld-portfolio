@@ -1,3 +1,4 @@
+import SiteInfoLinks from '../components/SiteInfoLinks';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
@@ -82,6 +83,7 @@ export default function LatestComicReader() {
     </dialog>}
     <header className="comic-mast">
       <Link to={fromWorld?'/k/terminal':'/terminal'}><ArrowLeft size={16}/> K Terminal</Link>
+      <SiteInfoLinks />
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
       <nav className="comic-downloads" aria-label="PDF downloads"><a className="comic-download" href={book.pdfUrl} target="_blank" rel="noopener noreferrer"><BookOpen size={16}/> {book.label} · Complete {book.pageCount}-page PDF</a></nav>
     </header>
@@ -92,7 +94,7 @@ export default function LatestComicReader() {
         <button className="comic-reel-toggle" onClick={()=>setIntro(true)}>Replay intro</button>
         <div className="comic-hero-copy"><p className="comic-overline"><span/> THE FULL COLLECTION</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line,row)=><span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i)=><b key={i} style={{'--i':row*7+i} as CSSProperties}>{c===' '?'\u00a0':c}</b>)}</span>)}</h1>
-          <p className="comic-byline">By Mike Olivares</p><div className="comic-actions"><button className="comic-primary" onClick={()=>go(saved>1?saved:1)}>{saved>1?`Resume · p. ${saved}`:`Read ${book.label}`} <ArrowRight size={18}/></button><span>{book.pageCount} pages <i>/</i> {book.title}</span></div>
+          <p className="comic-byline">By Mike Olivares</p><p className="comic-site-intro">TechOps Hero is an original comic by Mike Olivares about memory, belonging, and the people who keep one another going. Read the collection in order, or return to a saved page. The optional soundtrack connects the comic with music from @raikouno; you control when it plays.</p><div className="comic-actions"><button className="comic-primary" onClick={()=>go(saved>1?saved:1)}>{saved>1?`Resume · p. ${saved}`:`Read ${book.label}`} <ArrowRight size={18}/></button><span>{book.pageCount} pages <i>/</i> {book.title}</span></div>
         </div>
       </section>
       <section className="comic-library" aria-label="Comic library">

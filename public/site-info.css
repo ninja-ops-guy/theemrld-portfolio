@@ -1,0 +1,19 @@
+.site-info-links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;max-width:100%;font:12px/1.5 system-ui,sans-serif}
+.site-info-links a{display:inline-flex;align-items:center;min-height:44px;color:inherit;text-decoration:underline;text-underline-offset:4px}
+.site-info-links a:hover{text-decoration-thickness:2px}
+.site-info-links a:focus-visible,.site-info-page a:focus-visible{outline:2px solid #b8e8ca;outline-offset:4px}
+.site-info-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.site-info-page{margin:0;background:#050a14;color:#e8edf3;font:17px/1.8 system-ui,sans-serif;overflow-wrap:anywhere;color-scheme:dark}
+.site-info-page *{box-sizing:border-box}
+.site-info-page header,.site-info-page main,.site-info-page footer{width:min(100% - 40px,800px);margin-inline:auto}
+.site-info-page header{padding:30px 0 18px;border-bottom:1px solid #334252}
+.site-info-page header>a{font:14px/1.5 ui-monospace,monospace;letter-spacing:.08em}
+.site-info-page main{padding:28px 0 48px}
+.site-info-page h1{font-size:clamp(32px,7vw,48px);line-height:1.15;letter-spacing:-.03em;margin:18px 0 24px}
+.site-info-page h2{font-size:22px;line-height:1.4;margin:32px 0 10px}
+.site-info-page p{margin:14px 0;color:#c5d1dc}
+.site-info-page a{color:#b8e8ca;text-underline-offset:4px}
+.site-info-page footer{padding:18px 0 30px;border-top:1px solid #334252}
+.site-info-page .site-info-date{font-size:13px;color:#a5b6c7}
+.site-info-page .site-info-nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+.site-info-page .site-info-nav a{min-height:44px;display:inline-flex;align-items:center}
