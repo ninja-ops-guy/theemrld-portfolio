@@ -811,7 +811,7 @@ export default function KTerminal({
   <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
   <span class="tc-command">visualizer on|off</span>  - Toggle visualizer
   <span class="tc-command">visualizer bars [8-128]</span> - Set density
-  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate\n  <span class="tc-command">band on|off</span>       - Toggle K clone ensemble
+  <span class="tc-command">visualizer fps [5-60]</span>   - Set refresh rate\n  <span class="tc-command">band on|off</span>       - Toggle TechOps band
   <span class="tc-command">ritual on|off</span>      - Toggle celestial ASCII audio-reactive mode
   <span class="tc-command">ritual intensity [0-100]</span> - Set reaction strength
   <span class="tc-command">ritual fps [2-20]</span>  - Set stepped animation clock
@@ -1013,11 +1013,11 @@ BACKGROUND: ${music.background ? 'ON' : 'OFF'} · GUIDED: ${music.guided ? 'ON' 
 
       case 'band': {
         const sub = (args[0] || '').toLowerCase();
-        if (!sub) { addLine(`K clone ensemble: ${bandEnabled ? 'ON' : 'OFF'}`); break; }
+        if (!sub) { addLine(`TechOps band: ${bandEnabled ? 'ON' : 'OFF'}`); break; }
         if (sub === 'on' || sub === 'off') {
           const enabled = sub === 'on';
           setBandEnabled(enabled);
-          addLine(`K clone ensemble ${enabled ? 'on stage' : 'muted'}.`);
+          addLine(`TechOps band ${enabled ? 'on stage' : 'muted'}.`);
           break;
         }
         addLine('Usage: band on|off', 'error');
@@ -1331,12 +1331,13 @@ Sequential Playback: ON (no overlap)`);
 
         </div>
 
-        {/* K clone band — below CLI so the prompt stays directly under projections */}
+        {/* TechOps ensemble follows the shared audio playback clock. */}
         <KBandStage
+          key={currentTrack?.url || 'preview'}
           isPlaying={isPlaying}
-          progress={progress}
           positionMs={playbackPositionMs}
-          intensity={ritualIntensity}
+          playbackRate={audio.rate}
+          trackId={currentTrack?.url}
           trackTitle={currentTrack?.title}
           enabled={bandEnabled}
         />
