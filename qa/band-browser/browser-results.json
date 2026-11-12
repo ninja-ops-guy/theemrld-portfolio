@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "Electronic song selects Waldo mixing board",
+    "All three Felicia instruments swap with five unique actors",
+    "Playback animates and pause freezes all clips",
+    "Paused seek selects the correct new pose",
+    "Song switch isolates choices; returning and reloading restore them",
+    "320px layout fits without overflow; five performers wrap into three columns",
+    "Reduced motion keeps the first frame while audio clock advances",
+    "Both production atlases decode; no browser or HTTP errors"
+  ],
+  "passed": 8,
+  "browser": "145.0.7632.6",
+  "scope": "Actual stage components and assets in a controlled playback-clock harness, not full SoundCloud end-to-end playback"
+}
