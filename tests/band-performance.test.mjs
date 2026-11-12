@@ -16,6 +16,23 @@ test('unknown songs preserve the ensemble without making up instruments', () => 
   assert.deepEqual(ids(resolvePerformance()), ['k-guitar', 'iona-drums', 'felicia-dance', 'waldo-dance', 'katrin-backswing']);
   assert.equal(ids(resolvePerformance({ instruments: ['synth'] })).includes('waldo-mixing'), false);
 });
+test('Iona switches at 150 BPM and uses the standard drum clip if the fast clip is unavailable', () => {
+  const standard = ids(resolvePerformance({}, undefined, 149.9));
+  const fast = resolvePerformance({}, undefined, 150);
+  assert.deepEqual(ids(fast), standard.map(id => id === 'iona-drums' ? 'iona-drums-fast' : id));
+  assert.deepEqual(ids(resolvePerformance({}, undefined, NaN)), standard);
+  assert.deepEqual(ids(playablePerformance(fast, { ...BAND_CLIPS, 'iona-drums-fast': undefined })), standard);
+});
+test('Iona’s fast clip spans two beats and honors seeks, offset and reduced motion', () => {
+  const fast = BAND_CLIPS['iona-drums-fast'];
+  assert.ok(isPlayableClip(fast));
+  assert.equal(performanceCell(50, 150, 0, fast), 1);
+  assert.equal(performanceCell(400, 150, 0, fast), 8);
+  assert.equal(performanceCell(799, 150, 0, fast), 15);
+  assert.equal(performanceCell(800, 150, 0, fast), 0);
+  assert.equal(performanceCell(500, 150, 100, fast), 8);
+  assert.equal(performanceCell(400, 150, 0, fast, true), 0);
+});
 test('electronic, keys and bass can perform together with distinct actor identities', () => {
   const result = resolvePerformance({ instruments: ['electronic', 'synth', 'bass'] });
   assert.deepEqual(ids(result), ['k-guitar', 'iona-drums', 'felicia-synth', 'waldo-mixing', 'mike-bass', 'katrin-backswing']);

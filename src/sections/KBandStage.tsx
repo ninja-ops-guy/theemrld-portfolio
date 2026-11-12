@@ -29,7 +29,10 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
     try { return readArrangement(localStorage.getItem(arrangementKey)); } catch { return readArrangement(null); }
   });
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const members = useMemo(() => playablePerformance(resolvePerformance(TRACK_PERFORMANCES[trackId], arrangement), BAND_CLIPS), [trackId, arrangement]);
+  const members = useMemo(
+    () => playablePerformance(resolvePerformance(TRACK_PERFORMANCES[trackId], arrangement, timing.bpm), BAND_CLIPS),
+    [trackId, arrangement, timing.bpm],
+  );
   const [cells, setCells] = useState<Record<string, number>>(() => Object.fromEntries(members.map(member => [member.id, performanceCell(positionMs, timing.bpm, timing.offsetMs, BAND_CLIPS[member.id]!, reducedMotion)])));
   const anchor = useRef({ positionMs, at: performance.now() });
 

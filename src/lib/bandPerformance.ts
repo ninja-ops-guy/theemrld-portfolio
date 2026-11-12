@@ -11,7 +11,7 @@ export type TrackPerformance = {
   instruments?: readonly Instrument[];
   feliciaLead?: 'violin' | 'piano' | 'synth';
 };
-export type PerformanceId = 'k-guitar' | 'iona-drums' | 'felicia-dance' | 'waldo-dance'
+export type PerformanceId = 'k-guitar' | 'iona-drums' | 'iona-drums-fast' | 'felicia-dance' | 'waldo-dance'
   | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass' | 'katrin-backswing';
 export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN'; role: string };
 export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
@@ -33,6 +33,7 @@ export const DEFAULT_ARRANGEMENT: Arrangement = { waldo: 'auto', felicia: 'auto'
 export const PERFORMERS: Record<PerformanceId, Performer> = {
   'k-guitar': { id: 'k-guitar', actor: 'K', role: 'GUITAR' },
   'iona-drums': { id: 'iona-drums', actor: 'IONA', role: 'DRUMS' },
+  'iona-drums-fast': { id: 'iona-drums-fast', actor: 'IONA', role: 'DRUMS' },
   'felicia-dance': { id: 'felicia-dance', actor: 'FELICIA', role: 'BREAKDANCE' },
   'waldo-dance': { id: 'waldo-dance', actor: 'WALDO', role: 'BREAKDANCE' },
   'waldo-mixing': { id: 'waldo-mixing', actor: 'WALDO', role: 'MIXING BOARD' },
@@ -41,6 +42,12 @@ export const PERFORMERS: Record<PerformanceId, Performer> = {
   'felicia-synth': { id: 'felicia-synth', actor: 'FELICIA', role: 'SYNTHESIZER' },
   'mike-bass': { id: 'mike-bass', actor: 'MIKE', role: 'BASS' },
   'katrin-backswing': { id: 'katrin-backswing', actor: 'KATRIN', role: 'BACKSWING STEP' },
+};
+const FAST_DRUMS_MIN_BPM = 150;
+const FALLBACK_PERFORMANCES: Partial<Record<Performer['actor'], PerformanceId>> = {
+  IONA: 'iona-drums',
+  FELICIA: 'felicia-dance',
+  WALDO: 'waldo-dance',
 };
 
 export function readArrangement(raw: string | null): Arrangement {
@@ -55,7 +62,7 @@ export function readArrangement(raw: string | null): Arrangement {
   } catch { return { ...DEFAULT_ARRANGEMENT }; }
 }
 
-export function resolvePerformance(profile: TrackPerformance = {}, choice: Arrangement = DEFAULT_ARRANGEMENT): Performer[] {
+export function resolvePerformance(profile: TrackPerformance = {}, choice: Arrangement = DEFAULT_ARRANGEMENT, bpm = 120): Performer[] {
   const instruments = new Set(profile.instruments || []);
   const keys = ['violin', 'piano', 'synth'] as const;
   const presentKeys = keys.filter(key => instruments.has(key));
@@ -65,7 +72,8 @@ export function resolvePerformance(profile: TrackPerformance = {}, choice: Arran
   const felicia = choice.felicia === 'auto' ? lead : choice.felicia;
   const waldo = choice.waldo === 'auto' ? (instruments.has('electronic') ? 'mixing' : 'dance') : choice.waldo;
   const bass = choice.mike === 'bass' || (choice.mike === 'auto' && instruments.has('bass'));
-  return [PERFORMERS['k-guitar'], PERFORMERS['iona-drums'], PERFORMERS[`felicia-${felicia}`],
+  const drums = bpm >= FAST_DRUMS_MIN_BPM && bpm <= 240 ? 'iona-drums-fast' : 'iona-drums';
+  return [PERFORMERS['k-guitar'], PERFORMERS[drums], PERFORMERS[`felicia-${felicia}`],
     PERFORMERS[`waldo-${waldo}`], ...(bass ? [PERFORMERS['mike-bass']] : []), PERFORMERS['katrin-backswing']];
 }
 
@@ -81,7 +89,7 @@ export function isPlayableClip(clip: SpriteClip | undefined): clip is SpriteClip
 export function playablePerformance(requested: readonly Performer[], clips: Partial<Record<PerformanceId, SpriteClip>>): Performer[] {
   return requested.flatMap(performer => {
     if (isPlayableClip(clips[performer.id])) return [performer];
-    const fallback = performer.actor === 'FELICIA' ? 'felicia-dance' : performer.actor === 'WALDO' ? 'waldo-dance' : null;
+    const fallback = FALLBACK_PERFORMANCES[performer.actor];
     return fallback && isPlayableClip(clips[fallback]) ? [PERFORMERS[fallback]] : [];
   });
 }
