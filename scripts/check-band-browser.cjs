@@ -22,7 +22,7 @@ fs.mkdirSync(output, { recursive: true });
       if (url.pathname === '/') return route.fulfill({ contentType: 'text/html', body: html });
       const file = url.pathname === '/app.js' ? path.join(output, 'app.js') : url.pathname.startsWith('/assets/') ? path.join(project, 'public', url.pathname) : null;
       if (!file || !fs.existsSync(file)) return route.fulfill({ status: 404 });
-      return route.fulfill({ contentType: file.endsWith('.webp') ? 'image/webp' : 'application/javascript', body: fs.readFileSync(file) });
+      return route.fulfill({ contentType: file.endsWith('.webp') ? 'image/webp' : file.endsWith('.gif') ? 'image/gif' : 'application/javascript', body: fs.readFileSync(file) });
     });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -31,19 +31,21 @@ fs.mkdirSync(output, { recursive: true });
     await page.locator('[data-performance="waldo-mixing"]').waitFor();
     const katrin = page.locator('[data-performance="katrin-backswing"] > div');
     await katrin.waitFor();
+    const manchez = page.locator('[data-performance="manchez-drum-dance"] > div');
+    await manchez.waitFor();
     const katrinPose = () => katrin.evaluate(node => node.style.backgroundPosition);
     checks.push('Electronic song selects Waldo mixing board');
     await page.getByText('Band arrangement', { exact: true }).click();
     await page.getByLabel('Felicia', { exact: true }).selectOption('violin');
     await page.getByLabel('Mike', { exact: true }).selectOption('bass');
-    await page.locator('[data-members="6"]').waitFor();
+    await page.locator('[data-members="7"]').waitFor();
     for (const instrument of ['violin', 'piano', 'synth']) {
       await page.getByLabel('Felicia', { exact: true }).selectOption(instrument);
       await page.locator(`[data-performance="felicia-${instrument}"]`).waitFor();
-      assert.equal(await page.locator('[data-performance]').count(), 6);
+      assert.equal(await page.locator('[data-performance]').count(), 7);
     }
     await page.getByLabel('Felicia', { exact: true }).selectOption('violin');
-    checks.push('All three Felicia instruments swap with six performers onstage');
+    checks.push('All three Felicia instruments swap with seven performers onstage');
     const poses = async () => page.locator('[data-performance]>div').evaluateAll(nodes => nodes.map(node => node.style.backgroundPosition));
     const initial = await poses();
     const initialKatrin = await katrinPose();
@@ -74,14 +76,14 @@ fs.mkdirSync(output, { recursive: true });
     await page.screenshot({ path: path.join(output, 'desktop.png'), fullPage: true });
     await page.setViewportSize({ width: 320, height: 800 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-    assert.equal((await page.locator('.kt-band-grid').evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 3);
+    assert.equal((await page.locator('.kt-band-grid').evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 4);
     await page.screenshot({ path: path.join(output, 'mobile.png'), fullPage: true });
     await page.getByText('Band arrangement', { exact: true }).click();
     await page.getByLabel('Mike', { exact: true }).selectOption('off');
-    const fivePerformers = page.locator('.kt-band-grid[data-members="5"]');
-    assert.equal((await fivePerformers.evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 3);
+    const sixPerformers = page.locator('.kt-band-grid[data-members="6"]');
+    assert.equal((await sixPerformers.evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 3);
     await page.getByLabel('Mike', { exact: true }).selectOption('bass');
-    checks.push('320px layout fits both five and six performers in three columns');
+    checks.push('320px layout fits six performers in three columns and seven in four columns');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.getByRole('button', { name: 'Seek 750' }).click();
     await page.waitForTimeout(100);
@@ -91,20 +93,25 @@ fs.mkdirSync(output, { recursive: true });
     assert.equal(neutral[3], '0% 0%');
     assert.equal(neutral[4], '0% 100%');
     assert.equal(await katrinPose(), '0% 0%');
+    assert.equal(await manchez.evaluate(node => node.style.backgroundPosition), '0% 0%');
     await page.getByRole('button', { name: 'Play', exact: true }).click();
     const still = await poses();
     await page.waitForTimeout(250);
     assert.deepEqual(await poses(), still);
     checks.push('Reduced motion keeps the first frame while audio clock advances');
     assert.deepEqual(errors, []);
-    const dimensions = await page.evaluate(async () => Promise.all(['instruments-v1', 'katrin-backswing'].map(async asset => {
+    const assets = [
+      'techops-band-instruments-v1.webp', 'techops-band-katrin-backswing.webp',
+      'manchez-drum-dance-v1.webp', 'manchez-drum-dance-v1.gif',
+    ];
+    const dimensions = await page.evaluate(async assets => Promise.all(assets.map(async asset => {
       const image = new Image();
-      image.src = `/assets/techops-band-${asset}.webp`;
+      image.src = `/assets/${asset}`;
       await image.decode();
       return [image.naturalWidth, image.naturalHeight];
-    })));
-    assert.deepEqual(dimensions, [[1374, 1145], [768, 512]]);
-    checks.push('Instrument and Katrin atlases decode; no browser or HTTP errors');
+    })), assets);
+    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128]]);
+    checks.push('Band atlases and Manchez GIF decode without browser or HTTP errors');
     fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ checks, passed: checks.length, browser: await browser.version(), scope: 'Actual stage components and assets in a controlled playback-clock harness, not full SoundCloud end-to-end playback' }, null, 2));
     console.log(JSON.stringify({ passed: checks.length, checks }));
   } finally { if (browser) await browser.close(); }

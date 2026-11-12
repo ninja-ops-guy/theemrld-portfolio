@@ -31,6 +31,11 @@ export const BAND_CLIPS: Partial<Record<PerformanceId, SpriteClip>> = {
     atlas: 'assets/techops-band-katrin-backswing.webp', columns: 6, rows: 4,
     firstCell: 0, frameCount: 24, beatsPerLoop: 2,
   },
+  'manchez-drum-dance': {
+    atlas: 'assets/manchez-drum-dance-v1.webp', columns: 4, rows: 1,
+    firstCell: 1, frameCount: 3, beatsPerLoop: 0.25,
+    rotation: { activeBeats: 4, intervalBeats: 8, restCell: 0 },
+  },
 };
 
 // Key by the exact track URL used by KTerminal, never title substrings.
