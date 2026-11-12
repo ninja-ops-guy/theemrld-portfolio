@@ -65,6 +65,22 @@ jobs:
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
           cat comic-finalization-receipt.json
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image gate dependency
+        run: python -m pip install 'Pillow==12.3.0'
+      - name: Verify every deployed image fully decodes
+        run: python scripts/image_asset_gate.py --root dist --output qa/image-assets-dist.json
+      - name: Retain image-integrity receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-asset-receipt
+          path: qa/image-assets-dist.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify approved immutable source and stamp exact deployment
         if: inputs.release_id != ''
         env:
@@ -179,7 +195,7 @@ jobs:
             const c=await import(`${process.env.GITHUB_WORKSPACE}/verifier/scripts/publisher-control.mjs`);
             const receipt=JSON.parse(fs.readFileSync('publisher-live-receipt.json'));
             await c.recordLiveReceipt(github,context.repo,process.env.RELEASE,process.env.MANIFEST_HASH,context.sha,receipt,context.runId);
-            await core.summary.addHeading(receipt.status).addRaw(`Release: ${receipt.release_id}; commit: ${receipt.commit}. Emulated browser tests are not physical-device certification.`).write();
+            await core.summary.addHeading(receipt.status).addRaw(`Release: ${receipt.release}; commit: ${context.sha}. Emulated browser tests are not physical-device certification.`).write();
       - uses: actions/upload-artifact@v4
         if: always() && inputs.release_id != ''
         with:
