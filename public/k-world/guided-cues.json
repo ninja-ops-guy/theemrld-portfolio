@@ -32,12 +32,76 @@
       "url": "https://soundcloud.com/raikouno/somewhere-deep-down-below"
     },
     {
+      "id": "vol2-ascent",
+      "edition": "g",
+      "startPage": 67,
+      "endPage": 79,
+      "title": "G2U",
+      "url": "https://soundcloud.com/raikouno/g2u"
+    },
+    {
+      "id": "vol2-transformation",
+      "edition": "g",
+      "startPage": 80,
+      "endPage": 86,
+      "title": "Erosion of the Self",
+      "url": "https://soundcloud.com/raikouno/erosion-of-the-self"
+    },
+    {
+      "id": "iona-thread-open",
+      "edition": "g",
+      "startPage": 87,
+      "endPage": 95,
+      "title": "The world didn’t wait",
+      "url": "https://soundcloud.com/raikouno/the-world-didnt-wait"
+    },
+    {
+      "id": "iona-memories",
+      "edition": "g",
+      "startPage": 96,
+      "endPage": 110,
+      "title": "I hope these memories are mine at least",
+      "url": "https://soundcloud.com/raikouno/i-hope-these-memories-are-mine"
+    },
+    {
+      "id": "iona-dread",
+      "edition": "g",
+      "startPage": 113,
+      "endPage": 116,
+      "title": "IDLE(Price Of Pain)",
+      "url": "https://soundcloud.com/raikouno/idle"
+    },
+    {
       "id": "iona-stair-fight",
       "edition": "g",
       "startPage": 117,
       "endPage": 121,
       "title": "AGAMEMNON",
       "url": "https://soundcloud.com/raikouno/agamemnon"
+    },
+    {
+      "id": "iona-aftermath",
+      "edition": "g",
+      "startPage": 122,
+      "endPage": 126,
+      "title": "Milwaukee walkie talkie",
+      "url": "https://soundcloud.com/raikouno/milwaukee-walkie-talkie"
+    },
+    {
+      "id": "iona-director",
+      "edition": "g",
+      "startPage": 127,
+      "endPage": 128,
+      "title": "Knot on Both Sides",
+      "url": "https://soundcloud.com/raikouno/knot-in-both-sides"
+    },
+    {
+      "id": "iona-interrogation",
+      "edition": "g",
+      "startPage": 129,
+      "endPage": 134,
+      "title": "Because I Was Useful",
+      "url": "https://soundcloud.com/raikouno/because-i-was-useful-wav"
     },
     {
       "id": "iona-building-blast",
@@ -48,12 +112,76 @@
       "url": "https://soundcloud.com/raikouno/the-mercy-i-buried"
     },
     {
+      "id": "iona-interlude-close",
+      "edition": "g",
+      "startPage": 140,
+      "endPage": 141,
+      "title": "Other Plans",
+      "url": "https://soundcloud.com/raikouno/other-plans"
+    },
+    {
+      "id": "vol3-workshop",
+      "edition": "g",
+      "startPage": 142,
+      "endPage": 148,
+      "title": "It Was Gray Until I Met You",
+      "url": "https://soundcloud.com/raikouno/it-was-gray-until-i-met-you"
+    },
+    {
+      "id": "vol3-archive-choice",
+      "edition": "g",
+      "startPage": 149,
+      "endPage": 155,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "vol3-signal",
+      "edition": "g",
+      "startPage": 156,
+      "endPage": 164,
+      "title": "More Than Anything Else",
+      "url": "https://soundcloud.com/raikouno/more-than-anything-else-wav"
+    },
+    {
+      "id": "vol4-false-bearing",
+      "edition": "g",
+      "startPage": 165,
+      "endPage": 169,
+      "title": "ULTRA HIGH FREQUENCY FREAK!",
+      "url": "https://soundcloud.com/raikouno/bt-freak"
+    },
+    {
+      "id": "vol5-house",
+      "edition": "g",
+      "startPage": 175,
+      "endPage": 185,
+      "title": "Rust & Concrete",
+      "url": "https://soundcloud.com/raikouno/rust-concrete"
+    },
+    {
       "id": "iona-musical-coda",
       "edition": "g",
       "startPage": 206,
       "endPage": 213,
       "title": "RIDE OR DIE",
       "url": "https://soundcloud.com/raikouno/ride-or-die"
+    },
+    {
+      "id": "vol6-stolen-teaching",
+      "edition": "g",
+      "startPage": 220,
+      "endPage": 226,
+      "title": "DAMN ROBOT!",
+      "url": "https://soundcloud.com/raikouno/damn-robot"
+    },
+    {
+      "id": "vol12-final-fight",
+      "edition": "g",
+      "startPage": 303,
+      "endPage": 310,
+      "title": "AGAMEMNON 2",
+      "url": "https://soundcloud.com/raikouno/agamemnon-1"
     }
   ],
   "minimumPlayMs": 30000,
