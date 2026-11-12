@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import KBandSprite from './KBandSprite';
 import { bandPosition, readBandTiming } from '../lib/bandTiming';
-import { readArrangement, resolvePerformance, playablePerformance, performanceCell, isPlayableClip, type Arrangement } from '../lib/bandPerformance';
+import { readArrangement, resolvePerformance, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, type Arrangement, type Performer } from '../lib/bandPerformance';
 import { BAND_CLIPS, TRACK_PERFORMANCES } from '../data/bandPerformances';
 
 type Props = {
@@ -13,6 +13,18 @@ type Props = {
   enabled?: boolean;
 };
 const HAS_INSTRUMENT_CLIPS = ['waldo-mixing', 'felicia-violin', 'felicia-piano', 'felicia-synth', 'mike-bass'].some(id => isPlayableClip(BAND_CLIPS[id as keyof typeof BAND_CLIPS]));
+
+function getStagePose(members: readonly Performer[], positionMs: number, timing: ReturnType<typeof readBandTiming>, reducedMotion: boolean) {
+  const riff = guitarRiffPose(positionMs, timing.bpm, timing.offsetMs, reducedMotion);
+  const cells = Object.fromEntries(members.map(({ id }) => {
+    const clip = BAND_CLIPS[id]!;
+    const cell = id === 'k-guitar' && riff
+      ? clip.firstCell + riff.frame
+      : performanceCell(positionMs, timing.bpm, timing.offsetMs, clip, reducedMotion);
+    return [id, cell];
+  }));
+  return { cells, riff };
+}
 
 export default function KBandStage(props: Props) {
   // Remount per track so preferences cannot leak into another song, even outside KTerminal.
@@ -33,7 +45,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
     () => playablePerformance(resolvePerformance(TRACK_PERFORMANCES[trackId], arrangement, timing.bpm), BAND_CLIPS),
     [trackId, arrangement, timing.bpm],
   );
-  const [cells, setCells] = useState<Record<string, number>>(() => Object.fromEntries(members.map(member => [member.id, performanceCell(positionMs, timing.bpm, timing.offsetMs, BAND_CLIPS[member.id]!, reducedMotion)])));
+  const [pose, setPose] = useState(() => getStagePose(members, positionMs, timing, reducedMotion));
   const anchor = useRef({ positionMs, at: performance.now() });
 
   useEffect(() => {
@@ -57,9 +69,11 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
     let raf = 0;
     const draw = () => {
       const clock = bandPosition(anchor.current.positionMs, performance.now() - anchor.current.at, isPlaying, playbackRate);
-      const next = Object.fromEntries(members.map(member => [member.id, performanceCell(clock, timing.bpm, timing.offsetMs, BAND_CLIPS[member.id]!, reducedMotion)]));
+      const next = getStagePose(members, clock, timing, reducedMotion);
       // Keep the playback clock in the ref; render only when a visible pose changes.
-      setCells(previous => Object.keys(previous).length === members.length && members.every(member => previous[member.id] === next[member.id]) ? previous : next);
+      setPose(previous => previous.riff === next.riff
+        && Object.keys(previous.cells).length === members.length
+        && members.every(member => previous.cells[member.id] === next.cells[member.id]) ? previous : next);
       if (isPlaying && !reducedMotion) raf = requestAnimationFrame(draw);
     };
     draw();
@@ -67,14 +81,15 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
   }, [enabled, isPlaying, playbackRate, positionMs, reducedMotion, timing, members]);
 
   if (!enabled) return null;
+  const guitarStyle = pose.riff ? { '--kt-guitar-rotation': `rotate(${pose.riff.lean}deg)` } as CSSProperties : undefined;
   return (
-    <div className="kt-band-stage" role="region" aria-label="TechOps Hero band" data-frame={cells['k-guitar'] ?? 0} data-playing={isPlaying}>
+    <div className="kt-band-stage" role="region" aria-label="TechOps Hero band" data-frame={pose.cells['k-guitar'] ?? 0} data-playing={isPlaying}>
       <div className="kt-band-top"><span>TECHOPS // LIVE</span><span className="kt-band-set">{trackTitle || 'WAITING FOR SIGNAL'}</span></div>
       <div className="kt-band-grid" data-members={members.length} style={{ '--band-members': members.length } as CSSProperties}>
         {members.map(member => {
           const clip = BAND_CLIPS[member.id]!;
-          return <div className="kt-band-member" key={member.actor} data-performance={member.id}>
-            <KBandSprite cell={cells[member.id] ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
+          return <div className="kt-band-member" key={member.actor} data-performance={member.id} style={member.id === 'k-guitar' ? guitarStyle : undefined}>
+            <KBandSprite cell={pose.cells[member.id] ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
             <strong>{member.actor}</strong><small>{member.role}</small>
           </div>;
         })}
@@ -110,6 +125,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         .kt-band-grid{display:grid;grid-template-columns:repeat(var(--band-members,4),minmax(0,1fr));align-items:end;gap:2px;padding:8px 4px 12px}
         .kt-band-member{display:flex;min-width:0;flex-direction:column;align-items:center}
         .kt-band-member>div{max-width:100%;aspect-ratio:1;height:auto!important;mix-blend-mode:lighten}
+        .kt-band-member[data-performance="k-guitar"]>div{transform:var(--kt-guitar-rotation,none);transform-origin:25% 94%}
         .kt-band-member strong{font-size:10px;letter-spacing:.1em;color:#91efb8}
         .kt-band-member small{font-size:8px;margin-top:4px;color:#bac4d4}
         .kt-band-sync{padding:8px 10px;border-top:1px solid #214334;font-size:11px;color:#bac4d4}

@@ -7,7 +7,7 @@ const compile = source => ts.transpileModule(source, { compilerOptions: { target
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`;
 const timingUrl = moduleUrl(await readFile(new URL('../src/lib/bandTiming.ts', import.meta.url), 'utf8'));
 const source = (await readFile(new URL('../src/lib/bandPerformance.ts', import.meta.url), 'utf8')).replace("'./bandTiming'", JSON.stringify(timingUrl));
-const { resolvePerformance, readArrangement, playablePerformance, performanceCell, isPlayableClip } = await import(moduleUrl(source));
+const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip } = await import(moduleUrl(source));
 const { BAND_CLIPS } = await import(moduleUrl(await readFile(new URL('../src/data/bandPerformances.ts', import.meta.url), 'utf8')));
 const ids = value => value.map(member => member.id);
 const clip = { atlas: 'assets/reviewed-performance.webp', columns: 12, rows: 5, firstCell: 24, frameCount: 12, beatsPerLoop: 2 };
@@ -86,6 +86,21 @@ test('Katrin sweeps through 24 poses over two beats, with a still pose for reduc
   assert.equal(performanceCell(1000, 120, 0, katrin), 0);
   assert.equal(performanceCell(1100, 60, 100, katrin), 12);
   assert.equal(performanceCell(750, 120, 0, katrin, true), 0);
+});
+test('K alternates four beats of regular guitar with a four-beat riff', () => {
+  assert.equal(guitarRiffPose(1999, 120, 0), null);
+  assert.deepEqual(guitarRiffPose(2000, 120, 0), { frame: 0, lean: 0 });
+  assert.deepEqual(guitarRiffPose(2500, 120, 0), { frame: 2, lean: -17 });
+  assert.deepEqual(guitarRiffPose(3999, 120, 0), { frame: 5, lean: -3 });
+  assert.equal(guitarRiffPose(4000, 120, 0), null);
+  assert.deepEqual(guitarRiffPose(6500, 120, 0), guitarRiffPose(2500, 120, 0));
+});
+test('K’s riff follows tempo and beat offset and respects reduced motion', () => {
+  assert.equal(guitarRiffPose(0, 120, 250), null);
+  assert.equal(guitarRiffPose(4499, 60, 500), null);
+  assert.deepEqual(guitarRiffPose(5500, 60, 500), guitarRiffPose(2500, 120, 0));
+  assert.equal(guitarRiffPose(2500, 120, 0, true), null);
+  assert.equal(guitarRiffPose(NaN, 120, 0), null);
 });
 test('invalid atlas geometry and unsafe paths cannot activate a clip', () => {
   for (const invalid of [undefined, { ...clip, firstCell: 55 }, { ...clip, columns: 0 }, { ...clip, frameCount: 1.5 },
