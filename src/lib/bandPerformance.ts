@@ -12,7 +12,8 @@ export type TrackPerformance = {
   feliciaLead?: 'violin' | 'piano' | 'synth';
 };
 export type PerformanceId = 'k-guitar' | 'iona-drums' | 'iona-drums-fast' | 'felicia-dance' | 'waldo-dance'
-  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass' | 'katrin-backswing' | 'manchez-drum-dance';
+  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass'
+  | 'katrin-backswing' | 'katrin-marmot' | 'manchez-drum-dance';
 export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN' | 'MANCHEZ'; role: string };
 export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
 export function isSpriteStrip(strip: SpriteStrip | undefined): strip is SpriteStrip {
@@ -43,6 +44,7 @@ export const PERFORMERS: Record<PerformanceId, Performer> = {
   'felicia-synth': { id: 'felicia-synth', actor: 'FELICIA', role: 'SYNTHESIZER' },
   'mike-bass': { id: 'mike-bass', actor: 'MIKE', role: 'BASS' },
   'katrin-backswing': { id: 'katrin-backswing', actor: 'KATRIN', role: 'BACKSWING STEP' },
+  'katrin-marmot': { id: 'katrin-marmot', actor: 'KATRIN', role: 'MARMOT MARCH' },
   'manchez-drum-dance': { id: 'manchez-drum-dance', actor: 'MANCHEZ', role: 'DRUM DANCE' },
 };
 const FAST_DRUMS_MIN_BPM = 150;
@@ -136,4 +138,9 @@ export function guitarRiffPose(positionMs: number, bpm: number, offsetMs: number
   const rotationFrames = rotationBeats * 6;
   const frame = bandFrame(positionMs, bpm, offsetMs, rotationBeats, rotationFrames);
   return GUITAR_RIFF_POSES[frame - (rotationFrames - GUITAR_RIFF_POSES.length)] ?? null;
+}
+
+export function katrinDanceAt(positionMs: number, bpm: number, offsetMs: number, reducedMotion = false): 'katrin-backswing' | 'katrin-marmot' {
+  if (reducedMotion || positionMs < offsetMs) return 'katrin-backswing';
+  return bandFrame(positionMs, bpm, offsetMs, 8, 2) === 1 ? 'katrin-marmot' : 'katrin-backswing';
 }

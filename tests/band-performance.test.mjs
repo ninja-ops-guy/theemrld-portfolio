@@ -7,7 +7,7 @@ const compile = source => ts.transpileModule(source, { compilerOptions: { target
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`;
 const timingUrl = moduleUrl(await readFile(new URL('../src/lib/bandTiming.ts', import.meta.url), 'utf8'));
 const source = (await readFile(new URL('../src/lib/bandPerformance.ts', import.meta.url), 'utf8')).replace("'./bandTiming'", JSON.stringify(timingUrl));
-const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip } = await import(moduleUrl(source));
+const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, katrinDanceAt } = await import(moduleUrl(source));
 const { BAND_CLIPS } = await import(moduleUrl(await readFile(new URL('../src/data/bandPerformances.ts', import.meta.url), 'utf8')));
 const ids = value => value.map(member => member.id);
 const clip = { atlas: 'assets/reviewed-performance.webp', columns: 12, rows: 5, firstCell: 24, frameCount: 12, beatsPerLoop: 2 };
@@ -86,6 +86,22 @@ test('Katrin sweeps through 24 poses over two beats, with a still pose for reduc
   assert.equal(performanceCell(1000, 120, 0, katrin), 0);
   assert.equal(performanceCell(1100, 60, 100, katrin), 12);
   assert.equal(performanceCell(750, 120, 0, katrin, true), 0);
+});
+test('Katrin alternates complete four-beat phrases using the current tempo and offset', () => {
+  assert.equal(katrinDanceAt(1999, 120, 0), 'katrin-backswing');
+  assert.equal(katrinDanceAt(2000, 120, 0), 'katrin-marmot');
+  assert.equal(katrinDanceAt(3999, 120, 0), 'katrin-marmot');
+  assert.equal(katrinDanceAt(4000, 120, 0), 'katrin-backswing');
+  assert.equal(katrinDanceAt(1749, 160, 250), 'katrin-backswing');
+  assert.equal(katrinDanceAt(1750, 160, 250), 'katrin-marmot');
+  assert.equal(katrinDanceAt(0, 120, 3000), 'katrin-backswing');
+  assert.equal(katrinDanceAt(2250, 120, 0, true), 'katrin-backswing');
+  assert.equal(katrinDanceAt(NaN, 120, 0), 'katrin-backswing');
+  const march = BAND_CLIPS['katrin-marmot'];
+  assert.ok(isPlayableClip(march));
+  assert.equal(performanceCell(2000, 120, 0, march), 0);
+  assert.equal(performanceCell(2250, 120, 0, march), 6);
+  assert.equal(performanceCell(3999, 120, 0, march), 47);
 });
 test('K alternates four beats of regular guitar with a four-beat riff', () => {
   assert.equal(guitarRiffPose(1999, 120, 0), null);

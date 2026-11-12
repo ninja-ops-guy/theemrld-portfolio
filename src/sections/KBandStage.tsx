@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import KBandSprite from './KBandSprite';
 import { bandPosition, readBandTiming } from '../lib/bandTiming';
-import { readArrangement, resolvePerformance, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, type Arrangement, type Performer } from '../lib/bandPerformance';
+import {
+  guitarRiffPose, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
+  playablePerformance, readArrangement, resolvePerformance, type Arrangement, type Performer,
+} from '../lib/bandPerformance';
 import { BAND_CLIPS, TRACK_PERFORMANCES } from '../data/bandPerformances';
 
 type Props = {
@@ -15,15 +18,18 @@ type Props = {
 const HAS_INSTRUMENT_CLIPS = ['waldo-mixing', 'felicia-violin', 'felicia-piano', 'felicia-synth', 'mike-bass'].some(id => isPlayableClip(BAND_CLIPS[id as keyof typeof BAND_CLIPS]));
 
 function getStagePose(members: readonly Performer[], positionMs: number, timing: ReturnType<typeof readBandTiming>, reducedMotion: boolean) {
-  const riff = guitarRiffPose(positionMs, timing.bpm, timing.offsetMs, reducedMotion);
+  const { bpm, offsetMs } = timing;
+  const riff = guitarRiffPose(positionMs, bpm, offsetMs, reducedMotion);
+  const dance = katrinDanceAt(positionMs, bpm, offsetMs, reducedMotion);
+  const katrin = PERFORMERS[isPlayableClip(BAND_CLIPS[dance]) ? dance : 'katrin-backswing'];
   const cells = Object.fromEntries(members.map(({ id }) => {
-    const clip = BAND_CLIPS[id]!;
+    const clip = BAND_CLIPS[id === 'katrin-backswing' ? katrin.id : id]!;
     const cell = id === 'k-guitar' && riff
       ? clip.firstCell + riff.frame
-      : performanceCell(positionMs, timing.bpm, timing.offsetMs, clip, reducedMotion);
+      : performanceCell(positionMs, bpm, offsetMs, clip, reducedMotion);
     return [id, cell];
   }));
-  return { cells, riff };
+  return { cells, riff, katrin };
 }
 
 export default function KBandStage(props: Props) {
@@ -66,12 +72,23 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
   };
   useEffect(() => {
     if (!enabled) return;
+    for (const id of ['katrin-backswing', 'katrin-marmot'] as const) {
+      const clip = BAND_CLIPS[id];
+      if (isPlayableClip(clip)) {
+        const image = new Image();
+        image.src = `${import.meta.env.BASE_URL}${clip.atlas}`;
+      }
+    }
+  }, [enabled]);
+  useEffect(() => {
+    if (!enabled) return;
     let raf = 0;
     const draw = () => {
       const clock = bandPosition(anchor.current.positionMs, performance.now() - anchor.current.at, isPlaying, playbackRate);
       const next = getStagePose(members, clock, timing, reducedMotion);
       // Keep the playback clock in the ref; render only when a visible pose changes.
       setPose(previous => previous.riff === next.riff
+        && previous.katrin === next.katrin
         && Object.keys(previous.cells).length === members.length
         && members.every(member => previous.cells[member.id] === next.cells[member.id]) ? previous : next);
       if (isPlaying && !reducedMotion) raf = requestAnimationFrame(draw);
@@ -87,10 +104,11 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
       <div className="kt-band-top"><span>TECHOPS // LIVE</span><span className="kt-band-set">{trackTitle || 'WAITING FOR SIGNAL'}</span></div>
       <div className="kt-band-grid" data-members={members.length} style={{ '--band-members': members.length } as CSSProperties}>
         {members.map(member => {
-          const clip = BAND_CLIPS[member.id]!;
-          return <div className="kt-band-member" key={member.actor} data-performance={member.id} style={member.id === 'k-guitar' ? guitarStyle : undefined}>
+          const performer = member.id === 'katrin-backswing' ? pose.katrin : member;
+          const clip = BAND_CLIPS[performer.id]!;
+          return <div className="kt-band-member" key={member.actor} data-performance={performer.id} style={member.id === 'k-guitar' ? guitarStyle : undefined}>
             <KBandSprite cell={pose.cells[member.id] ?? clip.rotation?.restCell ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
-            <strong>{member.actor}</strong><small>{member.role}</small>
+            <strong>{member.actor}</strong><small>{performer.role}</small>
           </div>;
         })}
       </div>
