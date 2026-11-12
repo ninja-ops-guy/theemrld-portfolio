@@ -1354,9 +1354,9 @@ Sequential Playback: ON (no overlap)`);
           />
           <span className="kt-cursor" />
         </div>
-        <div ref={suggestionsRef} hidden />
 
         </div>
+        <div ref={suggestionsRef} hidden />
 
         {/* TechOps ensemble follows the shared audio playback clock. */}
         <KBandStage

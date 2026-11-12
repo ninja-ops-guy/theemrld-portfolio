@@ -1,5 +1,7 @@
 .play-autocomplete[hidden] { display: none; }
+.kt-input, #console-form input { min-width: 0; }
 .play-autocomplete {
+  flex-shrink: 0;
   min-width: 0;
   margin: 0 12px 12px;
   border: 1px solid #416957;
