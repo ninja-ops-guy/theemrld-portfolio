@@ -64,11 +64,25 @@ fs.mkdirSync(output, { recursive: true });
     assert.notDeepEqual(await poses(), paused);
     assert.equal(await katrinPose(), '0% 100%');
     checks.push('Paused seek selects Katrin’s exact new pose');
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    const shuffle = page.locator('[data-band-move="skeleton-shuffle"]');
+    await shuffle.waitFor();
+    const shuffleSprites = await shuffle.locator('[data-performance] > div').evaluateAll(nodes => nodes.map(node => ({
+      image: node.style.backgroundImage,
+      position: node.style.backgroundPosition.split(' '),
+    })));
+    assert.equal(shuffleSprites.length, 7);
+    assert.ok(shuffleSprites.every(sprite => sprite.image.includes('techops-band-skeleton-shuffle-v1.webp')));
+    assert.equal(new Set(shuffleSprites.map(sprite => sprite.position[0])).size, 1);
+    assert.equal(new Set(shuffleSprites.map(sprite => sprite.position[1])).size, 7);
+    await shuffle.screenshot({ path: path.join(output, 'group-shuffle-desktop.png') });
+    checks.push('All seven performers use distinct sprites on the same shuffle beat');
     const marmot = page.locator('[data-performance="katrin-marmot"] > div');
     await page.getByRole('button', { name: 'Seek 1950', exact: true }).click();
     await katrin.waitFor();
     await page.getByRole('button', { name: 'Play', exact: true }).click();
     await marmot.waitFor();
+    await shuffle.waitFor({ state: 'detached' });
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
     await page.waitForFunction(() => {
@@ -101,6 +115,10 @@ fs.mkdirSync(output, { recursive: true });
     await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
     await marmot.waitFor();
     await page.screenshot({ path: path.join(output, 'mobile.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    await shuffle.waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+    await shuffle.screenshot({ path: path.join(output, 'group-shuffle-mobile.png') });
     await page.getByText('Band arrangement', { exact: true }).click();
     await page.getByLabel('Mike', { exact: true }).selectOption('off');
     const sixPerformers = page.locator('.kt-band-grid[data-members="6"]');
@@ -108,7 +126,8 @@ fs.mkdirSync(output, { recursive: true });
     await page.getByLabel('Mike', { exact: true }).selectOption('bass');
     checks.push('320px layout fits six performers in three columns and seven in four columns');
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).click();
+    await shuffle.waitFor({ state: 'detached' });
     await katrin.waitFor();
     await page.waitForTimeout(100);
     const neutral = await poses();
@@ -127,6 +146,7 @@ fs.mkdirSync(output, { recursive: true });
     const assets = [
       'techops-band-instruments-v1.webp', 'techops-band-katrin-backswing.webp',
       'manchez-drum-dance-v1.webp', 'manchez-drum-dance-v1.gif', 'katrin-marmot-march.webp',
+      'techops-band-skeleton-shuffle-v1.webp', 'techops-band-skeleton-shuffle-v1.gif',
     ];
     const dimensions = await page.evaluate(async assets => Promise.all(assets.map(async asset => {
       const image = new Image();
@@ -134,8 +154,8 @@ fs.mkdirSync(output, { recursive: true });
       await image.decode();
       return [image.naturalWidth, image.naturalHeight];
     })), assets);
-    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128], [768, 1024]]);
-    checks.push('Band atlases and Manchez GIF decode without browser or HTTP errors');
+    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128], [768, 1024], [2560, 896], [830, 128]]);
+    checks.push('Band atlases and both GIFs decode without browser or HTTP errors');
     fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ checks, passed: checks.length, browser: await browser.version(), scope: 'Actual stage components and assets in a controlled playback-clock harness, not full SoundCloud end-to-end playback' }, null, 2));
     console.log(JSON.stringify({ passed: checks.length, checks }));
   } finally { if (browser) await browser.close(); }

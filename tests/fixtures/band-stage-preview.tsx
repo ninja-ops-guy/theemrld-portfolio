@@ -16,6 +16,7 @@ function Preview() {
     <KBandStage trackId={track} trackTitle={track.endsWith('black') ? 'BLACK' : 'Unmapped song'} isPlaying={playing} positionMs={position} />
     <button onClick={() => setPlaying(p => !p)}>{playing ? 'Pause' : 'Play'}</button>
     <button onClick={() => setPosition(750)}>Seek 750</button>
+    <button onClick={() => setPosition(1250)}>Seek 1250</button>
     <button onClick={() => setPosition(1950)}>Seek 1950</button>
     <button onClick={() => setPosition(2250)}>Seek 2250</button>
     <button onClick={() => { setTrack(t => t.endsWith('black') ? 'unmapped-song' : 'https://soundcloud.com/raikouno/black'); setPosition(0); }}>Switch song</button>

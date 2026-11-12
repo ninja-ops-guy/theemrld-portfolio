@@ -7,7 +7,7 @@ const compile = source => ts.transpileModule(source, { compilerOptions: { target
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`;
 const timingUrl = moduleUrl(await readFile(new URL('../src/lib/bandTiming.ts', import.meta.url), 'utf8'));
 const source = (await readFile(new URL('../src/lib/bandPerformance.ts', import.meta.url), 'utf8')).replace("'./bandTiming'", JSON.stringify(timingUrl));
-const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, katrinDanceAt } = await import(moduleUrl(source));
+const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, katrinDanceAt, GROUP_SHUFFLE, groupShuffleFrame } = await import(moduleUrl(source));
 const { BAND_CLIPS } = await import(moduleUrl(await readFile(new URL('../src/data/bandPerformances.ts', import.meta.url), 'utf8')));
 const ids = value => value.map(member => member.id);
 const clip = { atlas: 'assets/reviewed-performance.webp', columns: 12, rows: 5, firstCell: 24, frameCount: 12, beatsPerLoop: 2 };
@@ -141,4 +141,21 @@ test('Manchez alternates four active beats with four resting beats on the playba
   assert.equal(performanceCell(4100, 120, 100, guest), 1);
   assert.equal(performanceCell(4100, 60, 100, guest), 0);
   assert.equal(performanceCell(150, 120, 100, guest, true), 0);
+});
+
+test('the group shuffle covers each band member and cycles for two beats', () => {
+  const fullBand = resolvePerformance({ instruments: ['bass'] });
+  assert.deepEqual(Object.keys(GROUP_SHUFFLE.rowByActor).sort(), fullBand.map(member => member.actor).sort());
+  assert.deepEqual(Object.values(GROUP_SHUFFLE.rowByActor), [0, 1, 2, 3, 4, 5, 6]);
+  assert.deepEqual([999, 1000, 1500, 1999, 2000, 9000].map(ms => groupShuffleFrame(ms, 120, 0)),
+    [null, 0, 10, 19, null, 0]);
+});
+test('the group shuffle respects the beat offset, seeks and reduced motion', () => {
+  assert.equal(groupShuffleFrame(200, 60, 1000), null);
+  assert.equal(groupShuffleFrame(3000, 60, 1000), 0);
+  assert.equal(groupShuffleFrame(4500, 60, 1000), 15);
+  assert.equal(groupShuffleFrame(5000, 60, 1000), null);
+  assert.equal(groupShuffleFrame(1250, 120, 0, true), null);
+  assert.equal(groupShuffleFrame(NaN, 120, 0), null);
+  assert.equal(groupShuffleFrame(1250, 300, 0), null);
 });

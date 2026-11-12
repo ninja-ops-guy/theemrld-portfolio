@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import KBandSprite from './KBandSprite';
 import { bandPosition, readBandTiming } from '../lib/bandTiming';
 import {
-  guitarRiffPose, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
+  guitarRiffPose, GROUP_SHUFFLE, groupShuffleFrame, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
   playablePerformance, readArrangement, resolvePerformance, type Arrangement, type Performer,
 } from '../lib/bandPerformance';
 import { BAND_CLIPS, TRACK_PERFORMANCES } from '../data/bandPerformances';
@@ -17,9 +17,10 @@ type Props = {
 };
 const HAS_INSTRUMENT_CLIPS = ['waldo-mixing', 'felicia-violin', 'felicia-piano', 'felicia-synth', 'mike-bass'].some(id => isPlayableClip(BAND_CLIPS[id as keyof typeof BAND_CLIPS]));
 
-function getStagePose(members: readonly Performer[], positionMs: number, timing: ReturnType<typeof readBandTiming>, reducedMotion: boolean) {
+function getStagePose(members: readonly Performer[], positionMs: number, timing: ReturnType<typeof readBandTiming>, reducedMotion: boolean, shuffleReady: boolean) {
   const { bpm, offsetMs } = timing;
-  const riff = guitarRiffPose(positionMs, bpm, offsetMs, reducedMotion);
+  const shuffleFrame = shuffleReady ? groupShuffleFrame(positionMs, bpm, offsetMs, reducedMotion) : null;
+  const riff = shuffleFrame === null ? guitarRiffPose(positionMs, bpm, offsetMs, reducedMotion) : null;
   const dance = katrinDanceAt(positionMs, bpm, offsetMs, reducedMotion);
   const katrin = PERFORMERS[isPlayableClip(BAND_CLIPS[dance]) ? dance : 'katrin-backswing'];
   const cells = Object.fromEntries(members.map(({ id }) => {
@@ -29,7 +30,7 @@ function getStagePose(members: readonly Performer[], positionMs: number, timing:
       : performanceCell(positionMs, bpm, offsetMs, clip, reducedMotion);
     return [id, cell];
   }));
-  return { cells, riff, katrin };
+  return { cells, riff, katrin, shuffleFrame };
 }
 
 export default function KBandStage(props: Props) {
@@ -51,7 +52,8 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
     () => playablePerformance(resolvePerformance(TRACK_PERFORMANCES[trackId], arrangement, timing.bpm), BAND_CLIPS),
     [trackId, arrangement, timing.bpm],
   );
-  const [pose, setPose] = useState(() => getStagePose(members, positionMs, timing, reducedMotion));
+  const [shuffleReady, setShuffleReady] = useState(false);
+  const [pose, setPose] = useState(() => getStagePose(members, positionMs, timing, reducedMotion, shuffleReady));
   const anchor = useRef({ positionMs, at: performance.now() });
 
   useEffect(() => {
@@ -66,6 +68,13 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(timing)); } catch { /* Playback works without storage. */ }
   }, [storageKey, timing]);
+  useEffect(() => {
+    if (!enabled || reducedMotion || shuffleReady || trackId === 'preview') return;
+    const sprite = new Image();
+    sprite.onload = () => setShuffleReady(true);
+    sprite.src = `${import.meta.env.BASE_URL}${GROUP_SHUFFLE.atlas}`;
+    return () => { sprite.onload = null; };
+  }, [enabled, reducedMotion, shuffleReady, trackId]);
   const chooseArrangement = (next: Arrangement) => {
     setArrangement(next);
     try { localStorage.setItem(arrangementKey, JSON.stringify(next)); } catch { /* Session choices still work. */ }
@@ -85,29 +94,35 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
     let raf = 0;
     const draw = () => {
       const clock = bandPosition(anchor.current.positionMs, performance.now() - anchor.current.at, isPlaying, playbackRate);
-      const next = getStagePose(members, clock, timing, reducedMotion);
+      const next = getStagePose(members, clock, timing, reducedMotion, shuffleReady);
       // Keep the playback clock in the ref; render only when a visible pose changes.
       setPose(previous => previous.riff === next.riff
         && previous.katrin === next.katrin
+        && previous.shuffleFrame === next.shuffleFrame
         && Object.keys(previous.cells).length === members.length
         && members.every(member => previous.cells[member.id] === next.cells[member.id]) ? previous : next);
       if (isPlaying && !reducedMotion) raf = requestAnimationFrame(draw);
     };
     draw();
     return () => cancelAnimationFrame(raf);
-  }, [enabled, isPlaying, playbackRate, positionMs, reducedMotion, timing, members]);
+  }, [enabled, isPlaying, playbackRate, positionMs, reducedMotion, timing, members, shuffleReady]);
 
   if (!enabled) return null;
+  const shuffling = pose.shuffleFrame !== null;
   const guitarStyle = pose.riff ? { '--kt-guitar-rotation': `rotate(${pose.riff.lean}deg)` } as CSSProperties : undefined;
   return (
-    <div className="kt-band-stage" role="region" aria-label="TechOps Hero band" data-frame={pose.cells['k-guitar'] ?? 0} data-playing={isPlaying}>
+    <div className="kt-band-stage" role="region" aria-label="TechOps Hero band" data-frame={pose.cells['k-guitar'] ?? 0} data-playing={isPlaying} data-band-move={shuffling ? 'skeleton-shuffle' : undefined}>
       <div className="kt-band-top"><span>TECHOPS // LIVE</span><span className="kt-band-set">{trackTitle || 'WAITING FOR SIGNAL'}</span></div>
       <div className="kt-band-grid" data-members={members.length} style={{ '--band-members': members.length } as CSSProperties}>
         {members.map(member => {
           const performer = member.id === 'katrin-backswing' ? pose.katrin : member;
           const clip = BAND_CLIPS[performer.id]!;
+          const sprite = shuffling ? GROUP_SHUFFLE : clip;
+          const cell = pose.shuffleFrame === null
+            ? pose.cells[member.id] ?? clip.rotation?.restCell ?? clip.firstCell
+            : GROUP_SHUFFLE.rowByActor[member.actor] * GROUP_SHUFFLE.columns + pose.shuffleFrame;
           return <div className="kt-band-member" key={member.actor} data-performance={performer.id} style={member.id === 'k-guitar' ? guitarStyle : undefined}>
-            <KBandSprite cell={pose.cells[member.id] ?? clip.rotation?.restCell ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
+            <KBandSprite cell={cell} size={128} atlas={sprite.atlas} columns={sprite.columns} rows={sprite.rows} strip={shuffling ? undefined : clip.strip} />
             <strong>{member.actor}</strong><small>{performer.role}</small>
           </div>;
         })}
@@ -146,6 +161,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         .kt-band-member[data-performance="k-guitar"]>div{transform:var(--kt-guitar-rotation,none);transform-origin:25% 94%}
         .kt-band-member strong{font-size:10px;letter-spacing:.1em;color:#91efb8}
         .kt-band-member small{font-size:8px;margin-top:4px;color:#bac4d4}
+        .kt-band-stage[data-band-move="skeleton-shuffle"] .kt-band-member small{visibility:hidden}
         .kt-band-sync{padding:8px 10px;border-top:1px solid #214334;font-size:11px;color:#bac4d4}
         .kt-band-sync summary{cursor:pointer;color:#85eaca;min-height:24px}
         .kt-band-sync p{margin:8px 0;line-height:1.6}
