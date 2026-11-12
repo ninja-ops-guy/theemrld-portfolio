@@ -4,9 +4,123 @@
     "f": "continuity-hq-46943e14",
     "xiii": "reviewed-1c74863c",
     "legacy": "11.2",
-    "g": "corrected-c18407af88e9"
+    "g": "corrected-c18407af88e9",
+    "xiii-r": "corrected-85c2fbd8c80b",
+    "xiv": "corrected-97f16edf9df0"
   },
   "cues": [
+    {
+      "id": "g-6-red-in-the-mirror",
+      "edition": "g",
+      "startPage": 6,
+      "endPage": 8,
+      "title": "Red in the Mirror",
+      "url": "https://soundcloud.com/raikouno/red-in-the-mirror"
+    },
+    {
+      "id": "g-9-techops-mp3",
+      "edition": "g",
+      "startPage": 9,
+      "endPage": 14,
+      "title": "TECHOPS HERO",
+      "url": "https://soundcloud.com/raikouno/techops-mp3"
+    },
+    {
+      "id": "g-15-technical-decimal",
+      "edition": "g",
+      "startPage": 15,
+      "endPage": 18,
+      "title": "Technical Decimal",
+      "url": "https://soundcloud.com/raikouno/technical-decimal"
+    },
+    {
+      "id": "g-19-watchman-what-of-the-night",
+      "edition": "g",
+      "startPage": 19,
+      "endPage": 20,
+      "title": "Watchman, What of the Night (Nightwalker?!)",
+      "url": "https://soundcloud.com/raikouno/watchman-what-of-the-night"
+    },
+    {
+      "id": "g-21-fear-not",
+      "edition": "g",
+      "startPage": 21,
+      "endPage": 23,
+      "title": "Fear Not",
+      "url": "https://soundcloud.com/raikouno/fear-not"
+    },
+    {
+      "id": "g-24-118a1",
+      "edition": "g",
+      "startPage": 24,
+      "endPage": 27,
+      "title": "118",
+      "url": "https://soundcloud.com/raikouno/118a1"
+    },
+    {
+      "id": "g-28-break-out-sequence-wav",
+      "edition": "g",
+      "startPage": 28,
+      "endPage": 30,
+      "title": "Break out sequence",
+      "url": "https://soundcloud.com/raikouno/break-out-sequence-wav"
+    },
+    {
+      "id": "g-31-cant-sleep-but-like-im-in",
+      "edition": "g",
+      "startPage": 31,
+      "endPage": 33,
+      "title": "Can’t sleep but like I’m in space and shit so that’s kinda cool I guess",
+      "url": "https://soundcloud.com/raikouno/cant-sleep-but-like-im-in"
+    },
+    {
+      "id": "g-34-red-in-the-mirror",
+      "edition": "g",
+      "startPage": 34,
+      "endPage": 37,
+      "title": "Red in the Mirror",
+      "url": "https://soundcloud.com/raikouno/red-in-the-mirror"
+    },
+    {
+      "id": "g-38-i-hope-these-memories-are-mine",
+      "edition": "g",
+      "startPage": 38,
+      "endPage": 40,
+      "title": "I hope these memories are mine at least",
+      "url": "https://soundcloud.com/raikouno/i-hope-these-memories-are-mine"
+    },
+    {
+      "id": "g-41-the-tape-ran-out",
+      "edition": "g",
+      "startPage": 41,
+      "endPage": 43,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "g-44-damn-robot",
+      "edition": "g",
+      "startPage": 44,
+      "endPage": 48,
+      "title": "DAMN ROBOT!",
+      "url": "https://soundcloud.com/raikouno/damn-robot"
+    },
+    {
+      "id": "g-49-down-there-again",
+      "edition": "g",
+      "startPage": 49,
+      "endPage": 51,
+      "title": "Down there again",
+      "url": "https://soundcloud.com/raikouno/down-there-again"
+    },
+    {
+      "id": "g-53-function-2",
+      "edition": "g",
+      "startPage": 53,
+      "endPage": 53,
+      "title": "Function 2",
+      "url": "https://soundcloud.com/raikouno/function-2"
+    },
     {
       "id": "iona-escape",
       "edition": "g",
@@ -32,12 +146,140 @@
       "url": "https://soundcloud.com/raikouno/somewhere-deep-down-below"
     },
     {
+      "id": "g-61-technical-decimal",
+      "edition": "g",
+      "startPage": 61,
+      "endPage": 63,
+      "title": "Technical Decimal",
+      "url": "https://soundcloud.com/raikouno/technical-decimal"
+    },
+    {
+      "id": "g-64-erosion-of-the-self",
+      "edition": "g",
+      "startPage": 64,
+      "endPage": 66,
+      "title": "Erosion of the Self",
+      "url": "https://soundcloud.com/raikouno/erosion-of-the-self"
+    },
+    {
+      "id": "g-67-the-world-didnt-wait",
+      "edition": "g",
+      "startPage": 67,
+      "endPage": 69,
+      "title": "The world didn’t wait",
+      "url": "https://soundcloud.com/raikouno/the-world-didnt-wait"
+    },
+    {
+      "id": "g-70-helping-hand",
+      "edition": "g",
+      "startPage": 70,
+      "endPage": 72,
+      "title": "Helping hand",
+      "url": "https://soundcloud.com/raikouno/helping-hand"
+    },
+    {
+      "id": "g-73-the-man-in-the-mask",
+      "edition": "g",
+      "startPage": 73,
+      "endPage": 77,
+      "title": "The Man In The Mask",
+      "url": "https://soundcloud.com/raikouno/the-man-in-the-mask"
+    },
+    {
+      "id": "g-78-118a1",
+      "edition": "g",
+      "startPage": 78,
+      "endPage": 80,
+      "title": "118",
+      "url": "https://soundcloud.com/raikouno/118a1"
+    },
+    {
+      "id": "g-81-architect",
+      "edition": "g",
+      "startPage": 81,
+      "endPage": 85,
+      "title": "Architect",
+      "url": "https://soundcloud.com/raikouno/architect"
+    },
+    {
+      "id": "g-87-ride-or-die",
+      "edition": "g",
+      "startPage": 87,
+      "endPage": 88,
+      "title": "RIDE OR DIE",
+      "url": "https://soundcloud.com/raikouno/ride-or-die"
+    },
+    {
+      "id": "g-89-the-world-didnt-wait",
+      "edition": "g",
+      "startPage": 89,
+      "endPage": 94,
+      "title": "The world didn’t wait",
+      "url": "https://soundcloud.com/raikouno/the-world-didnt-wait"
+    },
+    {
+      "id": "g-95-rust-concrete",
+      "edition": "g",
+      "startPage": 95,
+      "endPage": 99,
+      "title": "Rust & Concrete",
+      "url": "https://soundcloud.com/raikouno/rust-concrete"
+    },
+    {
+      "id": "g-100-other-plans",
+      "edition": "g",
+      "startPage": 100,
+      "endPage": 105,
+      "title": "Other Plans",
+      "url": "https://soundcloud.com/raikouno/other-plans"
+    },
+    {
+      "id": "g-106-milwaukee-walkie-talkie",
+      "edition": "g",
+      "startPage": 106,
+      "endPage": 110,
+      "title": "Milwaukee walkie talkie",
+      "url": "https://soundcloud.com/raikouno/milwaukee-walkie-talkie"
+    },
+    {
+      "id": "g-111-picking-up-the-pieces",
+      "edition": "g",
+      "startPage": 111,
+      "endPage": 116,
+      "title": "Picking Up The Pieces",
+      "url": "https://soundcloud.com/raikouno/picking-up-the-pieces"
+    },
+    {
       "id": "iona-stair-fight",
       "edition": "g",
       "startPage": 117,
       "endPage": 121,
       "title": "AGAMEMNON",
       "url": "https://soundcloud.com/raikouno/agamemnon"
+    },
+    {
+      "id": "g-122-knot-in-both-sides",
+      "edition": "g",
+      "startPage": 122,
+      "endPage": 125,
+      "title": "Knot on Both Sides",
+      "url": "https://soundcloud.com/raikouno/knot-in-both-sides"
+    },
+    {
+      "id": "g-126-more-than-anything-else-wav",
+      "edition": "g",
+      "startPage": 126,
+      "endPage": 129,
+      "title": "More Than Anything Else",
+      "url": "https://soundcloud.com/raikouno/more-than-anything-else-wav"
+    },
+    {
+      "id": "g-130-the-tape-ran-out",
+      "edition": "g",
+      "startPage": 130,
+      "endPage": 135,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
     },
     {
       "id": "iona-building-blast",
@@ -48,12 +290,364 @@
       "url": "https://soundcloud.com/raikouno/the-mercy-i-buried"
     },
     {
+      "id": "g-140-the-world-didnt-wait",
+      "edition": "g",
+      "startPage": 140,
+      "endPage": 141,
+      "title": "The world didn’t wait",
+      "url": "https://soundcloud.com/raikouno/the-world-didnt-wait"
+    },
+    {
+      "id": "g-146-portal-waves",
+      "edition": "g",
+      "startPage": 146,
+      "endPage": 149,
+      "title": "Portal Waves",
+      "url": "https://soundcloud.com/raikouno/portal-waves"
+    },
+    {
+      "id": "g-150-milwaukee-walkie-talkie",
+      "edition": "g",
+      "startPage": 150,
+      "endPage": 157,
+      "title": "Milwaukee walkie talkie",
+      "url": "https://soundcloud.com/raikouno/milwaukee-walkie-talkie"
+    },
+    {
+      "id": "g-158-running-back-roads-wav",
+      "edition": "g",
+      "startPage": 158,
+      "endPage": 163,
+      "title": "Running Back Roads",
+      "url": "https://soundcloud.com/raikouno/running-back-roads-wav"
+    },
+    {
+      "id": "g-166-bt-freak",
+      "edition": "g",
+      "startPage": 166,
+      "endPage": 169,
+      "title": "ULTRA HIGH FREQUENCY FREAK!",
+      "url": "https://soundcloud.com/raikouno/bt-freak"
+    },
+    {
+      "id": "g-171-it-was-gray-until-i-met-you",
+      "edition": "g",
+      "startPage": 171,
+      "endPage": 173,
+      "title": "It Was Gray Until I Met You",
+      "url": "https://soundcloud.com/raikouno/it-was-gray-until-i-met-you"
+    },
+    {
+      "id": "g-182-erosion-of-the-self",
+      "edition": "g",
+      "startPage": 182,
+      "endPage": 186,
+      "title": "Erosion of the Self",
+      "url": "https://soundcloud.com/raikouno/erosion-of-the-self"
+    },
+    {
+      "id": "g-190-i-hope-these-memories-are-mine",
+      "edition": "g",
+      "startPage": 190,
+      "endPage": 195,
+      "title": "I hope these memories are mine at least",
+      "url": "https://soundcloud.com/raikouno/i-hope-these-memories-are-mine"
+    },
+    {
+      "id": "g-196-because-i-was-useful-wav",
+      "edition": "g",
+      "startPage": 196,
+      "endPage": 203,
+      "title": "Because I Was Useful",
+      "url": "https://soundcloud.com/raikouno/because-i-was-useful-wav"
+    },
+    {
       "id": "iona-musical-coda",
       "edition": "g",
       "startPage": 206,
       "endPage": 213,
       "title": "RIDE OR DIE",
       "url": "https://soundcloud.com/raikouno/ride-or-die"
+    },
+    {
+      "id": "g-221-the-tape-ran-out",
+      "edition": "g",
+      "startPage": 221,
+      "endPage": 229,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "g-234-damn-robot",
+      "edition": "g",
+      "startPage": 234,
+      "endPage": 239,
+      "title": "DAMN ROBOT!",
+      "url": "https://soundcloud.com/raikouno/damn-robot"
+    },
+    {
+      "id": "g-247-take-the-pain-away",
+      "edition": "g",
+      "startPage": 247,
+      "endPage": 249,
+      "title": "Take the Pain Away",
+      "url": "https://soundcloud.com/raikouno/take-the-pain-away"
+    },
+    {
+      "id": "g-256-because-i-was-useful-wav",
+      "edition": "g",
+      "startPage": 256,
+      "endPage": 258,
+      "title": "Because I Was Useful",
+      "url": "https://soundcloud.com/raikouno/because-i-was-useful-wav"
+    },
+    {
+      "id": "g-260-idle",
+      "edition": "g",
+      "startPage": 260,
+      "endPage": 265,
+      "title": "IDLE(Price Of Pain)",
+      "url": "https://soundcloud.com/raikouno/idle"
+    },
+    {
+      "id": "g-273-running-back-roads-wav",
+      "edition": "g",
+      "startPage": 273,
+      "endPage": 281,
+      "title": "Running Back Roads",
+      "url": "https://soundcloud.com/raikouno/running-back-roads-wav"
+    },
+    {
+      "id": "g-282-the-chariot",
+      "edition": "g",
+      "startPage": 282,
+      "endPage": 287,
+      "title": "The Chariot",
+      "url": "https://soundcloud.com/raikouno/the-chariot"
+    },
+    {
+      "id": "g-291-i-hope-these-memories-are-mine",
+      "edition": "g",
+      "startPage": 291,
+      "endPage": 296,
+      "title": "I hope these memories are mine at least",
+      "url": "https://soundcloud.com/raikouno/i-hope-these-memories-are-mine"
+    },
+    {
+      "id": "g-297-the-tape-ran-out",
+      "edition": "g",
+      "startPage": 297,
+      "endPage": 302,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "g-304-because-i-was-useful-wav",
+      "edition": "g",
+      "startPage": 304,
+      "endPage": 306,
+      "title": "Because I Was Useful",
+      "url": "https://soundcloud.com/raikouno/because-i-was-useful-wav"
+    },
+    {
+      "id": "g-307-bt-freak",
+      "edition": "g",
+      "startPage": 307,
+      "endPage": 309,
+      "title": "ULTRA HIGH FREQUENCY FREAK!",
+      "url": "https://soundcloud.com/raikouno/bt-freak"
+    },
+    {
+      "id": "g-310-g2u",
+      "edition": "g",
+      "startPage": 310,
+      "endPage": 313,
+      "title": "G2U",
+      "url": "https://soundcloud.com/raikouno/g2u"
+    },
+    {
+      "id": "g-314-ride-or-die",
+      "edition": "g",
+      "startPage": 314,
+      "endPage": 316,
+      "title": "RIDE OR DIE",
+      "url": "https://soundcloud.com/raikouno/ride-or-die"
+    },
+    {
+      "id": "xiii-r-3-good-afternoon",
+      "edition": "xiii-r",
+      "startPage": 3,
+      "endPage": 13,
+      "title": "Good afternoon",
+      "url": "https://soundcloud.com/raikouno/good-afternoon"
+    },
+    {
+      "id": "xiii-r-14-milwaukee-walkie-talkie",
+      "edition": "xiii-r",
+      "startPage": 14,
+      "endPage": 23,
+      "title": "Milwaukee walkie talkie",
+      "url": "https://soundcloud.com/raikouno/milwaukee-walkie-talkie"
+    },
+    {
+      "id": "xiii-r-24-watchman-what-of-the-night",
+      "edition": "xiii-r",
+      "startPage": 24,
+      "endPage": 28,
+      "title": "Watchman, What of the Night (Nightwalker?!)",
+      "url": "https://soundcloud.com/raikouno/watchman-what-of-the-night"
+    },
+    {
+      "id": "xiii-r-29-picking-up-the-pieces",
+      "edition": "xiii-r",
+      "startPage": 29,
+      "endPage": 32,
+      "title": "Picking Up The Pieces",
+      "url": "https://soundcloud.com/raikouno/picking-up-the-pieces"
+    },
+    {
+      "id": "xiii-r-33-portal-waves",
+      "edition": "xiii-r",
+      "startPage": 33,
+      "endPage": 39,
+      "title": "Portal Waves",
+      "url": "https://soundcloud.com/raikouno/portal-waves"
+    },
+    {
+      "id": "xiii-r-40-g2u",
+      "edition": "xiii-r",
+      "startPage": 40,
+      "endPage": 48,
+      "title": "G2U",
+      "url": "https://soundcloud.com/raikouno/g2u"
+    },
+    {
+      "id": "xiv-2-i-know-your-face",
+      "edition": "xiv",
+      "startPage": 2,
+      "endPage": 4,
+      "title": "I Know Your Face",
+      "url": "https://soundcloud.com/raikouno/i-know-your-face"
+    },
+    {
+      "id": "xiv-5-rust-concrete",
+      "edition": "xiv",
+      "startPage": 5,
+      "endPage": 14,
+      "title": "Rust & Concrete",
+      "url": "https://soundcloud.com/raikouno/rust-concrete"
+    },
+    {
+      "id": "xiv-15-i-missed-you-with-your-hand",
+      "edition": "xiv",
+      "startPage": 15,
+      "endPage": 18,
+      "title": "I missed you (with your hand)",
+      "url": "https://soundcloud.com/raikouno/i-missed-you-with-your-hand"
+    },
+    {
+      "id": "xiv-19-picking-up-the-pieces",
+      "edition": "xiv",
+      "startPage": 19,
+      "endPage": 23,
+      "title": "Picking Up The Pieces",
+      "url": "https://soundcloud.com/raikouno/picking-up-the-pieces"
+    },
+    {
+      "id": "xiv-24-ghost-fork",
+      "edition": "xiv",
+      "startPage": 24,
+      "endPage": 33,
+      "title": "Ghost Fork",
+      "url": "https://soundcloud.com/raikouno/ghost-fork"
+    },
+    {
+      "id": "xiv-34-function-2",
+      "edition": "xiv",
+      "startPage": 34,
+      "endPage": 45,
+      "title": "Function 2",
+      "url": "https://soundcloud.com/raikouno/function-2"
+    },
+    {
+      "id": "xiv-46-picking-up-the-pieces",
+      "edition": "xiv",
+      "startPage": 46,
+      "endPage": 67,
+      "title": "Picking Up The Pieces",
+      "url": "https://soundcloud.com/raikouno/picking-up-the-pieces"
+    },
+    {
+      "id": "xiv-68-knot-in-both-sides",
+      "edition": "xiv",
+      "startPage": 68,
+      "endPage": 76,
+      "title": "Knot on Both Sides",
+      "url": "https://soundcloud.com/raikouno/knot-in-both-sides"
+    },
+    {
+      "id": "xiv-77-because-i-was-useful-wav",
+      "edition": "xiv",
+      "startPage": 77,
+      "endPage": 89,
+      "title": "Because I Was Useful",
+      "url": "https://soundcloud.com/raikouno/because-i-was-useful-wav"
+    },
+    {
+      "id": "xiv-90-losing-you",
+      "edition": "xiv",
+      "startPage": 90,
+      "endPage": 94,
+      "title": "Losing You",
+      "url": "https://soundcloud.com/raikouno/losing-you"
+    },
+    {
+      "id": "xiv-95-the-tape-ran-out",
+      "edition": "xiv",
+      "startPage": 95,
+      "endPage": 98,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "xiv-99-i-still-love-you",
+      "edition": "xiv",
+      "startPage": 99,
+      "endPage": 108,
+      "title": "I Still Love You",
+      "url": "https://soundcloud.com/raikouno/i-still-love-you"
+    },
+    {
+      "id": "xiv-109-it-was-gray-until-i-met-you",
+      "edition": "xiv",
+      "startPage": 109,
+      "endPage": 111,
+      "title": "It Was Gray Until I Met You",
+      "url": "https://soundcloud.com/raikouno/it-was-gray-until-i-met-you"
+    },
+    {
+      "id": "xiv-112-techops-mp3",
+      "edition": "xiv",
+      "startPage": 112,
+      "endPage": 119,
+      "title": "TECHOPS HERO",
+      "url": "https://soundcloud.com/raikouno/techops-mp3"
+    },
+    {
+      "id": "xiv-120-the-tape-ran-out",
+      "edition": "xiv",
+      "startPage": 120,
+      "endPage": 128,
+      "title": "The Tape Ran Out",
+      "url": "https://soundcloud.com/raikouno/the-tape-ran-out"
+    },
+    {
+      "id": "xiv-129-g2u",
+      "edition": "xiv",
+      "startPage": 129,
+      "endPage": 133,
+      "title": "G2U",
+      "url": "https://soundcloud.com/raikouno/g2u"
     }
   ],
   "minimumPlayMs": 30000,

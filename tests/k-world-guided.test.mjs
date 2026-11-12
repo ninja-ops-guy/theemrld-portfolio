@@ -7,20 +7,29 @@ const cue = (overrides = {}) => ({ id: 'opening-song', edition: 'f', startPage: 
 const scoreWith = (...cues) => validateGuidedScore({ ...emptyGuidedScore(), cues });
 const at = (page, edition = 'f', revision = GUIDED_EDITIONS[edition].revision) => ({ edition, page, revision });
 
-test('The published score follows the approved Iona scenes in the Full collection', () => {
+test('The published score preserves Iona’s cues and matches the memory artwork in Volume IV', () => {
   const score = parseGuidedScore(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
-  assert.deepEqual(score.cues.map(({ edition, startPage, endPage, title }) => [edition, startPage, endPage, title]), [
+  const approved = [
     ['g', 54, 55, 'Time Crumbles'],
     ['g', 56, 56, 'RIDE OR DIE'],
     ['g', 57, 60, 'Somewhere Deep Down Below'],
     ['g', 117, 121, 'AGAMEMNON'],
     ['g', 137, 139, 'The Mercy I Buried'],
+    ['g', 171, 173, 'It Was Gray Until I Met You'],
     ['g', 206, 213, 'RIDE OR DIE'],
-  ]);
+  ];
+  for (const [edition, startPage, endPage, title] of approved) {
+    const cue = resolveGuidedCue(score, at(startPage, edition));
+    assert.deepEqual(
+      [cue?.edition, cue?.startPage, cue?.endPage, cue?.title],
+      [edition, startPage, endPage, title],
+    );
+    assert.equal(resolveGuidedCue(score, at(endPage, edition)), cue);
+  }
   assert.equal(score.minimumPlayMs, 30000);
   assert.deepEqual(score.quietPages, [{ edition: 'g', number: 136 }]);
   assert.equal(resolveGuidedCue(score, at(137, 'g')).id, 'iona-building-blast');
-  for (const page of [53, 61, 116, 122, 136, 140, 205, 214]) {
+  for (const page of [136, 174, 205, 214, 219]) {
     assert.equal(resolveGuidedCue(score, at(page, 'g')), null);
   }
   assert.equal(resolveGuidedCue(score, at(137, 'g', 'future-revision')), null);
@@ -119,3 +128,4 @@ test('Cue identity changes when a song or its scope changes', () => {
   assert.notEqual(cueKey(cue()), cueKey(cue({ url: 'https://soundcloud.com/raikouno/replacement' })));
   assert.notEqual(cueKey(cue()), cueKey(cue({ endPage: 9 })));
 });
+
