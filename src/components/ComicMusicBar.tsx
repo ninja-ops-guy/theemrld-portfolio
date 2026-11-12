@@ -44,7 +44,7 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
         <p className="comic-music-catalogue">{catalogueStatus}</p>
         <div>
           <button aria-pressed={background} onClick={() => sendCommand(background ? 'background off' : 'background on')}>Background {background ? 'on' : 'off'}</button>
-          {audio.current?.provider === 'soundcloud' && <button onClick={openSoundCloud}>SoundCloud player</button>}
+          {audio.current?.provider === 'soundcloud' && <button onClick={event => openSoundCloud(event.currentTarget)}>SoundCloud player</button>}
           <button onClick={() => sendCommand('sync latest')}>Sync latest tracks</button>
           {scoreSource === 'draft' && <button onClick={usePublishedScore}>Use published soundtrack</button>}
           <Link to="/terminal">Open K Terminal</Link>
