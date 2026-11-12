@@ -16,6 +16,10 @@ const instrumentClip = (row: number, beatsPerLoop = 2): SpriteClip => ({
 export const BAND_CLIPS: Partial<Record<PerformanceId, SpriteClip>> = {
   'k-guitar': existingClip(0),
   'iona-drums': existingClip(1),
+  'iona-drums-fast': {
+    atlas: 'assets/iona-drums-fast.webp', columns: 4, rows: 4,
+    firstCell: 0, frameCount: 16, beatsPerLoop: 2,
+  },
   'felicia-dance': existingClip(2),
   'waldo-dance': existingClip(3),
   'waldo-mixing': instrumentClip(0),
