@@ -33,26 +33,29 @@ async function loadModule(path) {
 globalThis.window = { matchMedia: () => ({ matches: true }) };
 globalThis.localStorage = { getItem: () => null };
 
-test('unknown songs show Katrin with the ensemble and expose real instrument choices', async () => {
+test('unknown songs show both dogs with the ensemble and expose instrument choices', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
   const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0 }));
-  assert.match(html, /data-members="5"/);
+  assert.match(html, /data-members="6"/);
   assert.match(html, /data-performance="felicia-dance"/);
   assert.match(html, /data-performance="waldo-dance"/);
   assert.match(html, /Band arrangement/);
   assert.doesNotMatch(html, /<strong>MIKE|disabled|undefined|NaN/);
   assert.match(html, /\/test-base\/assets\/techops-band-ensemble-v1.webp/);
   assert.match(html, /data-performance="katrin-backswing"/);
+  assert.match(html, /data-performance="manchez-drum-dance"/);
+  assert.match(html, /<strong>MANCHEZ<\/strong><small>DRUM DANCE<\/small>/);
+  assert.match(html, /\/test-base\/assets\/manchez-drum-dance-v1.webp/);
   assert.match(html, /\/test-base\/assets\/techops-band-katrin-backswing.webp/);
 });
-test('saved arrangement renders all six performers and each Felicia instrument', async () => {
+test('saved arrangement renders all seven performers and each Felicia instrument', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
   try {
     for (const felicia of ['violin', 'piano', 'synth']) {
       localStorage.getItem = key => key.startsWith('kt-band-arrangement-v1:') ? JSON.stringify({ waldo: 'mixing', felicia, mike: 'bass' }) : null;
       const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0, trackId: 'test-song' }));
-      assert.match(html, /data-members="6"/);
-      for (const id of ['waldo-mixing', `felicia-${felicia}`, 'mike-bass', 'katrin-backswing']) assert.ok(html.includes(`data-performance="${id}"`));
+      assert.match(html, /data-members="7"/);
+      for (const id of ['waldo-mixing', `felicia-${felicia}`, 'mike-bass', 'katrin-backswing', 'manchez-drum-dance']) assert.ok(html.includes(`data-performance="${id}"`));
       assert.match(html, /\/test-base\/assets\/techops-band-instruments-v1.webp/);
       assert.match(html, /<strong>MIKE<\/strong><small>BASS<\/small>/);
       assert.doesNotMatch(html, /disabled|undefined|NaN/);
