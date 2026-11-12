@@ -112,16 +112,18 @@ export function playablePerformance(requested: readonly Performer[], clips: Part
   });
 }
 
+export function isPerformanceActive(positionMs: number, bpm: number, offsetMs: number, clip: SpriteClip, reducedMotion = false): boolean {
+  if (reducedMotion || ![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return false;
+  const { rotation } = clip;
+  if (!rotation) return true;
+  const elapsedBeats = (positionMs - offsetMs) / (60000 / bpm);
+  return elapsedBeats >= 0 && elapsedBeats % rotation.intervalBeats < rotation.activeBeats;
+}
+
 export function performanceCell(positionMs: number, bpm: number, offsetMs: number, clip: SpriteClip, reducedMotion = false): number {
   if (!isPlayableClip(clip)) return 0;
-  const { rotation, firstCell } = clip;
-  const restCell = rotation?.restCell ?? firstCell;
-  if (reducedMotion || ![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return restCell;
-  if (rotation) {
-    const elapsedBeats = (positionMs - offsetMs) / (60000 / bpm);
-    if (elapsedBeats < 0 || elapsedBeats % rotation.intervalBeats >= rotation.activeBeats) return restCell;
-  }
-  return firstCell + bandFrame(positionMs, bpm, offsetMs, clip.beatsPerLoop, clip.frameCount);
+  if (!isPerformanceActive(positionMs, bpm, offsetMs, clip, reducedMotion)) return clip.rotation?.restCell ?? clip.firstCell;
+  return clip.firstCell + bandFrame(positionMs, bpm, offsetMs, clip.beatsPerLoop, clip.frameCount);
 }
 
 // Each group is one beat. Frame numbers refer to K's existing guitar row.

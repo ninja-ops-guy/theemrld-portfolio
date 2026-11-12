@@ -32,48 +32,73 @@ async function loadModule(path) {
 }
 globalThis.window = { matchMedia: () => ({ matches: true }) };
 globalThis.localStorage = { getItem: () => null };
+const drummersIn = html => Array.from(html.matchAll(/data-performance="(iona-drums(?:-fast)?|manchez-drum-dance)"/g), match => match[1]);
 
-test('unknown songs show both dogs with the ensemble and expose instrument choices', async () => {
+test('the idle stage shows Iona, Katrin, and the instrument choices', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
-  const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0 }));
-  assert.match(html, /data-members="6"/);
-  assert.match(html, /data-performance="felicia-dance"/);
-  assert.match(html, /data-performance="waldo-dance"/);
-  assert.match(html, /Band arrangement/);
-  assert.doesNotMatch(html, /<strong>MIKE|disabled|undefined|NaN/);
-  assert.match(html, /\/test-base\/assets\/techops-band-ensemble-v1.webp/);
-  assert.match(html, /data-performance="katrin-backswing"/);
-  assert.match(html, /data-performance="manchez-drum-dance"/);
-  assert.match(html, /<strong>MANCHEZ<\/strong><small>DRUM DANCE<\/small>/);
-  assert.match(html, /\/test-base\/assets\/manchez-drum-dance-v1.webp/);
-  assert.match(html, /\/test-base\/assets\/techops-band-katrin-backswing.webp/);
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0 }));
+    assert.match(html, /data-members="5"/);
+    assert.match(html, /data-performance="felicia-dance"/);
+    assert.match(html, /data-performance="waldo-dance"/);
+    assert.match(html, /Band arrangement/);
+    assert.doesNotMatch(html, /<strong>MIKE|disabled|undefined|NaN/);
+    assert.match(html, /\/test-base\/assets\/techops-band-ensemble-v1.webp/);
+    assert.match(html, /data-performance="katrin-backswing"/);
+    assert.deepEqual(drummersIn(html), ['iona-drums']);
+    assert.match(html, /\/test-base\/assets\/techops-band-katrin-backswing.webp/);
+  } finally { window.matchMedia = oldMatchMedia; }
 });
-test('saved arrangement renders all seven performers and each Felicia instrument', async () => {
+test('saved arrangement renders six performers, with Iona holding the drum slot in reduced motion', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
   try {
     for (const felicia of ['violin', 'piano', 'synth']) {
       localStorage.getItem = key => key.startsWith('kt-band-arrangement-v1:') ? JSON.stringify({ waldo: 'mixing', felicia, mike: 'bass' }) : null;
       const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0, trackId: 'test-song' }));
-      assert.match(html, /data-members="7"/);
-      for (const id of ['waldo-mixing', `felicia-${felicia}`, 'mike-bass', 'katrin-backswing', 'manchez-drum-dance']) assert.ok(html.includes(`data-performance="${id}"`));
+      assert.match(html, /data-members="6"/);
+      for (const id of ['waldo-mixing', `felicia-${felicia}`, 'mike-bass', 'katrin-backswing']) assert.ok(html.includes(`data-performance="${id}"`));
+      assert.deepEqual(drummersIn(html), ['iona-drums']);
       assert.match(html, /\/test-base\/assets\/techops-band-instruments-v1.webp/);
       assert.match(html, /<strong>MIKE<\/strong><small>BASS<\/small>/);
       assert.doesNotMatch(html, /disabled|undefined|NaN/);
     }
   } finally { localStorage.getItem = () => null; }
 });
-test('a seek into the Marmot March renders one Katrin alongside Manchez', async () => {
+test('a seek into the Marmot March renders one Katrin and returns the drum slot to Iona', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
   const oldMatchMedia = window.matchMedia;
   window.matchMedia = () => ({ matches: false });
   try {
-    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 2250 }));
-    assert.match(html, /data-members="6"/);
+    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 2250, trackId: 'test-song' }));
+    assert.match(html, /data-members="5"/);
     assert.match(html, /data-performance="katrin-marmot"/);
-    assert.match(html, /data-performance="manchez-drum-dance"/);
+    assert.deepEqual(drummersIn(html), ['iona-drums']);
     assert.match(html, /\/test-base\/assets\/katrin-marmot-march.webp/);
     assert.doesNotMatch(html, /data-performance="katrin-backswing"/);
   } finally { window.matchMedia = oldMatchMedia; }
+});
+test('the drum slot alternates at each four-beat boundary, including fast tempo and beat offset', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    for (const [bpm, offsetMs, cases] of [
+      [120, 0, [[0, 'manchez-drum-dance'], [1999, 'manchez-drum-dance'], [2000, 'iona-drums'], [3999, 'iona-drums'], [4000, 'manchez-drum-dance']]],
+      [180, 500, [[499, 'iona-drums-fast'], [500, 'manchez-drum-dance'], [1833, 'manchez-drum-dance'], [1834, 'iona-drums-fast'], [3167, 'manchez-drum-dance']]],
+    ]) {
+      localStorage.getItem = key => key.startsWith('kt-band-timing-v1:') ? JSON.stringify({ bpm, offsetMs }) : null;
+      for (const [positionMs, expected] of cases) {
+        const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs, trackId: 'test-song' }));
+        assert.deepEqual(drummersIn(html), [expected], `${bpm} BPM at ${positionMs} ms`);
+        assert.match(html, /data-members="5"/);
+      }
+    }
+  } finally {
+    window.matchMedia = oldMatchMedia;
+    localStorage.getItem = () => null;
+  }
 });
 test('published electronic profile automatically switches Waldo without inventing bass guitar', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
