@@ -14,6 +14,12 @@ export type TrackPerformance = {
 export type PerformanceId = 'k-guitar' | 'iona-drums' | 'felicia-dance' | 'waldo-dance'
   | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass';
 export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE'; role: string };
+export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
+export function isSpriteStrip(strip: SpriteStrip | undefined): strip is SpriteStrip {
+  return !!strip && [strip.top, strip.height, strip.atlasHeight, strip.frameWidth].every(Number.isSafeInteger)
+    && strip.top >= 0 && strip.height > 0 && strip.frameWidth > 0
+    && strip.atlasHeight > 0 && strip.top + strip.height <= strip.atlasHeight;
+}
 export type SpriteClip = {
   atlas: string;
   columns: number;
@@ -21,6 +27,7 @@ export type SpriteClip = {
   firstCell: number;
   frameCount: number;
   beatsPerLoop: number;
+  strip?: SpriteStrip;
 };
 export const DEFAULT_ARRANGEMENT: Arrangement = { waldo: 'auto', felicia: 'auto', mike: 'auto' };
 export const PERFORMERS: Record<PerformanceId, Performer> = {
@@ -64,7 +71,8 @@ export function resolvePerformance(profile: TrackPerformance = {}, choice: Arran
 export function isPlayableClip(clip: SpriteClip | undefined): clip is SpriteClip {
   if (!clip || !/^assets\/[a-zA-Z0-9/_-]+\.(?:webp|png)$/.test(clip.atlas) || clip.atlas.includes('..')) return false;
   const { columns, rows, firstCell, frameCount, beatsPerLoop } = clip;
-  return [columns, rows, firstCell, frameCount].every(Number.isSafeInteger)
+  return (!clip.strip || (isSpriteStrip(clip.strip) && firstCell % columns + frameCount <= columns))
+    && [columns, rows, firstCell, frameCount].every(Number.isSafeInteger)
     && columns > 0 && rows > 0 && firstCell >= 0 && frameCount > 0
     && firstCell + frameCount <= columns * rows && Number.isFinite(beatsPerLoop) && beatsPerLoop > 0;
 }

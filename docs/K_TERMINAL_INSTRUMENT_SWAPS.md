@@ -1,35 +1,56 @@
-# K Terminal instrument swaps — implementation draft
+# K Terminal instrument swaps
 
-The requested mapping is Waldo on a mixing board for electronic tracks; Felicia on violin, piano or synthesizer; Mike on bass. K and Iona retain their existing stage roles. These are K Terminal performance assignments, not changes to recording credits or story canon.
+K Terminal can now swap Waldo to a mixing board, Felicia to violin, piano or synthesizer, and add Mike on bass. Each role has its own actual playing animation. These are visual stage assignments, not recording credits or changes to story canon.
 
-## Implemented
+## Artwork and timing
 
-- Per-song, device-local arrangement overrides, isolated by the exact track URL.
-- Curated instrumentation profiles keyed by track URL. Unknown songs keep the existing ensemble; titles and visualizer amplitude do not count as instrument evidence.
-- A single Felicia lead can be chosen when a song has multiple keyboard/string instruments. No duplicate Felicia performers or guessed priority.
-- Separate clip geometry and beat counts for each performance; all use the existing playback clock, BPM, offset, seek, pause and reduced-motion behavior.
-- Five-member stage when Mike's bass performance is available.
-- Instrument choices are enabled only for registered clips. With no new clips registered, the arrangement UI stays hidden and the current ensemble remains unchanged.
+`public/assets/techops-band-instruments-v1.webp` contains 30 generated poses: six 229px-wide columns and five performance strips in a 1374 x 1145 image. The measured vertical bounds are 0–229, 229–448, 448–672, 672–896 and 896–1145 pixels. Each strip preserves its native aspect ratio; these bounds remove neighboring-row pixels without clipping Mike’s hair. The WebP is a lossless encoding of the generated PNG; no frame was stretched, repainted or substituted from the dance atlas. The existing K/guitar, Iona/drums and dance sprites retain their original asset.
 
-## Blocking assets — not generated or approved
+| Row | Character / instrument | Motion | Beats per loop |
+| --- | --- | --- | --- |
+| 0 | Waldo / mixing board | Fader, knob and cue-pad gestures; head nod | 2 |
+| 1 | Felicia / violin | Bow strokes and fingering | 2 |
+| 2 | Felicia / piano | Seated keyboard/wrist motion | 2 |
+| 3 | Felicia / synthesizer | Keys and control gesture on an X-stand synth | 2 |
+| 4 | Mike / bass | Plucking, fretting and head nod | 1 |
 
-| Clip ID | Character / instrument | Required motion |
-| --- | --- | --- |
-| `waldo-mixing` | Waldo / mixing board | Fader hand, knob adjustment, cue tap and restrained beat nod; hands stay on the controls. |
-| `felicia-violin` | Felicia / violin | Alternating bow strokes, left-hand fingering, small body sway; violin stays at the shoulder. |
-| `felicia-piano` | Felicia / piano | Both hands on the keys, independent finger/wrist motion and seated body sway. |
-| `felicia-synth` | Felicia / synthesizer | Key presses plus a modulation/control gesture; keep the instrument visually distinct from piano. |
-| `mike-bass` | Mike / bass guitar | Plucking hand and fretting hand, restrained beat nod; preserve Mike's own identity and approved design. |
+The shared playback clock drives all clips with per-song BPM and offset, pause, seek and playback-rate support. Reduced motion uses the first pose. BPM is still a manual setting: the public metadata checked for this change supplied no tempo, so the 120 BPM default remains explicitly labeled a preview tempo.
 
-Prefer twelve evenly registered poses over two beats per clip; actual frame counts and loop lengths are declared in `src/data/bandPerformances.ts`. Each clip must use equal square cells, a fixed camera/foot baseline and no clipped hands or instrument necks. Review the seam at the last-to-first frame and the neutral first frame used for reduced motion. Original character references must remain bound for art production; do not repurpose dance rows as instrument-playing art.
+## Song arrangements
 
-The recent band atlases and source visual-bible image were located, but the supported local download failed with `hosted apps tools/list request failed: DNS`. No reference pixels were materialized or visually inspected in this task. No new artwork was generated, and no likeness approval is claimed.
+Nine exact SoundCloud URLs automatically select Waldo's mixing board, based on the artist's public electronic, trip-hop or drum-and-bass genre/tags retrieved on 2026-11-12. The bounded metadata snapshot is in `docs/band-song-metadata.json`.
 
-## Remaining integration and release work
+- Ghost town
+- MOTORCELL
+- BLACK
+- Wake up and die B ft OZ
+- Urim and Thummim
+- Maybe
+- Winter
+- WINTER 2.mp3
+- I see the dead
 
-1. Retrieve and inspect the original approved references, create and visually review the five instrument clips, and add their real files and geometry to `BAND_CLIPS`.
-2. Verify instrumentation/BPM per song and populate `TRACK_PERFORMANCES`; no real songs are mapped in this draft. Device-local overrides are available once instrument clips exist.
-3. Verify playback, track switching, persistence, pause/seek, reduced motion and five-member layouts at 320px and desktop widths in a browser with the actual artwork.
-4. Run the complete repository build and relevant hosted checks. This draft has not been merged or deployed and does not deliver the finished visual swaps.
+No particular keyboard, violin or physical bass-guitar part is asserted from those genre labels. In particular, “Drum & Bass” does not automatically put Mike on bass. Unknown arrangements retain the existing ensemble. “Band arrangement” lets the listener pick Waldo's role, Felicia's instrument and Mike's bass; choices are saved per exact song URL on that device. A curated profile may declare Felicia's lead when several instruments are present.
 
-Existing PR #69 concerns the older default sprite URL and is not modified by this work. The stage's current explicit ensemble atlas is preserved.
+## Reference and visual review
+
+Original reference pixels were retrieved and visually inspected: the creator's original Mike/Felicia visual-bible sheet, original Waldo face photograph, creator-supplied cast/wardrobe screenshot, and existing band atlas for pixel-art treatment. The old generated sprite's hair was not used as Waldo's identity source. Waldo is unmasked, Mike has tied locs/dark sunglasses/beard, and Felicia has long curls and black/gold clothes.
+
+The initial native local-path invocation failed before rendering because the image tool did not accept Windows absolute paths. The successful invocation used four immediately displayed reference image blocks. The local-file preflight therefore is **not** claimed as validation of the successful invocation. The actual prompt, reference order, timestamps and generated original are retained in the task evidence. No new creator likeness approval or independent art certification is claimed.
+
+Visual inspection confirmed the five instrument rows, distinct characters, instrument/hand contact and close first/last poses. Actual desktop and 320px browser renders were inspected. The five-member stage wraps to three columns on small screens. The original photo and private reference screenshots are not included in this repository.
+
+Generated PNG SHA-256: `a40a5e1aace84c086ad1dc6b3c01d22364d429fae68763838b37980be7beeda6`.
+
+Lossless WebP SHA-256: `5d2b5d1cb8119b2e342cd9ce783f4617257abd6a3b13c6a8c9728dcc1a7bea8c`.
+
+## Verification
+
+- Sixteen local tests: selection/fallbacks, persisted input validation, timing, actual React components, real instrument registrations, electronic auto-selection and finite sprite geometry.
+- Focused strict TypeScript check passed.
+- Eight Chromium browser scenarios passed with actual components and both production atlases: automatic selection, all Felicia choices, playing/paused frames, paused seek, per-song isolation and reload, 320px layout, reduced motion, and image decoding/no browser errors.
+- Browser harness uses locally fulfilled requests and a controlled playback clock. It does not certify full SoundCloud end-to-end playback or physical mobile devices.
+
+Run the logic/render tests with `node --test tests/band-timing.test.mjs tests/band-performance.test.mjs tests/band-stage-render.test.mjs`. The PR workflow runs those alongside the existing shared-audio contracts and complete TypeScript/Vite/image-decoding checks.
+
+For the browser harness, install Playwright and its Chromium browser in the development environment, then run `node scripts/check-band-browser.cjs`. `NODE_PATH` can point to an existing dependency installation. Screenshots and results are written under `qa/band-browser`.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import KBandSprite from './KBandSprite';
 import { bandPosition, readBandTiming } from '../lib/bandTiming';
 import { readArrangement, resolvePerformance, playablePerformance, performanceCell, isPlayableClip, type Arrangement } from '../lib/bandPerformance';
@@ -67,29 +67,29 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
   return (
     <div className="kt-band-stage" role="region" aria-label="TechOps Hero band" data-frame={cells['k-guitar'] ?? 0} data-playing={isPlaying}>
       <div className="kt-band-top"><span>TECHOPS // LIVE</span><span className="kt-band-set">{trackTitle || 'WAITING FOR SIGNAL'}</span></div>
-      <div className="kt-band-grid" data-members={members.length} style={{ gridTemplateColumns: `repeat(${members.length}, minmax(0, 1fr))` }}>
+      <div className="kt-band-grid" data-members={members.length} style={{ '--band-members': members.length } as CSSProperties}>
         {members.map(member => {
           const clip = BAND_CLIPS[member.id]!;
           return <div className="kt-band-member" key={member.actor} data-performance={member.id}>
-            <KBandSprite cell={cells[member.id] ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} />
+            <KBandSprite cell={cells[member.id] ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
             <strong>{member.actor}</strong><small>{member.role}</small>
           </div>;
         })}
       </div>
       {HAS_INSTRUMENT_CLIPS && <details className="kt-band-sync">
         <summary>Band arrangement</summary>
-        <p>Choose the instruments for this song. Auto uses its saved track profile. Choices stay on this device.</p>
-        <label>Waldo <select value={arrangement.waldo} onChange={e => chooseArrangement({ ...arrangement, waldo: e.target.value as Arrangement['waldo'] })}>
+        <p>{TRACK_PERFORMANCES[trackId] ? 'Auto follows this song’s arrangement.' : 'Choose the parts for this song; its automatic arrangement is not set yet.'} Choices stay on this device.</p>
+        <label>Waldo <select aria-label="Waldo" value={arrangement.waldo} onChange={e => chooseArrangement({ ...arrangement, waldo: e.target.value as Arrangement['waldo'] })}>
           <option value="auto">Auto</option><option value="dance">Dance</option>
           <option value="mixing" disabled={!isPlayableClip(BAND_CLIPS['waldo-mixing'])}>Mixing board</option>
         </select></label>
-        <label>Felicia <select value={arrangement.felicia} onChange={e => chooseArrangement({ ...arrangement, felicia: e.target.value as Arrangement['felicia'] })}>
+        <label>Felicia <select aria-label="Felicia" value={arrangement.felicia} onChange={e => chooseArrangement({ ...arrangement, felicia: e.target.value as Arrangement['felicia'] })}>
           <option value="auto">Auto</option><option value="dance">Dance</option>
           <option value="violin" disabled={!isPlayableClip(BAND_CLIPS['felicia-violin'])}>Violin</option>
           <option value="piano" disabled={!isPlayableClip(BAND_CLIPS['felicia-piano'])}>Piano</option>
           <option value="synth" disabled={!isPlayableClip(BAND_CLIPS['felicia-synth'])}>Synthesizer</option>
         </select></label>
-        <label>Mike <select value={arrangement.mike} onChange={e => chooseArrangement({ ...arrangement, mike: e.target.value as Arrangement['mike'] })}>
+        <label>Mike <select aria-label="Mike" value={arrangement.mike} onChange={e => chooseArrangement({ ...arrangement, mike: e.target.value as Arrangement['mike'] })}>
           <option value="auto">Auto</option><option value="off">Offstage</option>
           <option value="bass" disabled={!isPlayableClip(BAND_CLIPS['mike-bass'])}>Bass</option>
         </select></label>
@@ -104,9 +104,9 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         .kt-band-stage{flex-shrink:0;position:relative;border:1px solid #00ad58;background:#070b12;margin-bottom:10px;overflow:hidden}
         .kt-band-top{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid #214334;color:#85eaca;font-size:10px;letter-spacing:.1em}
         .kt-band-set{color:#acc8b9;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .kt-band-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;gap:2px;padding:8px 4px 12px}
+        .kt-band-grid{display:grid;grid-template-columns:repeat(var(--band-members,4),minmax(0,1fr));align-items:end;gap:2px;padding:8px 4px 12px}
         .kt-band-member{display:flex;min-width:0;flex-direction:column;align-items:center}
-        .kt-band-member>div{max-width:100%;aspect-ratio:1;height:auto!important}
+        .kt-band-member>div{max-width:100%;aspect-ratio:1;height:auto!important;mix-blend-mode:lighten}
         .kt-band-member strong{font-size:10px;letter-spacing:.1em;color:#91efb8}
         .kt-band-member small{font-size:8px;margin-top:4px;color:#bac4d4}
         .kt-band-sync{padding:8px 10px;border-top:1px solid #214334;font-size:11px;color:#bac4d4}
@@ -116,7 +116,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         .kt-band-sync select{max-width:100%;min-height:32px;color:#eefaf2;background:#101d20;border:1px solid #65967d;padding:4px}
         .kt-band-sync input{width:85px;min-height:32px;color:#eefaf2;background:#101d20;border:1px solid #65967d;padding:4px}
         .kt-band-sync small{display:block;line-height:1.6}
-        @media(max-width:480px){.kt-band-member strong{font-size:9px}.kt-band-member small{font-size:6px}.kt-band-top{font-size:8px}}
+        @media(max-width:480px){.kt-band-grid[data-members="5"]{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kt-band-member strong{font-size:10px}.kt-band-member small{font-size:8px}.kt-band-top{font-size:8px}}
       `}</style>
     </div>
   );

@@ -61,7 +61,10 @@ test('twelve poses occupy exactly two beats and seek directly into the loop', ()
 });
 test('invalid atlas geometry and unsafe paths cannot activate a clip', () => {
   for (const invalid of [undefined, { ...clip, firstCell: 55 }, { ...clip, columns: 0 }, { ...clip, frameCount: 1.5 },
-    { ...clip, beatsPerLoop: 0 }, { ...clip, atlas: 'https://example.com/a.png' }, { ...clip, atlas: 'assets/../a.png' }]) {
+    { ...clip, beatsPerLoop: 0 }, { ...clip, atlas: 'https://example.com/a.png' }, { ...clip, atlas: 'assets/../a.png' },
+    { ...clip, strip: { top: 900, height: 300, atlasHeight: 1145, frameWidth: 229 } },
+    { ...clip, strip: { top: -1, height: 200, atlasHeight: 1145, frameWidth: 229 } },
+    { ...clip, strip: { top: 0, height: 200, atlasHeight: 1145, frameWidth: 0 } }]) {
     assert.equal(isPlayableClip(invalid), false);
   }
   assert.equal(isPlayableClip(clip), true);

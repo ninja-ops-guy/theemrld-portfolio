@@ -5,16 +5,31 @@ const existingClip = (row: number): SpriteClip => ({
   firstCell: row * 6, frameCount: 6, beatsPerLoop: 1,
 });
 
-// Register new clips only after the actual files, likeness and loop have been reviewed.
-// Missing roles deliberately retain their existing dance (Mike remains offstage).
-// Do not point an instrument role at a dance row or a nonexistent planned filename.
+// Drawn row boundaries differ slightly from the nominal 229px grid.
+// Use measured blank gutters so adjacent hair/props never bleed into a frame.
+const stripBounds = [[0, 229], [229, 448], [448, 672], [672, 896], [896, 1145]];
+const instrumentClip = (row: number, beatsPerLoop = 2): SpriteClip => ({
+  atlas: 'assets/techops-band-instruments-v1.webp', columns: 6, rows: 5,
+  firstCell: row * 6, frameCount: 6, beatsPerLoop,
+  strip: { top: stripBounds[row][0], height: stripBounds[row][1] - stripBounds[row][0], atlasHeight: 1145, frameWidth: 229 },
+});
 export const BAND_CLIPS: Partial<Record<PerformanceId, SpriteClip>> = {
   'k-guitar': existingClip(0),
   'iona-drums': existingClip(1),
   'felicia-dance': existingClip(2),
   'waldo-dance': existingClip(3),
+  'waldo-mixing': instrumentClip(0),
+  'felicia-violin': instrumentClip(1),
+  'felicia-piano': instrumentClip(2),
+  'felicia-synth': instrumentClip(3),
+  'mike-bass': instrumentClip(4, 1),
 };
 
 // Key by the exact track URL used by KTerminal, never title substrings.
-// No song instrumentation has been verified for this change yet.
-export const TRACK_PERFORMANCES: Record<string, TrackPerformance> = {};
+// Public artist genre/tags checked 2026-11-12; evidence in docs/band-song-metadata.json.
+// Electronic genre is a stage assignment requested by the creator, not a recording credit.
+// Drum & Bass is not evidence of a physical bass guitar. No keyboard/string parts guessed.
+export const TRACK_PERFORMANCES: Record<string, TrackPerformance> = Object.fromEntries([
+  'ghost-town', 'motorcell-mp3', 'black', 'wake-up-and-die-ft-oz', 'two-horses',
+  'maybe-mp3', 'winter-mp3', 'winter-2-mp3', 'i-see-the-dead-mp3',
+].map(slug => [`https://soundcloud.com/raikouno/${slug}`, { instruments: ['electronic'] }]));
