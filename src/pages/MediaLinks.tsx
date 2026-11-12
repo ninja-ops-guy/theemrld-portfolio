@@ -1,3 +1,4 @@
+import SiteInfoLinks from '../components/SiteInfoLinks';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, BookOpen, Gamepad2, Github, Instagram, Music2, Terminal, Palette, Copy } from 'lucide-react';
@@ -72,7 +73,7 @@ export default function MediaLinks() {
           </section>
         </div>
       </div>
-      <footer className="media-footer"><p>Independent art. Connected stories.</p><nav aria-label="Creator links"><Link to="/">Portfolio <ArrowRight size={14} aria-hidden="true" /></Link><a href="https://github.com/ninja-ops-guy"><Github size={15} aria-hidden="true" /> GitHub</a></nav><small>BUILD · OPERATE · PROTECT · BELONG</small></footer>
+      <footer className="media-footer"><SiteInfoLinks /><p>Independent art. Connected stories.</p><nav aria-label="Creator links"><Link to="/">Portfolio <ArrowRight size={14} aria-hidden="true" /></Link><a href="https://github.com/ninja-ops-guy"><Github size={15} aria-hidden="true" /> GitHub</a></nav><small>BUILD · OPERATE · PROTECT · BELONG</small></footer>
     </div>
   </main>;
 }

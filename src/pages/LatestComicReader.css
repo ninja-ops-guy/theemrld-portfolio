@@ -34,3 +34,6 @@
   .comic-current .comic-library-heading{flex-direction:column;align-items:flex-start;gap:10px}
   .comic-current .comic-library-heading>span{white-space:nowrap}
 }
+
+.comic-site-intro{max-width:60ch;color:#d3d9d4;font:15px/1.7 system-ui,sans-serif;margin:16px 0 24px}
+.comic-current .comic-mast{flex-wrap:wrap;gap:8px 18px}

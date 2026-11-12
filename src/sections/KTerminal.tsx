@@ -1,3 +1,4 @@
+import SiteInfoLinks from '../components/SiteInfoLinks';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import KBandStage from './KBandStage';
@@ -1247,8 +1248,9 @@ Sequential Playback: ON (no overlap)`);
           <div className="kt-title kt-glitch">
             K Terminal <span className="kt-artist-badge">THEEMRLD</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <Link to="/comic" className="kt-status">[READ COMIC]</Link>
+            <SiteInfoLinks />
             {fromGallery && (
               <button
                 type="button"
@@ -1271,6 +1273,8 @@ Sequential Playback: ON (no overlap)`);
             </div>
           </div>
         </div>
+
+        <p className="kt-site-intro">K Terminal brings together Mike Olivares’s comics, music, artwork, and interactive worlds. Read TechOps Hero, listen to @raikouno, or explore the connected creative collection.</p>
 
         {/* Living ASCII sigils / world portals */}
         <div className={`kt-ascii-deck ${ritualEnabled ? "kt-ritual-on" : "kt-ritual-off"} ${isPlaying ? "kt-ritual-playing" : "kt-ritual-idle"}`} style={{ ["--ritual-power" as any]: ritualIntensity / 100 }} aria-label="audio-reactive animated world portals">
@@ -1430,6 +1434,8 @@ Sequential Playback: ON (no overlap)`);
       {/* Global styles for terminal page */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+        .kt-site-intro { max-width:76ch; margin:12px 0 22px; color:#a5d4b2; font:14px/1.7 system-ui,sans-serif; }
+        .kt-header { flex-wrap:wrap; gap:8px 20px; }
 
         .kt-body {
           background: #0d0208;

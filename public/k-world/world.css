@@ -41,3 +41,5 @@ body.reader-provider :is(.terminal-shell, .terminal-columns, .music-panel) { dis
 body.reader-provider .terminal-shell > :not(.terminal-columns), body.reader-provider .terminal-columns > :not(.music-panel), body.reader-provider .music-panel > :not(#provider-details), body.reader-provider #provider-details > summary { display: none; }
 body.reader-provider #provider-details { margin: 0; padding: 4px 8px; border: 0; }
 body.reader-provider #reader-provider-close { min-height: 32px; margin: 0 8px; }
+
+.terminal-footer{flex-wrap:wrap;gap:8px 16px}.terminal-footer .site-info-links{color:#b8e8ca}.help-body .site-info-links{margin-bottom:16px}
