@@ -158,14 +158,29 @@ jobs:
           LINKED_QA_DIR: qa/production-linked-candidate
         run: |
           set -euo pipefail
-          python -c "import http.server,mimetypes; mimetypes.add_type('text/javascript','.mjs'); http.server.test(HandlerClass=http.server.SimpleHTTPRequestHandler,port=4173,bind='127.0.0.1',directory='dist')" > linked-candidate-server.log 2>&1 &
+          python - <<'PY' > linked-candidate-server.log 2>&1 &
+          import mimetypes
+          from functools import partial
+          from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+          mimetypes.add_type('text/javascript', '.mjs')
+          handler = partial(SimpleHTTPRequestHandler, directory='dist')
+          with ThreadingHTTPServer(('127.0.0.1', 4173), handler) as server:
+              server.serve_forever()
+          PY
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/techops-hero/ >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:4173/techops-hero/ >/dev/null 2>&1; then
+              python scripts/see-world-production-journey.py
+              exit 0
+            fi
+            kill -0 "$server" 2>/dev/null || break
             sleep 1
           done
-          python scripts/see-world-production-journey.py
+          cat linked-candidate-server.log >&2
+          printf '%s\n' 'The same-origin preview did not serve /techops-hero/.' >&2
+          exit 1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
