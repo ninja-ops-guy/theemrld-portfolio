@@ -89,7 +89,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         {members.map(member => {
           const clip = BAND_CLIPS[member.id]!;
           return <div className="kt-band-member" key={member.actor} data-performance={member.id} style={member.id === 'k-guitar' ? guitarStyle : undefined}>
-            <KBandSprite cell={pose.cells[member.id] ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
+            <KBandSprite cell={pose.cells[member.id] ?? clip.rotation?.restCell ?? clip.firstCell} size={128} atlas={clip.atlas} columns={clip.columns} rows={clip.rows} strip={clip.strip} />
             <strong>{member.actor}</strong><small>{member.role}</small>
           </div>;
         })}
@@ -135,7 +135,7 @@ function BandStageForTrack({ isPlaying, positionMs, playbackRate = 1, trackTitle
         .kt-band-sync select{max-width:100%;min-height:32px;color:#eefaf2;background:#101d20;border:1px solid #65967d;padding:4px}
         .kt-band-sync input{width:85px;min-height:32px;color:#eefaf2;background:#101d20;border:1px solid #65967d;padding:4px}
         .kt-band-sync small{display:block;line-height:1.6}
-        @media(max-width:480px){.kt-band-grid:is([data-members="5"],[data-members="6"]){grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kt-band-member strong{font-size:10px}.kt-band-member small{font-size:8px}.kt-band-top{font-size:8px}}
+        @media(max-width:480px){.kt-band-grid:is([data-members="5"],[data-members="6"]){grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.kt-band-grid[data-members="7"]{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:12px}.kt-band-member strong{font-size:10px}.kt-band-member small{font-size:8px}.kt-band-top{font-size:8px}}
       `}</style>
     </div>
   );

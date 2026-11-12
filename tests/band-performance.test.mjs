@@ -13,7 +13,7 @@ const ids = value => value.map(member => member.id);
 const clip = { atlas: 'assets/reviewed-performance.webp', columns: 12, rows: 5, firstCell: 24, frameCount: 12, beatsPerLoop: 2 };
 
 test('unknown songs preserve the ensemble without making up instruments', () => {
-  assert.deepEqual(ids(resolvePerformance()), ['k-guitar', 'iona-drums', 'felicia-dance', 'waldo-dance', 'katrin-backswing']);
+  assert.deepEqual(ids(resolvePerformance()), ['k-guitar', 'iona-drums', 'felicia-dance', 'waldo-dance', 'katrin-backswing', 'manchez-drum-dance']);
   assert.equal(ids(resolvePerformance({ instruments: ['synth'] })).includes('waldo-mixing'), false);
 });
 test('Iona switches at 150 BPM and uses the standard drum clip if the fast clip is unavailable', () => {
@@ -35,8 +35,8 @@ test('Iona’s fast clip spans two beats and honors seeks, offset and reduced mo
 });
 test('electronic, keys and bass can perform together with distinct actor identities', () => {
   const result = resolvePerformance({ instruments: ['electronic', 'synth', 'bass'] });
-  assert.deepEqual(ids(result), ['k-guitar', 'iona-drums', 'felicia-synth', 'waldo-mixing', 'mike-bass', 'katrin-backswing']);
-  assert.equal(new Set(result.map(member => member.actor)).size, 6);
+  assert.deepEqual(ids(result), ['k-guitar', 'iona-drums', 'felicia-synth', 'waldo-mixing', 'mike-bass', 'katrin-backswing', 'manchez-drum-dance']);
+  assert.equal(new Set(result.map(member => member.actor)).size, 7);
   assert.equal(result.find(member => member.actor === 'MIKE').role, 'BASS');
 });
 test('Felicia has separate violin, piano and synth performances', () => {
@@ -52,7 +52,7 @@ test('multiple Felicia instruments require a curated lead or a song override', (
 });
 test('explicit dance and offstage selections override automatic assignments', () => {
   assert.deepEqual(ids(resolvePerformance({ instruments: ['electronic', 'violin', 'bass'] }, { waldo: 'dance', felicia: 'dance', mike: 'off' })),
-    ['k-guitar', 'iona-drums', 'felicia-dance', 'waldo-dance', 'katrin-backswing']);
+    ['k-guitar', 'iona-drums', 'felicia-dance', 'waldo-dance', 'katrin-backswing', 'manchez-drum-dance']);
   assert.ok(ids(resolvePerformance({}, { waldo: 'mixing', felicia: 'piano', mike: 'bass' })).includes('mike-bass'));
 });
 test('bad saved preferences recover field by field without accepting arbitrary actors', () => {
@@ -111,4 +111,18 @@ test('invalid atlas geometry and unsafe paths cannot activate a clip', () => {
     assert.equal(isPlayableClip(invalid), false);
   }
   assert.equal(isPlayableClip(clip), true);
+});
+
+test('Manchez alternates four active beats with four resting beats on the playback clock', () => {
+  const guest = BAND_CLIPS['manchez-drum-dance'];
+  assert.equal(isPlayableClip(guest), true);
+  assert.equal(isPlayableClip({ ...guest, rotation: { ...guest.rotation, restCell: 4 } }), false);
+  assert.equal(isPlayableClip({ ...guest, rotation: { ...guest.rotation, intervalBeats: 4 } }), false);
+  assert.equal(performanceCell(99, 120, 100, guest), 0);
+  assert.deepEqual([100, 150, 195, 225].map(ms => performanceCell(ms, 120, 100, guest)), [1, 2, 3, 1]);
+  assert.equal(performanceCell(2099, 120, 100, guest), 3);
+  assert.equal(performanceCell(2100, 120, 100, guest), 0);
+  assert.equal(performanceCell(4100, 120, 100, guest), 1);
+  assert.equal(performanceCell(4100, 60, 100, guest), 0);
+  assert.equal(performanceCell(150, 120, 100, guest, true), 0);
 });

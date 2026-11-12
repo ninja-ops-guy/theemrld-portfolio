@@ -12,8 +12,8 @@ export type TrackPerformance = {
   feliciaLead?: 'violin' | 'piano' | 'synth';
 };
 export type PerformanceId = 'k-guitar' | 'iona-drums' | 'iona-drums-fast' | 'felicia-dance' | 'waldo-dance'
-  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass' | 'katrin-backswing';
-export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN'; role: string };
+  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass' | 'katrin-backswing' | 'manchez-drum-dance';
+export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN' | 'MANCHEZ'; role: string };
 export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
 export function isSpriteStrip(strip: SpriteStrip | undefined): strip is SpriteStrip {
   return !!strip && [strip.top, strip.height, strip.atlasHeight, strip.frameWidth].every(Number.isSafeInteger)
@@ -28,6 +28,7 @@ export type SpriteClip = {
   frameCount: number;
   beatsPerLoop: number;
   strip?: SpriteStrip;
+  rotation?: { activeBeats: number; intervalBeats: number; restCell: number };
 };
 export const DEFAULT_ARRANGEMENT: Arrangement = { waldo: 'auto', felicia: 'auto', mike: 'auto' };
 export const PERFORMERS: Record<PerformanceId, Performer> = {
@@ -42,6 +43,7 @@ export const PERFORMERS: Record<PerformanceId, Performer> = {
   'felicia-synth': { id: 'felicia-synth', actor: 'FELICIA', role: 'SYNTHESIZER' },
   'mike-bass': { id: 'mike-bass', actor: 'MIKE', role: 'BASS' },
   'katrin-backswing': { id: 'katrin-backswing', actor: 'KATRIN', role: 'BACKSWING STEP' },
+  'manchez-drum-dance': { id: 'manchez-drum-dance', actor: 'MANCHEZ', role: 'DRUM DANCE' },
 };
 const FAST_DRUMS_MIN_BPM = 150;
 const FALLBACK_PERFORMANCES: Partial<Record<Performer['actor'], PerformanceId>> = {
@@ -74,13 +76,20 @@ export function resolvePerformance(profile: TrackPerformance = {}, choice: Arran
   const bass = choice.mike === 'bass' || (choice.mike === 'auto' && instruments.has('bass'));
   const drums = bpm >= FAST_DRUMS_MIN_BPM && bpm <= 240 ? 'iona-drums-fast' : 'iona-drums';
   return [PERFORMERS['k-guitar'], PERFORMERS[drums], PERFORMERS[`felicia-${felicia}`],
-    PERFORMERS[`waldo-${waldo}`], ...(bass ? [PERFORMERS['mike-bass']] : []), PERFORMERS['katrin-backswing']];
+    PERFORMERS[`waldo-${waldo}`], ...(bass ? [PERFORMERS['mike-bass']] : []),
+    PERFORMERS['katrin-backswing'], PERFORMERS['manchez-drum-dance']];
 }
 
 export function isPlayableClip(clip: SpriteClip | undefined): clip is SpriteClip {
   if (!clip || !/^assets\/[a-zA-Z0-9/_-]+\.(?:webp|png)$/.test(clip.atlas) || clip.atlas.includes('..')) return false;
-  const { columns, rows, firstCell, frameCount, beatsPerLoop } = clip;
-  return (!clip.strip || (isSpriteStrip(clip.strip) && firstCell % columns + frameCount <= columns))
+  const { columns, rows, firstCell, frameCount, beatsPerLoop, strip, rotation } = clip;
+  const validRotation = !rotation || (
+    Number.isFinite(rotation.activeBeats) && Number.isFinite(rotation.intervalBeats)
+    && rotation.activeBeats > 0 && rotation.activeBeats < rotation.intervalBeats
+    && Number.isSafeInteger(rotation.restCell) && rotation.restCell >= 0 && rotation.restCell < columns * rows
+    && (!strip || Math.floor(rotation.restCell / columns) === Math.floor(firstCell / columns))
+  );
+  return validRotation && (!strip || (isSpriteStrip(strip) && firstCell % columns + frameCount <= columns))
     && [columns, rows, firstCell, frameCount].every(Number.isSafeInteger)
     && columns > 0 && rows > 0 && firstCell >= 0 && frameCount > 0
     && firstCell + frameCount <= columns * rows && Number.isFinite(beatsPerLoop) && beatsPerLoop > 0;
@@ -96,8 +105,14 @@ export function playablePerformance(requested: readonly Performer[], clips: Part
 
 export function performanceCell(positionMs: number, bpm: number, offsetMs: number, clip: SpriteClip, reducedMotion = false): number {
   if (!isPlayableClip(clip)) return 0;
-  if (reducedMotion) return clip.firstCell;
-  return clip.firstCell + bandFrame(positionMs, bpm, offsetMs, clip.beatsPerLoop, clip.frameCount);
+  const { rotation, firstCell } = clip;
+  const restCell = rotation?.restCell ?? firstCell;
+  if (reducedMotion || ![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return restCell;
+  if (rotation) {
+    const elapsedBeats = (positionMs - offsetMs) / (60000 / bpm);
+    if (elapsedBeats < 0 || elapsedBeats % rotation.intervalBeats >= rotation.activeBeats) return restCell;
+  }
+  return firstCell + bandFrame(positionMs, bpm, offsetMs, clip.beatsPerLoop, clip.frameCount);
 }
 
 // Each group is one beat. Frame numbers refer to K's existing guitar row.
