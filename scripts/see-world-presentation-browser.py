@@ -8,7 +8,7 @@ import json, os, traceback
 BASE=os.environ.get('PRESENTATION_BASE','http://127.0.0.1:8765').rstrip('/')
 ENGINE=os.environ.get('PRESENTATION_ENGINE','chromium')
 OUT=Path(os.environ.get('PRESENTATION_OUTPUT','qa/presentation'));OUT.mkdir(parents=True,exist_ok=True)
-SITE=BASE+'/theemrld-portfolio/'
+SITE=BASE+'/'
 STORY=SITE+'see-world/index.html'
 report={'engine':ENGINE,'passed':[],'failures':[],'page_errors':[],'scope':'Built UI, declared native prerequisites, real UI interactions. No story or save-authority changes.'}
 contexts=[]
@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     def media():
         hub.goto(SITE+'#/links');hub.locator('.media-hub').wait_for()
         expect(hub.locator('h1')).to_contain_text('Stories.')
-        expected=['#/comic','/techops-hero/','#/see-world','#/k/gallery','#/terminal','https://soundcloud.com/raikouno/tracks','https://www.instagram.com/mikesninja/','https://www.instagram.com/kind.dread/','https://www.instagram.com/defied_stars/']
+        expected=['#/comic','https://ninja-ops-guy.github.io/techops-hero/','#/see-world','#/k/gallery','#/terminal','https://soundcloud.com/raikouno/tracks','https://www.instagram.com/mikesninja/','https://www.instagram.com/kind.dread/','https://www.instagram.com/defied_stars/']
         for href in expected:expect(hub.locator('.media-hub a[href="'+href+'"]')).to_have_count(1)
         text=hub.locator('.media-hub').inner_text()
         for obsolete in ['profile unverified','matching TechOps Hero build','Playable story draft']:assert obsolete not in text
