@@ -1,8 +1,8 @@
-export function bandFrame(positionMs: number, bpm = 120, offsetMs = 0): number {
+export function bandFrame(positionMs: number, bpm = 120, offsetMs = 0, beatsPerLoop = 1, frameCount = 6): number {
   if (![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return 0;
-  const cycleMs = 60000 / bpm;
+  const cycleMs = 60000 / bpm * beatsPerLoop;
   const phase = ((positionMs - offsetMs) % cycleMs + cycleMs) % cycleMs;
-  return Math.min(5, Math.floor(phase / cycleMs * 6));
+  return Math.min(frameCount - 1, Math.floor(phase / cycleMs * frameCount));
 }
 // Stop extrapolating when provider progress stalls.
 export function bandPosition(positionMs: number, elapsedMs: number, playing: boolean, rate = 1): number {

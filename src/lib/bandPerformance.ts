@@ -108,15 +108,32 @@ export function performanceCell(positionMs: number, bpm: number, offsetMs: numbe
   const { rotation, firstCell } = clip;
   const restCell = rotation?.restCell ?? firstCell;
   if (reducedMotion || ![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return restCell;
-  const beatMs = 60000 / bpm;
-  const elapsedMs = positionMs - offsetMs;
   if (rotation) {
-    const elapsedBeats = elapsedMs / beatMs;
+    const elapsedBeats = (positionMs - offsetMs) / (60000 / bpm);
     if (elapsedBeats < 0 || elapsedBeats % rotation.intervalBeats >= rotation.activeBeats) return restCell;
   }
-  // Preserve the existing six-pose timing exactly for the original ensemble.
-  if (clip.frameCount === 6 && clip.beatsPerLoop === 1) return firstCell + bandFrame(positionMs, bpm, offsetMs);
-  const cycleMs = beatMs * clip.beatsPerLoop;
-  const phase = ((elapsedMs % cycleMs) + cycleMs) % cycleMs;
-  return clip.firstCell + Math.min(clip.frameCount - 1, Math.floor(phase / cycleMs * clip.frameCount));
+  return firstCell + bandFrame(positionMs, bpm, offsetMs, clip.beatsPerLoop, clip.frameCount);
+}
+
+// Each group is one beat. Frame numbers refer to K's existing guitar row.
+const GUITAR_RIFF_POSES = [
+  // Downstroke into the neck lift.
+  { frame: 0, lean: 0 }, { frame: 3, lean: -1 }, { frame: 2, lean: -3 },
+  { frame: 1, lean: -7 }, { frame: 0, lean: -13 }, { frame: 3, lean: -17 },
+  // Hold the guitar high for two beats of fast picking.
+  { frame: 2, lean: -17 }, { frame: 4, lean: -18 }, { frame: 5, lean: -18 },
+  { frame: 3, lean: -17 }, { frame: 2, lean: -16 }, { frame: 4, lean: -17 },
+  { frame: 5, lean: -18 }, { frame: 3, lean: -19 }, { frame: 2, lean: -18 },
+  { frame: 4, lean: -19 }, { frame: 5, lean: -16 }, { frame: 3, lean: -14 },
+  // Dip and lift once more before returning to the regular strum.
+  { frame: 2, lean: -9 }, { frame: 0, lean: -3 }, { frame: 1, lean: -9 },
+  { frame: 2, lean: -14 }, { frame: 3, lean: -8 }, { frame: 5, lean: -3 },
+] as const;
+
+export function guitarRiffPose(positionMs: number, bpm: number, offsetMs: number, reducedMotion = false) {
+  if (reducedMotion || positionMs < offsetMs) return null;
+  const rotationBeats = 8;
+  const rotationFrames = rotationBeats * 6;
+  const frame = bandFrame(positionMs, bpm, offsetMs, rotationBeats, rotationFrames);
+  return GUITAR_RIFF_POSES[frame - (rotationFrames - GUITAR_RIFF_POSES.length)] ?? null;
 }
