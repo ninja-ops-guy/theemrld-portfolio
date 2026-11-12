@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-11-11T05:24:48Z",
+  "verifiedAt": "2026-11-12T22:24:45Z",
   "tracks": [
     {
       "id": "losing-you",
@@ -70,6 +70,13 @@
       "url": "https://soundcloud.com/raikouno/the-mercy-i-buried",
       "provider": "soundcloud",
       "createdAt": "2026-11-07T15:58:11Z"
+    },
+    {
+      "id": "orpheus-guides-the-swarm-wav",
+      "title": "Orpheus Guides the Swarm",
+      "url": "https://soundcloud.com/raikouno/orpheus-guides-the-swarm-wav",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-07T15:26:51Z"
     },
     {
       "id": "idle",
@@ -1498,13 +1505,6 @@
       "url": "https://soundcloud.com/raikouno/eyes",
       "provider": "soundcloud",
       "createdAt": "2022-07-01T18:12:14Z"
-    },
-    {
-      "id": "gang",
-      "title": "Real",
-      "url": "https://soundcloud.com/raikouno/gang",
-      "provider": "soundcloud",
-      "createdAt": "2022-07-01T15:45:31Z"
     },
     {
       "id": "shorts",
