@@ -1,6 +1,6 @@
 # Guided comic soundtrack
 
-The guided soundtrack maps individual @raikouno songs to **reader page ranges in a named comic edition**. The initial published score has no cues: the creator will choose the songs and their placements.
+The guided soundtrack maps individual @raikouno songs to **reader page ranges in a named comic edition**. See the [cue sheet](TECHOPS_GUIDED_SCORE.md) for the scenes, lyric references and SoundCloud artwork behind the published score.
 
 ## Define a cue
 
@@ -16,6 +16,9 @@ The score contains `schemaVersion: 1`, an `editions` mapping, and a `cues` array
 
 | Edition ID | Edition | Revision stamp | Pages |
 | --- | --- | --- | ---: |
+| `g` | Full collection, Volumes I–XII and Iona interlude | `corrected-c18407af88e9` | 316 |
+| `xiii-r` | Volume XIII · Revised | `corrected-85c2fbd8c80b` | 49 |
+| `xiv` | Volume XIV | `corrected-97f16edf9df0` | 133 |
 | `f` | Revision F, Volumes I–XII | `continuity-hq-46943e14` | 316 |
 | `xiii` | Volume XIII | `reviewed-1c74863c` | 40 |
 | `legacy` | Legacy collection, Volumes I–V | `11.2` | 161 |
@@ -33,10 +36,11 @@ Only individual HTTPS SoundCloud track URLs owned by `raikouno` are accepted. Pl
 - `resolveGuidedCue(score, { edition, page, revision })`, returning the cue for the visible page or `null`.
 - `cueKey(cue)`, a stable identity throughout a cue’s range.
 
-The host must resolve the visible page after jumps and backwards navigation. It should load a song only when the cue identity changes, so turning pages inside the same cue does not restart it. Unassigned pages and revision mismatches are silent in guided mode. The host owns user gesture handling, playback errors, pause persistence, mode changes and the single audio player; this module does not start audio or create a second player.
+The host resolves the visible page after jumps and backwards navigation. Turning pages inside a cue keeps its current play position. On ordinary forward turns, `minimumPlayMs: 30000` lets a cue reach 30 seconds before handing off to the visible scene. The score's explicit quiet page before the explosion takes effect immediately. A track that reaches its natural end stops. The host owns the audio player, gesture handling and pause state.
 
 `GuidedScoreDialog` takes `open`, `onClose`, `onApply(score)`, an optional `initialScore`, and an optional `onUsePublished()` callback. The editor calls `onApply` only with a validated score. `onUsePublished` lets the host stop using a local preview without erasing the saved draft. The host decides when to enter guided mode. The editor stops keyboard propagation and uses a native modal dialog to preserve normal focus and Escape behavior. Runtime helpers load from the public module through a Vite-ignored dynamic import; the `.d.ts` file supplies static types.
 
 ## Validation
 
-Run `node --test tests/k-world-guided.test.mjs`. The tests cover actual edition limits/stamps, range boundaries, direct jumps, backwards navigation, revision mismatch, overlapping cues, malicious URLs and atomic bounded imports. They do not certify external SoundCloud audio delivery.
+Run `node --test tests/k-world-guided.test.mjs tests/k-world-guided-playback.test.mjs` to check edition binding, cue boundaries, page navigation, the 30-second minimum, intentional silence and playback state.
+
