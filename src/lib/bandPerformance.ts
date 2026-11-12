@@ -12,8 +12,8 @@ export type TrackPerformance = {
   feliciaLead?: 'violin' | 'piano' | 'synth';
 };
 export type PerformanceId = 'k-guitar' | 'iona-drums' | 'felicia-dance' | 'waldo-dance'
-  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass';
-export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE'; role: string };
+  | 'waldo-mixing' | 'felicia-violin' | 'felicia-piano' | 'felicia-synth' | 'mike-bass' | 'katrin-backswing';
+export type Performer = { id: PerformanceId; actor: 'K' | 'IONA' | 'FELICIA' | 'WALDO' | 'MIKE' | 'KATRIN'; role: string };
 export type SpriteStrip = { top: number; height: number; atlasHeight: number; frameWidth: number };
 export function isSpriteStrip(strip: SpriteStrip | undefined): strip is SpriteStrip {
   return !!strip && [strip.top, strip.height, strip.atlasHeight, strip.frameWidth].every(Number.isSafeInteger)
@@ -40,6 +40,7 @@ export const PERFORMERS: Record<PerformanceId, Performer> = {
   'felicia-piano': { id: 'felicia-piano', actor: 'FELICIA', role: 'PIANO' },
   'felicia-synth': { id: 'felicia-synth', actor: 'FELICIA', role: 'SYNTHESIZER' },
   'mike-bass': { id: 'mike-bass', actor: 'MIKE', role: 'BASS' },
+  'katrin-backswing': { id: 'katrin-backswing', actor: 'KATRIN', role: 'BACKSWING STEP' },
 };
 
 export function readArrangement(raw: string | null): Arrangement {
@@ -65,7 +66,7 @@ export function resolvePerformance(profile: TrackPerformance = {}, choice: Arran
   const waldo = choice.waldo === 'auto' ? (instruments.has('electronic') ? 'mixing' : 'dance') : choice.waldo;
   const bass = choice.mike === 'bass' || (choice.mike === 'auto' && instruments.has('bass'));
   return [PERFORMERS['k-guitar'], PERFORMERS['iona-drums'], PERFORMERS[`felicia-${felicia}`],
-    PERFORMERS[`waldo-${waldo}`], ...(bass ? [PERFORMERS['mike-bass']] : [])];
+    PERFORMERS[`waldo-${waldo}`], ...(bass ? [PERFORMERS['mike-bass']] : []), PERFORMERS['katrin-backswing']];
 }
 
 export function isPlayableClip(clip: SpriteClip | undefined): clip is SpriteClip {

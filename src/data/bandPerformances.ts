@@ -23,6 +23,10 @@ export const BAND_CLIPS: Partial<Record<PerformanceId, SpriteClip>> = {
   'felicia-piano': instrumentClip(2),
   'felicia-synth': instrumentClip(3),
   'mike-bass': instrumentClip(4, 1),
+  'katrin-backswing': {
+    atlas: 'assets/techops-band-katrin-backswing.webp', columns: 6, rows: 4,
+    firstCell: 0, frameCount: 24, beatsPerLoop: 2,
+  },
 };
 
 // Key by the exact track URL used by KTerminal, never title substrings.
