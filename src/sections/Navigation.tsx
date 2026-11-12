@@ -6,6 +6,7 @@ const items = [
   ['Flagships','#work'],
   ['Research','#research-thesis'],
   ['Evidence','#evidence'],
+  ['Journey','#journey'],
   ['Background','#about'],
   ['Credentials','#networking'],
 ];
