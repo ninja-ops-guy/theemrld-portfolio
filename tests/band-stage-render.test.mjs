@@ -62,6 +62,19 @@ test('saved arrangement renders all seven performers and each Felicia instrument
     }
   } finally { localStorage.getItem = () => null; }
 });
+test('a seek into the Marmot March renders one Katrin alongside Manchez', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: false });
+  try {
+    const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 2250 }));
+    assert.match(html, /data-members="6"/);
+    assert.match(html, /data-performance="katrin-marmot"/);
+    assert.match(html, /data-performance="manchez-drum-dance"/);
+    assert.match(html, /\/test-base\/assets\/katrin-marmot-march.webp/);
+    assert.doesNotMatch(html, /data-performance="katrin-backswing"/);
+  } finally { window.matchMedia = oldMatchMedia; }
+});
 test('published electronic profile automatically switches Waldo without inventing bass guitar', async () => {
   const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
   const html = renderToStaticMarkup(React.createElement(Stage, { isPlaying: false, positionMs: 0, trackId: 'https://soundcloud.com/raikouno/ghost-town' }));

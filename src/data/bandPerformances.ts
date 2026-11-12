@@ -31,6 +31,10 @@ export const BAND_CLIPS: Partial<Record<PerformanceId, SpriteClip>> = {
     atlas: 'assets/techops-band-katrin-backswing.webp', columns: 6, rows: 4,
     firstCell: 0, frameCount: 24, beatsPerLoop: 2,
   },
+  'katrin-marmot': {
+    atlas: 'assets/katrin-marmot-march.webp', columns: 6, rows: 8,
+    firstCell: 0, frameCount: 48, beatsPerLoop: 4,
+  },
   'manchez-drum-dance': {
     atlas: 'assets/manchez-drum-dance-v1.webp', columns: 4, rows: 1,
     firstCell: 1, frameCount: 3, beatsPerLoop: 0.25,

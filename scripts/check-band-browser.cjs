@@ -64,6 +64,27 @@ fs.mkdirSync(output, { recursive: true });
     assert.notDeepEqual(await poses(), paused);
     assert.equal(await katrinPose(), '0% 100%');
     checks.push('Paused seek selects Katrin’s exact new pose');
+    const marmot = page.locator('[data-performance="katrin-marmot"] > div');
+    await page.getByRole('button', { name: 'Seek 1950', exact: true }).click();
+    await katrin.waitFor();
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await marmot.waitFor();
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
+    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await page.waitForFunction(() => {
+      const sprite = document.querySelector('[data-performance="katrin-marmot"] > div');
+      if (!sprite) return false;
+      const [column, row] = sprite.style.backgroundPosition.split(' ').map(Number.parseFloat);
+      return column === 0 && Math.abs(row - 100 / 7) < .001;
+    });
+    assert.equal(await katrin.count(), 0);
+    assert.notEqual(await page.locator('[data-performance="k-guitar"]').evaluate(node =>
+      node.style.getPropertyValue('--kt-guitar-rotation')), '');
+    assert.equal(await manchez.evaluate(node => node.style.backgroundPosition), '0% 0%');
+    await page.getByRole('button', { name: 'Seek 750', exact: true }).click();
+    await katrin.waitFor();
+    assert.equal(await marmot.count(), 0);
+    checks.push('Katrin rotates and seeks between moves alongside K’s riff and Manchez’s rest');
     await page.getByRole('button', { name: 'Switch song' }).click();
     await page.locator('[data-performance="waldo-dance"]').waitFor();
     assert.equal(await page.locator('[data-performance="mike-bass"]').count(), 0);
@@ -77,6 +98,8 @@ fs.mkdirSync(output, { recursive: true });
     await page.setViewportSize({ width: 320, height: 800 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
     assert.equal((await page.locator('.kt-band-grid').evaluate(n => getComputedStyle(n).gridTemplateColumns.split(' ').length)), 4);
+    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await marmot.waitFor();
     await page.screenshot({ path: path.join(output, 'mobile.png'), fullPage: true });
     await page.getByText('Band arrangement', { exact: true }).click();
     await page.getByLabel('Mike', { exact: true }).selectOption('off');
@@ -85,7 +108,8 @@ fs.mkdirSync(output, { recursive: true });
     await page.getByLabel('Mike', { exact: true }).selectOption('bass');
     checks.push('320px layout fits six performers in three columns and seven in four columns');
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.getByRole('button', { name: 'Seek 750' }).click();
+    await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
+    await katrin.waitFor();
     await page.waitForTimeout(100);
     const neutral = await poses();
     assert.ok(neutral.every(position => position.startsWith('0% ')));
@@ -102,7 +126,7 @@ fs.mkdirSync(output, { recursive: true });
     assert.deepEqual(errors, []);
     const assets = [
       'techops-band-instruments-v1.webp', 'techops-band-katrin-backswing.webp',
-      'manchez-drum-dance-v1.webp', 'manchez-drum-dance-v1.gif',
+      'manchez-drum-dance-v1.webp', 'manchez-drum-dance-v1.gif', 'katrin-marmot-march.webp',
     ];
     const dimensions = await page.evaluate(async assets => Promise.all(assets.map(async asset => {
       const image = new Image();
@@ -110,7 +134,7 @@ fs.mkdirSync(output, { recursive: true });
       await image.decode();
       return [image.naturalWidth, image.naturalHeight];
     })), assets);
-    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128]]);
+    assert.deepEqual(dimensions, [[1374, 1145], [768, 512], [512, 128], [128, 128], [768, 1024]]);
     checks.push('Band atlases and Manchez GIF decode without browser or HTTP errors');
     fs.writeFileSync(path.join(output, 'browser-results.json'), JSON.stringify({ checks, passed: checks.length, browser: await browser.version(), scope: 'Actual stage components and assets in a controlled playback-clock harness, not full SoundCloud end-to-end playback' }, null, 2));
     console.log(JSON.stringify({ passed: checks.length, checks }));
