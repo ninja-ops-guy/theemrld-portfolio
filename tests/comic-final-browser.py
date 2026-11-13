@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from urllib.parse import urlsplit, parse_qs
 from playwright.sync_api import sync_playwright, expect
+from comic_retired_probe import check_retired_asset, RetiredAssetProbeError
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('COMIC_BASE_URL', 'http://127.0.0.1:4173/').rstrip('/') + '/'
@@ -51,12 +52,16 @@ try:
         assert publication['sourceCommit'] == os.environ['GITHUB_SHA'], publication
     checked('exact-commit public manifest and 316/49/133 counts')
 
+    # Only genuine 404/410 is retirement. A 503 is not a pass:
+    # retry briefly and keep the response chain in the QA receipt.
+    receipt['retiredAssetTraces'] = {}
     for asset in ['TechOps-Hero-Revision-11.pdf', 'TechOps-Hero-Revision-11.1.pdf', 'TechOps-Hero-Revision-F-Complete.pdf', 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf', 'revision-f/001.webp', 'volume-xiii/001.webp', 'volume-v/001.webp', '001.webp']:
+        url = BASE + 'techops-comic/' + asset + '?retired=' + str(time.time_ns())
         try:
-            with urlopen(BASE + 'techops-comic/' + asset + '?retired=' + str(time.time_ns()), timeout=30) as response:
-                raise AssertionError(f'Retired asset still public: {asset}: {response.status}')
-        except HTTPError as failure:
-            assert failure.code in (404,410), (asset, failure.code)
+            receipt['retiredAssetTraces'][asset] = check_retired_asset(url)
+        except RetiredAssetProbeError as failure:
+            receipt['retiredAssetTraces'][asset] = failure.trace
+            raise
     checked('retired PDFs and reader page assets return 404/410')
 
     for id, book in MANIFEST['books'].items():

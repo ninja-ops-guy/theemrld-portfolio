@@ -9,6 +9,7 @@ on:
       - 'src/data/comic-*'
       - 'scripts/finalize-comic-dist.mjs'
       - 'tests/comic-*'
+      - 'tests/test_comic_retired_probe.py'
       - '.github/workflows/pages.yml'
       - '.github/workflows/comic-final-collection.yml'
   push:
@@ -46,6 +47,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Unit-test strict retired comic asset responses
+        run: python tests/test_comic_retired_probe.py
       - name: Install browser runner
         run: |
           python -m pip install 'playwright==1.57.0'

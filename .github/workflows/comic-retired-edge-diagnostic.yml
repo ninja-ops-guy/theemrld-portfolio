@@ -1,0 +1,35 @@
+name: Comic retired asset edge diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/comic-retired-edge-diagnostic.yml'
+      - 'scripts/diagnose_comic_pages_edge.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare-public-hosts:
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture DNS, redirects, HTTP status, edge headers and short error bodies
+        run: python scripts/diagnose_comic_pages_edge.py
+      - name: Retain diagnostic observations (503 is never classified as a pass)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comic-retired-edge-probe
+          path: qa/comic-retired-edge-probe.json
+          retention-days: 14
+          if-no-files-found: warn
