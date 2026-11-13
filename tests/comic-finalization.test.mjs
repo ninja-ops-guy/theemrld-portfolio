@@ -43,3 +43,12 @@ test('production Pages build always applies retirement before upload', async () 
   assert.ok(workflow.indexOf('node scripts/finalize-comic-dist.mjs') > workflow.indexOf('run: npm run build'));
   assert.ok(workflow.indexOf('node scripts/finalize-comic-dist.mjs') < workflow.indexOf('uses: actions/upload-pages-artifact@v3'));
 });
+
+test('Pages deployment accepts only verified 404/410 after bounded 503 retry', async () => {
+  const workflow = await read('.github/workflows/pages.yml');
+  assert.ok(workflow.includes('for attempt in 1 2 3; do'));
+  assert.ok(workflow.includes('if [ "$code" = 404 ] || [ "$code" = 410 ]; then break; fi'));
+  assert.ok(workflow.includes('if [ "$code" = 503 ] && [ "$attempt" -lt 3 ]; then'));
+  assert.ok(workflow.includes('Retired asset not confirmed absent'));
+  assert.ok(workflow.includes('exit 1'));
+});
