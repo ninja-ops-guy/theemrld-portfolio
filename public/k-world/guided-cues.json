@@ -314,12 +314,12 @@
       "url": "https://soundcloud.com/raikouno/milwaukee-walkie-talkie"
     },
     {
-      "id": "g-158-running-back-roads-wav",
+      "id": "g-158-io-are-you-listening",
       "edition": "g",
       "startPage": 158,
       "endPage": 163,
-      "title": "Running Back Roads",
-      "url": "https://soundcloud.com/raikouno/running-back-roads-wav"
+      "title": "I/O, are you listening?",
+      "url": "https://soundcloud.com/raikouno/io-are-you-listening"
     },
     {
       "id": "g-166-bt-freak",
@@ -341,9 +341,17 @@
       "id": "g-182-erosion-of-the-self",
       "edition": "g",
       "startPage": 182,
-      "endPage": 186,
+      "endPage": 184,
       "title": "Erosion of the Self",
       "url": "https://soundcloud.com/raikouno/erosion-of-the-self"
+    },
+    {
+      "id": "g-185-two-cups",
+      "edition": "g",
+      "startPage": 185,
+      "endPage": 186,
+      "title": "Two cups",
+      "url": "https://soundcloud.com/raikouno/two-cups"
     },
     {
       "id": "g-190-i-hope-these-memories-are-mine",

@@ -57,7 +57,7 @@ def check_play_commands(browser, base, out, record):
                 current = page.locator('#current-title')
                 output = page.locator('#console-output')
             prompt.fill('play velvet')
-            options = page.get_by_role('option')
+            options = page.get_by_role('listbox').get_by_role('option')
             expect(options).to_have_count(2, timeout=30000)
             expect(page.get_by_role('tooltip')).to_contain_text('Tab to autocomplete')
             expect(prompt).to_have_attribute('aria-expanded', 'true')
