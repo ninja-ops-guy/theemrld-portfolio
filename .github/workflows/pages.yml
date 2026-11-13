@@ -220,9 +220,24 @@ jobs:
             if [ "$i" = 18 ]; then exit 1; fi
             sleep 10
           done
+          # GitHub Pages' Varnish edge occasionally emits a short-lived 503
+          # for paths that really are retired (404). Never accept a 503 as a
+          # retirement proof: retry at most twice, then fail the deployment gate.
           for asset in TechOps-Hero-Revision-11.pdf TechOps-Hero-Revision-11.1.pdf TechOps-Hero-Revision-F-Complete.pdf revision-f/001.webp volume-xiii/001.webp; do
-            code="$(curl -sS -o /dev/null -w '%{http_code}' "${SITE_URL%/}/techops-comic/${asset}?retired=${GITHUB_SHA}")"
-            test "$code" = 404 || test "$code" = 410 || { echo "Retired asset still public: $asset ($code)"; exit 1; }
+            for attempt in 1 2 3; do
+              code="$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "${SITE_URL%/}/techops-comic/${asset}?retired=${GITHUB_SHA}")" || {
+                echo "Retired asset transport failure: $asset"
+                exit 1
+              }
+              if [ "$code" = 404 ] || [ "$code" = 410 ]; then break; fi
+              if [ "$code" = 503 ] && [ "$attempt" -lt 3 ]; then
+                echo "::warning::Transient Pages edge 503 on retired asset: $asset (attempt $attempt); retrying"
+                sleep "$attempt"
+                continue
+              fi
+              echo "Retired asset not confirmed absent: $asset (HTTP $code; attempt $attempt)"
+              exit 1
+            done
           done
           echo 'Exact current publication and retired-asset removal verified.'
 
