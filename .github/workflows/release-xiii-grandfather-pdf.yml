@@ -1,0 +1,111 @@
+name: Reissue corrected Volume XIII PDF
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-xiii-grandfather-pdf.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: techops-xiii-grandfather-pdf-release
+  cancel-in-progress: false
+
+jobs:
+  release-corrected-xiii-pdf:
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_TAG: techops-corrected-20261110-c18407af-97f16edf
+      SOURCE_PDF: TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf
+      DEST_TAG: techops-xiii-grandfather-pdf-20261113
+      DEST_PDF: TechOps-Hero-Volume-XIII-The-Last-Launch-Grandfather-Corrected.pdf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned PDF tooling
+        run: python -m pip install --disable-pip-version-check 'pymupdf==1.26.7' 'Pillow==12.3.0'
+      - name: Rebuild one corrected panel from original reviewed PDF and approved art
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p source out
+          gh release download "$SOURCE_TAG" --pattern "$SOURCE_PDF" --dir source
+          python scripts/build-xiii-grandfather-pdf.py \
+            --original "source/$SOURCE_PDF" \
+            --art public/assets/comic/volume-xiii-029-grandfather.webp \
+            --output "out/$DEST_PDF" \
+            --receipt out/xiii-grandfather-pdf-receipt.json
+          python - <<'PY'
+          import json,os
+          r=json.load(open('out/xiii-grandfather-pdf-receipt.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## Volume XIII corrected PDF verified\n\n')
+              f.write('SHA-256: '+r['output_sha256']+'\n\n')
+              f.write('Bytes: '+str(r['output_bytes'])+'\n\n')
+              f.write('All text preserved; changes limited to chapter 32 top tea-table panel.\n')
+          PY
+      - name: Publish new immutable prerelease and verify downloaded bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cat > out/release-notes.md <<'EOF'
+          Corrected 49-page Volume XIII PDF. Chapter 32 page 29 now shows the previously approved November 8 Felicia/grandfather tea-table artwork.
+
+          All original searchable dialogue and captions remain unchanged. The only visual alteration is the upper illustration on reader page 29. The November 10 release remains intact.
+
+          Provenance: https://github.com/ninja-ops-guy/theemrld-portfolio/pull/105
+          Follow-through: https://github.com/ninja-ops-guy/theemrld-portfolio/issues/106
+          EOF
+          if ! gh release view "$DEST_TAG" >/dev/null 2>&1; then
+            gh release create "$DEST_TAG" --target "$GITHUB_SHA" --title 'TechOps Hero: Volume XIII grandfather correction' \
+              --notes-file out/release-notes.md --prerelease --latest=false
+          fi
+          if gh release view "$DEST_TAG" --json assets --jq '.assets[].name' | grep -Fxq "$DEST_PDF"; then
+            echo 'Release asset exists: verify it, never overwrite original bytes.'
+          else
+            gh release upload "$DEST_TAG" "out/$DEST_PDF"
+          fi
+          mkdir -p out/readback
+          gh release download "$DEST_TAG" --pattern "$DEST_PDF" --dir out/readback
+          python - <<'PY'
+          import json,hashlib,os
+          r=json.load(open('out/xiii-grandfather-pdf-receipt.json'))
+          b=open('out/readback/'+os.environ['DEST_PDF'],'rb').read()
+          assert len(b)==r['output_bytes'], 'Published asset differs in size'
+          assert hashlib.sha256(b).hexdigest()==r['output_sha256'], 'Published asset differs in digest'
+          print('PUBLISHED_PDF_HASH_VERIFIED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: xiii-grandfather-pdf-receipt
+          path: out/xiii-grandfather-pdf-receipt.json
+          if-no-files-found: warn
+      - name: Record official release receipt; website pin remains separate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY' > out/issue-comment.md
+          import json,os
+          r=json.load(open('out/xiii-grandfather-pdf-receipt.json'))
+          url='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/releases/download/'+os.environ['DEST_TAG']+'/'+os.environ['DEST_PDF']
+          print('Official corrected XIII PDF reissued and verified by download and SHA-256.')
+          print('\nAsset: '+url)
+          print('SHA-256: '+r['output_sha256'])
+          print('Bytes: '+str(r['output_bytes']))
+          print('Page count: '+str(r['page_count']))
+          print('\nOriginal text and non-target pixels verified unchanged. Website link still needs an updated manifest; keep issue open until deployed.')
+          PY
+          gh issue comment 106 --body-file out/issue-comment.md
