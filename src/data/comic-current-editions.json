@@ -709,9 +709,10 @@
       "title": "The Last Launch",
       "pageCount": 49,
       "revision": "corrected-85c2fbd8c80b",
-      "pdfFilename": "TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf",
-      "pdfSha256": "85c2fbd8c80b8704c884cdfe2f1771f2bbd856bbfaabde57ca855112c4580637",
-      "pdfBytes": 65854157,
+      "releaseTag": "techops-xiii-grandfather-pdf-20261113",
+      "pdfFilename": "TechOps-Hero-Volume-XIII-The-Last-Launch-Grandfather-Corrected.pdf",
+      "pdfSha256": "d9a88cae0217cc0ece73955b96e187a93b0e33f0d0da092cea0588e14db2047d",
+      "pdfBytes": 66806862,
       "imagePath": "techops-comic/volume-xiii-revised/",
       "width": 2160,
       "height": 3240,
@@ -821,7 +822,7 @@
         ]
       },
       "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/aa8c132035a46e73fb47ee14e05e371909799d64/techops-comic/volume-xiii-revised/",
-      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-corrected-20261110-c18407af-97f16edf/TechOps-Hero-Volume-XIII-The-Last-Launch-Revised.pdf"
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-xiii-grandfather-pdf-20261113/TechOps-Hero-Volume-XIII-The-Last-Launch-Grandfather-Corrected.pdf"
     },
     "xiv": {
       "id": "xiv",
