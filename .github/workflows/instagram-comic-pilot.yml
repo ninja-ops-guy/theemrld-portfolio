@@ -23,10 +23,16 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install 'Pillow==11.3.0'
-      - run: python -m unittest discover -s scripts -p 'test_instagram_comic.py' -v
+      - run: python -m unittest discover -s scripts -p 'test_instagram*.py' -v
       - run: python scripts/render_instagram_comic.py --post ALL
+      - run: python scripts/render_instagram_panels.py
       - uses: actions/upload-artifact@v4
         with:
           name: techops-instagram-full-collection-review-only
           path: qa/instagram-pilot/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: techops-instagram-readable-p01-review-only
+          path: qa/instagram-panel-review/
           retention-days: 14
