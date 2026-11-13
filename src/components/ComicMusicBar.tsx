@@ -1,12 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useKMusic } from '../sections/AsciiCityWorld';
 import './ComicMusicBar.css';
 
 export default function ComicMusicBar({ edition, page, revision }: { edition: string; page: number; revision: string }) {
-  const { audio, background, guided, guidedNotice, scoreSource, catalogueStatus, sendCommand, setVolume, openComments, openScore, openSoundCloud, setReader, usePublishedScore } = useKMusic();
+  const { audio, background, guided, guidedNotice, scoreSource, catalogue, catalogueStatus, sendCommand, playTrack, setVolume, openComments, openScore, openSoundCloud, setReader, usePublishedScore } = useKMusic();
   useEffect(() => { setReader({ edition, page, revision }); }, [edition, page, revision, setReader]);
   useEffect(() => () => setReader(null), [setReader]);
+  const [selectedUrl, setSelectedUrl] = useState('');
+  const selectedTrack = catalogue.find(track => track.url === selectedUrl);
+  const playSelectedTrack = () => {
+    if (!selectedTrack) return;
+    sendCommand('background on');
+    playTrack(selectedTrack);
+  };
   const playing = audio.status === 'playing';
   const soundCloudNeedsTap = guided && audio.current?.provider === 'soundcloud' && audio.status === 'paused' && !audio.pausedByUser;
   const toggle = () => {
@@ -42,6 +49,13 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
         {soundCloudNeedsTap && <p>Choose Play in SoundCloud and tap the player’s Play button.</p>}
         <p>{guidedNotice} {scoreSource === 'draft' ? 'You are previewing a soundtrack saved on this device.' : 'The published soundtrack follows the creator’s page cues.'}</p>
         <p className="comic-music-catalogue">{catalogueStatus}</p>
+        <div>
+          <label>Browse tracks <select value={selectedTrack?.url ?? ''} onChange={event => setSelectedUrl(event.target.value)} disabled={!catalogue.length}>
+            <option value="">Choose a track</option>
+            {catalogue.map(track => <option key={track.url} value={track.url}>{track.title}</option>)}
+          </select></label>
+          <button disabled={!selectedTrack} onClick={playSelectedTrack}>Play selected track</button>
+        </div>
         <div>
           <button aria-pressed={background} onClick={() => sendCommand(background ? 'background off' : 'background on')}>Background {background ? 'on' : 'off'}</button>
           {audio.current?.provider === 'soundcloud' && <button onClick={openSoundCloud}>SoundCloud player</button>}
