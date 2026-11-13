@@ -16,7 +16,12 @@ const books = Object.fromEntries(Object.entries(source.books).map(([id, book]) =
 }])) as Record<string, Book>;
 const editionOrder = ['g', 'xiii-r', 'xiv'];
 const base = import.meta.env.BASE_URL + 'techops-comic/';
-const imageUrl = (book: Book, page: number) => `${book.imageBase}${String(page).padStart(3, '0')}.webp`;
+// Page 29 of revised XIII uses the corrected Felicia/grandfather tea-table panel.
+// Other pages remain pinned to their original immutable media releases.
+const grandfatherArtFix = import.meta.env.BASE_URL + 'assets/comic/volume-xiii-029-grandfather.webp';
+const imageUrl = (book: Book, page: number) => book.id === 'xiii-r' && page === 29
+  ? grandfatherArtFix
+  : `${book.imageBase}${String(page).padStart(3, '0')}.webp`;
 function validPage(value: string | null, total: number) { const n=Number(value); return Number.isInteger(n) && n>=1 && n<=total ? n : 0; }
 function bookmark(book: Book) { try { return validPage(localStorage.getItem(`techops-hero:${book.id}:${book.revision}:page`),book.pageCount); } catch { return 0; } }
 
