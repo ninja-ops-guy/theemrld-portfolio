@@ -28,7 +28,7 @@
       "first_run": "43564197663"
     }
   },
-  "phase": "STAGED_QUALIFICATION_BLOCKED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "g-nine-stage-contractfix-20261114-0600",
   "last_run": "43564197663",
   "source": {
@@ -49,6 +49,6 @@
       "publish": "skipped"
     }
   },
-  "staged_head": "19612c5d3d3563fb175d45018af09657d8712d72",
+  "staged_head": "3442ee3e3b8bfa7eec36b0fc4dbb98618d0948bd",
   "media_commit": "b4aeb089340583b26d29c476e16deb4bf0fb4929"
 }
