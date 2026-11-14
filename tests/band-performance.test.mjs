@@ -7,7 +7,7 @@ const compile = source => ts.transpileModule(source, { compilerOptions: { target
 const moduleUrl = source => `data:text/javascript;base64,${Buffer.from(compile(source)).toString('base64')}`;
 const timingUrl = moduleUrl(await readFile(new URL('../src/lib/bandTiming.ts', import.meta.url), 'utf8'));
 const source = (await readFile(new URL('../src/lib/bandPerformance.ts', import.meta.url), 'utf8')).replace("'./bandTiming'", JSON.stringify(timingUrl));
-const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, katrinDanceAt, GROUP_SHUFFLE, groupShuffleFrame } = await import(moduleUrl(source));
+const { resolvePerformance, readArrangement, playablePerformance, performanceCell, guitarRiffPose, isPlayableClip, katrinDanceAt, GROUP_SHUFFLE, groupShuffleFrame, groupDanceAt, groupDancePose, soloDancePose } = await import(moduleUrl(source));
 const { BAND_CLIPS } = await import(moduleUrl(await readFile(new URL('../src/data/bandPerformances.ts', import.meta.url), 'utf8')));
 const ids = value => value.map(member => member.id);
 const clip = { atlas: 'assets/reviewed-performance.webp', columns: 12, rows: 5, firstCell: 24, frameCount: 12, beatsPerLoop: 2 };
@@ -158,4 +158,26 @@ test('the group shuffle respects the beat offset, seeks and reduced motion', () 
   assert.equal(groupShuffleFrame(1250, 120, 0, true), null);
   assert.equal(groupShuffleFrame(NaN, 120, 0), null);
   assert.equal(groupShuffleFrame(1250, 300, 0), null);
+});
+
+test('solo routines alternate across four-beat phrases and exclude instrument players', () => {
+  assert.equal(soloDancePose('felicia-dance', 250, 120, 0).name, 'scissor-kick');
+  assert.equal(soloDancePose('felicia-dance', 2250, 120, 0).name, 'kick-and-hold');
+  assert.equal(soloDancePose('waldo-dance', 250, 120, 0).name, 'low-sweep');
+  assert.equal(soloDancePose('waldo-dance', 2250, 120, 0).name, 'one-arm-freeze');
+  assert.equal(soloDancePose('waldo-dance', 2550, 120, 0).frame, 3);
+  assert.equal(soloDancePose('waldo-mixing', 2550, 120, 0), null);
+  assert.equal(soloDancePose('felicia-dance', 49, 120, 50), null);
+});
+
+test('ensemble routines use the same beat grid and alternate the response across actors', () => {
+  assert.deepEqual([1000, 3999, 4000, 4999, 5000, 7000, 7999, 8000].map(position => groupDanceAt(position, 120, 0)?.name),
+    ['skeleton-shuffle', undefined, 'two-step', 'two-step', undefined, 'call-and-response', 'call-and-response', undefined]);
+  const twoStep = groupDanceAt(4250, 120, 0);
+  assert.deepEqual(groupDanceAt(3450, 150, 50), twoStep);
+  assert.equal(groupDancePose(twoStep, 'K').cell, 5);
+  const response = groupDanceAt(7000, 120, 0);
+  assert.equal(groupDancePose(response, 'K').cell, 0);
+  assert.equal(groupDancePose(response, 'IONA').cell, GROUP_SHUFFLE.columns + 8);
+  assert.equal(groupDancePose(groupDanceAt(7500, 120, 0), 'IONA').cell, GROUP_SHUFFLE.columns);
 });

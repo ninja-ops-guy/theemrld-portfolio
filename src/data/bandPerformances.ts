@@ -1,4 +1,5 @@
 import type { PerformanceId, SpriteClip, TrackPerformance } from '../lib/bandPerformance';
+import type { BandTiming } from '../lib/bandTiming';
 
 const existingClip = (row: number): SpriteClip => ({
   atlas: 'assets/techops-band-ensemble-v1.webp', columns: 6, rows: 4,
@@ -50,3 +51,12 @@ export const TRACK_PERFORMANCES: Record<string, TrackPerformance> = Object.fromE
   'ghost-town', 'motorcell-mp3', 'black', 'wake-up-and-die-ft-oz', 'two-horses',
   'maybe-mp3', 'winter-mp3', 'winter-2-mp3', 'i-see-the-dead-mp3',
 ].map(slug => [`https://soundcloud.com/raikouno/${slug}`, { instruments: ['electronic'] }]));
+
+// Repeating accents measured across the public waveform's 1,800 amplitude bins.
+// Offset is relative to an audible pulse; the musical downbeat remains editable.
+export const ESTIMATED_TRACK_TIMING: Readonly<Partial<Record<string, BandTiming>>> = {
+  // https://wave.sndcdn.com/wMJXDNb5Z3JQ_m.json (89,130 ms)
+  'https://soundcloud.com/raikouno/ghost-town': { bpm: 117.12, offsetMs: 185 },
+  // https://wave.sndcdn.com/SEL6Haz4oqoa_m.json (247,327 ms)
+  'https://soundcloud.com/raikouno/two-cups': { bpm: 152.4, offsetMs: 229 },
+};
