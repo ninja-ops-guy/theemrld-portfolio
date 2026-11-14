@@ -271,38 +271,33 @@ test('forward jumps, backwards turns, and edition changes resolve only the visib
   assert.equal(music.state.current.id, 'test-xiii');
 });
 
-test('SoundCloud requests autoplay for each armed guided cue and respects pause during a load', async () => {
+test('SoundCloud plays only a ready, armed guided cue and respects a pause during load', async () => {
   const loads = [];
   const transport = [];
-  const timers = [];
-  let widgetPaused = false;
   const widget = {
     load(url, options) { loads.push({ url, ...options }); },
     getDuration(callback) { callback(120000); },
     getCurrentSound(callback) { callback({ permalink_url: loads.at(-1).url, duration: 120000 }); },
-    isPaused(callback) { callback(widgetPaused); },
     setVolume() {},
     play() { transport.push('play'); },
     pause() { transport.push('pause'); },
   };
   const port = new SoundCloudPort(null);
   port.widget = widget;
-  port.later = (callback, delay) => { if (delay === 350) timers.push(callback); };
+  port.later = () => {};
   const music = new Sequencer(port);
   music.select(track('first-cue'));
   await Promise.resolve();
-  assert.equal(loads[0].auto_play, true);
-  loads[0].callback();
-  timers.shift()();
-  assert.equal(music.state.status, 'playing');
+  assert.equal(loads[0].auto_play, false);
   assert.equal(transport.includes('play'), false);
+  loads[0].callback();
+  assert.equal(music.state.status, 'ready');
+  assert.equal(transport.at(-1), 'play');
 
   music.load(track('second-cue'));
   await Promise.resolve();
-  assert.equal(loads[1].auto_play, true);
-  widgetPaused = true;
+  assert.equal(loads[1].auto_play, false);
   loads[1].callback();
-  timers.shift()();
   assert.equal(transport.at(-1), 'play');
   music.pause();
   assert.equal(music.state.status, 'paused');
@@ -313,6 +308,7 @@ test('SoundCloud requests autoplay for each armed guided cue and respects pause 
   assert.equal(loads[2].auto_play, false);
   loads[2].callback();
   assert.equal(music.state.status, 'paused');
+  assert.equal(transport.at(-1), 'pause');
 });
 
 test('a forward page turn gives the current cue 30 seconds, then selects the visible page', () => {
@@ -389,15 +385,17 @@ function setupWidget(t) {
     globalThis.document = previousDocument;
   });
   const sounds = [], events = new Map();
-  let position = 0, currentUrl, deferPosition = false;
-  const retries = [], probeTimeouts = [], pendingPositions = [];
+  let currentUrl;
+  const retries = [];
   const widget = {
     bind(name, callback) { events.set(name, callback); },
     load(url, options) { sounds.push({ url, ...options }); },
     getSounds(callback) { callback([]); },
     getDuration(callback) { callback(180000); },
-    getCurrentSound(callback) { callback({ permalink_url: currentUrl ?? sounds.at(-1).url, duration: 180000 }); },
-    getPosition(callback) { if (deferPosition) pendingPositions.push(callback); else callback(position); },
+    getCurrentSound(callback) {
+      const url = currentUrl ?? sounds.at(-1).url;
+      callback({ id: url, permalink_url: url, duration: 180000 });
+    },
     setVolume() {},
     play() {},
     pause() {},
@@ -408,15 +406,13 @@ function setupWidget(t) {
   const port = new SoundCloudPort({ replaceChildren() {} });
   port.later = (callback, delay) => {
     if (delay === 250) retries.push(callback);
-    if (delay === 1000) probeTimeouts.push(callback);
   };
   const music = new Sequencer(port);
   const guided = new GuidedPlayback(music);
   const published = JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
   guided.setScore(published);
   return { music, guided, sounds, events, move: page => guided.setLocation({ edition: 'g', page, revision: published.editions.g }),
-    setPosition: current => { position = current; }, setCurrentUrl: url => { currentUrl = url; }, retries,
-    deferPosition: () => { deferPosition = true; }, probeTimeouts, pendingPositions };
+    setCurrentUrl: url => { currentUrl = url; }, retries };
 }
 
 const flushWidget = () => new Promise(resolve => setImmediate(resolve));
@@ -451,7 +447,7 @@ test('a quiet page cancels the current request before cold widget readiness', as
 });
 
 test('widget progress from a displaced track cannot end the active cue minimum', async t => {
-  const { guided, music, sounds, events, move, setPosition } = setupWidget(t);
+  const { guided, music, sounds, events, move } = setupWidget(t);
   move(51);
   guided.setEnabled(true);
   await flushWidget();
@@ -462,15 +458,13 @@ test('widget progress from a displaced track cannot end the active cue minimum',
   sounds.at(-1).callback();
   assert.equal(guided.waitingForMinimum, true);
   music.playing(music.generation);
-  setPosition(120);
-  events.get('PLAY_PROGRESS')({ currentPosition: 30000 });
+  const activeId = sounds.at(-1).url;
+  events.get('PLAY_PROGRESS')({ soundId: sounds[0].url, currentPosition: 30000 });
   assert.equal(music.state.current.id, 'iona-escape-dawn');
-  assert.equal(music.state.position, 120);
-  setPosition(29999);
-  events.get('PLAY_PROGRESS')({ currentPosition: 29999 });
+  assert.equal(music.state.position, 0);
+  events.get('PLAY_PROGRESS')({ soundId: activeId, currentPosition: 29999 });
   assert.equal(music.state.current.id, 'iona-escape-dawn');
-  setPosition(30000);
-  events.get('PLAY_PROGRESS')({ currentPosition: 30000 });
+  events.get('PLAY_PROGRESS')({ soundId: activeId, currentPosition: 30000 });
   assert.equal(music.state.current.id, 'g-61-technical-decimal');
 });
 
@@ -496,7 +490,7 @@ test('READY during a rapid handoff has to identify the active track before it is
 });
 
 test('a displaced FINISH does not end the active cue before its confirmed media position', async t => {
-  const { music, sounds, events, move, guided, setPosition } = setupWidget(t);
+  const { music, sounds, events, move, guided } = setupWidget(t);
   move(57);
   guided.setEnabled(true);
   await flushWidget();
@@ -504,19 +498,17 @@ test('a displaced FINISH does not end the active cue before its confirmed media 
   await flushWidget();
   sounds.at(-1).callback();
   music.playing(music.generation);
-  setPosition(500);
-  events.get('FINISH')({ currentPosition: 180000 });
+  const activeId = sounds.at(-1).url;
+  events.get('FINISH')({ soundId: 'previous-track', currentPosition: 180000 });
   assert.equal(music.state.status, 'playing');
-  setPosition(179800);
-  events.get('PLAY_PROGRESS')({ currentPosition: 179800 });
-  setPosition(0);
-  events.get('PLAY_PROGRESS')({ currentPosition: 0 });
-  events.get('FINISH')({ currentPosition: 180000 });
+  events.get('PLAY_PROGRESS')({ soundId: activeId, currentPosition: 179800 });
+  events.get('PLAY_PROGRESS')({ soundId: activeId, currentPosition: 0 });
+  events.get('FINISH')({ soundId: activeId, currentPosition: 0 });
   assert.equal(music.state.status, 'finished');
 });
 
-test('a dropped widget position response expires without blocking playback progress', async t => {
-  const { music, sounds, events, move, guided, deferPosition, probeTimeouts, pendingPositions } = setupWidget(t);
+test('unidentified provider samples cannot move the clock or block identified progress', async t => {
+  const { music, sounds, events, move, guided } = setupWidget(t);
   move(57);
   guided.setEnabled(true);
   await flushWidget();
@@ -524,14 +516,8 @@ test('a dropped widget position response expires without blocking playback progr
   await flushWidget();
   sounds.at(-1).callback();
   music.playing(music.generation);
-  deferPosition();
   events.get('PLAY_PROGRESS')({ currentPosition: 1000 });
-  assert.equal(pendingPositions.length, 1);
-  probeTimeouts.shift()();
-  events.get('PLAY_PROGRESS')({ currentPosition: 2000 });
-  assert.equal(pendingPositions.length, 2);
-  pendingPositions.shift()(30000);
   assert.equal(music.state.position, 0);
-  pendingPositions.shift()(2000);
+  events.get('PLAY_PROGRESS')({ soundId: sounds.at(-1).url, currentPosition: 2000 });
   assert.equal(music.state.position, 2000);
 });

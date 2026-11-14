@@ -29,15 +29,20 @@ window.addEventListener('message', event => {
 
 if (window !== window.top && location.pathname.endsWith('/k-world/index.html')) {
   window.__soundCloudLoads = [];
+  window.__soundCloudPlayCalls = [];
   let url = '';
+  let completeLoad = null;
+  let soundId = null;
+  const soundIds = new Map();
   let paused = true;
   let currentPosition = 0;
   const handlers = new Map();
   const emit = (name, detail) => handlers.get(name)?.forEach(fn => fn(detail));
   const play = () => {
+    window.__soundCloudPlayCalls.push(url);
     if (window.__blockSoundCloud) return;
     paused = false;
-    emit('PLAY');
+    emit('PLAY', { soundId, currentPosition });
   };
   const widget = {
     bind(name, callback) {
@@ -49,28 +54,42 @@ if (window !== window.top && location.pathname.endsWith('/k-world/index.html')) 
     getSounds(callback) { callback([]); },
     load(track, options) {
       url = track;
+      if (!soundIds.has(url)) soundIds.set(url, String(soundIds.size + 1));
+      soundId = soundIds.get(url);
       currentPosition = 0;
       paused = true;
       window.__soundCloudLoads.push({ url, autoplay: options.auto_play });
-      options.callback();
-      if (options.auto_play) setTimeout(play, 0);
+      completeLoad = () => {
+        options.callback();
+        if (options.auto_play) setTimeout(play, 0);
+      };
+      if (!window.__delaySoundCloudLoad) completeLoad();
     },
     play,
-    pause() { paused = true; emit('PAUSE'); },
+    pause() { paused = true; emit('PAUSE', { soundId, currentPosition }); },
     getDuration(callback) { callback(120000); },
     getPosition(callback) { callback(currentPosition); },
-    getCurrentSound(callback) { callback({ permalink_url: url, duration: 120000 }); },
+    getCurrentSound(callback) { callback({ id: soundId, permalink_url: url, duration: 120000 }); },
     isPaused(callback) { callback(paused); },
     setVolume() {},
   };
   window.__setSoundCloudProgress = position => {
     currentPosition = position;
-    emit('PLAY_PROGRESS', { currentPosition });
+    emit('PLAY_PROGRESS', { soundId, currentPosition });
+  };
+  window.__continueSoundCloudLoad = () => completeLoad();
+  window.__soundCloudPaused = () => paused;
+  window.__recoverSoundCloud = () => {
+    window.__blockSoundCloud = false;
+    play();
   };
   window.SC = {
-    Widget: Object.assign(() => widget, {
+    Widget: Object.assign(iframe => {
+      iframe.src = '/controlled-soundcloud-widget';
+      return widget;
+    }, {
       Events: Object.fromEntries(
-        ['READY', 'PLAY', 'PLAY_PROGRESS', 'PAUSE', 'ERROR', 'FINISH'].map(name => [name, name]),
+        ['READY', 'PLAY', 'PLAY_PROGRESS', 'PAUSE', 'SEEK', 'ERROR', 'FINISH'].map(name => [name, name]),
       ),
     }),
   };
@@ -78,17 +97,24 @@ if (window !== window.top && location.pathname.endsWith('/k-world/index.html')) 
 """
 
 
-def open_reader(context, base_url, number, block_playback=False):
+def open_reader(context, base_url, number, block_playback=False, delay_load=False):
     page = context.new_page()
     page.add_init_script(
-        f"window.__blockSoundCloud = {str(block_playback).lower()};\n{WIDGET_FIXTURE}"
+        f"window.__blockSoundCloud = {str(block_playback).lower()};\n"
+        f"window.__delaySoundCloudLoad = {str(delay_load).lower()};\n{WIDGET_FIXTURE}"
     )
     # Give the reader a valid page image without depending on external artwork.
     page.route(
         "https://raw.githubusercontent.com/**",
         lambda route: route.fulfill(status=200, content_type="image/png", body=PIXEL),
     )
-    page.route("https://w.soundcloud.com/player/**", lambda route: route.fulfill(body=""))
+    page.route(
+        "**/controlled-soundcloud-widget**",
+        lambda route: route.fulfill(
+            content_type="text/html",
+            body='<button onclick="parent.__recoverSoundCloud()">Play</button>',
+        ),
+    )
     page.goto(urljoin(base_url, f"#/comic?edition=g&page={number}"), wait_until="domcontentloaded")
     expect(page.get_by_role("combobox", name="Jump to page")).to_have_value(str(number))
     return page, page.get_by_role("region", name="Comic soundtrack")
@@ -159,7 +185,11 @@ def check_escape_and_quiet(context, base_url, touch):
             "ride-or-die",
             "somewhere-deep-down-below",
         ], loads
-        assert all(item["autoplay"] for item in loads), loads
+        assert all(not item["autoplay"] for item in loads), loads
+        play_calls = page.locator(PLAYER_FRAME).evaluate(
+            "frame => frame.contentWindow.__soundCloudPlayCalls"
+        )
+        assert play_calls == [item["url"] for item in loads], play_calls
 
         for number in range(58, 62):
             next_page(page, number, touch)
@@ -220,6 +250,34 @@ def check_blocked_autoplay(context, base_url):
         player = page.frame_locator(PLAYER_FRAME)
         expect(player.get_by_role("button", name="Close SoundCloud player")).to_be_visible()
         expect(player.locator(SOUNDCLOUD_FRAME)).to_have_count(1)
+        player.frame_locator(SOUNDCLOUD_FRAME).get_by_role("button", name="Play").click()
+        widget_progress(page, 1200)
+        expect_music(page, "Hot sauce", guided=False, position=1200)
+    finally:
+        page.close()
+
+
+def check_quiet_before_provider_ready(context, base_url, touch):
+    page, music = open_reader(context, base_url, 135, delay_load=True)
+    try:
+        music.get_by_role("button", name="Guided off", exact=True).click()
+        expect_music(page, "The Tape Ran Out", status="loading")
+        frame = page.frame_locator(PLAYER_FRAME)
+        expect(frame.locator(SOUNDCLOUD_FRAME)).to_have_count(1)
+        page.wait_for_function(
+            """() => document.querySelector('iframe.k-session-frame')
+                  ?.contentWindow.__soundCloudLoads.length === 1"""
+        )
+        next_page(page, 136, touch)
+        expect_music(page, None, status="idle")
+        paused = page.locator(PLAYER_FRAME).evaluate(
+            """async frame => {
+              frame.contentWindow.__continueSoundCloudLoad();
+              await new Promise(resolve => setTimeout(resolve, 50));
+              return frame.contentWindow.__soundCloudPaused();
+            }"""
+        )
+        assert paused
     finally:
         page.close()
 
@@ -239,6 +297,7 @@ def main():
                 touch = options.get("has_touch", False)
                 check_escape_and_quiet(context, args.base_url, touch)
                 check_manual_and_guided(context, args.base_url, touch)
+                check_quiet_before_provider_ready(context, args.base_url, touch)
                 check_blocked_autoplay(context, args.base_url)
                 print(f"PASS: {name} reader and controlled SoundCloud widget")
             finally:
