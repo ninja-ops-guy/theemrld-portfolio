@@ -41,3 +41,7 @@ These instructions supplement Story Bible v1.7. Scope matters: do not replace or
 **Implemented staging:** the opening panel of the existing page 34 now shows Waldo lifting off his red-and-black lucha mask, revealing the fuller beard. The following panels show trimming, the shorter beard matching the reunion, and his return toward the workshop. This supersedes the prior opening with the mask already sitting on the counter. K's first meeting with Mike remains on the next page, 35. The edition remains 316 pages; other pages, folios, links and bookmarks stay in place.
 
 **Verification scope:** the edited page was visually checked against the preceding masked arrival and following reunion. The remaining 315 pages retain their content/artwork streams. Publication authorization continues from the creator's instruction to update the live comic. This is implemented direction and editorial visual review, not a separate claim of creator-approved likeness.
+
+## 2026-11-09 — Iona’s Ghost Bends role
+
+Iona is Ghost Bends’ primary drummer. Bass is a secondary skill she may use in individual scenes. Preserve her established drum performances, drumsticks, and count-ins. Only one drummer performs at a time. A change to her standing band role requires an authored story beat.
