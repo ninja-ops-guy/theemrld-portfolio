@@ -26,11 +26,19 @@
         "manifest_sha256": "b9d2092617b8e40fcb611ca845c45cc6fa4ea06927fd4f025b804ced55dad142"
       },
       "first_run": "43564197663"
+    },
+    "g-nine-publish-20261114-0613": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "3442ee3e3b8bfa7eec36b0fc4dbb98618d0948bd",
+        "manifest_sha256": "b9d2092617b8e40fcb611ca845c45cc6fa4ea06927fd4f025b804ced55dad142"
+      },
+      "first_run": "43565208461"
     }
   },
   "phase": "QUALIFIED_NOT_PUBLISHED",
-  "last_request": "g-nine-stage-contractfix-20261114-0600",
-  "last_run": "43564197663",
+  "last_request": "g-nine-publish-20261114-0613",
+  "last_run": "43565208461",
   "source": {
     "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
     "reason": "ZIP metadata matches; source bytes have not yet been verified.",
