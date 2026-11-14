@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import KBandSprite from './KBandSprite';
-import { bandPosition, PREVIEW_TIMING, readBandTiming, tapTempo, type BandTiming } from '../lib/bandTiming';
+import {
+  alignBeatTaps, bandPosition, estimateTempoTaps, MAX_POSITION_AGE_MS, PHASE_TAPS, PREVIEW_TIMING, readBandTiming,
+  TEMPO_TAPS, type BandTap, type BandTiming,
+} from '../lib/bandTiming';
 import {
   guitarRiffPose, GROUP_SHUFFLE, groupDanceAt, groupDancePose, isPerformanceActive, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
   playablePerformance, readArrangement, resolvePerformance, soloDancePose, type Arrangement, type Performer,
@@ -11,6 +14,7 @@ type Props = {
   isPlaying: boolean;
   positionMs: number;
   positionSampledAt?: number | null;
+  positionEpoch?: number;
   playbackRate?: number;
   trackTitle?: string;
   trackId?: string;
@@ -51,7 +55,7 @@ export default function KBandStage(props: Props) {
   return <BandStageForTrack key={props.trackId || 'preview'} {...props} />;
 }
 
-function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackRate = 1, trackTitle, trackId = 'preview', enabled = true }: Props) {
+function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, positionEpoch, playbackRate = 1, trackTitle, trackId = 'preview', enabled = true }: Props) {
   const storageKey = `kt-band-timing-v1:${trackId}`;
   const estimatedTiming = ESTIMATED_TRACK_TIMING[trackId];
   const [savedTiming, setSavedTiming] = useState(() => {
@@ -62,9 +66,12 @@ function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackR
       return readBandTiming(raw);
     } catch { return null; }
   });
-  const timing = savedTiming ?? estimatedTiming ?? PREVIEW_TIMING;
-  const clockRunning = isPlaying && positionSampledAt !== null;
-  const taps = useRef<{ at: number; position: number }[]>([]);
+  const [tempoPreview, setTempoPreview] = useState<BandTiming | null>(null);
+  const [estimatingTempo, setEstimatingTempo] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState('');
+  const timing = tempoPreview ?? savedTiming ?? estimatedTiming ?? PREVIEW_TIMING;
+  const clockRunning = isPlaying && positionSampledAt != null;
+  const taps = useRef<BandTap[]>([]);
   const [tapCount, setTapCount] = useState(0);
   const arrangementKey = `kt-band-arrangement-v1:${trackId}`;
   const [arrangement, setArrangement] = useState(() => {
@@ -91,7 +98,7 @@ function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackR
     const now = performance.now();
     const sampleAt = positionSampledAt != null && Number.isFinite(positionSampledAt) ? positionSampledAt - performance.timeOrigin : now;
     anchor.current = { positionMs, at: Math.min(now, sampleAt) };
-  }, [positionMs, positionSampledAt, isPlaying, playbackRate]);
+  }, [positionMs, positionSampledAt, positionEpoch, isPlaying, playbackRate]);
   useEffect(() => {
     try {
       if (savedTiming) localStorage.setItem(storageKey, JSON.stringify({ ...savedTiming, customized: true }));
@@ -101,7 +108,7 @@ function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackR
   useEffect(() => {
     taps.current = [];
     setTapCount(0);
-  }, [clockRunning, playbackRate]);
+  }, [clockRunning, playbackRate, positionEpoch, enabled]);
   useEffect(() => {
     if (!enabled || reducedMotion || shuffleReady || !trackLoaded) return;
     const sprite = new Image();
@@ -142,24 +149,58 @@ function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackR
     };
     draw();
     return () => cancelAnimationFrame(raf);
-  }, [enabled, clockRunning, playbackRate, positionMs, positionSampledAt, reducedMotion, timing, members, trackLoaded, shuffleReady]);
+  }, [enabled, clockRunning, playbackRate, positionMs, positionSampledAt, positionEpoch, reducedMotion, timing, members, trackLoaded, shuffleReady]);
 
+  const clearTaps = () => {
+    taps.current = [];
+    setTapCount(0);
+  };
+  const saveTiming = (next: BandTiming | null) => {
+    clearTaps();
+    setTempoPreview(null);
+    setEstimatingTempo(false);
+    setSyncFeedback('');
+    setSavedTiming(next);
+  };
+  const toggleTempoEstimate = () => {
+    clearTaps();
+    setTempoPreview(null);
+    setEstimatingTempo(!estimatingTempo);
+    setSyncFeedback('');
+  };
+  const requiredTaps = estimatingTempo ? TEMPO_TAPS : PHASE_TAPS;
   const tapBeat = () => {
     const now = performance.now();
-    const position = bandPosition(anchor.current.positionMs, now - anchor.current.at, clockRunning, playbackRate);
+    const sampleAge = now - anchor.current.at;
+    if (sampleAge > MAX_POSITION_AGE_MS) {
+      clearTaps();
+      setSyncFeedback('The playback clock stalled. Try again when the song is playing steadily.');
+      return;
+    }
+    const position = bandPosition(anchor.current.positionMs, sampleAge, clockRunning, playbackRate);
     const last = taps.current[taps.current.length - 1];
+    // Keep a fallback for unexpected position jumps that arrive without a seek event.
     if (last && (now - last.at > 1650 / playbackRate
       || Math.abs(position - last.position - (now - last.at) * playbackRate) > 250)) taps.current = [];
     taps.current.push({ at: now, position });
-    const bpm = tapTempo(taps.current.map(tap => tap.at), playbackRate);
-    if (bpm !== null) {
-      const barMs = 4 * 60000 / bpm;
-      setSavedTiming({ bpm, offsetMs: Math.round(taps.current[0].position % barMs) });
-      taps.current = [];
-    } else if (taps.current.length >= 4) {
-      taps.current.shift();
+    if (taps.current.length < requiredTaps) {
+      setTapCount(taps.current.length);
+      setSyncFeedback('');
+      return;
     }
-    setTapCount(taps.current.length);
+    const result = estimatingTempo ? estimateTempoTaps(taps.current, playbackRate, timing.offsetMs)
+      : alignBeatTaps(taps.current, playbackRate, timing);
+    clearTaps();
+    if (!result) {
+      setSyncFeedback(estimatingTempo ? 'The taps were uneven. Try again on consecutive beats.'
+        : `The taps did not match ${timing.bpm} BPM. Try again or choose Estimate tempo.`);
+    } else if (estimatingTempo) {
+      setTempoPreview(result);
+      setSyncFeedback(`Previewing ${result.bpm} BPM. Save tempo to keep it for this song.`);
+    } else {
+      setSavedTiming(result);
+      setSyncFeedback(`Beat alignment saved at ${result.bpm} BPM.`);
+    }
   };
 
   if (!enabled) return null;
@@ -200,13 +241,16 @@ function BandStageForTrack({ isPlaying, positionMs, positionSampledAt, playbackR
         </select></label>
       </details>}
       <details className="kt-band-sync"><summary>Music sync · {timing.bpm} BPM</summary>
-        <p>Tap on four consecutive beats, starting on the downbeat. Sync is saved per song on this device.</p>
-        <button type="button" disabled={!clockRunning || !trackLoaded} onClick={tapBeat}>Tap beat</button>
-        {tapCount > 0 && <span role="status"> {tapCount} of 4 taps</span>}
-        <label>Tempo (BPM) <input type="number" min="40" max="240" step="0.01" value={timing.bpm} onChange={e => { const bpm = e.target.valueAsNumber; if (Number.isFinite(bpm) && bpm >= 40 && bpm <= 240) setSavedTiming({ ...timing, bpm }); }} /></label>
-        <label>Beat offset (ms) <input type="number" min="-600000" max="600000" step="1" value={timing.offsetMs} onChange={e => { const offsetMs = e.target.valueAsNumber; if (Number.isFinite(offsetMs) && Math.abs(offsetMs) <= 600000) setSavedTiming({ ...timing, offsetMs }); }} /></label>
-        {savedTiming ? <button type="button" onClick={() => setSavedTiming(null)}>Reset sync</button>
-          : <small>{estimatedTiming ? 'Estimated from the song’s waveform. Tap to align the downbeat.' : 'Using the 120 BPM preview tempo.'}</small>}
+        <p>{estimatingTempo ? `Tap ${TEMPO_TAPS} consecutive beats to preview a new tempo.`
+          : 'Tap four consecutive beats to align the dance at the current tempo. Settings are saved per song on this device.'}</p>
+        {tempoPreview ? <button type="button" onClick={() => saveTiming(tempoPreview)}>Save tempo</button>
+          : <button type="button" disabled={!clockRunning || !trackLoaded} onClick={tapBeat}>Tap beat</button>}
+        <button type="button" disabled={!trackLoaded} onClick={toggleTempoEstimate}>{estimatingTempo ? 'Cancel estimate' : 'Estimate tempo'}</button>
+        <span role="status">{tapCount > 0 ? `${tapCount} of ${requiredTaps} taps` : syncFeedback}</span>
+        <label>Tempo (BPM) <input type="number" min="40" max="240" step="0.01" value={timing.bpm} disabled={tempoPreview !== null} onChange={e => { const bpm = e.target.valueAsNumber; if (Number.isFinite(bpm) && bpm >= 40 && bpm <= 240) saveTiming({ ...timing, bpm }); }} /></label>
+        <label>Beat offset (ms) <input type="number" min="-600000" max="600000" step="1" value={timing.offsetMs} disabled={tempoPreview !== null} onChange={e => { const offsetMs = e.target.valueAsNumber; if (Number.isFinite(offsetMs) && Math.abs(offsetMs) <= 600000) saveTiming({ ...timing, offsetMs }); }} /></label>
+        {savedTiming && !tempoPreview && <button type="button" onClick={() => saveTiming(null)}>Reset sync</button>}
+        {!savedTiming && !tempoPreview && <small>{estimatedTiming ? 'Starting tempo and offset estimated from the song’s waveform.' : 'Using the 120 BPM preview tempo.'}</small>}
       </details>
       <style>{`
         .kt-band-stage{flex-shrink:0;position:relative;border:1px solid #00ad58;background:#070b12;margin-bottom:10px;overflow:hidden}

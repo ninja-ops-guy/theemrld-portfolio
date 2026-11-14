@@ -30,6 +30,70 @@ def record(name, ok, detail=""):
     if not ok:
         raise AssertionError(f"{name}: {detail}")
 
+def check_terminal_seek(browser):
+    page = browser.new_page(viewport={'width': 1100, 'height': 900})
+    try:
+        page.add_init_script("""
+        if (window !== window.top && location.pathname.endsWith('/k-world/index.html')) {
+          const handlers = new Map();
+          let url = '', paused = true, position = 0;
+          window.seekRequests = [];
+          const emit = (name, data) => handlers.get(name)?.(data);
+          const widget = {
+            bind(name, handler) {
+              handlers.set(name, handler);
+              if (name === 'READY') setTimeout(() => emit(name), 0);
+            },
+            unbind(name) { handlers.delete(name); },
+            getSounds(callback) { callback([]); },
+            load(track, options) {
+              url = track; paused = true; position = 0;
+              options.callback();
+              if (options.auto_play) widget.play();
+            },
+            play() { paused = false; emit('PLAY', { currentPosition: position }); },
+            pause() { paused = true; emit('PAUSE', { currentPosition: position }); },
+            getCurrentSound(callback) { callback({ permalink_url: url, duration: 90000 }); },
+            getDuration(callback) { callback(90000); },
+            getPosition(callback) { callback(position); },
+            isPaused(callback) { callback(paused); },
+            setVolume() {},
+            seekTo(ms) { position = ms; window.seekRequests.push(ms); emit('SEEK', { currentPosition: ms }); },
+          };
+          window.SC = { Widget: Object.assign(() => widget, {
+            Events: Object.fromEntries(['READY','PLAY','PAUSE','PLAY_PROGRESS','SEEK','FINISH','ERROR'].map(n => [n, n])),
+          }) };
+        }
+        """)
+        page.route('https://w.soundcloud.com/player/**', lambda route: route.fulfill(body=''))
+        page.goto(BASE + '#/terminal', wait_until='domcontentloaded', timeout=90000)
+        seek = page.get_by_role('slider', name='Seek track')
+        expect(seek).to_have_attribute('data-disabled', '')
+        page.locator('.kt-track-item', has_text='Ghost town').first.click()
+        expect(page.locator('.kt-band-stage')).to_have_attribute('data-playing', 'true')
+        prompt = page.locator('.kt-input')
+        prompt.fill('pause')
+        prompt.press('Enter')
+        expect(page.locator('.kt-band-stage')).to_have_attribute('data-playing', 'false')
+        seek.press('ArrowRight')
+        expect(seek).to_have_attribute('aria-valuetext', '00:01 of 01:30')
+        track = page.locator('.kt-seek-track')
+        bounds = track.bounding_box()
+        assert bounds is not None
+        x, y = bounds['x'], bounds['y'] + bounds['height'] / 2
+        page.mouse.move(x + bounds['width'] / 4, y)
+        page.mouse.down()
+        page.mouse.move(x + bounds['width'] / 2, y, steps=4)
+        requests = page.locator('iframe.k-session-frame').evaluate('frame => frame.contentWindow.seekRequests')
+        assert requests == [1000], requests
+        page.mouse.up()
+        expect(seek).to_have_attribute('aria-valuetext', '00:45 of 01:30')
+        expect(page.locator('.kt-band-stage')).to_have_attribute('data-playing', 'false')
+        requests = page.locator('iframe.k-session-frame').evaluate('frame => frame.contentWindow.seekRequests')
+        record('TERMINAL-KEYBOARD-AND-DRAG-SEEK', requests == [1000, 45000], str(requests))
+    finally:
+        page.close()
+
 def check_play_commands(browser, base, out, record):
     titles = ['Velvet Signal', 'Velvet Signal Remix', '3 Satellites']
     feed = {'verifiedAt': '2026-11-11T12:00:00Z', 'tracks': [
@@ -134,6 +198,7 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, args=["--no-sandbox"])
         check_play_commands(browser, BASE, OUT, record)
+        check_terminal_seek(browser)
         context = browser.new_context(viewport={"width": 1440, "height": 1000})
         page = context.new_page()
         page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
