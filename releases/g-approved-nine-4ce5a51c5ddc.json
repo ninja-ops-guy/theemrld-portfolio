@@ -36,7 +36,7 @@
       "first_run": "43565208461"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "QUALIFIED_NOT_PUBLISHED",
   "last_request": "g-nine-publish-20261114-0613",
   "last_run": "43565208461",
   "source": {
@@ -64,7 +64,7 @@
     "base": "1edf44159320f300d13bb179bfb3f38e3cdc48de",
     "tree": "566679a6770f88460c6afbc29e0f5075cfe53ced",
     "reviewed_head": "3442ee3e3b8bfa7eec36b0fc4dbb98618d0948bd",
-    "run_id": "43564197663",
+    "run_id": "43565208461",
     "manifest_sha256": "b9d2092617b8e40fcb611ca845c45cc6fa4ea06927fd4f025b804ced55dad142"
   }
 }
