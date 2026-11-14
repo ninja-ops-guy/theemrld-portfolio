@@ -8,7 +8,7 @@ import './KMusicSession.css';
 export type MusicTrack = { id: string; title: string; url: string; provider?: string; slot?: number; createdAt?: string | null };
 export type ReaderPosition = { edition: string; page: number; revision: string };
 export type MusicState = {
-  current: MusicTrack | null; status: string; position: number; positionSampledAt?: number | null; duration: number;
+  current: MusicTrack | null; status: string; position: number; positionSampledAt?: number | null; positionEpoch?: number; duration: number;
   volume: number; mode: string; rate: number; zone: string | null; pendingZone: string | null;
   pausedByUser: boolean; error: string | null;
 };
