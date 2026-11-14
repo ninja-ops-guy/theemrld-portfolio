@@ -126,6 +126,7 @@ async function setupWidget(context){
   await Promise.resolve();
   assert.equal(loads.at(-1).url,track.url);
   loads.at(-1).callback();
+  soundRequests.shift()({permalink_url:track.url,duration:180000});
  };
  const emit=(event,detail)=>listeners.get(event)(detail);
  return {music,widget,select,emit,soundRequests,positionRequests};
@@ -166,11 +167,15 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  widget.paused=false;
  emit('PLAY',{currentPosition:0});
  verifySound();
+ positionRequests.shift()(0);
  emit('PLAY_PROGRESS',{currentPosition:0});
+ positionRequests.shift()(0);
  assert.equal(music.state.positionSampledAt,null);
- emit('PLAY',{currentPosition:3000});
+ emit('PLAY',{currentPosition:30000});
  verifySound();
+ positionRequests.shift()(3000);
  assert.equal(music.state.status,'playing');
+ assert.equal(music.state.position,3000);
  music.pause();
  emit('PAUSE');
  verifySound();
@@ -178,6 +183,7 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  music.resume();
  emit('PLAY',{currentPosition:3300});
  verifySound();
+ positionRequests.shift()(3300);
  oldPause(3100);
  assert.equal(music.state.status,'playing');
  assert.equal(music.state.position,3300);
@@ -185,10 +191,12 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  music.seek(12000);
  assert.equal(widget.seekTarget,12000);
  emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(3500);
  assert.equal(music.state.position,12000);
  emit('SEEK',{currentPosition:12000});
  verifySound();
  emit('PLAY_PROGRESS',{currentPosition:12100});
+ positionRequests.shift()(12100);
  assert.equal(music.state.position,12100);
 });
 

@@ -32,3 +32,4 @@
   .comic-music-options { justify-content: space-between; }
   .comic-music-options button { flex: 1; }
 }
+.comic-music .comic-music-scene-track { white-space: normal; text-align: left; }

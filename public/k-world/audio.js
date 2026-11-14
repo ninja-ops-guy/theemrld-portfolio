@@ -100,7 +100,7 @@ export class SoundCloudPort {
   this.pendingSeek=null;
   return true;
  }
- async init(){if(this.widget)return this.widget;if(this.initializing)return this.initializing;this.initializing=(async()=>{
+ async init(){if(this.initializing)return this.initializing;if(this.widget)return this.widget;this.initializing=(async()=>{
   const SC=await api();if(this.disposed)throw Error('Player disposed');
   const iframe=document.createElement('iframe');iframe.title='SoundCloud player — K Terminal audio authority';iframe.allow='autoplay';iframe.src='https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fraikouno&auto_play=false&single_active=true&show_artwork=true';iframe.style.cssText='width:100%;height:130px;border:0;';this.iframe=iframe;this.slot.replaceChildren(iframe);const widget=SC.Widget(iframe);this.widget=widget;
   const bind=(name,fn)=>{widget.bind(SC.Widget.Events[name],fn);this.bound.push(name);};
@@ -114,13 +114,12 @@ export class SoundCloudPort {
    });
   };
   let playbackEventVersion=0;
-  const playbackEvent=(event,paused)=>{
-   const sampledAt=sampleTime();
+  const playbackEvent=paused=>{
    const version=++playbackEventVersion;
    current((token,sound,valid)=>{
     const latest=()=>valid()&&version===playbackEventVersion;
     if(!latest())return;
-    const apply=()=>this.readPosition(widget,event,sampledAt,latest,(position,at)=>{
+    const apply=()=>this.readPosition(widget,null,sampleTime(),latest,(position,at)=>{
      const usable=Number.isFinite(position)&&this.acceptsSeekSample(position,at);
      if(paused){this.controller.providerPaused(token,usable?position:undefined,at);return;}
      this.duration=sound.duration||this.duration;
@@ -131,14 +130,28 @@ export class SoundCloudPort {
     else apply();
    });
   };
-  bind('PLAY',event=>playbackEvent(event,false));
-  bind('PAUSE',event=>playbackEvent(event,true));
-  bind('PLAY_PROGRESS',event=>{
-   const sampledAt=sampleTime();
-   if(this.loading||!this.isCurrent(this.token)||!this.expected||this.expected.provider==='local'||!['ready','playing'].includes(this.controller.state.status))return;
-   const position=event?.currentPosition;
-   if(position===0&&this.controller.state.positionSampledAt===null)return;
-   if(Number.isFinite(position)&&this.acceptsSeekSample(position,sampledAt))this.controller.progress(this.token,position,this.duration,sampledAt);
+  bind('PLAY',()=>playbackEvent(false));
+  bind('PAUSE',()=>playbackEvent(true));
+  bind('PLAY_PROGRESS',()=>{
+   const token=this.token, revision=this.transportRevision;
+   const valid=()=>this.isCurrent(token)&&revision===this.transportRevision&&this.widget===widget&&!this.loading
+    &&this.expected?.provider==='soundcloud'&&['ready','playing'].includes(this.controller.state.status);
+   if(!valid()||(this.progressProbe?.token===token&&this.progressProbe.revision===revision))return;
+   // A progress event can outlive its track. Sample the current widget instead.
+   const probe={token,revision};
+   this.progressProbe=probe;
+   const timeout=this.later(()=>{if(this.progressProbe===probe)this.progressProbe=null;},1000);
+   widget.getPosition(position=>{
+    clearTimeout(timeout);
+    this.timers.delete(timeout);
+    if(this.progressProbe!==probe)return;
+    this.progressProbe=null;
+    if(!valid()||!Number.isFinite(position)||(position===0&&this.controller.state.positionSampledAt===null))return;
+    const sampledAt=sampleTime();
+    if(!this.acceptsSeekSample(position,sampledAt))return;
+    if(position>0)this.lastProgress=position;
+    this.controller.progress(token,position,this.duration,sampledAt);
+   });
   });
   bind('SEEK',event=>{
    const sampledAt=sampleTime();
@@ -146,7 +159,14 @@ export class SoundCloudPort {
     if(Number.isFinite(position)&&this.acceptsSeekSample(position,at))this.controller.progress(token,position,sound.duration||this.duration,at,true);
    }));
   });
-  bind('FINISH',event=>current((token,sound,valid)=>{widget.getPosition(position=>{if(!valid())return;const duration=sound.duration||this.duration;const endPosition=Math.max(event?.currentPosition||0,position||0,this.controller.state.position||0);if(duration>0&&endPosition>=duration-600)this.controller.finish(token);});}));
+  bind('FINISH',()=>current((token,sound,valid)=>{
+   widget.getPosition(position=>{
+    if(!valid())return;
+    const duration=sound.duration||this.duration;
+    // SoundCloud can reset its playhead before reporting the end of the track.
+    if(duration>0&&Math.max(position||0,this.lastProgress||0)>=duration-600)this.controller.finish(token);
+   });
+  }));
   bind('ERROR',()=>{if(!this.loading&&this.expected?.provider!=='local')this.controller.fail(this.token,'SoundCloud could not play this track. Resume retries; choose another song to replace it.');});
   await new Promise((resolve,reject)=>{const timer=this.later(()=>reject(Error('SoundCloud player readiness timed out.')),15000);bind('READY',()=>{clearTimeout(timer);this.timers.delete(timer);resolve();});});
   // Read the profile while the widget still points at @raikouno, before loading an individual track.
@@ -158,20 +178,24 @@ export class SoundCloudPort {
    });}catch{clearTimeout(timeout);this.timers.delete(timeout);finish([]);}
   });
   return widget;
- })();try{return await this.initializing;}catch(e){if(this.widget&&!this.disposed){for(const n of this.bound)this.widget.unbind(window.SC.Widget.Events[n]);this.bound=[];this.widget=null;this.iframe?.remove();}this.initializing=null;throw e;}}
+ })();try{return await this.initializing;}catch(e){if(this.widget&&!this.disposed){for(const n of this.bound)this.widget.unbind(window.SC.Widget.Events[n]);this.bound=[];this.widget=null;this.iframe?.remove();}throw e;}finally{this.initializing=null;}}
  async discoverTracks(){await this.init();return this.profilePromise?await this.profilePromise:[];}
  async load(track,token){
-  this.token=token;this.expected=track;this.loading=true;this.pendingSeek=null;
+  this.token=token;this.expected=track;this.loading=true;this.pendingSeek=null;this.lastProgress=0;
   this.native?.pause();this.widget?.pause();
   if(track.provider==='local'){this.loadNative(track,token);return;}
   const widget=await this.init();if(!this.isCurrent(token))return;
   const {armed,pausedByUser}=this.controller.state;
   const autoplayRequested=armed&&!pausedByUser;
+  const expectedUrl=canonicalUrl(track.url);
   const ready=()=>{
+   if(!this.loading||token!==this.token)return;
    if(!this.isCurrent(token)){if(token===this.token&&!this.disposed)widget.pause();return;}
-   widget.getDuration(duration=>{
+   widget.getCurrentSound(sound=>{
     if(!this.isCurrent(token)){if(token===this.token&&!this.disposed)widget.pause();return;}
-    this.duration=duration||0;this.loading=false;
+    if(!this.loading)return;
+    if(!expectedUrl||canonicalUrl(sound?.permalink_url)!==expectedUrl){this.later(ready,250);return;}
+    this.duration=sound.duration||0;this.loading=false;
     widget.setVolume(this.controller.state.volume);
     this.controller.ready(token,this.duration,{autoplayRequested});
     const revision=this.transportRevision;
@@ -244,6 +268,7 @@ export class SoundCloudPort {
   }
   if(!this.widget)return false;
   const at=sampleTime();
+  this.lastProgress=0;
   this.pendingSeek={target:ms,at};
   this.widget.seekTo(ms);
   return {position:ms,sampledAt:at};

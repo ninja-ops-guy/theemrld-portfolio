@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Sequencer, SoundCloudPort } from '../public/k-world/audio.js';
 import { GuidedPlayback } from '../public/k-world/guided-playback.js';
 import { emptyGuidedScore, GUIDED_EDITIONS } from '../public/k-world/guided.js';
@@ -278,6 +279,7 @@ test('SoundCloud requests autoplay for each armed guided cue and respects pause 
   const widget = {
     load(url, options) { loads.push({ url, ...options }); },
     getDuration(callback) { callback(120000); },
+    getCurrentSound(callback) { callback({ permalink_url: loads.at(-1).url, duration: 120000 }); },
     isPaused(callback) { callback(widgetPaused); },
     setVolume() {},
     play() { transport.push('play'); },
@@ -359,4 +361,177 @@ test('a cue finishes its minimum across an ordinary unmapped page and then goes 
   assert.equal(music.state.current.id, 'test-a');
   music.progress(token, 30000);
   assert.equal(music.state.current, null);
+});
+
+test('rapid forward turns follow Iona’s published escape cues and restore the minimum afterward', () => {
+  const { guided, music, calls } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(51, 'g'));
+  guided.setEnabled(true);
+  const original = music.state.current.id;
+  for (const page of [52, 53, 54, 55, 56, 57, 58, 59, 60, 61]) {
+    guided.setLocation(position(page, 'g'));
+  }
+  assert.deepEqual(loads(calls).map(call => call[1]), [
+    original, 'g-53-function-2', 'iona-escape', 'iona-dock-jump', 'iona-escape-dawn',
+  ]);
+  assert.equal(music.state.current.title, 'Somewhere Deep Down Below');
+  assert.equal(guided.waitingForMinimum, true);
+  playing(music);
+  assert.equal(music.state.current.title, 'Technical Decimal');
+});
+
+function setupWidget(t) {
+  const previousWindow = globalThis.window;
+  const previousDocument = globalThis.document;
+  t.after(() => {
+    globalThis.window = previousWindow;
+    globalThis.document = previousDocument;
+  });
+  const sounds = [], events = new Map();
+  let position = 0, currentUrl, deferPosition = false;
+  const retries = [], probeTimeouts = [], pendingPositions = [];
+  const widget = {
+    bind(name, callback) { events.set(name, callback); },
+    load(url, options) { sounds.push({ url, ...options }); },
+    getSounds(callback) { callback([]); },
+    getDuration(callback) { callback(180000); },
+    getCurrentSound(callback) { callback({ permalink_url: currentUrl ?? sounds.at(-1).url, duration: 180000 }); },
+    getPosition(callback) { if (deferPosition) pendingPositions.push(callback); else callback(position); },
+    setVolume() {},
+    play() {},
+    pause() {},
+  };
+  const names = ['READY', 'PLAY', 'PAUSE', 'PLAY_PROGRESS', 'SEEK', 'FINISH', 'ERROR'];
+  globalThis.window = { SC: { Widget: Object.assign(() => widget, { Events: Object.fromEntries(names.map(name => [name, name])) }) } };
+  globalThis.document = { createElement: () => ({ style: {} }) };
+  const port = new SoundCloudPort({ replaceChildren() {} });
+  port.later = (callback, delay) => {
+    if (delay === 250) retries.push(callback);
+    if (delay === 1000) probeTimeouts.push(callback);
+  };
+  const music = new Sequencer(port);
+  const guided = new GuidedPlayback(music);
+  const published = JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
+  guided.setScore(published);
+  return { music, guided, sounds, events, move: page => guided.setLocation({ edition: 'g', page, revision: published.editions.g }),
+    setPosition: current => { position = current; }, setCurrentUrl: url => { currentUrl = url; }, retries,
+    deferPosition: () => { deferPosition = true; }, probeTimeouts, pendingPositions };
+}
+
+const flushWidget = () => new Promise(resolve => setImmediate(resolve));
+
+test('a cold widget waits for profile readiness before loading only the last rapid cue', async t => {
+  const { guided, sounds, events, move } = setupWidget(t);
+  move(51);
+  guided.setEnabled(true);
+  await flushWidget();
+  for (const page of [52, 53, 54, 55, 56, 57]) {
+    move(page);
+    await flushWidget();
+  }
+  assert.deepEqual(sounds, []);
+  events.get('READY')();
+  await flushWidget();
+  assert.equal(sounds.length, 1);
+  assert.match(sounds[0].url, /\/somewhere-deep-down-below$/);
+});
+
+test('a quiet page cancels the current request before cold widget readiness', async t => {
+  const { guided, music, sounds, events, move } = setupWidget(t);
+  move(135);
+  guided.setEnabled(true);
+  await flushWidget();
+  move(136);
+  events.get('READY')();
+  await flushWidget();
+  assert.deepEqual(sounds, []);
+  assert.equal(music.state.current, null);
+  assert.equal(music.state.status, 'idle');
+});
+
+test('widget progress from a displaced track cannot end the active cue minimum', async t => {
+  const { guided, music, sounds, events, move, setPosition } = setupWidget(t);
+  move(51);
+  guided.setEnabled(true);
+  await flushWidget();
+  events.get('READY')();
+  await flushWidget();
+  for (const page of [52, 53, 54, 55, 56, 57, 58, 59, 60, 61]) move(page);
+  await flushWidget();
+  sounds.at(-1).callback();
+  assert.equal(guided.waitingForMinimum, true);
+  music.playing(music.generation);
+  setPosition(120);
+  events.get('PLAY_PROGRESS')({ currentPosition: 30000 });
+  assert.equal(music.state.current.id, 'iona-escape-dawn');
+  assert.equal(music.state.position, 120);
+  setPosition(29999);
+  events.get('PLAY_PROGRESS')({ currentPosition: 29999 });
+  assert.equal(music.state.current.id, 'iona-escape-dawn');
+  setPosition(30000);
+  events.get('PLAY_PROGRESS')({ currentPosition: 30000 });
+  assert.equal(music.state.current.id, 'g-61-technical-decimal');
+});
+
+test('READY during a rapid handoff has to identify the active track before it is accepted', async t => {
+  const { guided, music, sounds, events, move, retries, setCurrentUrl } = setupWidget(t);
+  move(53);
+  guided.setEnabled(true);
+  await flushWidget();
+  events.get('READY')();
+  await flushWidget();
+  const firstUrl = sounds.at(-1).url;
+  move(54);
+  await flushWidget();
+  const timeCrumbles = sounds.at(-1);
+  setCurrentUrl(firstUrl);
+  timeCrumbles.callback();
+  assert.equal(music.state.current.id, 'iona-escape');
+  assert.equal(music.state.status, 'loading');
+  assert.equal(retries.length, 1);
+  setCurrentUrl(timeCrumbles.url);
+  retries.shift()();
+  assert.equal(music.state.status, 'ready');
+});
+
+test('a displaced FINISH does not end the active cue before its confirmed media position', async t => {
+  const { music, sounds, events, move, guided, setPosition } = setupWidget(t);
+  move(57);
+  guided.setEnabled(true);
+  await flushWidget();
+  events.get('READY')();
+  await flushWidget();
+  sounds.at(-1).callback();
+  music.playing(music.generation);
+  setPosition(500);
+  events.get('FINISH')({ currentPosition: 180000 });
+  assert.equal(music.state.status, 'playing');
+  setPosition(179800);
+  events.get('PLAY_PROGRESS')({ currentPosition: 179800 });
+  setPosition(0);
+  events.get('PLAY_PROGRESS')({ currentPosition: 0 });
+  events.get('FINISH')({ currentPosition: 180000 });
+  assert.equal(music.state.status, 'finished');
+});
+
+test('a dropped widget position response expires without blocking playback progress', async t => {
+  const { music, sounds, events, move, guided, deferPosition, probeTimeouts, pendingPositions } = setupWidget(t);
+  move(57);
+  guided.setEnabled(true);
+  await flushWidget();
+  events.get('READY')();
+  await flushWidget();
+  sounds.at(-1).callback();
+  music.playing(music.generation);
+  deferPosition();
+  events.get('PLAY_PROGRESS')({ currentPosition: 1000 });
+  assert.equal(pendingPositions.length, 1);
+  probeTimeouts.shift()();
+  events.get('PLAY_PROGRESS')({ currentPosition: 2000 });
+  assert.equal(pendingPositions.length, 2);
+  pendingPositions.shift()(30000);
+  assert.equal(music.state.position, 0);
+  pendingPositions.shift()(2000);
+  assert.equal(music.state.position, 2000);
 });
