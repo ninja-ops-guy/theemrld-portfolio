@@ -2,6 +2,7 @@ import {PLAYLISTS} from './data.js';
 import {clamp} from './renderer.js';
 // A monotonic timestamp with the same epoch in the world and terminal frames.
 const sampleTime=()=>performance.timeOrigin+performance.now();
+const soundCloudStallMs=10000;
 /** Pure queue policy. Only natural FINISH or an explicit transport action advances. */
 export class Sequencer extends EventTarget {
  constructor(port,playlists=PLAYLISTS){super();this.port=port;this.playlists=playlists;this.generation=0;this.finishedGeneration=-1;this.state={mode:'auto',zone:'gallery-deep',activeZone:null,pendingZone:null,current:null,index:0,status:'idle',position:0,positionSampledAt:null,duration:0,pausedByUser:false,armed:false,error:null,volume:55,rate:1};port.connect?.(this);}
@@ -100,7 +101,28 @@ export class SoundCloudPort {
   this.pendingSeek=null;
   return true;
  }
- async init(){if(this.widget)return this.widget;if(this.initializing)return this.initializing;this.initializing=(async()=>{
+ clearProgressWatch(){
+  if(!this.progressWatch)return;
+  clearTimeout(this.progressWatch.timer);
+  this.timers.delete(this.progressWatch.timer);
+  this.progressWatch=null;
+ }
+ watchProgress(token,position){
+  if(!this.isCurrent(token)||this.expected?.provider!=='soundcloud'||this.controller.state.status!=='playing')return;
+  const revision=this.transportRevision;
+  const current=this.progressWatch;
+  if(current?.token===token&&current.revision===revision&&position<=current.position)return;
+  this.clearProgressWatch();
+  const timer=this.later(()=>{
+   this.progressWatch=null;
+   if(!this.isCurrent(token)||revision!==this.transportRevision||this.controller.state.status!=='playing')return;
+   // Surface the same recovery as blocked autoplay when an active stream stops advancing.
+   this.pause();
+   this.controller.providerPaused(token);
+  },soundCloudStallMs);
+  this.progressWatch={timer,token,revision,position};
+ }
+ async init(){if(this.initializing)return this.initializing;if(this.widget)return this.widget;this.initializing=(async()=>{
   const SC=await api();if(this.disposed)throw Error('Player disposed');
   const iframe=document.createElement('iframe');iframe.title='SoundCloud player — K Terminal audio authority';iframe.allow='autoplay';iframe.src='https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fraikouno&auto_play=false&single_active=true&show_artwork=true';iframe.style.cssText='width:100%;height:130px;border:0;';this.iframe=iframe;this.slot.replaceChildren(iframe);const widget=SC.Widget(iframe);this.widget=widget;
   const bind=(name,fn)=>{widget.bind(SC.Widget.Events[name],fn);this.bound.push(name);};
@@ -113,19 +135,23 @@ export class SoundCloudPort {
     if(valid()&&canonicalUrl(sound?.permalink_url)===expected)apply(token,sound,valid);
    });
   };
+  // The widget includes the originating sound ID with each audio event.
+  const currentEvent=event=>this.soundId!=null&&event?.soundId!=null&&String(event.soundId)===this.soundId;
   let playbackEventVersion=0;
   const playbackEvent=(event,paused)=>{
+   if(event?.soundId!=null&&!currentEvent(event))return;
    const sampledAt=sampleTime();
    const version=++playbackEventVersion;
    current((token,sound,valid)=>{
     const latest=()=>valid()&&version===playbackEventVersion;
     if(!latest())return;
-    const apply=()=>this.readPosition(widget,event,sampledAt,latest,(position,at)=>{
+    const apply=()=>this.readPosition(widget,currentEvent(event)?event:null,sampledAt,latest,(position,at)=>{
      const usable=Number.isFinite(position)&&this.acceptsSeekSample(position,at);
-     if(paused){this.controller.providerPaused(token,usable?position:undefined,at);return;}
+     if(paused){this.clearProgressWatch();this.controller.providerPaused(token,usable?position:undefined,at);return;}
      this.duration=sound.duration||this.duration;
      widget.setVolume(this.controller.state.volume);
      this.controller.playing(token,usable?position:undefined,at);
+     this.watchProgress(token,this.controller.state.position);
     });
     if(widget.isPaused)widget.isPaused(actual=>{if(latest()&&actual===paused)apply();});
     else apply();
@@ -134,19 +160,39 @@ export class SoundCloudPort {
   bind('PLAY',event=>playbackEvent(event,false));
   bind('PAUSE',event=>playbackEvent(event,true));
   bind('PLAY_PROGRESS',event=>{
-   const sampledAt=sampleTime();
-   if(this.loading||!this.isCurrent(this.token)||!this.expected||this.expected.provider==='local'||!['ready','playing'].includes(this.controller.state.status))return;
+   const token=this.token;
    const position=event?.currentPosition;
-   if(position===0&&this.controller.state.positionSampledAt===null)return;
-   if(Number.isFinite(position)&&this.acceptsSeekSample(position,sampledAt))this.controller.progress(this.token,position,this.duration,sampledAt);
+   if(!currentEvent(event)||!this.isCurrent(token)||this.loading||this.widget!==widget
+    ||this.expected?.provider!=='soundcloud'||!['ready','playing'].includes(this.controller.state.status)
+    ||!Number.isFinite(position)||(position===0&&this.controller.state.positionSampledAt===null))return;
+   const sampledAt=sampleTime();
+   if(!this.acceptsSeekSample(position,sampledAt))return;
+   if(position>0)this.lastProgress=position;
+   this.watchProgress(token,position);
+   this.controller.progress(token,position,this.duration,sampledAt);
   });
   bind('SEEK',event=>{
+   if(event?.soundId!=null&&!currentEvent(event))return;
    const sampledAt=sampleTime();
-   current((token,sound,valid)=>this.readPosition(widget,event,sampledAt,valid,(position,at)=>{
-    if(Number.isFinite(position)&&this.acceptsSeekSample(position,at))this.controller.progress(token,position,sound.duration||this.duration,at,true);
+   current((token,sound,valid)=>this.readPosition(widget,currentEvent(event)?event:null,sampledAt,valid,(position,at)=>{
+    if(Number.isFinite(position)&&this.acceptsSeekSample(position,at)){
+     this.clearProgressWatch();
+     this.watchProgress(token,position);
+     this.controller.progress(token,position,sound.duration||this.duration,at,true);
+    }
    }));
   });
-  bind('FINISH',event=>current((token,sound,valid)=>{widget.getPosition(position=>{if(!valid())return;const duration=sound.duration||this.duration;const endPosition=Math.max(event?.currentPosition||0,position||0,this.controller.state.position||0);if(duration>0&&endPosition>=duration-600)this.controller.finish(token);});}));
+  bind('FINISH',event=>{
+   if(!currentEvent(event))return;
+   current((token,sound)=>{
+    const duration=sound.duration||this.duration;
+    // SoundCloud can reset its playhead before reporting the end of the track.
+    if(duration>0&&Math.max(event.currentPosition||0,this.lastProgress||0)>=duration-600){
+     this.clearProgressWatch();
+     this.controller.finish(token);
+    }
+   });
+  });
   bind('ERROR',()=>{if(!this.loading&&this.expected?.provider!=='local')this.controller.fail(this.token,'SoundCloud could not play this track. Resume retries; choose another song to replace it.');});
   await new Promise((resolve,reject)=>{const timer=this.later(()=>reject(Error('SoundCloud player readiness timed out.')),15000);bind('READY',()=>{clearTimeout(timer);this.timers.delete(timer);resolve();});});
   // Read the profile while the widget still points at @raikouno, before loading an individual track.
@@ -158,36 +204,29 @@ export class SoundCloudPort {
    });}catch{clearTimeout(timeout);this.timers.delete(timeout);finish([]);}
   });
   return widget;
- })();try{return await this.initializing;}catch(e){if(this.widget&&!this.disposed){for(const n of this.bound)this.widget.unbind(window.SC.Widget.Events[n]);this.bound=[];this.widget=null;this.iframe?.remove();}this.initializing=null;throw e;}}
+ })();try{return await this.initializing;}catch(e){if(this.widget&&!this.disposed){for(const n of this.bound)this.widget.unbind(window.SC.Widget.Events[n]);this.bound=[];this.widget=null;this.iframe?.remove();}throw e;}finally{this.initializing=null;}}
  async discoverTracks(){await this.init();return this.profilePromise?await this.profilePromise:[];}
  async load(track,token){
-  this.token=token;this.expected=track;this.loading=true;this.pendingSeek=null;
+  this.clearProgressWatch();
+  this.token=token;this.expected=track;this.loading=true;this.pendingSeek=null;this.lastProgress=0;this.soundId=null;
   this.native?.pause();this.widget?.pause();
   if(track.provider==='local'){this.loadNative(track,token);return;}
   const widget=await this.init();if(!this.isCurrent(token))return;
-  const {armed,pausedByUser}=this.controller.state;
-  const autoplayRequested=armed&&!pausedByUser;
+  const expectedUrl=canonicalUrl(track.url);
   const ready=()=>{
+   if(!this.loading||token!==this.token)return;
    if(!this.isCurrent(token)){if(token===this.token&&!this.disposed)widget.pause();return;}
-   widget.getDuration(duration=>{
+   widget.getCurrentSound(sound=>{
     if(!this.isCurrent(token)){if(token===this.token&&!this.disposed)widget.pause();return;}
-    this.duration=duration||0;this.loading=false;
+    if(!this.loading)return;
+    if(!expectedUrl||canonicalUrl(sound?.permalink_url)!==expectedUrl){this.later(ready,250);return;}
+    this.soundId=sound.id==null?null:String(sound.id);
+    this.duration=sound.duration||0;this.loading=false;
     widget.setVolume(this.controller.state.volume);
-    this.controller.ready(token,this.duration,{autoplayRequested});
-    const revision=this.transportRevision;
-    const stillReady=()=>this.isCurrent(token)&&revision===this.transportRevision&&this.controller.state.status==='ready';
-    if(autoplayRequested)this.later(()=>{
-     if(!stillReady())return;
-     widget.isPaused(paused=>{
-      if(!stillReady())return;
-      if(paused)this.play();
-      else this.readPosition(widget,null,sampleTime(),stillReady,(position,at)=>this.controller.playing(token,position,at));
-     });
-    },350);
-    this.later(()=>{if(stillReady())this.controller.providerPaused(token);},4500);
+    this.controller.ready(token,this.duration);
    });
   };
-  widget.load(track.url,{auto_play:autoplayRequested,single_active:true,show_comments:false,show_related:false,callback:ready});
+  widget.load(track.url,{auto_play:false,single_active:true,show_comments:false,show_related:false,callback:ready});
   this.later(()=>{if(this.isCurrent(token)&&this.loading){this.loading=false;this.controller.fail(token,'Track loading timed out. Resume retries without changing your queue.');}},20000);
  }
  loadNative(track,token){
@@ -222,6 +261,7 @@ export class SoundCloudPort {
    this.startAnalyser();
   }else{
    this.widget?.play();
+   this.watchProgress(token,this.controller.state.position);
    this.later(()=>{if(valid()&&this.controller.state.status==='ready')this.controller.providerPaused(token);},4500);
   }
  }
@@ -232,6 +272,7 @@ export class SoundCloudPort {
  }
  pause(){
   ++this.transportRevision;
+  this.clearProgressWatch();
   this.native?.pause();this.widget?.pause();
   return this.position();
  }
@@ -244,7 +285,9 @@ export class SoundCloudPort {
   }
   if(!this.widget)return false;
   const at=sampleTime();
+  this.lastProgress=0;
   this.pendingSeek={target:ms,at};
+  this.watchProgress(this.token,ms);
   this.widget.seekTo(ms);
   return {position:ms,sampledAt:at};
  }

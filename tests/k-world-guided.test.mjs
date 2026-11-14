@@ -129,3 +129,11 @@ test('Cue identity changes when a song or its scope changes', () => {
   assert.notEqual(cueKey(cue()), cueKey(cue({ endPage: 9 })));
 });
 
+
+test('immediate cue pages survive import and reject invalid edition or page values', () => {
+  const input = { ...emptyGuidedScore(), immediateCuePages: [{ edition: 'g', number: 53 }] };
+  assert.deepEqual(parseGuidedScore(JSON.stringify(input)).immediateCuePages, input.immediateCuePages);
+  for (const immediateCuePages of [{}, [{ edition: 'g', number: 317 }], [{ edition: 'other', number: 53 }]]) {
+    assert.throws(() => validateGuidedScore({ ...input, immediateCuePages }), /immediate cue page/i);
+  }
+});
