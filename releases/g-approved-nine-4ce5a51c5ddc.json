@@ -34,15 +34,21 @@
         "manifest_sha256": "b9d2092617b8e40fcb611ca845c45cc6fa4ea06927fd4f025b804ced55dad142"
       },
       "first_run": "43565208461"
+    },
+    "g-nine-resume-aftermerge-20261114-0624": {
+      "binding": {
+        "action": "resume",
+        "expected_head": "3442ee3e3b8bfa7eec36b0fc4dbb98618d0948bd",
+        "manifest_sha256": "b9d2092617b8e40fcb611ca845c45cc6fa4ea06927fd4f025b804ced55dad142"
+      },
+      "first_run": "43566158471"
     }
   },
   "phase": "MAIN_UPDATED_AWAITING_PR",
-  "last_request": "g-nine-publish-20261114-0613",
-  "last_run": "43565208461",
+  "last_request": "g-nine-resume-aftermerge-20261114-0624",
+  "last_run": "43566158471",
   "source": {
-    "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
-    "reason": "ZIP metadata matches; source bytes have not yet been verified.",
-    "source_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/tag/techops-g-approved-nine-4ce5a51c5ddc",
+    "phase": "SOURCE_NOT_REQUIRED_FOR_RECOVERY",
     "hash_verified": false
   },
   "last_outcome": {
