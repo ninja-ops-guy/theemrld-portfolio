@@ -1363,6 +1363,7 @@ Sequential Playback: ON (no overlap)`);
           key={currentTrack?.url || 'preview'}
           isPlaying={isPlaying}
           positionMs={playbackPositionMs}
+          positionSampledAt={audio.positionSampledAt}
           playbackRate={audio.rate}
           trackId={currentTrack?.url}
           trackTitle={currentTrack?.title}
