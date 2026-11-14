@@ -20,7 +20,7 @@
       "first_run": "43563402320"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "STAGED_QUALIFICATION_BLOCKED",
   "last_request": "g-nine-stage-reconcile-20261114-0550",
   "last_run": "43563402320",
   "source": {
@@ -30,13 +30,13 @@
     "hash_verified": false
   },
   "last_outcome": {
-    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43562985054",
+    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43563402320",
     "jobs": {
       "resolve": "success",
       "prepare": "skipped",
-      "stage": "failure",
-      "staged": "skipped",
-      "qualify": "skipped",
+      "stage": "success",
+      "staged": "success",
+      "qualify": "failure",
       "checkpoint": "skipped",
       "publish": "skipped"
     }
