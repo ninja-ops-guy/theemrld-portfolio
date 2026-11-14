@@ -116,6 +116,11 @@ test('marking a phrase aligns the pulse and counts backward from the marked down
 test('an exact bar boundary lands on the next frame at fractional tempos', () => {
   for (const bpm of [117.12, 152.4]) {
     const beatMs = 60000 / bpm;
+    for (const position of [2733, 45000, 55000]) {
+      const markedOffset = bandPhraseOffset(markBandDownbeat(position, bpm));
+      assert.equal(bandFrame(position, bpm, markedOffset, 16, 64), 0);
+      assert.equal(bandFrame(position - 1, bpm, markedOffset, 16, 64), 63);
+    }
     const offsetMs = bandPhraseOffset(markBandDownbeat(45000, bpm));
     for (let loop = 0; loop < 48; loop++) {
       const boundary = offsetMs + loop * 16 * beatMs;

@@ -65,8 +65,10 @@ export function bandPhraseOffset({ bpm, offsetMs, downbeatMs }: BandTiming): num
   if (downbeatMs === undefined) return offsetMs;
   const beatMs = 60000 / bpm;
   const phraseMs = BAND_PHRASE_BEATS * beatMs;
-  // Snap to the current beat grid, then count backward so seeks before the mark stay in the phrase grid.
-  const start = offsetMs + Math.round((downbeatMs - offsetMs) / beatMs) * beatMs;
+  const beat = offsetMs + Math.round((downbeatMs - offsetMs) / beatMs) * beatMs;
+  // Honor the exact mark within the integer offset's rounding error.
+  const start = Math.abs(beat - downbeatMs) <= 0.5 + 1e-8 ? downbeatMs : beat;
+  // Count backward so seeks before the mark stay in the phrase grid.
   return start - Math.ceil(start / phraseMs) * phraseMs;
 }
 
