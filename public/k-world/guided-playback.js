@@ -38,8 +38,11 @@ export class GuidedPlayback {
       && previous.revision === this.location.revision && this.location.page === previous.page + 1;
     const cue = resolveGuidedCue(this.score, this.location);
     const quiet = this.score.quietPages?.some(page => page.edition === this.location?.edition && page.number === this.location?.page);
+    const immediate = cue && this.score.immediateCuePages?.some(
+      page => page.edition === cue.edition && page.number === this.location.page,
+    );
     const { position: elapsed, status, pausedByUser } = this.music.state;
-    if (movingForward && !quiet && this.activeCue && cueKey(cue) !== this.activeKey && !pausedByUser
+    if (movingForward && !quiet && !immediate && this.activeCue && cueKey(cue) !== this.activeKey && !pausedByUser
       && ['loading', 'ready', 'playing'].includes(status) && elapsed < (this.score.minimumPlayMs ?? 0)) {
       this.waitingForMinimum = true;
       this.setNotice(`${this.activeCue.title} · finishing its ${this.score.minimumPlayMs / 1000}-second minimum.`);

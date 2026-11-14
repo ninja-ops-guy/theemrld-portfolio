@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Sequencer, SoundCloudPort } from '../public/k-world/audio.js';
 import { GuidedPlayback } from '../public/k-world/guided-playback.js';
 import { emptyGuidedScore, GUIDED_EDITIONS } from '../public/k-world/guided.js';
@@ -359,4 +360,22 @@ test('a cue finishes its minimum across an ordinary unmapped page and then goes 
   assert.equal(music.state.current.id, 'test-a');
   music.progress(token, 30000);
   assert.equal(music.state.current, null);
+});
+
+test('rapid forward turns follow Iona’s published escape cues and restore the minimum afterward', () => {
+  const { guided, music, calls } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(51, 'g'));
+  guided.setEnabled(true);
+  const original = music.state.current.id;
+  for (const page of [52, 53, 54, 55, 56, 57, 58, 59, 60, 61]) {
+    guided.setLocation(position(page, 'g'));
+  }
+  assert.deepEqual(loads(calls).map(call => call[1]), [
+    original, 'g-53-function-2', 'iona-escape', 'iona-dock-jump', 'iona-escape-dawn',
+  ]);
+  assert.equal(music.state.current.title, 'Somewhere Deep Down Below');
+  assert.equal(guided.waitingForMinimum, true);
+  playing(music);
+  assert.equal(music.state.current.title, 'Technical Decimal');
 });
