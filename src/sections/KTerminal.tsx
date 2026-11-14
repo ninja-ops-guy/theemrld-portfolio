@@ -571,6 +571,8 @@ export default function KTerminal({
     return () => { autocomplete.destroy(); autocompleteRef.current = null; };
   }, [bootPhase]);
   const isPlaying = audio.status === 'playing';
+  const playbackPending = audio.status === 'loading' || audio.status === 'ready';
+  const soundCloudNeedsTap = audio.current?.provider === 'soundcloud' && audio.status === 'paused' && !audio.pausedByUser;
   const volume = audio.volume;
   const playbackPositionMs = audio.position;
   const progress = audio.duration > 0 ? Math.max(0, Math.min(100, audio.position / audio.duration * 100)) : 0;
@@ -584,7 +586,6 @@ export default function KTerminal({
     duration: audio.duration,
     plays: tracks.find((track) => track.url === audio.current?.url)?.plays ?? 0,
   } : null;
-  const [isMobile, setIsMobile] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
   const playbackRate = audio.rate;
   const [visualizerEnabled, setVisualizerEnabled] = useState(true);
@@ -624,12 +625,6 @@ export default function KTerminal({
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks)); } catch (_) {} }, [tracks]);
   useEffect(() => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, autoDj })); } catch (_) {} }, [volume, visualizerEnabled, visualizerBars, visualizerFps, playbackRate, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, autoDj]);
 
-  // Detect mobile on mount
-  useEffect(() => {
-    const mobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setIsMobile(mobile);
-  }, []);
-
   // Low-FPS terminal art clock: intentionally stepped to preserve the retro CRT feel.
   useEffect(() => {
     const timer = window.setInterval(() => setAsciiTick((n) => (n + 1) % 240), Math.max(50, Math.round(1000 / ritualFps)));
@@ -653,7 +648,6 @@ export default function KTerminal({
     bootSequence();
   }, []);
 
-  // Keep input focused
   useEffect(() => {
     if (bootPhase === 'done') {
       inputRef.current?.focus();
@@ -686,7 +680,6 @@ export default function KTerminal({
     addLine('Type <span class="tc-command">latest</span> to play the newest verified track, then <span class="tc-command">background on</span> to keep listening in the comic.');
     addLine('Type <span class="tc-command">\'list\'</span> to see available tracks.');
     addLine('Type <span class="tc-command">\'help\'</span> for all commands.');
-    addLine('Or <span class="tc-cyan">CLICK on any track below to play</span>');
     addLine('');
   }, [addLine]);
 
@@ -719,6 +712,10 @@ export default function KTerminal({
     if (audio.error && audio.error !== lastAudioErrorRef.current) addLine(audio.error, 'error');
     lastAudioErrorRef.current = audio.error;
   }, [audio.error, addLine]);
+
+  useEffect(() => {
+    if (soundCloudNeedsTap) addLine('Type <span class="tc-command">player</span> and press Play in SoundCloud to continue.');
+  }, [soundCloudNeedsTap, addLine]);
 
   // Visualizer
   const startVisualizer = useCallback(() => {
@@ -774,7 +771,6 @@ export default function KTerminal({
     if (!url) { addLine('Use a public HTTPS SoundCloud track URL.', 'error'); return; }
     selectSharedTrack({ url, title: track.title });
     addLine(`Loading track ${track.id}: ${track.title}...`);
-    addLine('If the browser requests a playback gesture, use resume or the player’s Play button.');
   }, [addLine, selectSharedTrack]);
 
   const playUrl = useCallback((value: string) => {
@@ -795,6 +791,13 @@ export default function KTerminal({
       autoDj,
     });
   }, [isPlaying, playbackPositionMs, currentTrack?.duration, currentTrack?.title, worldAudioZone, autoDj, onAudioState]);
+
+  const canOpenPlayer = audio.current?.provider === 'soundcloud' && !audio.pausedByUser &&
+    (audio.status === 'ready' || isPlaying || soundCloudNeedsTap);
+  const pausePlayback = isPlaying || playbackPending;
+  const startLatest = !audio.current && !music.guided;
+  const playbackLabel = pausePlayback ? 'Pause' : soundCloudNeedsTap ? 'Play in SoundCloud'
+    : audio.status === 'error' ? 'Retry playback' : startLatest ? 'Play latest' : 'Resume';
 
   // Terminal commands
   const executeCommand = useCallback((cmd: string, args: string[]) => {
@@ -826,6 +829,7 @@ export default function KTerminal({
   <span class="tc-command">skip</span>              - End current song now and play queued room
   <span class="tc-command">pause</span>             - Pause current track
   <span class="tc-command">resume</span>            - Resume paused track
+  <span class="tc-command">player</span>            - Open the current SoundCloud player
   <span class="tc-command">stop</span>              - Stop playback
   <span class="tc-command">volume [0-100]</span>    - Set volume level
   <span class="tc-command">speed [0.5-2]</span>      - Set playback speed when provider supports it
@@ -947,6 +951,13 @@ export default function KTerminal({
       case 'latest':
         sendCommand('latest');
         addLine('Selecting the newest verified release...');
+        break;
+
+      case 'player':
+        if (canOpenPlayer) music.openSoundCloud(inputRef.current);
+        else if (audio.current?.provider === 'soundcloud' && audio.pausedByUser) addLine('Type resume to resume the paused track.');
+        else if (audio.current?.provider === 'soundcloud' && playbackPending) addLine('The SoundCloud player is still loading.');
+        else addLine('Play a SoundCloud track to open its player.');
         break;
 
       case 'background': {
@@ -1160,7 +1171,7 @@ Sequential Playback: ON (no overlap)`);
       default:
         addLine(`Command not found: ${cmd}. Type "help" for available commands.`, 'error');
     }
-  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, pendingZone, audio, audioStatus, music, catalogue, catalogueStatus, sendCommand]);
+  }, [tracks, currentTrack, volume, isPlaying, playbackRate, visualizerEnabled, visualizerBars, visualizerFps, ritualEnabled, ritualIntensity, ritualFps, bandEnabled, addLine, playTrack, playUrl, stopVisualizer, navigate, embedded, onExitToCity, onExitToGallery, autoDj, worldAudioZone, pendingZone, audio, audioStatus, music, catalogue, catalogueStatus, sendCommand, canOpenPlayer, playbackPending]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -1358,6 +1369,21 @@ Sequential Playback: ON (no overlap)`);
         </div>
         <div ref={suggestionsRef} hidden />
 
+        <details className="kt-music-controls">
+          <summary>Music controls</summary>
+          <div className="kt-transport">
+            <button type="button" onClick={event => {
+              if (soundCloudNeedsTap) music.openSoundCloud(event.currentTarget);
+              else sendCommand(pausePlayback ? 'pause' : startLatest ? 'latest' : 'resume');
+            }}>{playbackLabel}</button>
+            <button type="button" disabled={!audio.current || playbackPending} onClick={() => sendCommand('next')}>Next track</button>
+            {!startLatest && <button type="button" onClick={() => sendCommand('latest')}>Play latest</button>}
+            <label>Volume <input type="range" min="0" max="100" value={volume} onChange={event => music.setVolume(Number(event.target.value))} /></label>
+          </div>
+          {soundCloudNeedsTap && <p role="status">Open the player and press Play in SoundCloud.</p>}
+          {audio.error && <p role="status">{audio.error}</p>}
+        </details>
+
         {/* TechOps ensemble follows the shared audio playback clock. */}
         <KBandStage
           key={currentTrack?.url || 'preview'}
@@ -1387,40 +1413,28 @@ Sequential Playback: ON (no overlap)`);
         {/* Click-to-play track list */}
         <div className="kt-click-play">
             <div className="kt-click-header">
-              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · latest releases + your saved library
+              <span className="kt-cyan">@raikouno</span> · latest releases + your saved library
               <div style={{ color: '#aadfba', marginTop: 6 }}>{catalogueStatus || 'Checking the latest releases…'} · background {music.background ? 'on' : 'off'} · guided {music.guided ? 'on' : 'off'}</div>
             </div>
-            {isMobile && (
-              <div
-                className="kt-mobile-play-hint"
-                style={{
-                  fontSize: '11px',
-                  color: '#008f11',
-                  marginBottom: '8px',
-                  textAlign: 'center',
-                  padding: '6px',
-                  border: '1px dashed #008f11',
-                }}
-              >
-                Tap any track below to start playback
-              </div>
-            )}
             <ul className="kt-track-list">
               {tracks.map((track) => (
-                <li
-                  key={track.id}
-                  className={`kt-track-item ${currentTrack && currentTrack.url === track.url ? 'kt-playing' : ''}`}
-                  onClick={() => playTrack(track)}
-                >
-                  <span className="kt-track-number">[{String(track.id).padStart(2, '0')}]</span>
-                  <span className="kt-track-title">{track.title}</span>
-                  <span className="kt-track-plays">
-                    {track.plays >= 1000
-                      ? `${(track.plays / 1000).toFixed(track.plays >= 10000 ? 0 : 1)}K plays`
-                      : track.plays > 0
-                        ? `${track.plays} plays`
-                        : '--'}
-                  </span>
+                <li key={track.url}>
+                  <button
+                    type="button"
+                    className={`kt-track-item ${currentTrack?.url === track.url ? 'kt-playing' : ''}`}
+                    aria-current={currentTrack?.url === track.url || undefined}
+                    onClick={() => playTrack(track)}
+                  >
+                    <span className="kt-track-number" aria-hidden="true">[{String(track.id).padStart(2, '0')}]</span>
+                    <span className="kt-track-title">{track.title}</span>
+                    <span className="kt-track-plays" aria-hidden="true">
+                      {track.plays >= 1000
+                        ? `${(track.plays / 1000).toFixed(track.plays >= 10000 ? 0 : 1)}K plays`
+                        : track.plays > 0
+                          ? `${track.plays} plays`
+                          : '--'}
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -1724,6 +1738,44 @@ Sequential Playback: ON (no overlap)`);
           color: #008f11;
         }
 
+        .kt-music-controls {
+          flex: 0 0 auto;
+          border-block-end: 1px solid #008f11;
+          margin-bottom: 12px;
+          color: #a8e7b6;
+          font-size: 13px;
+        }
+        .kt-music-controls summary {
+          width: fit-content;
+          padding: 12px 8px;
+          min-height: 44px;
+          cursor: pointer;
+        }
+        .kt-transport {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          padding: 0 8px 12px;
+        }
+        .kt-transport button {
+          min-height: 44px;
+          border: 1px solid #008f11;
+          padding: 6px 10px;
+          color: #baffc9;
+          background: #04150a;
+        }
+        .kt-transport button:first-child { border-color: #00ff41; color: #00ff41; }
+        .kt-transport button:not(:disabled):hover { background: #0a2a13; }
+        .kt-transport button:disabled { opacity: .5; cursor: default; }
+        .kt-transport label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+        .kt-transport input { width: 86px; min-height: 32px; accent-color: #00ff41; }
+        .kt-music-controls p { padding: 0 8px 12px; margin: 0; }
+        .kt-music-controls :focus-visible, .kt-track-item:focus-visible {
+          outline: 2px solid #9affaa;
+          outline-offset: -2px;
+        }
+
         /* Click-to-play area */
         .kt-click-play {
           flex: 0 0 auto;
@@ -1750,6 +1802,8 @@ Sequential Playback: ON (no overlap)`);
           padding: 0;
         }
         .kt-track-item {
+          width: 100%;
+          text-align: left;
           padding: 8px 10px;
           cursor: pointer;
           transition: all 0.3s;

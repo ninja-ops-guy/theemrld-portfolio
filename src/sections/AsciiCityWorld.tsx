@@ -21,7 +21,7 @@ type MusicContextValue = {
   sendCommand: (raw: string) => void;
   playTrack: (track: { url: string; title: string }, autoplay?: boolean) => void;
   setVolume: (volume: number) => void; seek: (ms: number) => void;
-  openComments: () => void; openScore: () => void; openSoundCloud: () => void;
+  openComments: () => void; openScore: () => void; openSoundCloud: (trigger?: HTMLElement | null) => void;
   setReader: (position: ReaderPosition | null) => void; usePublishedScore: () => void;
 };
 const MusicContext = createContext<MusicContextValue | null>(null);
@@ -66,7 +66,8 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   const [scoreSource, setScoreSource] = useState<'published' | 'draft'>('published');
   const [scoreOpen, setScoreOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [providerOpen, setProviderOpen] = useState(false);
+  const [providerPath, setProviderPath] = useState<string | null>(null);
+  const providerTrigger = useRef<HTMLElement | null>(null);
   const [sessionError, setSessionError] = useState('');
 
   const post = useCallback((message: SessionMessage) => {
@@ -82,7 +83,18 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   const setVolume = useCallback((volume: number) => send({ type: 'k-world:volume', volume }), [send]);
   const seek = useCallback((ms: number) => send({ type: 'k-world:seek', ms }), [send]);
   const openComments = useCallback(() => setCommentsOpen(true), []);
-  const openSoundCloud = useCallback(() => setProviderOpen(true), []);
+  const openSoundCloud = useCallback((trigger?: HTMLElement | null) => {
+    providerTrigger.current = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setProviderPath(location.pathname);
+  }, [location.pathname]);
+  const closeSoundCloud = useCallback(() => {
+    const trigger = providerTrigger.current;
+    providerTrigger.current = null;
+    setProviderPath(null);
+    requestAnimationFrame(() => {
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    });
+  }, []);
   const openScore = useCallback(() => setScoreOpen(true), []);
   const setReader = useCallback((position: ReaderPosition | null) => {
     readerRef.current = position;
@@ -154,7 +166,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
           if (Array.isArray(data.tracks)) setCatalogue(data.tracks);
           if (typeof data.status === 'string') setCatalogueStatus(data.status);
           break;
-        case 'k-world:provider-close': setProviderOpen(false); break;
+        case 'k-world:provider-close': closeSoundCloud(); break;
         case 'k-world:comment': setCommentsOpen(true); break;
         case 'k-world:guided-editor': setScoreOpen(true); break;
         case 'k-world:comic': navigate('/comic?from=world'); break;
@@ -163,7 +175,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);
-  }, [navigate, post]);
+  }, [navigate, post, closeSoundCloud]);
 
   useEffect(() => {
     if (worldVisible || terminalVisible) setStarted(true);
@@ -193,10 +205,13 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   }, [post]);
 
   const isComic = location.pathname === '/comic';
-  const providerVisible = isComic && providerOpen;
+  const providerVisible = providerPath === location.pathname && (isComic || terminalVisible);
   useEffect(() => {
-    if (!isComic) setProviderOpen(false);
-  }, [isComic]);
+    if (providerPath && providerPath !== location.pathname) {
+      providerTrigger.current = null;
+      setProviderPath(null);
+    }
+  }, [location.pathname, providerPath]);
   useEffect(() => {
     if (ready) post({ type: 'k-world:provider', open: providerVisible });
   }, [ready, providerVisible, post]);
@@ -206,7 +221,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     {children}
     {started && <iframe
       ref={frame} src={source}
-      title={providerVisible ? 'SoundCloud soundtrack controls' : 'K // THE EMRLD — shared world and music player'}
+      title={providerVisible ? 'SoundCloud playback controls' : 'K // THE EMRLD — shared world and music player'}
       allow="autoplay; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
       tabIndex={worldVisible || providerVisible ? 0 : -1} aria-hidden={!worldVisible && !providerVisible} inert={!worldVisible && !providerVisible}
       className={worldVisible ? 'k-session-frame' : providerVisible ? 'k-session-frame k-session-frame-provider' : 'k-session-frame k-session-frame-background'}
