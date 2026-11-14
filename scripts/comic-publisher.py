@@ -88,7 +88,10 @@ def load_manifest(path: Path) -> dict:
 def validate_v2(m: dict) -> dict:
     need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,79}', m['id'])), 'Invalid release ID')
     need(m.get('publication_policy') == 'current-only', 'Current-only publication policy required')
-    need(m['edition'] in ('g', 'xiii-r', 'xiv'), 'Unknown current edition')
+    catalogue = json.loads((Path(__file__).resolve().parents[1] / 'src/data/comic-publication-catalogue.json').read_text())
+    need(catalogue.get('publicationPolicy') == 'current-only', 'Current-only catalogue required')
+    registered = {b['id']: b['pageCount'] for b in catalogue['books']}
+    need(m['edition'] in registered and m['edition'] not in ('f', 'xiii', 'legacy'), 'Unknown current edition')
     need(bool(re.fullmatch('[a-f0-9]{40}', m['base_media_commit'])), 'Immutable base media commit required')
     target, source, pdf = m['target'], m['source'], m['pdf']
     need(bool(re.fullmatch(r'(?:release|publisher)/[A-Za-z0-9_./-]+', target['branch']))
@@ -391,4 +394,3 @@ if __name__ == '__main__':
     except (GateError, KeyError, OSError, zipfile.BadZipFile, json.JSONDecodeError) as exc:
         print(f'PUBLISHING_BLOCKED: {exc}', file=sys.stderr)
         sys.exit(2)
-

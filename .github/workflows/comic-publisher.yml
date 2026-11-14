@@ -346,6 +346,10 @@ jobs:
             const plan=JSON.parse(fs.readFileSync('publisher-plan.json'));
             const m=JSON.parse(fs.readFileSync(`publishing/releases/${plan.id}.json`));
             const record=await c.readState(github,context.repo,m.id);
+            if (plan.recover !== 'true') {
+              const {data} = await github.rest.actions.listWorkflowRuns({...context.repo, workflow_id:'comic-final-collection.yml', head_sha:record.value.qualification.head, per_page:100});
+              c.requireCollectionAcceptance(data.workflow_runs, record.value.qualification.head);
+            }
             const result=await c.publishOrResume(github,context.repo,record,m,plan.request,context.runId,c.atomicFastForwardWithGit);
             await core.summary.addHeading(result.phase).addRaw(`Release: ${m.id}; merge: ${result.merge_sha}. Only PUBLISHED_HASH_VERIFIED confirms completion.\n`).write();
   report:

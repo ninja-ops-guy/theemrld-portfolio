@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "publicationPolicy": "current-only",
+  "books": [
+    {
+      "id": "g",
+      "pageCount": 316
+    },
+    {
+      "id": "xiii-r",
+      "pageCount": 49
+    },
+    {
+      "id": "xiv",
+      "pageCount": 133
+    }
+  ]
+}

@@ -203,3 +203,10 @@ export async function recordLiveReceipt(github, repo, releaseId, manifestHash, c
   record.value.live_receipt = receipt;
   await saveState(github, repo, record, commit);
 }
+
+export function requireCollectionAcceptance(runs, head) {
+  const matching = runs.filter(r => r.head_sha === head && r.path === '.github/workflows/comic-final-collection.yml');
+  matching.sort((a,b) => b.id - a.id);
+  need(matching[0]?.status === 'completed' && matching[0]?.conclusion === 'success', 'COLLECTION_ACCEPTANCE_REQUIRED: run comic-final-collection.yml at the exact candidate head');
+  return matching[0].id;
+}
