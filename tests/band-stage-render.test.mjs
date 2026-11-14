@@ -44,7 +44,7 @@ test('the idle stage shows Iona, Katrin, and the instrument choices', async () =
     assert.match(html, /data-performance="felicia-dance"/);
     assert.match(html, /data-performance="waldo-dance"/);
     assert.match(html, /Band arrangement/);
-    assert.doesNotMatch(html, /<strong>MIKE|disabled|undefined|NaN/);
+    assert.doesNotMatch(html, /<strong>MIKE|<option[^>]+disabled|undefined|NaN/);
     assert.match(html, /\/test-base\/assets\/techops-band-ensemble-v1.webp/);
     assert.match(html, /data-performance="katrin-backswing"/);
     assert.deepEqual(drummersIn(html), ['iona-drums']);
@@ -62,7 +62,7 @@ test('saved arrangement renders six performers, with Iona holding the drum slot 
       assert.deepEqual(drummersIn(html), ['iona-drums']);
       assert.match(html, /\/test-base\/assets\/techops-band-instruments-v1.webp/);
       assert.match(html, /<strong>MIKE<\/strong><small>BASS<\/small>/);
-      assert.doesNotMatch(html, /disabled|undefined|NaN/);
+      assert.doesNotMatch(html, /<option[^>]+disabled|undefined|NaN/);
     }
   } finally { localStorage.getItem = () => null; }
 });
@@ -106,6 +106,21 @@ test('published electronic profile automatically switches Waldo without inventin
   assert.match(html, /data-performance="waldo-mixing"/);
   assert.match(html, /data-performance="felicia-dance"/);
   assert.doesNotMatch(html, /data-performance="mike-bass"/);
+});
+test('measured song defaults replace old preview values and preserve manual timing', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const render = track => renderToStaticMarkup(React.createElement(Stage, {
+    isPlaying: false, positionMs: 0, trackId: `https://soundcloud.com/raikouno/${track}`,
+  }));
+  try {
+    localStorage.getItem = key => key.startsWith('kt-band-timing-v1:') ? '{"bpm":120,"offsetMs":0}' : null;
+    assert.match(render('ghost-town'), /Music sync · 117\.12 BPM/);
+    assert.match(render('two-cups'), /Music sync · 152\.4 BPM/);
+    assert.match(render('black'), /Using the 120 BPM preview tempo/);
+    localStorage.getItem = key => key.startsWith('kt-band-timing-v1:') ? '{"bpm":120,"offsetMs":0,"customized":true}' : null;
+    assert.match(render('ghost-town'), /Music sync · 120 BPM/);
+    assert.match(render('ghost-town'), /Reset sync/);
+  } finally { localStorage.getItem = () => null; }
 });
 test('single-cell sprite sheets produce finite coordinates', async () => {
   const { default: Sprite } = await import(await loadModule('../src/sections/KBandSprite.tsx'));

@@ -162,3 +162,50 @@ export function groupShuffleFrame(positionMs: number, bpm: number, offsetMs: num
   const frame = bandFrame(positionMs, bpm, offsetMs, 16, framesPerBeat * 16);
   return frame >= firstFrame && frame < firstFrame + GROUP_SHUFFLE.columns ? frame - firstFrame : null;
 }
+
+const SOLO_DANCES = {
+  'felicia-dance': [
+    { name: 'scissor-kick', frames: [0, 1, 2, 2, 3, 3, 4, 0], x: [0, -2, -5, -3, 4, 5, 2, 0] },
+    { name: 'kick-and-hold', frames: [0, 1, 3, 3, 3, 4, 2, 0], x: [0, 2, 5, 5, 5, 2, -3, 0] },
+  ],
+  'waldo-dance': [
+    { name: 'low-sweep', frames: [0, 1, 2, 3, 4, 3, 4, 0], x: [0, -2, -3, 3, 2, 3, 2, 0] },
+    { name: 'one-arm-freeze', frames: [0, 0, 1, 2, 3, 3, 3, 4], x: [0, 0, -2, -3, 3, 3, 3, 0] },
+  ],
+} as const;
+
+export function soloDancePose(id: PerformanceId, positionMs: number, bpm: number, offsetMs: number) {
+  if (positionMs < offsetMs || (id !== 'felicia-dance' && id !== 'waldo-dance')) return null;
+  const phrase = bandFrame(positionMs, bpm, offsetMs, 8, 2);
+  const dance = SOLO_DANCES[id][phrase];
+  const frame = bandFrame(positionMs, bpm, offsetMs, 2, dance.frames.length);
+  return { name: dance.name, frame: dance.frames[frame], x: dance.x[frame] };
+}
+
+const GROUP_DANCES = {
+  'two-step': { frames: [0, 3, 5, 3, 10, 13, 15, 13], x: [0, -3, -6, -3, 0, 3, 6, 3], y: [0, -2, 0, 0, 0, -2, 0, 0] },
+  'call-and-response': { frames: [0, 2, 5, 8, 8, 5, 2, 0], x: [0, 0, -2, -4, -4, -2, 0, 0], y: [0, -2, -4, 0, 0, -4, -2, 0] },
+} as const;
+
+export type GroupDance = { name: 'skeleton-shuffle' | keyof typeof GROUP_DANCES; frame: number };
+
+export function groupDanceAt(positionMs: number, bpm: number, offsetMs: number): GroupDance | null {
+  if (positionMs < offsetMs) return null;
+  const shuffle = groupShuffleFrame(positionMs, bpm, offsetMs);
+  if (shuffle !== null) return { name: 'skeleton-shuffle', frame: shuffle };
+  const frame = bandFrame(positionMs, bpm, offsetMs, 16, 64);
+  if (frame >= 32 && frame < 40) return { name: 'two-step', frame: frame - 32 };
+  if (frame >= 56) return { name: 'call-and-response', frame: frame - 56 };
+  return null;
+}
+
+export function groupDancePose(dance: GroupDance, actor: Performer['actor']) {
+  const row = GROUP_SHUFFLE.rowByActor[actor];
+  const firstCell = row * GROUP_SHUFFLE.columns;
+  if (dance.name === 'skeleton-shuffle') return { cell: firstCell + dance.frame, x: 0, y: 0 };
+  const steps = GROUP_DANCES[dance.name];
+  // Opposite sides of the lineup answer on the next beat.
+  const response = dance.name === 'call-and-response' && row % 2 === 1;
+  const frame = response ? (dance.frame + 4) % steps.frames.length : dance.frame;
+  return { cell: firstCell + steps.frames[frame], x: steps.x[frame] * (response ? -1 : 1), y: steps.y[frame] };
+}

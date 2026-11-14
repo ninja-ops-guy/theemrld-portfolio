@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {Sequencer,canonicalUrl,newestProfileTracks,reactiveEnvelope} from '../public/k-world/audio.js';
+import {Sequencer,SoundCloudPort,canonicalUrl,newestProfileTracks,reactiveEnvelope} from '../public/k-world/audio.js';
 const t=n=>({id:n,title:n,url:'https://soundcloud.com/raikouno/'+n,provider:'soundcloud'});
 const playlists={gallery:[t('g1'),t('g2')],city:[t('c1'),t('c2')],moon:[t('m1')],same:[t('g1')]};
 function setup(){const calls=[],port={load:(t,g)=>calls.push(['load',t.id,g]),play:()=>calls.push(['play']),pause:()=>calls.push(['pause']),seek:n=>calls.push(['seek',n]),rate:()=>false};const s=new Sequencer(port,playlists);s.setZone('gallery');return {s,calls,port};}
@@ -56,4 +56,176 @@ test('Latest-first default progresses through uploads then queues the next room'
 test('Empty latest playlist cannot displace the existing room soundtrack',()=>{
  const calls=[],s=new Sequencer({load:t=>calls.push(t.id)}, {...playlists,latest:[]});
  assert.equal(s.startZone('latest'),false);assert.deepEqual(calls,[]);
+});
+
+test('Transport samples keep their original clock time and discard older samples',()=>{
+ const {s}=setup();
+ s.arm();
+ const token=s.generation;
+ s.ready(token,180000);
+ const start=performance.timeOrigin+performance.now();
+ s.playing(token,0,start);
+ s.progress(token,1200,180000,start+1200);
+ s.progress(token,1100,180000,start+1100);
+ s.volume(20);
+ assert.equal(s.state.position,1200);
+ assert.equal(s.state.positionSampledAt,start+1200);
+ s.select(t('next'));
+ assert.equal(s.state.position,0);
+ assert.equal(s.state.positionSampledAt,null);
+ s.progress(token,1400,180000,start+1400);
+ assert.equal(s.state.positionSampledAt,null);
+});
+
+test('A paused seek publishes its new position immediately and keeps the pause',()=>{
+ const {s,calls}=setup();
+ s.arm();
+ playing(s);
+ s.pause();
+ let change;
+ s.addEventListener('change',event=>{change=event.detail;});
+ s.seek(4000);
+ assert.deepEqual(calls.at(-1),['seek',4000]);
+ assert.equal(change.status,'paused');
+ assert.equal(change.position,4000);
+ assert.equal(change.positionDiscontinuity,true);
+ assert.ok(change.positionSampledAt>=performance.timeOrigin);
+});
+
+async function setupWidget(context){
+ const listeners=new Map(),soundRequests=[],positionRequests=[],loads=[];
+ const widget={
+  bind(name,callback){listeners.set(name,callback);if(name==='READY')queueMicrotask(callback);},
+  unbind(name){listeners.delete(name);},
+  getSounds(callback){callback([]);},
+  getDuration(callback){callback(180000);},
+  getCurrentSound(callback){soundRequests.push(callback);},
+  getPosition(callback){positionRequests.push(callback);},
+  isPaused(callback){callback(widget.paused);},
+  load(url,options){loads.push({url,...options});},
+  play(){widget.paused=false;},
+  pause(){widget.paused=true;},
+  seekTo(position){widget.seekTarget=position;},
+  setVolume(){},
+ };
+ const Widget=()=>widget;
+ Widget.Events=Object.fromEntries(['READY','PLAY','PAUSE','PLAY_PROGRESS','SEEK','FINISH','ERROR'].map(name=>[name,name]));
+ const previousWindow=globalThis.window,previousDocument=globalThis.document;
+ globalThis.window={SC:{Widget}};
+ globalThis.document={createElement:()=>({style:{},remove(){}})};
+ const port=new SoundCloudPort({replaceChildren(){}});
+ const music=new Sequencer(port);
+ context.after(()=>{
+  port.destroy();
+  if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;
+  if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;
+ });
+ await port.init();
+ const select=async track=>{
+  music.select(track);
+  await Promise.resolve();
+  assert.equal(loads.at(-1).url,track.url);
+  loads.at(-1).callback();
+ };
+ const emit=(event,detail)=>listeners.get(event)(detail);
+ return {music,widget,select,emit,soundRequests,positionRequests};
+}
+
+test('SoundCloud emits a paused seek at the event time for the current track',async context=>{
+ const {music,select,emit,soundRequests}=await setupWidget(context);
+ const first=t('first'),second=t('second');
+ await select(first);
+ music.pause();
+ emit('SEEK',{currentPosition:9200});
+ soundRequests.shift()({permalink_url:second.url});
+ assert.equal(music.state.position,0);
+
+ let change;
+ music.addEventListener('change',event=>{change=event.detail;});
+ emit('SEEK',{currentPosition:8400});
+ const afterEvent=performance.timeOrigin+performance.now();
+ soundRequests.shift()({permalink_url:first.url});
+ assert.equal(change.position,8400);
+ assert.equal(change.status,'paused');
+ assert.equal(change.positionDiscontinuity,true);
+ assert.ok(change.positionSampledAt<=afterEvent);
+
+ emit('SEEK',{currentPosition:38000});
+ const oldSeek=soundRequests.shift();
+ await select(second);
+ oldSeek({permalink_url:first.url});
+ assert.equal(music.state.position,0);
+});
+
+test('SoundCloud ignores delayed pause samples after resuming or seeking',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('first');
+ await select(track);
+ const sound={permalink_url:track.url};
+ const verifySound=()=>soundRequests.shift()(sound);
+ widget.paused=false;
+ emit('PLAY',{currentPosition:0});
+ verifySound();
+ emit('PLAY_PROGRESS',{currentPosition:0});
+ assert.equal(music.state.positionSampledAt,null);
+ emit('PLAY',{currentPosition:3000});
+ verifySound();
+ assert.equal(music.state.status,'playing');
+ music.pause();
+ emit('PAUSE');
+ verifySound();
+ const oldPause=positionRequests.shift();
+ music.resume();
+ emit('PLAY',{currentPosition:3300});
+ verifySound();
+ oldPause(3100);
+ assert.equal(music.state.status,'playing');
+ assert.equal(music.state.position,3300);
+
+ music.seek(12000);
+ assert.equal(widget.seekTarget,12000);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ assert.equal(music.state.position,12000);
+ emit('SEEK',{currentPosition:12000});
+ verifySound();
+ emit('PLAY_PROGRESS',{currentPosition:12100});
+ assert.equal(music.state.position,12100);
+});
+
+test('Local media samples its clock on pause, seek and playback-rate changes',context=>{
+ const previousAudio=globalThis.Audio;
+ class LocalMedia extends EventTarget {
+  duration=90;
+  currentTime=0;
+  paused=true;
+  endPlay;
+  load(){this.currentSrc=this.src;this.onloadedmetadata();}
+  play(){this.paused=false;this.dispatchEvent(new Event('playing'));return new Promise((_,reject)=>{this.endPlay=reject;});}
+  pause(){this.paused=true;}
+  removeAttribute(){this.onloadedmetadata=null;}
+ }
+ globalThis.Audio=LocalMedia;
+ context.after(()=>{
+  if(previousAudio===undefined)delete globalThis.Audio;else globalThis.Audio=previousAudio;
+ });
+ const port=new SoundCloudPort(null);
+ const music=new Sequencer(port);
+ music.select({...t('local'),provider:'local',url:'blob:local'});
+ const media=port.native;
+ assert.equal(music.state.status,'playing');
+ media.currentTime=2.25;
+ music.pause();
+ assert.equal(music.state.position,2250);
+ music.seek(9250);
+ assert.equal(media.currentTime,9.25);
+ assert.equal(music.state.position,9250);
+ assert.equal(music.state.status,'paused');
+ const firstPlay=media.endPlay;
+ music.resume();
+ firstPlay(Error('Previous play request was interrupted'));
+ media.currentTime=10;
+ music.rate(1.5);
+ assert.equal(music.state.position,10000);
+ assert.equal(music.state.status,'playing');
+ assert.equal(music.state.rate,1.5);
 });
