@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import * as SeekSlider from '@radix-ui/react-slider';
 import KBandStage from './KBandStage';
 import { K_ZONE_LABELS, K_ZONE_PLAYLISTS, type KAudioZone } from '../data/kAudioZones';
 import { useKMusic } from './AsciiCityWorld';
@@ -18,6 +19,55 @@ interface Track {
 interface TerminalLine {
   text: string;
   className?: string;
+}
+
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function TrackSeekBar({ position, duration, disabled, onSeek }: {
+  position: number;
+  duration: number;
+  disabled: boolean;
+  onSeek: (position: number) => void;
+}) {
+  const [scrubPosition, setScrubPosition] = useState<number | null>(null);
+  const dragging = useRef(false);
+  const max = Math.max(1000, Math.ceil(duration / 1000) * 1000);
+  const displayedPosition = Math.max(0, Math.min(duration, scrubPosition ?? position));
+
+  const endDrag = () => {
+    dragging.current = false;
+    setScrubPosition(null);
+  };
+
+  return <SeekSlider.Root
+    className="kt-seek"
+    min={0}
+    max={max}
+    step={1000}
+    value={[displayedPosition]}
+    disabled={disabled}
+    onPointerDown={() => {
+      if (disabled) return;
+      dragging.current = true;
+      setScrubPosition(displayedPosition);
+    }}
+    onPointerUp={endDrag}
+    onPointerCancel={endDrag}
+    onLostPointerCapture={endDrag}
+    onValueChange={([value]) => { if (dragging.current) setScrubPosition(value); }}
+    onValueCommit={([value]) => onSeek(Math.min(value, duration))}
+  >
+    <SeekSlider.Track className="kt-seek-track"><SeekSlider.Range className="kt-seek-range" /></SeekSlider.Track>
+    <SeekSlider.Thumb
+      className="kt-seek-thumb"
+      aria-label="Seek track"
+      aria-valuetext={`${formatTime(Math.floor(displayedPosition / 1000))} of ${formatTime(Math.floor(duration / 1000))}`}
+    />
+  </SeekSlider.Root>;
 }
 
 // Terminal styling is deliberately limited to known span classes. Track metadata,
@@ -531,7 +581,7 @@ export default function KTerminal({
 }: KTerminalProps = {}) {
   const navigate = useNavigate();
   const music = useKMusic();
-  const { audio, catalogue, catalogueStatus, sendCommand, playTrack: selectSharedTrack } = music;
+  const { audio, catalogue, catalogueStatus, sendCommand, seek, playTrack: selectSharedTrack } = music;
   const [terminalParams] = useSearchParams();
   const fromGallery = embedded || terminalParams.get('from') === 'gallery';
   const enterWorldScene = useCallback((scene: KWorldScene) => {
@@ -573,7 +623,7 @@ export default function KTerminal({
   const isPlaying = audio.status === 'playing';
   const volume = audio.volume;
   const playbackPositionMs = audio.position;
-  const progress = audio.duration > 0 ? Math.max(0, Math.min(100, audio.position / audio.duration * 100)) : 0;
+  const canSeek = Boolean(audio.current && audio.duration > 0 && (isPlaying || audio.status === 'paused'));
   const audioStatus = audio.status.toUpperCase();
   const autoDj = audio.mode === 'auto';
   const pendingZone = audio.pendingZone;
@@ -689,12 +739,6 @@ export default function KTerminal({
     addLine('Or <span class="tc-cyan">CLICK on any track below to play</span>');
     addLine('');
   }, [addLine]);
-
-  const formatTime = useCallback((seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, []);
 
   const timeDisplay = `${formatTime(Math.floor(audio.position / 1000))} / ${formatTime(Math.floor(audio.duration / 1000))}`;
 
@@ -1364,6 +1408,7 @@ Sequential Playback: ON (no overlap)`);
           isPlaying={isPlaying}
           positionMs={playbackPositionMs}
           positionSampledAt={audio.positionSampledAt}
+          positionEpoch={audio.positionEpoch}
           playbackRate={audio.rate}
           trackId={currentTrack?.url}
           trackTitle={currentTrack?.title}
@@ -1375,10 +1420,13 @@ Sequential Playback: ON (no overlap)`);
           <canvas ref={canvasRef} className="kt-canvas" />
         </div>
 
-        {/* Progress bar */}
-        <div className="kt-progress-container">
-          <div className="kt-progress-bar" style={{ width: `${progress}%` }} />
-        </div>
+        <TrackSeekBar
+          key={currentTrack?.url || 'idle'}
+          position={playbackPositionMs}
+          duration={audio.duration}
+          disabled={!canSeek}
+          onSeek={seek}
+        />
         <div className="kt-track-info">
           <span id="current-track">{currentTrack ? currentTrack.title.toUpperCase() : 'NO TRACK LOADED'}{pendingZone ? ` · NEXT: ${audioZoneLabel(pendingZone)}` : ''}</span>
           <span id="time-display">{timeDisplay}</span>
@@ -1700,20 +1748,39 @@ Sequential Playback: ON (no overlap)`);
         }
         .kt-canvas { width: 100%; height: 100%; display: block; }
 
-        .kt-progress-container {
+        .kt-seek {
+          align-items: center;
+          display: flex;
           flex: 0 0 auto;
           width: 100%;
-          height: 4px;
+          min-height: 28px;
+          touch-action: pan-y;
+          user-select: none;
+          cursor: pointer;
+        }
+        .kt-seek-track {
+          flex: 1;
+          height: 5px;
           background: #0d0208;
           border: 1px solid #008f11;
           position: relative;
         }
-        .kt-progress-bar {
+        .kt-seek-range {
+          position: absolute;
           height: 100%;
           background: #00ff41;
-          transition: width 0.1s linear;
           box-shadow: 0 0 10px #00ff41;
         }
+        .kt-seek-thumb {
+          display: block;
+          width: 12px;
+          height: 12px;
+          border: 1px solid #003a18;
+          border-radius: 50%;
+          background: #65ff8e;
+        }
+        .kt-seek-thumb:focus-visible { outline: 2px solid #00ffff; outline-offset: 3px; }
+        .kt-seek[data-disabled] { cursor: default; opacity: .5; }
         .kt-track-info {
           flex: 0 0 auto;
           display: flex;

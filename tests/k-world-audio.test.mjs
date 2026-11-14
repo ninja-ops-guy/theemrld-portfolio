@@ -126,13 +126,14 @@ async function setupWidget(context){
   await Promise.resolve();
   assert.equal(loads.at(-1).url,track.url);
   loads.at(-1).callback();
+  soundRequests.shift()({permalink_url:track.url,duration:180000});
  };
  const emit=(event,detail)=>listeners.get(event)(detail);
  return {music,widget,select,emit,soundRequests,positionRequests};
 }
 
-test('SoundCloud emits a paused seek at the event time for the current track',async context=>{
- const {music,select,emit,soundRequests}=await setupWidget(context);
+test('SoundCloud emits a paused seek only after checking the current track and position',async context=>{
+ const {music,select,emit,soundRequests,positionRequests}=await setupWidget(context);
  const first=t('first'),second=t('second');
  await select(first);
  music.pause();
@@ -143,12 +144,13 @@ test('SoundCloud emits a paused seek at the event time for the current track',as
  let change;
  music.addEventListener('change',event=>{change=event.detail;});
  emit('SEEK',{currentPosition:8400});
- const afterEvent=performance.timeOrigin+performance.now();
+ const eventAt=performance.timeOrigin+performance.now();
  soundRequests.shift()({permalink_url:first.url});
+ positionRequests.shift()(8400);
  assert.equal(change.position,8400);
  assert.equal(change.status,'paused');
  assert.equal(change.positionDiscontinuity,true);
- assert.ok(change.positionSampledAt<=afterEvent);
+ assert.ok(change.positionSampledAt>=eventAt);
 
  emit('SEEK',{currentPosition:38000});
  const oldSeek=soundRequests.shift();
@@ -166,11 +168,15 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  widget.paused=false;
  emit('PLAY',{currentPosition:0});
  verifySound();
+ positionRequests.shift()(0);
  emit('PLAY_PROGRESS',{currentPosition:0});
+ positionRequests.shift()(0);
  assert.equal(music.state.positionSampledAt,null);
- emit('PLAY',{currentPosition:3000});
+ emit('PLAY',{currentPosition:30000});
  verifySound();
+ positionRequests.shift()(3000);
  assert.equal(music.state.status,'playing');
+ assert.equal(music.state.position,3000);
  music.pause();
  emit('PAUSE');
  verifySound();
@@ -178,18 +184,132 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  music.resume();
  emit('PLAY',{currentPosition:3300});
  verifySound();
+ positionRequests.shift()(3300);
  oldPause(3100);
  assert.equal(music.state.status,'playing');
  assert.equal(music.state.position,3300);
 
+ const previousEpoch=music.state.positionEpoch;
  music.seek(12000);
  assert.equal(widget.seekTarget,12000);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
  emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(3500);
  assert.equal(music.state.position,12000);
  emit('SEEK',{currentPosition:12000});
  verifySound();
+ positionRequests.shift()(12000);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(3500);
+ assert.equal(music.state.position,12000);
  emit('PLAY_PROGRESS',{currentPosition:12100});
+ positionRequests.shift()(12100);
  assert.equal(music.state.position,12100);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+});
+
+test('SoundCloud progress cannot seed a replacement track with the previous track position',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('replacement');
+ await select(t('first'));
+ const previousEpoch=music.state.positionEpoch;
+ await select(track);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ assert.equal(music.state.positionSampledAt,null);
+ widget.paused=false;
+ emit('PLAY',{currentPosition:3500});
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(0);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(83);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(83);
+ assert.equal(music.state.position,83);
+});
+
+test('SoundCloud drops a stale seek payload without interfering with a later backward seek',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('backward');
+ await select(track);
+ const verifySound=()=>soundRequests.shift()({permalink_url:track.url});
+ widget.paused=false;
+ emit('PLAY');
+ verifySound();
+ positionRequests.shift()(30000);
+ const previousEpoch=music.state.positionEpoch;
+ emit('PLAY_PROGRESS',{currentPosition:30000});
+ const inFlightBeforeSeek=positionRequests.shift();
+ emit('SEEK',{currentPosition:1000});
+ verifySound();
+ positionRequests.shift()(30100);
+ assert.equal(music.state.position,30000);
+ assert.equal(music.state.positionEpoch,previousEpoch);
+
+ emit('SEEK',{currentPosition:12000});
+ verifySound();
+ positionRequests.shift()(12010);
+ inFlightBeforeSeek(12030);
+ assert.equal(music.state.position,12010);
+ emit('PLAY_PROGRESS',{currentPosition:30100});
+ positionRequests.shift()(30100);
+ assert.equal(music.state.position,12010);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+});
+
+test('SoundCloud queries one progress sample at a time and recovers a dropped response',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('progress-probe');
+ await select(track);
+ widget.paused=false;
+ emit('PLAY');
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(0);
+ const expiration=[];
+ music.port.later=(callback,delay)=>{if(delay===1000)expiration.push(callback);};
+ emit('PLAY_PROGRESS',{currentPosition:7000});
+ emit('PLAY_PROGRESS',{currentPosition:8000});
+ assert.equal(positionRequests.length,1);
+ expiration.shift()();
+ emit('PLAY_PROGRESS',{currentPosition:9000});
+ const obsolete=positionRequests.shift();
+ const current=positionRequests.shift();
+ obsolete(7000);
+ assert.equal(music.state.position,0);
+ current(100);
+ assert.equal(music.state.position,100);
+});
+
+test('A stale FINISH payload cannot finish a replacement track',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('replacement');
+ await select(t('first'));
+ await select(track);
+ const verifySound=()=>soundRequests.shift()({permalink_url:track.url,duration:180000});
+ widget.paused=false;
+ emit('PLAY');
+ verifySound();
+ positionRequests.shift()(200);
+ emit('FINISH',{currentPosition:180000});
+ verifySound();
+ positionRequests.shift()(200);
+ assert.equal(music.state.status,'playing');
+
+ music.seek(179700);
+ emit('FINISH',{currentPosition:180000});
+ verifySound();
+ positionRequests.shift()(200);
+ assert.equal(music.state.status,'playing');
+
+ emit('SEEK',{currentPosition:179700});
+ verifySound();
+ positionRequests.shift()(179700);
+ emit('PLAY_PROGRESS');
+ positionRequests.shift()(179800);
+ emit('FINISH');
+ verifySound();
+ positionRequests.shift()(0);
+ assert.equal(music.state.status,'finished');
 });
 
 test('Local media samples its clock on pause, seek and playback-rate changes',context=>{
@@ -216,7 +336,10 @@ test('Local media samples its clock on pause, seek and playback-rate changes',co
  media.currentTime=2.25;
  music.pause();
  assert.equal(music.state.position,2250);
+ const previousEpoch=music.state.positionEpoch;
  music.seek(9250);
+ media.dispatchEvent(new Event('seeked'));
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
  assert.equal(media.currentTime,9.25);
  assert.equal(music.state.position,9250);
  assert.equal(music.state.status,'paused');

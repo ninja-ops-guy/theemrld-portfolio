@@ -277,7 +277,8 @@ test('SoundCloud requests autoplay for each armed guided cue and respects pause 
   let widgetPaused = false;
   const widget = {
     load(url, options) { loads.push({ url, ...options }); },
-    getDuration(callback) { callback(120000); },
+    getCurrentSound(callback) { callback({ permalink_url: loads.at(-1).url, duration: 120000 }); },
+    getPosition(callback) { callback(0); },
     isPaused(callback) { callback(widgetPaused); },
     setVolume() {},
     play() { transport.push('play'); },
