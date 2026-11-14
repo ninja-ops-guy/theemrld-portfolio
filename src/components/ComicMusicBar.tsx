@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useKMusic } from '../sections/AsciiCityWorld';
+import optionalTracks from '../data/comic-optional-tracks.json';
 import './ComicMusicBar.css';
 
 export default function ComicMusicBar({ edition, page, revision }: { edition: string; page: number; revision: string }) {
@@ -9,10 +10,13 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
   useEffect(() => () => setReader(null), [setReader]);
   const [selectedUrl, setSelectedUrl] = useState('');
   const selectedTrack = catalogue.find(track => track.url === selectedUrl);
-  const playSelectedTrack = () => {
-    if (!selectedTrack) return;
+  const sceneTracks = optionalTracks.filter(track =>
+    track.edition === edition && track.revision === revision &&
+    track.startPage <= page && page <= track.endPage
+  );
+  const playBackgroundTrack = (track: { title: string; url: string }) => {
     sendCommand('background on');
-    playTrack(selectedTrack);
+    playTrack(track);
   };
   const playing = audio.status === 'playing';
   const soundCloudNeedsTap = guided && audio.current?.provider === 'soundcloud' && audio.status === 'paused' && !audio.pausedByUser;
@@ -48,13 +52,23 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
         {audio.error && <p role="status">{audio.error} <Link to="/k/terminal">Open player controls</Link></p>}
         {soundCloudNeedsTap && <p>Choose Play in SoundCloud and tap the player’s Play button.</p>}
         <p>{guidedNotice} {scoreSource === 'draft' ? 'You are previewing a soundtrack saved on this device.' : 'The published soundtrack follows the creator’s page cues.'}</p>
+        {sceneTracks.length > 0 && <section aria-label="Optional tracks for this scene">
+          <p>Optional tracks for this scene</p>
+          <p>Choosing a track switches to background playback. Turn Guided on to return to the score.</p>
+          <ul>
+            {sceneTracks.map(track => <li key={track.url}>
+              <button className="comic-music-scene-track" onClick={() => playBackgroundTrack(track)}>Play {track.title}</button>
+              <p>{track.scene}</p>
+            </li>)}
+          </ul>
+        </section>}
         <p className="comic-music-catalogue">{catalogueStatus}</p>
         <div>
           <label>Browse tracks <select value={selectedTrack?.url ?? ''} onChange={event => setSelectedUrl(event.target.value)} disabled={!catalogue.length}>
             <option value="">Choose a track</option>
             {catalogue.map(track => <option key={track.url} value={track.url}>{track.title}</option>)}
           </select></label>
-          <button disabled={!selectedTrack} onClick={playSelectedTrack}>Play selected track</button>
+          <button disabled={!selectedTrack} onClick={() => selectedTrack && playBackgroundTrack(selectedTrack)}>Play selected track</button>
         </div>
         <div>
           <button aria-pressed={background} onClick={() => sendCommand(background ? 'background off' : 'background on')}>Background {background ? 'on' : 'off'}</button>

@@ -110,6 +110,46 @@ The placement follows the lyric’s speaker, subject and emotional turn. Where a
 | [120–128](https://kterminal.site/#/comic?edition=xiv&page=120) | [The Tape Ran Out](https://soundcloud.com/raikouno/the-tape-ran-out) | XIV · Felicia puts aside the private exchange while Mike keeps the restricted dependency under review The narrator recognizes that a recording cannot complete a past and keeps ownership over what happens next. The scene emphasizes keeping access bounded rather than opening old personal material. | The p95 orbital destruction on the cover remains the service failure behind this arc. The current panels show the human decisions after it. [Cover](https://i1.sndcdn.com/artworks-BeT6RwdnbnJYjIiT-fxqH2g-t500x500.jpg) |
 | [129–133](https://kterminal.site/#/comic?edition=xiv&page=129) | [G2U](https://soundcloud.com/raikouno/g2u) | XIV · K calls Mike, Felicia closes the folder, and the healthy status leaves human impact unverified The singer asks for the truth, doubts the reassuring story he was fed and wants to let other people have their own lives. K and Mike accept that they have more to learn. | The earlier clinical model on the G2U cover contrasts with the desk status and real people in the closing montage. [Cover](https://i1.sndcdn.com/artworks-oBaRmyVgHPngLz9t-ukzosA-t500x500.jpg) |
 
+## Optional tracks by scene
+
+These are suggested pairings for the 33 tracks in the checked-in K Terminal catalogue that have no automatic cue. The scene notes identify the comic moments used for auditioning. Open the soundtrack details on any listed page and choose the track to start background playback. **Guided on** returns to the automatic score.
+
+| Reader pages | Track | Scene |
+| --- | --- | --- |
+| [Full collection 19–20](https://kterminal.site/#/comic?edition=g&page=19) | [BLACK](https://soundcloud.com/raikouno/black) | K and Oz see each other in the orbital yard. |
+| [Full collection 24–27](https://kterminal.site/#/comic?edition=g&page=24) | [will-i-be-there](https://soundcloud.com/raikouno/will-i-be-there) | Oz and K speak through the vents and escape their cells. |
+| [Full collection 28–30](https://kterminal.site/#/comic?edition=g&page=28) | [MOTORCELL](https://soundcloud.com/raikouno/motorcell-mp3) | The escape reaches the docking collar and shuttle. |
+| [Full collection 31–33](https://kterminal.site/#/comic?edition=g&page=31) | [Star Struck Blue](https://soundcloud.com/raikouno/star-struck-blue) | K plays guitar in the shuttle before seeing Earth. |
+| [Full collection 34–37](https://kterminal.site/#/comic?edition=g&page=34) | [See right thru 3](https://soundcloud.com/raikouno/see-right-thru-3) | Waldo removes his mask and K introduces his song. |
+| [Full collection 44–48](https://kterminal.site/#/comic?edition=g&page=44) | [My Master Hacker](https://soundcloud.com/raikouno/flow-mp3) | The team isolates the relay and decides how much control to keep. |
+| [Full collection 49–51](https://kterminal.site/#/comic?edition=g&page=49) | [Hot sauce](https://soundcloud.com/raikouno/hot-sauce-mp3) | Coffee, a printer repair and a first morning handoff. |
+| [Full collection 64–66](https://kterminal.site/#/comic?edition=g&page=64) | [Mirror Plane (Autotuned Rage)](https://soundcloud.com/raikouno/mirror-plane-autotuned-rage) | Conditioning strips away memories while the skills remain. |
+| [Full collection 70–72](https://kterminal.site/#/comic?edition=g&page=70) | [Flag](https://soundcloud.com/raikouno/flag-mp3) | Red works the tools and the green gate opens for the trapped workers. |
+| [Full collection 73–77](https://kterminal.site/#/comic?edition=g&page=73) | [G-13](https://soundcloud.com/raikouno/g-13) | The El Mago Rojo image takes hold. |
+| [Full collection 78–80](https://kterminal.site/#/comic?edition=g&page=78) | [Urim and Thummim](https://soundcloud.com/raikouno/two-horses) | A shuttle attempt leads back to Cell 118. |
+| [Full collection 81–85](https://kterminal.site/#/comic?edition=g&page=81) | [God Hands](https://soundcloud.com/raikouno/god-hands-mp3) | K enters the celestial realm and receives the regalia. |
+| [Full collection 95–99](https://kterminal.site/#/comic?edition=g&page=95) | [Ghost town](https://soundcloud.com/raikouno/ghost-town) | Iona and Mara cross the depot after dark. |
+| [Full collection 117–121](https://kterminal.site/#/comic?edition=g&page=117) | [Maybe](https://soundcloud.com/raikouno/maybe-mp3) | Iona fights through the stairs and reaches the holding area. |
+| [Full collection 158–163](https://kterminal.site/#/comic?edition=g&page=158) | [I was a dreamer too, you know](https://soundcloud.com/raikouno/i-was-a-dreamer-once-too-mp3) | K and Iona reconnect across a voice-only link. |
+| [Full collection 171–173](https://kterminal.site/#/comic?edition=g&page=171) | [Lovesick](https://soundcloud.com/raikouno/lovesick-1-wav) | K and Iona remember coming in early on the count-in. |
+| [Full collection 185–186](https://kterminal.site/#/comic?edition=g&page=185) | [3 valentines](https://soundcloud.com/raikouno/3-valentines-2-mp3) | The shared cups and table rhythm bring up a memory. |
+| [Full collection 221–229](https://kterminal.site/#/comic?edition=g&page=221) | [Winter](https://soundcloud.com/raikouno/winter-mp3) | K questions the reconstructed room and the recordings it contains. |
+| [Full collection 234–239](https://kterminal.site/#/comic?edition=g&page=234) | [Alien Superstar](https://soundcloud.com/raikouno/alien-superstar-mp3) | ORPHEUS offers a fabricated Iona after a voice fragment. |
+| [Full collection 247–249](https://kterminal.site/#/comic?edition=g&page=247) | [Ponderthought](https://soundcloud.com/raikouno/ponderthought) | K hears the ascended copy offer a life with everything solved. |
+| [Full collection 256–258](https://kterminal.site/#/comic?edition=g&page=256) | [When It's All Done](https://soundcloud.com/raikouno/when-its-all-done) | K admits what he hoped to hear after removing the ranking of good deeds. |
+| [Full collection 260–265](https://kterminal.site/#/comic?edition=g&page=260) | [I See The Dead](https://soundcloud.com/raikouno/i-see-the-dead-mp3) | K questions the Gatekeeper’s terms. |
+| [Full collection 273–281](https://kterminal.site/#/comic?edition=g&page=273) | [When It's All Done (Minor Dream Mix) 2](https://soundcloud.com/raikouno/when-its-all-done-minor-dream) | Earlier Mike remembers Evan, from a computer repair to the gate. |
+| [Full collection 282–287](https://kterminal.site/#/comic?edition=g&page=282) | [BLACK BSIDE](https://soundcloud.com/raikouno/black-bside) | K chooses his own route in the heavens. |
+| [Full collection 297–302](https://kterminal.site/#/comic?edition=g&page=297) | [Temporal pressure](https://soundcloud.com/raikouno/floor-mp3) | K hears an unfinished take and chooses to make a new recording. |
+| [Full collection 314–316](https://kterminal.site/#/comic?edition=g&page=314) | [Wake up and die B ft OZ](https://soundcloud.com/raikouno/wake-up-and-die-ft-oz) | Iona’s final take carries the split count-in across both rooms. |
+| [XIII 3–13](https://kterminal.site/#/comic?edition=xiii-r&page=3) | [My Song 4DADNM Aggressive](https://soundcloud.com/raikouno/my-song-4dadnm-aggressive) | Station debris and the Earth-side receiver open Volume XIII. |
+| [XIII 33–39](https://kterminal.site/#/comic?edition=xiii-r&page=33) | [waiting-patience-ay](https://soundcloud.com/raikouno/waiting-patience-ay-mp3) | Iona crosses to Earth and finally sits down with K. |
+| [XIV 2–4](https://kterminal.site/#/comic?edition=xiv&page=2) | [Real (I'm trying to articulate)](https://soundcloud.com/raikouno/real) | K and Iona sit together in the rain. |
+| [XIV 5–14](https://kterminal.site/#/comic?edition=xiv&page=5) | [Winter 2](https://soundcloud.com/raikouno/winter-2-mp3) | K and Iona talk under the rainy bus shelter. |
+| [XIV 15–18](https://kterminal.site/#/comic?edition=xiv&page=15) | [Gandala 3](https://soundcloud.com/raikouno/gandala-3) | A street musician brings their old song into the conversation. |
+| [XIV 95–98](https://kterminal.site/#/comic?edition=xiv&page=95) | [Heavy](https://soundcloud.com/raikouno/heavy-wav) | The memory of the orbital blast returns in the laundromat. |
+| [XIV 129–133](https://kterminal.site/#/comic?edition=xiv&page=129) | [When It's All Done (Minor Dream Mix)](https://soundcloud.com/raikouno/when-its-all-done-minor-1) | The closing montage returns to the people behind the healthy status. |
+
 ## Playback notes
 
 Enable **Guided Music** in the comic. To play any release in the current K Terminal catalogue while reading, expand the soundtrack details, choose a track under **Browse tracks**, and press **Play selected track**. Manual playback follows you across page turns. Turn Guided back on to return to the scene cues. If you have a score preview active, use **Use published score** in the soundtrack editor. Page turns within the same range keep the current play position. A new scene takes over after the minimum on ordinary forward turns. The page before Iona’s explosion (Full collection 136) is an immediate quiet beat. The SoundCloud recording plays from its start when a cue begins, so individual lyric lines land at different panels depending on reading pace.
