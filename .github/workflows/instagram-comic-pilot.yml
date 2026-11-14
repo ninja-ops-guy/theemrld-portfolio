@@ -1,0 +1,38 @@
+name: Instagram Full collection review
+on:
+  pull_request:
+    paths: ['scripts/*instagram*', 'docs/INSTAGRAM_APPROVED_SOURCE.json', '.github/workflows/instagram-comic-pilot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: aa8c132035a46e73fb47ee14e05e371909799d64
+          path: current-media
+          persist-credentials: false
+          sparse-checkout: techops-comic/revision-g
+      - run: mkdir -p sources/g && cp current-media/techops-comic/revision-g/*.webp sources/g/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'Pillow==11.3.0'
+      - run: python -m unittest discover -s scripts -p 'test_instagram*.py' -v
+      - run: python scripts/render_instagram_comic.py --post ALL
+      - run: python scripts/render_instagram_panels.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: techops-instagram-full-collection-review-only
+          path: qa/instagram-pilot/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: techops-instagram-readable-p01-review-only
+          path: qa/instagram-panel-review/
+          retention-days: 14
