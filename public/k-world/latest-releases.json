@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-11-14T02:26:27Z",
+  "verifiedAt": "2026-11-14T15:25:24Z",
   "tracks": [
     {
       "id": "when-we-were-together",
@@ -238,6 +238,13 @@
       "url": "https://soundcloud.com/raikouno/everlasting",
       "provider": "soundcloud",
       "createdAt": "2026-10-26T21:24:24Z"
+    },
+    {
+      "id": "yearning-for-you",
+      "title": "Yearning for You(Star struck)",
+      "url": "https://soundcloud.com/raikouno/yearning-for-you",
+      "provider": "soundcloud",
+      "createdAt": "2026-10-26T20:51:07Z"
     },
     {
       "id": "portal-waves",
