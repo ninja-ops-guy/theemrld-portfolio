@@ -91,6 +91,24 @@ def check_terminal_seek(browser):
         expect(page.locator('.kt-band-stage')).to_have_attribute('data-playing', 'false')
         requests = page.locator('iframe.k-session-frame').evaluate('frame => frame.contentWindow.seekRequests')
         record('TERMINAL-KEYBOARD-AND-DRAG-SEEK', requests == [1000, 45000], str(requests))
+
+        stage = page.get_by_role('region', name='TechOps Hero band')
+        stage.get_by_text('Music sync · 117.12 BPM', exact=True).click()
+        expect(stage.locator('[data-performance="iona-drums"]')).to_have_count(1)
+        stage.get_by_role('button', name='Mark phrase start').click()
+        expect(stage.get_by_text('Phrase start at 45.000 s.', exact=True)).to_be_visible()
+        expect(stage.get_by_label('Beat offset (ms)')).to_have_value('-82')
+        expect(stage.locator('[data-performance="manchez-drum-dance"]')).to_have_count(1)
+        expect(stage.locator('[data-performance="iona-drums"]')).to_have_count(0)
+
+        page.reload(wait_until='domcontentloaded', timeout=90000)
+        page.locator('.kt-track-item', has_text='Ghost town').first.click()
+        stage.get_by_text('Music sync · 117.12 BPM', exact=True).click()
+        expect(stage.get_by_text('Phrase start at 45.000 s.', exact=True)).to_be_visible()
+        stage.get_by_role('button', name='Reset sync').click()
+        expect(stage.get_by_text('Phrase start at 45.000 s.', exact=True)).to_have_count(0)
+        expect(stage.get_by_label('Beat offset (ms)')).to_have_value('185')
+        record('TERMINAL-PHRASE-START-PERSISTS', True)
     finally:
         page.close()
 

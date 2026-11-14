@@ -1,23 +1,73 @@
 export function bandFrame(positionMs: number, bpm = 120, offsetMs = 0, beatsPerLoop = 1, frameCount = 6): number {
   if (![positionMs, bpm, offsetMs].every(Number.isFinite) || bpm < 40 || bpm > 240) return 0;
   const cycleMs = 60000 / bpm * beatsPerLoop;
-  const phase = ((positionMs - offsetMs) % cycleMs + cycleMs) % cycleMs;
-  return Math.min(frameCount - 1, Math.floor(phase / cycleMs * frameCount));
+  // Keep an exact beat boundary on its new frame, even at fractional BPM.
+  const frame = Math.floor((positionMs - offsetMs) / cycleMs * frameCount + 1e-8);
+  return ((frame % frameCount) + frameCount) % frameCount;
 }
 export const MAX_POSITION_AGE_MS = 350;
 // Stop extrapolating when provider progress stalls.
 export function bandPosition(positionMs: number, elapsedMs: number, playing: boolean, rate = 1): number {
   return Math.max(0, positionMs) + (playing ? Math.max(0, Math.min(MAX_POSITION_AGE_MS, elapsedMs)) * rate : 0);
 }
-export type BandTiming = { bpm: number; offsetMs: number };
+const CLOCK_CORRECTION_MS = 200;
+type BandClockSample = {
+  positionMs: number;
+  sampledAt: number;
+  playing: boolean;
+  rate: number;
+  epoch?: number;
+};
+export type BandClock = BandClockSample & { correctionMs: number };
+
+export function readBandClock(clock: BandClock, now: number): number {
+  const elapsed = Math.max(0, now - clock.sampledAt);
+  const correction = clock.playing ? clock.correctionMs * Math.max(0, 1 - elapsed / CLOCK_CORRECTION_MS) : 0;
+  return Math.max(0, bandPosition(clock.positionMs, elapsed, clock.playing, clock.rate) + correction);
+}
+
+export function updateBandClock(previous: BandClock | null, sample: BandClockSample): BandClock {
+  const next = { ...sample, correctionMs: 0 };
+  if (!previous?.playing || !sample.playing || previous.epoch !== sample.epoch || previous.rate !== sample.rate) return next;
+  // Repeated positions cannot keep a stalled playhead moving.
+  if (sample.sampledAt < previous.sampledAt || sample.positionMs === previous.positionMs) return previous;
+  if (sample.sampledAt - previous.sampledAt >= MAX_POSITION_AGE_MS) return next;
+  const correctionMs = readBandClock(previous, sample.sampledAt) - sample.positionMs;
+  // Ease small delivery jitters without reversing motion. Larger jumps re-anchor immediately.
+  const limit = Math.min(85, CLOCK_CORRECTION_MS * sample.rate / 2);
+  return Math.abs(correctionMs) <= limit ? { ...next, correctionMs } : next;
+}
+
+export type BandTiming = { bpm: number; offsetMs: number; downbeatMs?: number };
+export const BAND_PHRASE_BEATS = 16;
 export const PREVIEW_TIMING: BandTiming = { bpm: 120, offsetMs: 0 };
 
 export function readBandTiming(raw: string | null): BandTiming | null {
   try {
     const v = JSON.parse(raw || 'null');
-    if (v && Number.isFinite(v.bpm) && v.bpm >= 40 && v.bpm <= 240 && Number.isFinite(v.offsetMs) && Math.abs(v.offsetMs) <= 600000) return { bpm: v.bpm, offsetMs: v.offsetMs };
+    if (v && Number.isFinite(v.bpm) && v.bpm >= 40 && v.bpm <= 240 && Number.isFinite(v.offsetMs) && Math.abs(v.offsetMs) <= 600000) {
+      const timing: BandTiming = { bpm: v.bpm, offsetMs: v.offsetMs };
+      if (Number.isSafeInteger(v.downbeatMs) && v.downbeatMs >= 0) timing.downbeatMs = v.downbeatMs;
+      return timing;
+    }
   } catch { /* Use the track default when the saved settings cannot be parsed. */ }
   return null;
+}
+
+export function markBandDownbeat(positionMs: number, bpm: number): BandTiming {
+  const downbeatMs = Math.round(positionMs);
+  const beatMs = 60000 / bpm;
+  const offsetMs = Math.round(downbeatMs - Math.round(downbeatMs / beatMs) * beatMs) || 0;
+  return { bpm, offsetMs, downbeatMs };
+}
+
+export function bandPhraseOffset({ bpm, offsetMs, downbeatMs }: BandTiming): number {
+  if (downbeatMs === undefined) return offsetMs;
+  const beatMs = 60000 / bpm;
+  const phraseMs = BAND_PHRASE_BEATS * beatMs;
+  // Snap to the current beat grid, then count backward so seeks before the mark stay in the phrase grid.
+  const start = offsetMs + Math.round((downbeatMs - offsetMs) / beatMs) * beatMs;
+  return start - Math.ceil(start / phraseMs) * phraseMs;
 }
 
 export const PHASE_TAPS = 4;
@@ -45,7 +95,8 @@ function fitOffset(taps: readonly BandTap[], bpm: number, referenceOffsetMs: num
 
 export function alignBeatTaps(taps: readonly BandTap[], playbackRate: number, timing: BandTiming): BandTiming | null {
   if (taps.length !== PHASE_TAPS || !fitsBeat(tapIntervals(taps, playbackRate), 60000 / timing.bpm)) return null;
-  return fitOffset(taps, timing.bpm, timing.offsetMs);
+  const aligned = fitOffset(taps, timing.bpm, timing.offsetMs);
+  return aligned ? { ...timing, ...aligned } : null;
 }
 
 export function estimateTempoTaps(taps: readonly BandTap[], playbackRate: number, referenceOffsetMs: number): BandTiming | null {
