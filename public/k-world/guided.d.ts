@@ -1,6 +1,6 @@
 export type GuidedEdition = 'f' | 'xiii' | 'legacy' | 'g' | 'xiii-r' | 'xiv';
 export interface GuidedCue { id: string; edition: GuidedEdition; startPage: number; endPage: number; title: string; url: string }
-export interface GuidedScore { schemaVersion: 1; editions: Partial<Record<GuidedEdition, string>>; cues: GuidedCue[]; minimumPlayMs?: number; quietPages?: { edition: GuidedEdition; number: number }[] }
+export interface GuidedScore { schemaVersion: 1; editions: Partial<Record<GuidedEdition, string>>; cues: GuidedCue[]; minimumPlayMs?: number; immediateCuePages?: { edition: GuidedEdition; number: number }[]; quietPages?: { edition: GuidedEdition; number: number }[] }
 export interface GuidedPosition { edition: GuidedEdition; page: number; revision: string }
 export const GUIDED_EDITIONS: Readonly<Record<GuidedEdition, Readonly<{ label: string; revision: string; pageCount: number }>>>;
 export const GUIDED_DRAFT_KEY: string;
