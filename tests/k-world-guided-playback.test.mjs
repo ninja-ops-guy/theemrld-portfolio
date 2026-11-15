@@ -32,11 +32,84 @@ function setup() {
 }
 const loads = calls => calls.filter(call => call[0] === 'load');
 const plays = calls => calls.filter(call => call[0] === 'play');
+test('owner reunion cue autoplays only with Guided on and preserves the flashback', () => {
+  const published = JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8'));
+  const { guided, music, calls } = setup();
+  guided.setScore(published);
+  guided.setLocation(position(109, 'xiv'));
+  assert.equal(calls.length, 0);
+  guided.setEnabled(true);
+  assert.equal(music.state.current.url, 'https://soundcloud.com/raikouno/when-we-were-together');
+  music.ready(music.generation, 180000);
+  assert.equal(plays(calls).length, 1);
+  for (const page of [110, 111]) guided.setLocation(position(page, 'xiv'));
+  assert.equal(loads(calls).length, 1);
+  const flashback = published.cues.find(cue => cue.edition === 'g' && cue.startPage === 171);
+  assert.equal(flashback.endPage, 173);
+  assert.equal(flashback.url, 'https://soundcloud.com/raikouno/it-was-gray-until-i-met-you');
+});
+
+test('hand-offer page selects the new song immediately rather than delaying behind the prior cue', () => {
+  const { guided, music } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(108, 'xiv'));
+  guided.setEnabled(true);
+  music.ready(music.generation, 180000);
+  music.playing(music.generation);
+  music.progress(music.generation, 1000, 180000);
+  guided.setLocation(position(109, 'xiv'));
+  assert.equal(music.state.current.url, 'https://soundcloud.com/raikouno/when-we-were-together');
+});
 function playing(music) {
   music.ready(music.generation, 180000);
   music.playing(music.generation);
   music.progress(music.generation, 35000, 180000);
 }
+
+test('literal flashback interrupts on100, holds30 seconds, returns once and preserves position101–108', () => {
+  const { guided, music, calls } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(99, 'xiv')); guided.setEnabled(true);
+  music.ready(music.generation, 180000); music.playing(music.generation); music.progress(music.generation, 1000, 180000);
+  guided.setLocation(position(100, 'xiv'));
+  assert.equal(music.state.current.title, 'It Was Gray Until I Met You');
+  music.ready(music.generation, 180000); music.playing(music.generation); music.progress(music.generation, 1000, 180000);
+  guided.setLocation(position(101, 'xiv'));
+  guided.setLocation(position(102, 'xiv'));
+  assert.equal(music.state.current.title, 'It Was Gray Until I Met You');
+  assert.equal(guided.waitingForMinimum, true);
+  music.progress(music.generation, 30000, 180000);
+  assert.equal(music.state.current.title, 'I Still Love You');
+  assert.equal(loads(calls).length, 3);
+  playing(music);
+  for (const page of [103,104,105,106,107,108]) guided.setLocation(position(page, 'xiv'));
+  assert.equal(loads(calls).length, 3);
+  assert.equal(music.state.position, 35000);
+});
+
+test('rapid forward reading cannot leave Gray holding over the reunion109', () => {
+  const { guided, music, calls } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(100, 'xiv')); guided.setEnabled(true);
+  music.ready(music.generation, 180000); music.playing(music.generation); music.progress(music.generation, 1000, 180000);
+  for (const page of [101,102,103,104,105,106,107,108]) guided.setLocation(position(page, 'xiv'));
+  assert.equal(loads(calls).length, 1);
+  guided.setLocation(position(109, 'xiv'));
+  assert.equal(music.state.current.title, 'When We Were Together');
+  assert.equal(guided.waitingForMinimum, false);
+  assert.equal(loads(calls).length, 2);
+});
+
+test('direct jump into101 skips the flashback; stale100 readiness cannot play over it', () => {
+  const { guided, music, calls } = setup();
+  guided.setScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json', import.meta.url), 'utf8')));
+  guided.setLocation(position(100, 'xiv')); guided.setEnabled(true);
+  const stale = music.generation;
+  guided.setLocation(position(105, 'xiv'));
+  assert.equal(music.state.current.title, 'I Still Love You');
+  music.ready(stale, 180000);
+  assert.equal(plays(calls).length, 0);
+});
 function enable(guided, page = 2) {
   guided.setScore(score());
   guided.setLocation(position(page));
@@ -552,3 +625,4 @@ test('ID-less events use the widget clock and keep identified progress working',
   events.get('PLAY_PROGRESS')({ soundId: sounds.at(-1).url, currentPosition: 1300 });
   assert.equal(music.state.position, 1300);
 });
+

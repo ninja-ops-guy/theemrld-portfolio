@@ -621,17 +621,33 @@
       "id": "xiv-99-i-still-love-you",
       "edition": "xiv",
       "startPage": 99,
+      "endPage": 99,
+      "title": "I Still Love You",
+      "url": "https://soundcloud.com/raikouno/i-still-love-you"
+    },
+    {
+      "id": "xiv-100-it-was-gray-until-i-met-you",
+      "edition": "xiv",
+      "startPage": 100,
+      "endPage": 100,
+      "title": "It Was Gray Until I Met You",
+      "url": "https://soundcloud.com/raikouno/it-was-gray-until-i-met-you"
+    },
+    {
+      "id": "xiv-101-i-still-love-you",
+      "edition": "xiv",
+      "startPage": 101,
       "endPage": 108,
       "title": "I Still Love You",
       "url": "https://soundcloud.com/raikouno/i-still-love-you"
     },
     {
-      "id": "xiv-109-it-was-gray-until-i-met-you",
+      "id": "xiv-109-when-we-were-together",
       "edition": "xiv",
       "startPage": 109,
       "endPage": 111,
-      "title": "It Was Gray Until I Met You",
-      "url": "https://soundcloud.com/raikouno/it-was-gray-until-i-met-you"
+      "title": "When We Were Together",
+      "url": "https://soundcloud.com/raikouno/when-we-were-together"
     },
     {
       "id": "xiv-112-techops-mp3",
@@ -663,7 +679,9 @@
     { "edition": "g", "number": 53 },
     { "edition": "g", "number": 54 },
     { "edition": "g", "number": 56 },
-    { "edition": "g", "number": 57 }
+    { "edition": "g", "number": 57 },
+    { "edition": "xiv", "number": 100 },
+    { "edition": "xiv", "number": 109 }
   ],
   "quietPages": [
     {
@@ -672,3 +690,4 @@
     }
   ]
 }
+
