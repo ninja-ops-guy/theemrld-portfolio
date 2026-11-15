@@ -28,7 +28,7 @@
       "first_run": "43686827205"
     }
   },
-  "phase": "QUALIFIED_NOT_PUBLISHED",
+  "phase": "MAIN_UPDATE_REQUESTED",
   "last_request": "xiv-kali-331e7564cde3-publish-qualified",
   "last_run": "43686827205",
   "source": {
