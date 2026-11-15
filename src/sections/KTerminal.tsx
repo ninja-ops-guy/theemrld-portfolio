@@ -1291,8 +1291,9 @@ Sequential Playback: ON (no overlap)`);
           <div className="kt-title kt-glitch">
             K Terminal <span className="kt-artist-badge">THEEMRLD</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Link to="/comic" className="kt-status">[READ COMIC]</Link>
+            <a href={`${import.meta.env.BASE_URL}privacy.html`} className="kt-status">[PRIVACY]</a>
             {fromGallery && (
               <button
                 type="button"

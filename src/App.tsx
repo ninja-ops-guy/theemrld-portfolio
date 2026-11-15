@@ -28,6 +28,17 @@ const SeeWorld = lazy(() => import('./pages/SeeWorld'));
 function Portfolio() {
   const lenisRef = useRef<Lenis | null>(null);
   useEffect(() => {
+    const previousTitle = document.title;
+    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    const previousDescription = description?.content ?? '';
+    document.title = 'THEEMRLD — Systems, Security & Applied R&D';
+    if (description) description.content = 'Systems and security engineering portfolio covering production infrastructure, autonomous systems, formal verification, adversarial ML, and evidence-first applied R&D.';
+    return () => {
+      document.title = previousTitle;
+      if (description) description.content = previousDescription;
+    };
+  }, []);
+  useEffect(() => {
     const lenis = new Lenis({ lerp: 0.08, duration: 1.2 });
     lenisRef.current = lenis;
     lenis.on('scroll', ScrollTrigger.update);
