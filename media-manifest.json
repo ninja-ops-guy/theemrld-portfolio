@@ -1,0 +1,297 @@
+{
+  "post_id": "THIG-P01-PANEL",
+  "edition": "Full collection / Revision G",
+  "media_commit": "aa8c132035a46e73fb47ee14e05e371909799d64",
+  "source_pdf_sha256": "c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b",
+  "source_webp_sha256": "0ba74380ef2bb88e26f27be970056e5c135578a721ba2f79976a1e6592c47360",
+  "source_dimensions": [
+    2160,
+    3240
+  ],
+  "slides": [
+    {
+      "slide": 1,
+      "source_page": 6,
+      "source_panel": 1,
+      "filename": "THIG-P01-PANEL-01-page006-panel01.jpg",
+      "source_crop_native": [
+        48,
+        36,
+        504,
+        634
+      ],
+      "source_crop_review_export": [
+        110,
+        15,
+        300,
+        264
+      ],
+      "rendered_panel_dimensions": [
+        456,
+        598
+      ],
+      "image_sha256": "b5c21572cb23603aa2e56a93030833c29842c3ca6142479f5f1511a221c8176f",
+      "bytes": 205742,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 2,
+      "source_page": 6,
+      "source_panel": 2,
+      "filename": "THIG-P01-PANEL-02-page006-panel02.jpg",
+      "source_crop_native": [
+        492,
+        36,
+        1344,
+        631
+      ],
+      "source_crop_review_export": [
+        295,
+        15,
+        650,
+        263
+      ],
+      "rendered_panel_dimensions": [
+        852,
+        595
+      ],
+      "image_sha256": "780f71e52a8e54e20993fd0bc1f491c773fbcf84699c73bb346f92e3890503d1",
+      "bytes": 308820,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 3,
+      "source_page": 6,
+      "source_panel": 3,
+      "filename": "THIG-P01-PANEL-03-page006-panel03.jpg",
+      "source_crop_native": [
+        1339,
+        36,
+        2126,
+        631
+      ],
+      "source_crop_review_export": [
+        648,
+        15,
+        976,
+        263
+      ],
+      "rendered_panel_dimensions": [
+        787,
+        595
+      ],
+      "image_sha256": "3c0c36ba5ca80f3dbab390ade38a6cded80e0e4f5838626db65ef9cefeb0969c",
+      "bytes": 275080,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 4,
+      "source_page": 6,
+      "source_panel": 4,
+      "filename": "THIG-P01-PANEL-04-page006-panel04.jpg",
+      "source_crop_native": [
+        48,
+        624,
+        598,
+        1406
+      ],
+      "source_crop_review_export": [
+        110,
+        260,
+        339,
+        586
+      ],
+      "rendered_panel_dimensions": [
+        550,
+        782
+      ],
+      "image_sha256": "d9b66ff37872156400dda76236a7c669807b8c0c361202e2748824bbec427514",
+      "bytes": 255424,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 5,
+      "source_page": 6,
+      "source_panel": 5,
+      "filename": "THIG-P01-PANEL-05-page006-panel05.jpg",
+      "source_crop_native": [
+        593,
+        624,
+        1133,
+        1406
+      ],
+      "source_crop_review_export": [
+        337,
+        260,
+        562,
+        586
+      ],
+      "rendered_panel_dimensions": [
+        540,
+        782
+      ],
+      "image_sha256": "3c157b53574f904e462111b7a8463b65bedc70666c3cdc635dca808af2127fad",
+      "bytes": 261042,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 6,
+      "source_page": 6,
+      "source_panel": 6,
+      "filename": "THIG-P01-PANEL-06-page006-panel06.jpg",
+      "source_crop_native": [
+        1128,
+        624,
+        2131,
+        1411
+      ],
+      "source_crop_review_export": [
+        560,
+        260,
+        978,
+        588
+      ],
+      "rendered_panel_dimensions": [
+        1003,
+        787
+      ],
+      "image_sha256": "ea303306c3975cc65c77e0508376a6406e1eeaee15e7a1d02244c43a9e6b6c4e",
+      "bytes": 415936,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 7,
+      "source_page": 6,
+      "source_panel": 7,
+      "filename": "THIG-P01-PANEL-07-page006-panel07.jpg",
+      "source_crop_native": [
+        50,
+        1397,
+        986,
+        2206
+      ],
+      "source_crop_review_export": [
+        111,
+        582,
+        501,
+        919
+      ],
+      "rendered_panel_dimensions": [
+        936,
+        809
+      ],
+      "image_sha256": "1c5c994e953f26978445bd223a7ad2797b2c47042d8da3dd9bd62352255ed678",
+      "bytes": 418766,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 8,
+      "source_page": 6,
+      "source_panel": 8,
+      "filename": "THIG-P01-PANEL-08-page006-panel08.jpg",
+      "source_crop_native": [
+        979,
+        1397,
+        2126,
+        2213
+      ],
+      "source_crop_review_export": [
+        498,
+        582,
+        976,
+        922
+      ],
+      "rendered_panel_dimensions": [
+        1010,
+        719
+      ],
+      "image_sha256": "5e2d3a2a7da4a6d8aeb3af0782130d5be2cde2ae3cc7d6aab801fffee6d96c23",
+      "bytes": 414488,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 9,
+      "source_page": 6,
+      "source_panel": 9,
+      "filename": "THIG-P01-PANEL-09-page006-panel09.jpg",
+      "source_crop_native": [
+        48,
+        2203,
+        989,
+        3120
+      ],
+      "source_crop_review_export": [
+        110,
+        918,
+        502,
+        1300
+      ],
+      "rendered_panel_dimensions": [
+        941,
+        917
+      ],
+      "image_sha256": "5022d38777be4fcb2a278d885a1c463e17235d37da15283950ca6478f6d1289b",
+      "bytes": 428571,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    },
+    {
+      "slide": 10,
+      "source_page": 6,
+      "source_panel": 10,
+      "filename": "THIG-P01-PANEL-10-page006-panel10.jpg",
+      "source_crop_native": [
+        982,
+        2208,
+        2122,
+        3118
+      ],
+      "source_crop_review_export": [
+        499,
+        920,
+        974,
+        1299
+      ],
+      "rendered_panel_dimensions": [
+        1010,
+        806
+      ],
+      "image_sha256": "491161c63b31057498507ae2b1d1086480e13a7f956b0860fac1747d2219891e",
+      "bytes": 433503,
+      "instagram_dimensions": [
+        1080,
+        1350
+      ]
+    }
+  ],
+  "status": "MEDIA_FOR_REVIEW_ONLY_NOT_SOCIAL_PUBLICATION",
+  "source_renderer_head": "e51fcd1f1250ced2f497db7d6f736dd2138cccf3",
+  "source_artifact_id": 14039226642,
+  "source_artifact_zip_sha256": "38a15b81fd7f9ef28914a4e7d72cad014ec3f71b3a89abb44434e60bf23b388a"
+}
