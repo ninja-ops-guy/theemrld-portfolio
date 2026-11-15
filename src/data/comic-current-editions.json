@@ -834,9 +834,9 @@
       "title": "The System Is Healthy",
       "pageCount": 133,
       "revision": "corrected-97f16edf9df0",
-      "pdfFilename": "TechOps-Hero-Volume-XIV-Page-24-Repair-Candidate.pdf",
-      "pdfSha256": "fcb01afed21d790aeef43f7a88ff88de3b0ce3904909f18d33fb127db37e5ce8",
-      "pdfBytes": 228916231,
+      "pdfFilename": "TechOps-Hero-XIV-Approved-Localized-Revision.pdf",
+      "pdfSha256": "331e7564cde361f1119e585b93674ce42aab7a6aad09c4a77bec1b7a2c99a479",
+      "pdfBytes": 231432304,
       "imagePath": "techops-comic/volume-xiv/",
       "width": 2160,
       "height": 3330,
@@ -922,12 +922,12 @@
         }
       ],
       "links": {},
-      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb/techops-comic/volume-xiv/",
-      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-xiv-page24-fcb01afed21d/TechOps-Hero-Volume-XIV-Page-24-Repair-Candidate.pdf",
-      "mediaCommit": "c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb",
-      "releaseTag": "techops-xiv-page24-fcb01afed21d",
-      "publisherRelease": "xiv-page24-fcb01afed21d",
-      "contentRevision": "page24-fcb01afed21d"
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/7e75b409f84c0e817be3f74d45b5c18c3dbd14f9/techops-comic/volume-xiv/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-xiv-kali-331e7564cde3/TechOps-Hero-XIV-Approved-Localized-Revision.pdf",
+      "mediaCommit": "7e75b409f84c0e817be3f74d45b5c18c3dbd14f9",
+      "releaseTag": "techops-xiv-kali-331e7564cde3",
+      "publisherRelease": "xiv-kali-331e7564cde3",
+      "contentRevision": "xiv-kali-331e7564cde3"
     }
   }
 }
