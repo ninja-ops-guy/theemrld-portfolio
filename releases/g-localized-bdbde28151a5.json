@@ -26,11 +26,19 @@
         "manifest_sha256": "eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7"
       },
       "first_run": "43681763509"
+    },
+    "g-localized-bdbde28151a5-publish-qualified": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519",
+        "manifest_sha256": "eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7"
+      },
+      "first_run": "43682250316"
     }
   },
   "phase": "QUALIFIED_NOT_PUBLISHED",
-  "last_request": "g-localized-bdbde28151a5-public-metadata-approved",
-  "last_run": "43681763509",
+  "last_request": "g-localized-bdbde28151a5-publish-qualified",
+  "last_run": "43682250316",
   "source": {
     "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
     "reason": "ZIP metadata matches; source bytes have not yet been verified.",
