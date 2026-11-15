@@ -5,10 +5,17 @@ on:
     branches: [main]
     paths:
       - 'src/pages/*Comic*'
+      - 'src/components/ComicMusicBar.*'
       - 'src/components/GuidedScoreDialog.tsx'
+      - 'src/sections/AsciiCityWorld.tsx'
       - 'src/data/comic-*'
+      - 'public/k-world/app.js'
+      - 'public/k-world/audio.js'
+      - 'public/k-world/guided*'
       - 'scripts/finalize-comic-dist.mjs'
       - 'tests/comic-*'
+      - 'tests/k-world-guided*.test.mjs'
+      - 'tests/k-world-audio.test.mjs'
       - 'tests/test_comic_retired_probe.py'
       - '.github/workflows/pages.yml'
       - '.github/workflows/comic-final-collection.yml'
@@ -16,10 +23,17 @@ on:
     branches: [main]
     paths:
       - 'src/pages/*Comic*'
+      - 'src/components/ComicMusicBar.*'
       - 'src/components/GuidedScoreDialog.tsx'
+      - 'src/sections/AsciiCityWorld.tsx'
       - 'src/data/comic-*'
+      - 'public/k-world/app.js'
+      - 'public/k-world/audio.js'
+      - 'public/k-world/guided*'
       - 'scripts/finalize-comic-dist.mjs'
       - 'tests/comic-*'
+      - 'tests/k-world-guided*.test.mjs'
+      - 'tests/k-world-audio.test.mjs'
       - '.github/workflows/pages.yml'
       - '.github/workflows/comic-final-collection.yml'
   workflow_dispatch:
@@ -41,7 +55,7 @@ jobs:
       - name: Build and qualify current-only publication
         run: |
           npm install --no-audit --no-fund
-          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs tests/k-world-guided*.test.mjs
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs tests/comic-optional-tracks.test.mjs tests/k-world-audio.test.mjs tests/k-world-guided*.test.mjs
           npm run build
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
       - uses: actions/setup-python@v5
@@ -68,6 +82,7 @@ jobs:
         run: |
           python tests/comic-final-browser.py
           python tests/comic-final-polish.py
+          python tests/comic-music-browser.py --base-url "$COMIC_BASE_URL"
       - name: Await exact production publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |

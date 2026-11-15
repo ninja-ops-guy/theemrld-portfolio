@@ -14,8 +14,8 @@ export class GuidedPlayback {
     this.waitingForMinimum = false;
     music.addEventListener('change', () => {
       if (!this.waitingForMinimum) return;
-      const { position, status } = music.state;
-      if (position >= this.score.minimumPlayMs || ['finished', 'error', 'paused'].includes(status)) this.apply();
+      const { position, positionPending, status } = music.state;
+      if ((!positionPending && position >= this.score.minimumPlayMs) || ['finished', 'error', 'paused'].includes(status)) this.apply();
     });
   }
 
@@ -38,11 +38,15 @@ export class GuidedPlayback {
       && previous.revision === this.location.revision && this.location.page === previous.page + 1;
     const cue = resolveGuidedCue(this.score, this.location);
     const quiet = this.score.quietPages?.some(page => page.edition === this.location?.edition && page.number === this.location?.page);
-    const { position: elapsed, status, pausedByUser } = this.music.state;
-    if (movingForward && !quiet && this.activeCue && cueKey(cue) !== this.activeKey && !pausedByUser
-      && ['loading', 'ready', 'playing'].includes(status) && elapsed < (this.score.minimumPlayMs ?? 0)) {
+    const immediate = cue && this.score.immediateCuePages?.some(
+      page => page.edition === cue.edition && page.number === this.location.page,
+    );
+    const { position: elapsed, positionPending, status, pausedByUser } = this.music.state;
+    const minimumPlayMs = this.score.minimumPlayMs ?? 0;
+    if (movingForward && !quiet && !immediate && this.activeCue && cueKey(cue) !== this.activeKey && !pausedByUser
+      && ['loading', 'ready', 'playing'].includes(status) && minimumPlayMs > 0 && (positionPending || elapsed < minimumPlayMs)) {
       this.waitingForMinimum = true;
-      this.setNotice(`${this.activeCue.title} · finishing its ${this.score.minimumPlayMs / 1000}-second minimum.`);
+      this.setNotice(`${this.activeCue.title} · finishing its ${minimumPlayMs / 1000}-second minimum.`);
       return;
     }
     this.apply();

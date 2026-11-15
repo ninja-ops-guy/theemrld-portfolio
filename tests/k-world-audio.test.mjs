@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {Sequencer,SoundCloudPort,canonicalUrl,newestProfileTracks,reactiveEnvelope} from '../public/k-world/audio.js';
+import { GuidedPlayback } from '../public/k-world/guided-playback.js';
 const t=n=>({id:n,title:n,url:'https://soundcloud.com/raikouno/'+n,provider:'soundcloud'});
 const playlists={gallery:[t('g1'),t('g2')],city:[t('c1'),t('c2')],moon:[t('m1')],same:[t('g1')]};
 function setup(){const calls=[],port={load:(t,g)=>calls.push(['load',t.id,g]),play:()=>calls.push(['play']),pause:()=>calls.push(['pause']),seek:n=>calls.push(['seek',n]),rate:()=>false};const s=new Sequencer(port,playlists);s.setZone('gallery');return {s,calls,port};}
@@ -126,13 +127,14 @@ async function setupWidget(context){
   await Promise.resolve();
   assert.equal(loads.at(-1).url,track.url);
   loads.at(-1).callback();
+  soundRequests.shift()({permalink_url:track.url,duration:180000});
  };
  const emit=(event,detail)=>listeners.get(event)(detail);
  return {music,widget,select,emit,soundRequests,positionRequests};
 }
 
-test('SoundCloud emits a paused seek at the event time for the current track',async context=>{
- const {music,select,emit,soundRequests}=await setupWidget(context);
+test('SoundCloud emits a paused seek only after checking the current track and position',async context=>{
+ const {music,select,emit,soundRequests,positionRequests}=await setupWidget(context);
  const first=t('first'),second=t('second');
  await select(first);
  music.pause();
@@ -143,12 +145,13 @@ test('SoundCloud emits a paused seek at the event time for the current track',as
  let change;
  music.addEventListener('change',event=>{change=event.detail;});
  emit('SEEK',{currentPosition:8400});
- const afterEvent=performance.timeOrigin+performance.now();
+ const eventAt=performance.timeOrigin+performance.now();
  soundRequests.shift()({permalink_url:first.url});
+ positionRequests.shift()(8400);
  assert.equal(change.position,8400);
  assert.equal(change.status,'paused');
  assert.equal(change.positionDiscontinuity,true);
- assert.ok(change.positionSampledAt<=afterEvent);
+ assert.ok(change.positionSampledAt>=eventAt);
 
  emit('SEEK',{currentPosition:38000});
  const oldSeek=soundRequests.shift();
@@ -166,11 +169,15 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  widget.paused=false;
  emit('PLAY',{currentPosition:0});
  verifySound();
+ positionRequests.shift()(0);
  emit('PLAY_PROGRESS',{currentPosition:0});
+ positionRequests.shift()(0);
  assert.equal(music.state.positionSampledAt,null);
- emit('PLAY',{currentPosition:3000});
+ emit('PLAY',{currentPosition:30000});
  verifySound();
+ positionRequests.shift()(3000);
  assert.equal(music.state.status,'playing');
+ assert.equal(music.state.position,3000);
  music.pause();
  emit('PAUSE');
  verifySound();
@@ -178,18 +185,172 @@ test('SoundCloud ignores delayed pause samples after resuming or seeking',async 
  music.resume();
  emit('PLAY',{currentPosition:3300});
  verifySound();
+ positionRequests.shift()(3300);
  oldPause(3100);
  assert.equal(music.state.status,'playing');
  assert.equal(music.state.position,3300);
 
+ const previousEpoch=music.state.positionEpoch;
  music.seek(12000);
  assert.equal(widget.seekTarget,12000);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
  emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(3500);
  assert.equal(music.state.position,12000);
  emit('SEEK',{currentPosition:12000});
  verifySound();
+ positionRequests.shift()(12000);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(3500);
+ assert.equal(music.state.position,12000);
  emit('PLAY_PROGRESS',{currentPosition:12100});
+ positionRequests.shift()(12100);
  assert.equal(music.state.position,12100);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+});
+
+test('SoundCloud progress cannot seed a replacement track with the previous track position',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('replacement');
+ await select(t('first'));
+ const previousEpoch=music.state.positionEpoch;
+ await select(track);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ assert.equal(music.state.positionSampledAt,null);
+ widget.paused=false;
+ emit('PLAY',{currentPosition:3500});
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(0);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(83);
+ emit('PLAY_PROGRESS',{currentPosition:3500});
+ positionRequests.shift()(83);
+ assert.equal(music.state.position,83);
+});
+
+test('SoundCloud drops a stale seek payload without interfering with a later backward seek',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('backward');
+ await select(track);
+ const verifySound=()=>soundRequests.shift()({permalink_url:track.url});
+ widget.paused=false;
+ emit('PLAY');
+ verifySound();
+ positionRequests.shift()(30000);
+ const previousEpoch=music.state.positionEpoch;
+ emit('PLAY_PROGRESS',{currentPosition:30000});
+ const inFlightBeforeSeek=positionRequests.shift();
+ emit('SEEK',{currentPosition:1000});
+ verifySound();
+ positionRequests.shift()(30100);
+ assert.equal(music.state.position,30000);
+ assert.equal(music.state.positionEpoch,previousEpoch);
+
+ emit('SEEK',{currentPosition:12000});
+ verifySound();
+ positionRequests.shift()(12010);
+ inFlightBeforeSeek(12030);
+ assert.equal(music.state.position,12010);
+ emit('PLAY_PROGRESS',{currentPosition:30100});
+ positionRequests.shift()(30100);
+ assert.equal(music.state.position,12010);
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
+});
+
+test('SoundCloud queries one progress sample at a time and recovers a dropped response',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('progress-probe');
+ await select(track);
+ widget.paused=false;
+ emit('PLAY');
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(0);
+ const expiration=[];
+ music.port.later=(callback,delay)=>{if(delay===1000)expiration.push(callback);};
+ emit('PLAY_PROGRESS',{currentPosition:7000});
+ emit('PLAY_PROGRESS',{currentPosition:8000});
+ assert.equal(positionRequests.length,1);
+ expiration.shift()();
+ emit('PLAY_PROGRESS',{currentPosition:9000});
+ const obsolete=positionRequests.shift();
+ const current=positionRequests.shift();
+ obsolete(7000);
+ assert.equal(music.state.position,0);
+ current(100);
+ assert.equal(music.state.position,100);
+});
+
+test('A stale FINISH payload cannot finish a replacement track',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('replacement');
+ await select(t('first'));
+ await select(track);
+ const verifySound=()=>soundRequests.shift()({permalink_url:track.url,duration:180000});
+ widget.paused=false;
+ emit('PLAY');
+ verifySound();
+ positionRequests.shift()(200);
+ emit('FINISH',{currentPosition:180000});
+ verifySound();
+ positionRequests.shift()(200);
+ assert.equal(music.state.status,'playing');
+
+ music.seek(179700);
+ assert.equal(music.state.positionPending,true);
+ emit('FINISH',{currentPosition:180000});
+ assert.equal(soundRequests.length,0);
+ assert.equal(music.state.status,'playing');
+
+ emit('SEEK',{currentPosition:179700});
+ verifySound();
+ positionRequests.shift()(179700);
+ assert.equal(music.state.positionPending,false);
+ emit('PLAY_PROGRESS');
+ positionRequests.shift()(179800);
+ emit('FINISH');
+ verifySound();
+ assert.equal(positionRequests.length,0);
+ assert.equal(music.state.status,'finished');
+});
+
+test('a backward seek stays pending until the widget confirms the new position',async context=>{
+ const {music,widget,select,emit,soundRequests,positionRequests}=await setupWidget(context);
+ const track=t('backward-confirmation');
+ await select(track);
+ widget.paused=false;
+ emit('PLAY');
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(22200);
+ music.seek(22000);
+ const epoch=music.state.positionEpoch;
+ emit('PLAY_PROGRESS');
+ positionRequests.shift()(22500);
+ assert.equal(music.state.position,22000);
+ assert.equal(music.state.positionPending,true);
+ emit('SEEK',{currentPosition:22000});
+ soundRequests.shift()({permalink_url:track.url});
+ positionRequests.shift()(22020);
+ assert.equal(music.state.position,22020);
+ assert.equal(music.state.positionPending,false);
+ assert.equal(music.state.positionEpoch,epoch);
+});
+
+test('a seek missing its acknowledgement reconciles the provider position',async context=>{
+ const {music,select,positionRequests}=await setupWidget(context);
+ await select(t('seek-fallback'));
+ const callbacks=[];
+ music.port.later=(callback,delay)=>{if(delay===1500)callbacks.push(callback);};
+ music.pause();
+ music.seek(40000);
+ const epoch=music.state.positionEpoch;
+ assert.equal(music.state.positionPending,true);
+ callbacks.shift()();
+ positionRequests.shift()(32000);
+ assert.equal(music.state.position,32000);
+ assert.equal(music.state.positionPending,false);
+ assert.equal(music.state.positionEpoch,epoch+1);
+ assert.equal(music.state.status,'paused');
 });
 
 test('Local media samples its clock on pause, seek and playback-rate changes',context=>{
@@ -216,7 +377,10 @@ test('Local media samples its clock on pause, seek and playback-rate changes',co
  media.currentTime=2.25;
  music.pause();
  assert.equal(music.state.position,2250);
+ const previousEpoch=music.state.positionEpoch;
  music.seek(9250);
+ media.dispatchEvent(new Event('seeked'));
+ assert.equal(music.state.positionEpoch,previousEpoch+1);
  assert.equal(media.currentTime,9.25);
  assert.equal(music.state.position,9250);
  assert.equal(music.state.status,'paused');
@@ -228,4 +392,93 @@ test('Local media samples its clock on pause, seek and playback-rate changes',co
  assert.equal(music.state.position,10000);
  assert.equal(music.state.status,'playing');
  assert.equal(music.state.rate,1.5);
+});
+
+const regressionEvents = ['READY', 'PLAY', 'PAUSE', 'PLAY_PROGRESS', 'SEEK', 'FINISH', 'ERROR'];
+async function setupStallWidget(context) {
+  const handlers = new Map();
+  const widget = {
+    pending: null,
+    position: 0,
+    paused: true,
+    bind(event, callback) {
+      handlers.set(event, callback);
+      if (event === 'READY') queueMicrotask(callback);
+    },
+    unbind(event) { handlers.delete(event); },
+    getSounds(callback) { callback([]); },
+    getCurrentSound(callback) { callback({id: this.pending.url, permalink_url: this.pending.url, duration: 120000}); },
+    getPosition(callback) { callback(this.position); },
+    isPaused(callback) { callback(this.paused); },
+    load(url, options) { this.pending = {url, ...options}; },
+    play() { this.paused = false; handlers.get('PLAY')?.({soundId: this.pending.url, currentPosition: this.position}); },
+    pause() { this.paused = true; handlers.get('PAUSE')?.({soundId: this.pending?.url, currentPosition: this.position}); },
+    setVolume() {},
+    finishLoad() {
+      const {auto_play, callback} = this.pending;
+      callback();
+      // Already queued widget autoplay can run after the host pauses a loading frame.
+      if (auto_play) this.play();
+    },
+    advance(position) { this.position = position; handlers.get('PLAY_PROGRESS')?.({soundId: this.pending.url, currentPosition: position}); },
+  };
+  const Widget = Object.assign(() => widget, {Events: Object.fromEntries(regressionEvents.map(name => [name, name]))});
+  const previousWindow=globalThis.window,previousDocument=globalThis.document;
+  globalThis.window = {SC: {Widget}};
+  globalThis.document = {createElement: () => ({style: {}, remove() {}})};
+  const port = new SoundCloudPort({replaceChildren() {}});
+  const music = new Sequencer(port);
+  context.after(() => {
+    port.destroy();
+    if(previousWindow===undefined)delete globalThis.window;else globalThis.window=previousWindow;
+    if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;
+  });
+  await port.init();
+  return {music, widget};
+}
+
+test('late queued autoplay cannot make Guided page 136 audible', async context => {
+  const {music, widget} = await setupStallWidget(context);
+  const guided = new GuidedPlayback(music);
+  const score = {
+    schemaVersion: 1,
+    editions: {g: 'revised'},
+    cues: [{id:'cue-135', edition:'g', startPage:135, endPage:135, title:'The Tape Ran Out',
+      url:'https://soundcloud.com/raikouno/the-tape-ran-out'}],
+    quietPages: [{edition:'g', number:136}],
+  };
+  guided.setScore(score);
+  guided.setLocation({edition: 'g', revision: score.editions.g, page: 135});
+  guided.setEnabled(true);
+  await Promise.resolve();
+  assert.equal(music.state.status, 'loading');
+  assert.equal(widget.paused, true);
+  guided.setLocation({edition: 'g', revision: score.editions.g, page: 136});
+  assert.equal(music.state.status, 'idle');
+  widget.finishLoad();
+  assert.equal(music.state.status, 'idle');
+  assert.equal(widget.paused, true);
+});
+
+test('manual playback with a frozen position surfaces recovery', async context => {
+  const {music, widget} = await setupStallWidget(context);
+  context.mock.timers.enable({apis:['setTimeout']});
+  music.select({id:'hot-sauce', title:'Hot sauce', provider:'soundcloud', url:'https://soundcloud.com/raikouno/hot-sauce-mp3'});
+  await Promise.resolve();
+  widget.finishLoad();
+  widget.advance(1200);
+  assert.equal(music.state.status, 'playing');
+  assert.equal(music.state.position, 1200);
+  context.mock.timers.tick(30000);
+  assert.equal(music.state.position, 1200);
+  assert.equal(music.state.status, 'paused');
+  assert.equal(music.state.pausedByUser, false);
+  widget.play();
+  widget.advance(1600);
+  assert.equal(music.state.status, 'playing');
+  assert.equal(music.state.position, 1600);
+  music.pause();
+  context.mock.timers.tick(30000);
+  assert.equal(music.state.status, 'paused');
+  assert.equal(music.state.pausedByUser, true);
 });

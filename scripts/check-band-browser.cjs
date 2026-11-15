@@ -189,26 +189,50 @@ fs.mkdirSync(output, { recursive: true });
     await page.getByText('Music sync · 120 BPM', { exact: true }).click();
     const tap = page.getByRole('button', { name: 'Tap beat', exact: true });
     assert.equal(await tap.isDisabled(), true);
-    await page.getByRole('button', { name: 'Seek 750', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).dispatchEvent('click');
     await page.getByRole('button', { name: 'Play', exact: true }).dispatchEvent('click');
-    for (let beat = 0; beat < 4; beat++) {
-      if (beat > 0) await page.clock.runFor(400);
-      await tap.dispatchEvent('click');
-    }
+    await tap.dispatchEvent('click');
+    await page.getByText('1 of 4 taps', { exact: true }).waitFor();
+    // Same number on the clock and no pause. The seek epoch must clear the tap.
+    await page.getByRole('button', { name: 'Seek 1250', exact: true }).dispatchEvent('click');
+    await page.getByText('1 of 4 taps', { exact: true }).waitFor({ state: 'detached' });
+    await page.getByRole('button', { name: 'Seek 1950', exact: true }).dispatchEvent('click');
+    const tapSeries = async (count, spacing) => {
+      for (let beat = 0; beat < count; beat++) {
+        if (beat > 0) await page.clock.runFor(spacing);
+        await tap.dispatchEvent('click');
+      }
+    };
+    await tapSeries(4, 500);
+    await page.getByText('Beat alignment saved at 120 BPM.', { exact: true }).waitFor();
+    assert.equal(await page.getByLabel('Beat offset (ms)').inputValue(), '-50');
+    checks.push('A seek clears unfinished taps, and four even taps align the beat without changing BPM');
+    const estimate = page.getByRole('button', { name: 'Estimate tempo', exact: true });
+    const cancel = page.getByRole('button', { name: 'Cancel estimate', exact: true });
+    const save = page.getByRole('button', { name: 'Save tempo', exact: true });
+    await estimate.dispatchEvent('click');
+    await tapSeries(12, 400);
+    await save.waitFor();
     await page.getByText('Music sync · 150 BPM', { exact: true }).waitFor();
-    assert.equal(await page.getByLabel('Beat offset (ms)').inputValue(), '750');
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('kt-band-timing-v1:https://soundcloud.com/raikouno/black')).bpm), 120);
+    await cancel.dispatchEvent('click');
+    await page.getByText('Music sync · 120 BPM', { exact: true }).waitFor();
+    await estimate.dispatchEvent('click');
+    await tapSeries(12, 400);
+    await save.dispatchEvent('click');
+    const savedBeatOffset = await page.getByLabel('Beat offset (ms)').inputValue();
     await page.getByRole('button', { name: 'Pause', exact: true }).dispatchEvent('click');
     await page.getByRole('button', { name: 'Switch song' }).dispatchEvent('click');
     await page.getByText('Music sync · 120 BPM', { exact: true }).waitFor();
     await page.getByRole('button', { name: 'Switch song' }).dispatchEvent('click');
     await page.reload();
     await page.getByText('Music sync · 150 BPM', { exact: true }).click();
-    assert.equal(await page.getByLabel('Beat offset (ms)').inputValue(), '750');
+    assert.equal(await page.getByLabel('Beat offset (ms)').inputValue(), savedBeatOffset);
     await page.getByRole('button', { name: 'Reset sync', exact: true }).dispatchEvent('click');
     await page.getByText('Music sync · 120 BPM', { exact: true }).waitFor();
     await page.reload();
     await page.getByText('Music sync · 120 BPM', { exact: true }).waitFor();
-    checks.push('Four 400 ms taps set 150 BPM and the downbeat, persist per song, and reset to preview tempo');
+    checks.push('Twelve taps preview 150 BPM until saved, persist per song, and reset to preview tempo');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.getByRole('button', { name: 'Deliver delayed sample', exact: true }).dispatchEvent('click');
     await shuffle.waitFor();

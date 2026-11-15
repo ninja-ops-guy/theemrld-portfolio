@@ -95,6 +95,19 @@ export function validateGuidedScore(input) {
       return { edition, number };
     });
   }
+  if (input.immediateCuePages !== undefined) {
+    if (!Array.isArray(input.immediateCuePages) || input.immediateCuePages.length > 500) {
+      throw Error('Use an array of up to 500 immediate cue pages.');
+    }
+    score.immediateCuePages = input.immediateCuePages.map(page => {
+      const { edition, number } = page ?? {};
+      if (!Number.isInteger(number) || !Object.hasOwn(editions, edition)
+        || number < 1 || number > GUIDED_EDITIONS[edition].pageCount) {
+        throw Error('Each immediate cue page needs a valid page in a revision-stamped edition.');
+      }
+      return { edition, number };
+    });
+  }
   return score;
 }
 

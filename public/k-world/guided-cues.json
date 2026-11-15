@@ -659,6 +659,12 @@
     }
   ],
   "minimumPlayMs": 30000,
+  "immediateCuePages": [
+    { "edition": "g", "number": 53 },
+    { "edition": "g", "number": 54 },
+    { "edition": "g", "number": 56 },
+    { "edition": "g", "number": 57 }
+  ],
   "quietPages": [
     {
       "edition": "g",
