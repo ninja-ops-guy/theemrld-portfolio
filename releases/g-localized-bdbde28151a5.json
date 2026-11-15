@@ -46,7 +46,7 @@
     "hash_verified": false
   },
   "last_outcome": {
-    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43681763509",
+    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43682250316",
     "jobs": {
       "resolve": "success",
       "prepare": "skipped",
@@ -54,7 +54,7 @@
       "staged": "success",
       "qualify": "success",
       "checkpoint": "success",
-      "publish": "skipped"
+      "publish": "failure"
     }
   },
   "staged_head": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519",
