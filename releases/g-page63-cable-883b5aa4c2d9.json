@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "release_id": "g-page63-cable-883b5aa4c2d9",
+  "manifest_sha256": "a8e840d2ba466535c6c18f3e1b5c36ac948e1d0905865c8cad2346e473c1ac71",
+  "requests": {
+    "g-page63-cable-883b5aa4c2d9-prepare": {
+      "binding": {
+        "action": "prepare",
+        "expected_head": "d7c1ec5b87d89bafb3eb520c09c477d0e571bdc5",
+        "manifest_sha256": "a8e840d2ba466535c6c18f3e1b5c36ac948e1d0905865c8cad2346e473c1ac71"
+      },
+      "first_run": "43727344960"
+    }
+  },
+  "phase": "REGISTERED",
+  "last_request": "g-page63-cable-883b5aa4c2d9-prepare",
+  "last_run": "43727344960",
+  "source": {
+    "phase": "AWAITING_SOURCE_UPLOAD",
+    "reason": "The registered source release does not exist.",
+    "source_url": null,
+    "hash_verified": false
+  }
+}
