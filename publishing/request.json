@@ -1,1 +1,1 @@
-{"release_id":"xiv-kali-331e7564cde3","action":"stage","request_id":"xiv-kali-331e7564cde3-metadata-qualified","expected_head":"6de7fe7499d496ac5297ee1472fd48b4471f1f90","manifest_sha256":"5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb"}
+{"release_id":"xiv-kali-331e7564cde3","action":"publish","request_id":"xiv-kali-331e7564cde3-publish-qualified","expected_head":"6de7fe7499d496ac5297ee1472fd48b4471f1f90","manifest_sha256":"5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb"}
