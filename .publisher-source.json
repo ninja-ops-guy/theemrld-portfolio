@@ -1,7 +1,7 @@
 {
-  "base_media_commit": "eb61a536f1bd05a5f6145c4cfb38728465033599",
-  "manifest_sha256": "89aac053e5c024885f5e88aad5c385e822de66820c9bbd98fad157eb90637cdc",
-  "release_id": "xiv-page24-fcb01afed21d",
+  "base_media_commit": "c88ae09eb1dc5decb68d6aa8a5fed60e916bf0cb",
+  "manifest_sha256": "5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb",
+  "release_id": "xiv-kali-331e7564cde3",
   "schema_version": 1,
-  "source_sha256": "ac4d91ca8dc0af5f427032790d958ce99a6c6329d1edb28c363a563529a45bcb"
+  "source_sha256": "40f852955c3f40bf54e130922bfcb58739e33c4bfb621f1adea93cf6935ffae3"
 }
