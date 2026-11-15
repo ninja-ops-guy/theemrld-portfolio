@@ -20,7 +20,7 @@
       "first_run": "43685936149"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "QUALIFIED_NOT_PUBLISHED",
   "last_request": "xiv-kali-331e7564cde3-metadata-qualified",
   "last_run": "43685936149",
   "source": {
@@ -42,5 +42,13 @@
     }
   },
   "staged_head": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
-  "media_commit": "7e75b409f84c0e817be3f74d45b5c18c3dbd14f9"
+  "media_commit": "7e75b409f84c0e817be3f74d45b5c18c3dbd14f9",
+  "qualification": {
+    "head": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
+    "base": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519",
+    "tree": "b1c7db12123f62ec32ef1446405f6df6e96064c1",
+    "reviewed_head": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
+    "run_id": "43685936149",
+    "manifest_sha256": "5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb"
+  }
 }
