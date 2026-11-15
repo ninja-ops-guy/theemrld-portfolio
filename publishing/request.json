@@ -1,1 +1,1 @@
-{"release_id":"g-localized-bdbde28151a5","action":"publish","request_id":"g-localized-bdbde28151a5-publish-qualified","expected_head":"bd239ac2915a5d3238c0aed6ebdc69e4777d4519","manifest_sha256":"eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7"}
+{"release_id":"g-localized-bdbde28151a5","action":"resume","request_id":"g-localized-bdbde28151a5-resume-merged","expected_head":"bd239ac2915a5d3238c0aed6ebdc69e4777d4519","manifest_sha256":"eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7"}
