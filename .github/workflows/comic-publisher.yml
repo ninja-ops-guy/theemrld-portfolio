@@ -242,6 +242,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Build and preserve current-only publication policy
         working-directory: candidate
         env:
@@ -251,6 +254,10 @@ jobs:
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
           npm run build
+          if [ -f scripts/build-comic-volumes.py ]; then
+            python -m pip install 'Pillow==12.3.0'
+            python scripts/build-comic-volumes.py
+          fi
           node scripts/finalize-comic-dist.mjs > ../comic-finalization-receipt.json
       - name: Verify every declared immutable asset and approved PDF
         env:

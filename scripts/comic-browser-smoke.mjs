@@ -26,9 +26,16 @@ try {
         const img=page.locator('.comic-page-image');
         await img.waitFor({state:'visible',timeout:30000});
         await page.waitForFunction(()=>{const i=document.querySelector('.comic-page-image');return i?.complete && i.naturalWidth>0;},{},{timeout:30000});
-        const actual=await img.evaluate(i=>({src:i.currentSrc,width:i.naturalWidth,height:i.naturalHeight}));
         const expected=m.images[n-1];
         const expectedURL = m.schema_version === 2 ? `https://raw.githubusercontent.com/${m.repository}/${marker.media_commit}/${expected.path}` : base + '/' + expected.path.slice(7);
+        if (m.schema_version === 2 && m.edition === 'g') {
+          await page.getByRole('button', { name: 'Enlarge', exact: true }).click();
+          await page.waitForFunction(url => {
+            const image = document.querySelector('.comic-page-image');
+            return image?.currentSrc === url && image.complete && image.naturalWidth > 0;
+          }, expectedURL, { timeout: 30000 });
+        }
+        const actual=await img.evaluate(i=>({src:i.currentSrc,width:i.naturalWidth,height:i.naturalHeight}));
         if(new URL(actual.src).href !== expectedURL || actual.width!==expected.width || actual.height!==expected.height) throw new Error(`${name} page ${n}: wrong artwork or dimensions`);
         const pdf=m.schema_version === 2 ? m.pdf.filename : m.pdf.path.split('/').pop();
         const pdfLink = page.locator(`.comic-downloads a[href*="${pdf}"]`).first();

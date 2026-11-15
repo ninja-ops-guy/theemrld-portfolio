@@ -3,12 +3,14 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import source from '../data/comic-current-editions.json';
 import displayLabels from '../data/comic-display-labels.json';
+import collection from '../data/comic-collection-serving.json';
 import ComicMusicBar from '../components/ComicMusicBar';
 import './TechOpsComic.css';
 import './LatestComicReader.css';
 
 type Hotspot = { page: number; rect: number[] };
-type Book = { id: string; label: string; title: string; pageCount: number; revision: string; pdfUrl: string; imageBase: string; width: number; height: number; sections: {start:number; end:number; label:string; title:string; kind:string}[]; scenes: {page:number; title:string}[]; links: Record<string, Hotspot[]> };
+type Section = { start: number; end: number; label: string; title: string; kind: string };
+type Book = { id: string; label: string; title: string; pageCount: number; revision: string; pdfUrl: string; imageBase: string; mediaCommit?: string; width: number; height: number; sections: Section[]; scenes: {page:number; title:string}[]; links: Record<string, Hotspot[]> };
 // Editorial revision IDs remain stable for bookmarks, hashes and soundtrack bindings.
 // Reader-facing names are independent of those internal production identifiers.
 const books = Object.fromEntries(Object.entries(source.books).map(([id, book]) => [id, {
@@ -22,6 +24,12 @@ const grandfatherArtFix = import.meta.env.BASE_URL + 'assets/comic/volume-xiii-0
 const imageUrl = (book: Book, page: number) => book.id === 'xiii-r' && page === 29
   ? grandfatherArtFix
   : `${book.imageBase}${String(page).padStart(3, '0')}.webp`;
+
+function readingImageUrl(book: Book, page: number, section: Section) {
+  const folder = collection.folders[section.label as keyof typeof collection.folders];
+  if (book.id !== 'g' || !book.mediaCommit || !folder) return imageUrl(book, page);
+  return `${import.meta.env.BASE_URL}${collection.directory}/${book.mediaCommit}/${folder}/${String(page).padStart(3, '0')}.webp`;
+}
 function validPage(value: string | null, total: number) { const n=Number(value); return Number.isInteger(n) && n>=1 && n<=total ? n : 0; }
 function bookmark(book: Book) { try { return validPage(localStorage.getItem(`techops-hero:${book.id}:${book.revision}:page`),book.pageCount); } catch { return 0; } }
 
@@ -34,17 +42,30 @@ export default function LatestComicReader() {
   const fromWorld = params.get('from') === 'world';
   const section = book.sections.find(s => page>=s.start && page<=s.end) ?? book.sections[0];
   const saved = bookmark(book);
-  const [zoom, setZoom] = useState(false);
+  const [zoomedPage, setZoomedPage] = useState('');
   const [failure, setFailure] = useState('');
+  const [readingImageFailure, setReadingImageFailure] = useState('');
+  const [originalFailure, setOriginalFailure] = useState('');
   const [retry, setRetry] = useState(0);
   const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x:number;y:number}|null>(null);
   const key = `${id}-${page}`;
+  const zoom = zoomedPage === key;
+  const original = imageUrl(book, page);
+  const readingImage = readingImageUrl(book, page, section);
+  const hasReadingImage = readingImage !== original && readingImageFailure !== key;
+  const showReadingImage = hasReadingImage && (!zoom || originalFailure === key);
+  const volumes = id === 'g' ? book.sections.filter(s => s.kind === 'volume') : [];
   const describe = (n:number) => { const s=book.sections.find(s=>n>=s.start && n<=s.end); return `${s?.label ?? book.label} · ${s?.title ?? book.title}`; };
   const go = useCallback((target:number, edition=id) => {
-    setIntro(false); setFailure(''); setRetry(0);
+    setIntro(false);
+    setFailure('');
+    setReadingImageFailure('');
+    setOriginalFailure('');
+    setRetry(0);
+    setZoomedPage('');
     const q = new URLSearchParams({edition});
     if (fromWorld) q.set('from','world');
     if (target) q.set('page',String(target));
@@ -66,10 +87,9 @@ export default function LatestComicReader() {
     return ()=>{document.title=previous;};
   },[book.label,page]);
   useEffect(() => {
-    setZoom(false); stage.current?.scrollTo(0,0);
+    setZoomedPage('');
+    stage.current?.scrollTo(0,0);
     if (!page) return;
-    try {localStorage.setItem(`techops-hero:${book.id}:${book.revision}:page`,String(page));} catch { /* Optional in private browsing. */ }
-    if (page<book.pageCount) new Image().src=imageUrl(book,page+1);
     const onKey=(e:KeyboardEvent)=>{
       if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||(e.target instanceof HTMLElement && e.target.closest('input,select,textarea,button,[contenteditable=true]')))return;
       if(e.key==='ArrowLeft' && page>1){e.preventDefault();go(page-1);}
@@ -77,6 +97,26 @@ export default function LatestComicReader() {
     };
     window.addEventListener('keydown',onKey);return ()=>window.removeEventListener('keydown',onKey);
   },[book,page,go]);
+  const onPageLoad = () => {
+    try {
+      localStorage.setItem(`techops-hero:${book.id}:${book.revision}:page`, String(page));
+    } catch { /* Optional in private browsing. */ }
+    if (zoom || page >= book.pageCount || (id === 'g' && (!showReadingImage || page >= section.end))) return;
+    const prefetch = new Image();
+    prefetch.fetchPriority = 'low';
+    prefetch.src = readingImageUrl(book, page + 1, section);
+  };
+  const onPageError = () => {
+    if (showReadingImage) setReadingImageFailure(key);
+    else if (hasReadingImage) setOriginalFailure(key);
+    else setFailure(key);
+  };
+  const retryPage = () => {
+    setFailure('');
+    setReadingImageFailure('');
+    setOriginalFailure('');
+    setRetry(attempt => attempt + 1);
+  };
   const next=editionOrder[editionOrder.indexOf(id)+1];
   return <main className={'comic-shell comic-current '+(page?'comic-reading':'')}>
     {intro && !page && <dialog ref={dialog} className="comic-reel" aria-label="Tech Ops Hero introduction" onCancel={()=>setIntro(false)}>
@@ -103,22 +143,36 @@ export default function LatestComicReader() {
       <section className="comic-library" aria-label="Comic library">
         <div className="comic-library-heading"><h2>The complete reading order</h2><span>VOLUMES I–XIV</span></div>
         <div className="comic-volumes comic-volumes-complete comic-current-books">{editionOrder.map(eid=>{
-          const item=books[eid];return <article key={eid} className="comic-current-card"><button onClick={()=>go(1,eid)}>
-            <img src={imageUrl(item,eid==='g'?3:1)} alt={`${item.label} cover`} width={item.width} height={item.height} loading="lazy"/>
+          const item = books[eid];
+          const coverSection = item.sections.find(s => s.kind === 'volume') ?? item.sections[0];
+          const cover = eid === 'g' ? coverSection.start : 1;
+          const originalCover = imageUrl(item, cover);
+          return <article key={eid} className="comic-current-card"><button onClick={()=>go(1,eid)}>
+            <img src={readingImageUrl(item, cover, coverSection)} alt={`${item.label} cover`} width={item.width} height={item.height} loading="lazy"
+              onError={eid === 'g' ? e => { if (e.currentTarget.src !== originalCover) e.currentTarget.src = originalCover; } : undefined}/>
             <div className="comic-vol-meta">{item.label}<span>{item.pageCount} PAGES</span></div><div className="comic-vol-title">{item.title}<ArrowRight size={18}/></div>
           </button><a className="comic-edition-link" href={item.pdfUrl} target="_blank" rel="noopener noreferrer">Complete PDF · {item.pageCount} pages</a></article>;
         })}</div>
+        {volumes.length > 0 && <>
+          <h2 className="comic-current-chapters">Choose a volume</h2>
+          <div className="comic-current-toc">{volumes.map(volume => <button key={volume.start} onClick={() => go(volume.start)}>
+            <span>{volume.label} · {volume.title}</span><small>p. {volume.start}</small>
+          </button>)}</div>
+        </>}
         <h2 className="comic-current-chapters">{book.label} · Contents</h2>
         <div className="comic-current-toc">{book.scenes.map((scene,i)=><button key={`${scene.page}-${i}`} onClick={()=>go(scene.page)}><span>{scene.title}</span><small>p. {scene.page}</small></button>)}</div>
       </section>
     </> : <>
-      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Library</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={()=>setZoom(!zoom)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button></div>
+      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Library</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={() => setZoomedPage(zoom ? '' : key)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button></div>
       <div className={'comic-stage'+(zoom?' is-enlarged':'')} ref={stage}
         onTouchStart={e=>{swipe.current=!zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
         onTouchCancel={()=>{swipe.current=null;}}
         onTouchEnd={e=>{const start=swipe.current;swipe.current=null;if(!start||e.touches.length||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x;const dy=e.changedTouches[0].clientY-start.y;if(Math.abs(dx)<55||Math.abs(dx)<1.6*Math.abs(dy))return;go(Math.min(book.pageCount,Math.max(1,page+(dx<0?1:-1))));}}>
-        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={()=>{setFailure('');setRetry(n=>n+1);}}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet">
-          <img key={`${key}-${retry}`} className="comic-page-image" src={imageUrl(book,page)+(retry?`?retry=${retry}`:'')} alt={`Page ${page} of ${book.pageCount}. ${describe(page)}`} width={book.width} height={book.height} onError={()=>setFailure(key)} fetchPriority="high"/>
+        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet">
+          <img key={`${key}-${retry}`} className="comic-page-image"
+            src={(showReadingImage ? readingImage : original) + (retry ? `?retry=${retry}` : '')}
+            alt={`Page ${page} of ${book.pageCount}. ${describe(page)}`} width={book.width} height={book.height}
+            onLoad={onPageLoad} onError={onPageError} fetchPriority="high"/>
           {book.links[String(page)]?.map((link,i)=><button key={i} className="comic-hotspot" aria-label={`Read page ${link.page}: ${describe(link.page)}`} onClick={()=>go(link.page)} style={{left:`${link.rect[0]}%`,top:`${link.rect[1]}%`,width:`${link.rect[2]-link.rect[0]}%`,height:`${link.rect[3]-link.rect[1]}%`}}/>)}
         </div>}
       </div>
@@ -127,6 +181,10 @@ export default function LatestComicReader() {
         <label>Page <select aria-label="Jump to page" value={page} onChange={e=>go(Number(e.target.value))}>{Array.from({length:book.pageCount},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select> / {book.pageCount}</label>
         <button className="comic-turn" aria-label="Next page" disabled={page===book.pageCount} onClick={()=>go(page+1)}><ChevronRight/></button>
         <select aria-label="Jump to scene" className="comic-scenes" value="" onChange={e=>go(Number(e.target.value))}><option value="" disabled>Jump to scene</option>{book.scenes.map((scene,i)=><option key={`${scene.page}-${i}`} value={scene.page}>{scene.page} · {scene.title}</option>)}</select>
+        {volumes.length > 0 && <select aria-label="Jump to volume" value={section.kind === 'volume' ? section.start : ''} onChange={e => go(Number(e.target.value))}>
+          <option value="" disabled>Jump to volume</option>
+          {volumes.map(volume => <option key={volume.start} value={volume.start}>{volume.label} · {volume.title}</option>)}
+        </select>}
         <label className="comic-current-edition">Book <select aria-label="Choose book" value={id} onChange={e=>go(1,e.target.value)}>{editionOrder.map(eid=><option key={eid} value={eid}>{books[eid].label}</option>)}</select></label>
         <span className="sr-only" aria-live="polite">Page {page} of {book.pageCount}. {describe(page)}</span>
       </nav>

@@ -1,0 +1,22 @@
+{
+  "directory": "techops-comic/collection/fit-v1",
+  "width": 1440,
+  "quality": 85,
+  "folders": {
+    "Guide": "guide",
+    "Vol. I": "volume-i",
+    "Vol. II": "volume-ii",
+    "Interlude": "iona-interlude",
+    "Vol. III": "volume-iii",
+    "Vol. IV": "volume-iv",
+    "Vol. V": "volume-v",
+    "Vol. VI": "volume-vi",
+    "Vol. VII": "volume-vii",
+    "Vol. VIII": "volume-viii",
+    "Vol. IX": "volume-ix",
+    "Vol. X": "volume-x",
+    "Continuation": "guide",
+    "Vol. XI": "volume-xi",
+    "Vol. XII": "volume-xii"
+  }
+}

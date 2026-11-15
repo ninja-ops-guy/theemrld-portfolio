@@ -23,7 +23,7 @@ test('reader removes earlier-edition links and production wording', async () => 
 });
 test('retirement precisely separates earlier assets from current and shared artwork', () => {
   for (const name of ['001.webp', 'revision-f/034.webp', 'volume-xiii/040.webp', 'volume-v/001.webp', 'volume-v/TechOps-Hero-Volume-5.pdf', 'TechOps-Hero-Revision-11.pdf', 'TechOps-Hero-Revision-11.1.pdf', 'TechOps-Hero-Revision-F-Complete.pdf', 'TechOps-Hero-Revision-F-Annotation-Update-315-Pages.pdf']) assert.equal(isRetiredComicAsset(name), true, name);
-  for (const name of ['dock.webp', 'intro-panels-hq.webp', 'volume-I.webp', 'volume-v/cover.webp', 'revision-g/001.webp', 'volume-xiii-r/049.webp', 'volume-xiv/133.webp', 'volume-xiv/current.pdf', 'publication.json']) assert.equal(isRetiredComicAsset(name), false, name);
+  for (const name of ['dock.webp', 'intro-panels-hq.webp', 'volume-I.webp', 'volume-v/cover.webp', 'collection/fit-v1/source/volume-v/175.webp', 'revision-g/001.webp', 'volume-xiii-r/049.webp', 'volume-xiv/133.webp', 'volume-xiv/current.pdf', 'publication.json']) assert.equal(isRetiredComicAsset(name), false, name);
 });
 test('deployment cleanup removes actual old files and is idempotent', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'comic-final-'));
@@ -38,9 +38,11 @@ test('deployment cleanup removes actual old files and is idempotent', async () =
     assert.deepEqual(await retireEarlierComicAssets(root), []);
   } finally { await rm(root, {recursive:true, force:true}); }
 });
-test('production Pages build always applies retirement before upload', async () => {
+test('production Pages builds the volume files before finalization and upload', async () => {
   const workflow = await read('.github/workflows/pages.yml');
-  assert.ok(workflow.indexOf('node scripts/finalize-comic-dist.mjs') > workflow.indexOf('run: npm run build'));
+  const assemble = workflow.indexOf('python scripts/build-comic-volumes.py');
+  assert.ok(assemble > workflow.indexOf('run: npm run build'));
+  assert.ok(assemble < workflow.indexOf('node scripts/finalize-comic-dist.mjs'));
   assert.ok(workflow.indexOf('node scripts/finalize-comic-dist.mjs') < workflow.indexOf('uses: actions/upload-pages-artifact@v3'));
 });
 
