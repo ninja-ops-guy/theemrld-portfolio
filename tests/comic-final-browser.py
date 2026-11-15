@@ -15,8 +15,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('COMIC_BASE_URL', 'http://127.0.0.1:4173/').rstrip('/') + '/'
 OUT = Path(os.environ.get('COMIC_QA_DIR', 'qa/comic-final'))
 OUT.mkdir(parents=True, exist_ok=True)
-MANIFEST = json.loads((ROOT / 'src/data/comic-current-editions.json').read_text())
-LABELS = json.loads((ROOT / 'src/data/comic-display-labels.json').read_text())
+MANIFEST = json.loads((ROOT / 'src/data/comic-current-editions.json').read_text(encoding='utf-8'))
+LABELS = json.loads((ROOT / 'src/data/comic-display-labels.json').read_text(encoding='utf-8'))
+SERVING = json.loads((ROOT / 'src/data/comic-collection-serving.json').read_text(encoding='utf-8'))
+COLLECTION = MANIFEST['books']['g']
+COLLECTION_PATH = f"{SERVING['directory']}/{COLLECTION['mediaCommit']}/"
 CHECKS = []
 receipt = {'baseUrl': BASE, 'sourceCommit': os.environ.get('GITHUB_SHA'), 'checks': CHECKS, 'physicalDeviceTest': False}
 
@@ -26,6 +29,22 @@ def checked(name):
 
 def reader_url(edition='g', page=None, extra=''):
     return BASE + '#/comic?edition=' + edition + (f'&page={page}' if page else '') + extra
+
+def collection_image(number):
+    section = next(s for s in COLLECTION['sections'] if s['start'] <= number <= s['end'])
+    return COLLECTION_PATH + SERVING['folders'][section['label']] + f'/{number:03}.webp'
+
+def expect_reading_image(page, number):
+    image = page_image(page)
+    page.wait_for_function(
+        "([url, width]) => {"
+        "const i=document.querySelector('.comic-page-image');"
+        "return i.currentSrc === url && i.complete && i.naturalWidth === width;"
+        "}",
+        arg=[BASE + collection_image(number), SERVING['width']],
+        timeout=60000,
+    )
+    return image
 
 def page_image(page):
     image = page.locator('.comic-page-image')
@@ -51,6 +70,19 @@ try:
     if os.environ.get('GITHUB_SHA'):
         assert publication['sourceCommit'] == os.environ['GITHUB_SHA'], publication
     checked('exact-commit public manifest and 316/49/133 counts')
+
+    with urlopen(BASE + COLLECTION_PATH + 'index.json', timeout=30) as response:
+        serving = json.load(response)
+    assert serving['mediaCommit'] == COLLECTION['mediaCommit']
+    assert serving['pageCount'] == COLLECTION['pageCount']
+    assert serving['width'] == SERVING['width']
+    assert 0 < serving['readerBytes'] < serving['originalBytes']
+    assert serving['volumes'] == [
+        {**section, 'folder': SERVING['folders'][section['label']]}
+        for section in COLLECTION['sections']
+    ]
+    receipt['collectionBytes'] = {key: serving[key] for key in ('readerBytes', 'originalBytes')}
+    checked(f"volume files reduce reading bytes from {serving['originalBytes']:,} to {serving['readerBytes']:,}")
 
     # Only genuine 404/410 is retirement. A 503 is not a pass:
     # retry briefly and keep the response chain in the QA receipt.
@@ -134,14 +166,50 @@ try:
                     expect(page.locator('.comic-current-continue')).to_have_count(0)
                 checked(f'{name}: {id} PDF link, loaded pages, navigation, scenes, ending and continuation')
 
+            collection_requests = []
+            def record_artwork(request):
+                if request.resource_type == 'image' and (
+                    request.url.startswith(BASE + COLLECTION_PATH)
+                    or request.url.startswith(COLLECTION['imageBase'])
+                ):
+                    collection_requests.append(request.url)
+            page.on('request', record_artwork)
+
+            first_volume = next(section for section in COLLECTION['sections'] if section['label'] == 'Vol. I')
+            end_page = first_volume['end']
+            page.goto(reader_url('g',end_page), wait_until='domcontentloaded')
+            expect_reading_image(page, end_page)
+            assert collection_requests == [BASE + collection_image(end_page)], collection_requests
+            page.get_by_role('button', name='Next page', exact=True).click()
+            expect_reading_image(page, end_page + 1)
+            expect(page.get_by_label('Jump to volume')).to_have_value(str(end_page + 1))
+            page.get_by_role('button', name='Previous page', exact=True).click()
+            expect_reading_image(page, end_page)
+            page.get_by_label('Jump to volume').select_option('87')
+            expect_reading_image(page, 87)
+            page.goto(reader_url(), wait_until='domcontentloaded')
+            page.get_by_role('button', name=re.compile(r'Vol\. III · The Return Signal')).click()
+            expect_reading_image(page, 142)
+            checked(f'{name}: volume folders, direct jumps and no prefetch across the volume boundary')
+
             page.goto(reader_url('g',12), wait_until='domcontentloaded')
-            page_image(page)
+            expect_reading_image(page, 12)
             page.goto(reader_url(), wait_until='domcontentloaded')
             page.get_by_role('button', name='Resume · p. 12', exact=False).click()
             expect(page.get_by_label('Jump to page', exact=True)).to_have_value('12')
             page.get_by_role('button', name='Enlarge', exact=False).click()
             expect(page.locator('.comic-stage')).to_have_class(re.compile('is-enlarged'))
+            original = COLLECTION['imageBase'] + '012.webp'
+            page.wait_for_function(
+                "([url, width]) => {"
+                "const i=document.querySelector('.comic-page-image');"
+                "return i.currentSrc === url && i.complete && i.naturalWidth === width;"
+                "}",
+                arg=[original, COLLECTION['width']],
+                timeout=60000,
+            )
             page.get_by_role('button', name='Fit page', exact=False).click()
+            expect_reading_image(page, 12)
             if name == 'mobile-touch':
                 swipe(page)
                 expect(page.get_by_label('Jump to page', exact=True)).to_have_value('13')
@@ -151,14 +219,20 @@ try:
                 expect(page.get_by_label('Jump to page', exact=True)).to_have_value('13')
             checked(f'{name}: saved position, zoom and swipe/keyboard controls')
 
-            broken = MANIFEST['books']['g']['imageBase'] + '008.webp'
-            page.route(broken + '*', lambda route: route.abort())
+            broken = BASE + collection_image(8) + '*'
+            original = COLLECTION['imageBase'] + '008.webp*'
+            page.route(broken, lambda route: route.abort())
             page.goto(reader_url('g',8), wait_until='domcontentloaded')
+            expect(page_image(page)).to_have_attribute('src', original[:-1])
+            page.route(original, lambda route: route.abort())
+            page.reload(wait_until='domcontentloaded')
             expect(page.get_by_role('alert')).to_contain_text('This page could not load.', timeout=60000)
-            page.unroute(broken + '*')
+            page.unroute(broken)
+            page.unroute(original)
             page.get_by_role('button', name='Retry page', exact=True).click()
             page_image(page)
-            checked(f'{name}: image failure and retry recover correctly')
+            expect(page.locator('.comic-page-image')).to_have_attribute('src', '/' + collection_image(8) + '?retry=1')
+            checked(f'{name}: missing reading copy falls back to the original and retry recovers correctly')
             page.screenshot(path=str(OUT / f'{name}-reader.png'), full_page=False)
             assert not errors, errors
             checked(f'{name}: no uncaught browser errors')
