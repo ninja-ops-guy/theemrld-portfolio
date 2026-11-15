@@ -36,7 +36,7 @@
       "first_run": "43682250316"
     }
   },
-  "phase": "QUALIFIED_NOT_PUBLISHED",
+  "phase": "MAIN_UPDATE_REQUESTED",
   "last_request": "g-localized-bdbde28151a5-publish-qualified",
   "last_run": "43682250316",
   "source": {
