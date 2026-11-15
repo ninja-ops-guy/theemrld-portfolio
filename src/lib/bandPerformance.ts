@@ -1,4 +1,4 @@
-import { bandFrame } from './bandTiming';
+import { BAND_PHRASE_BEATS, bandFrame } from './bandTiming';
 
 export type Instrument = 'electronic' | 'violin' | 'piano' | 'synth' | 'bass';
 export type Arrangement = {
@@ -117,7 +117,7 @@ export function isPerformanceActive(positionMs: number, bpm: number, offsetMs: n
   const { rotation } = clip;
   if (!rotation) return true;
   const elapsedBeats = (positionMs - offsetMs) / (60000 / bpm);
-  return elapsedBeats >= 0 && elapsedBeats % rotation.intervalBeats < rotation.activeBeats;
+  return elapsedBeats >= -1e-8 && (elapsedBeats + 1e-8) % rotation.intervalBeats < rotation.activeBeats;
 }
 
 export function performanceCell(positionMs: number, bpm: number, offsetMs: number, clip: SpriteClip, reducedMotion = false): number {
@@ -159,7 +159,7 @@ export function groupShuffleFrame(positionMs: number, bpm: number, offsetMs: num
   // The shuffle runs on beats 3 and 4 of a 16-beat rotation.
   const framesPerBeat = GROUP_SHUFFLE.columns / 2;
   const firstFrame = framesPerBeat * 2;
-  const frame = bandFrame(positionMs, bpm, offsetMs, 16, framesPerBeat * 16);
+  const frame = bandFrame(positionMs, bpm, offsetMs, BAND_PHRASE_BEATS, framesPerBeat * BAND_PHRASE_BEATS);
   return frame >= firstFrame && frame < firstFrame + GROUP_SHUFFLE.columns ? frame - firstFrame : null;
 }
 
@@ -193,7 +193,7 @@ export function groupDanceAt(positionMs: number, bpm: number, offsetMs: number):
   if (positionMs < offsetMs) return null;
   const shuffle = groupShuffleFrame(positionMs, bpm, offsetMs);
   if (shuffle !== null) return { name: 'skeleton-shuffle', frame: shuffle };
-  const frame = bandFrame(positionMs, bpm, offsetMs, 16, 64);
+  const frame = bandFrame(positionMs, bpm, offsetMs, BAND_PHRASE_BEATS, BAND_PHRASE_BEATS * 4);
   if (frame >= 32 && frame < 40) return { name: 'two-step', frame: frame - 32 };
   if (frame >= 56) return { name: 'call-and-response', frame: frame - 56 };
   return null;

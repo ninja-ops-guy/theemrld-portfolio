@@ -46,7 +46,7 @@ function parentMessage(message){if(window.parent!==window)window.parent.postMess
 function publishState(immediate=false){
  const send=()=>{
   stateTimer=null;
-  const audio={...music.state};
+  const audio={...music.state,trackGeneration:music.generation};
   publishedTrack=audio.current;publishedStatus=audio.status;publishedRate=audio.rate;
   parentMessage({type:'k-world:state',audio,background,guided:guided.enabled,guidedNotice:guided.notice});
  };
@@ -239,7 +239,7 @@ async function refreshLibrary(){
 }
 function updateMusicUI(){const s=music.state;$('audio-title').textContent=s.current?s.current.title:'Sound is off. Your world is ready.';$('audio-mode').textContent='K TERMINAL / '+(guided.enabled?'GUIDED':s.mode.toUpperCase())+' / '+s.status.toUpperCase();$('audio-next').textContent=s.error|| (guided.enabled?guided.notice:!s.current?'Tap Play for the latest verified releases.':s.pendingZone?'NEXT / '+zoneLabel(s.pendingZone)+' — after this song':'Full songs. One player. No overlap.');$('audio-toggle').textContent=s.status==='playing'?'Ⅱ':'▶';$('audio-toggle').ariaLabel=s.status==='playing'?'Pause music':'Play or resume music';$('current-title').textContent=s.current?.title||'NO TRACK LOADED';$('current-time').textContent=timeLabel(s.position)+' / '+timeLabel(s.duration);$('progress').value=s.duration?s.position/s.duration:0;$('pending-title').textContent=s.error||(guided.enabled?guided.notice:s.pendingZone?'QUEUED / '+zoneLabel(s.pendingZone)+' · waits for FINISH':'Location / '+zoneLabel(s.zone)+' · mode '+s.mode);$('transport-auto').textContent='AUTO DJ: '+(s.mode==='auto'?'ON':'OFF');$('terminal-zone').textContent=zoneLabel(s.zone);$('volume').value=s.volume;$('terminal-audio-status').textContent=s.status==='error'?'PROVIDER ERROR / RESUME TO RETRY':'ONE PLAYER / '+s.status.toUpperCase()+' / NO CROSSFADE';if($('background-toggle')){$('background-toggle').textContent='BACKGROUND: '+(background?'ON':'OFF');$('background-toggle').setAttribute('aria-pressed',String(background));}if($('guided-toggle')){$('guided-toggle').textContent='GUIDED: '+(guided.enabled?'ON':'OFF');$('guided-toggle').setAttribute('aria-pressed',String(guided.enabled));}}
 const timeLabel=ms=>{const sec=Math.max(0,Math.floor((ms||0)/1000));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};
-let lastCurrent='',lastHeard='';on(music,'change',event=>{updateMusicUI();publishState(event.detail.positionDiscontinuity);if(music.state.current?.url!==lastCurrent){lastCurrent=music.state.current?.url||'';renderLibrary();}if(music.state.status==='playing'&&music.state.current?.url!==lastHeard){lastHeard=music.state.current?.url||'';remember(music.state.current);}});
+let lastCurrent='',lastHeard='';on(music,'change',event=>{updateMusicUI();publishState(event.detail.positionDiscontinuity||event.detail.positionPendingChanged);if(music.state.current?.url!==lastCurrent){lastCurrent=music.state.current?.url||'';renderLibrary();}if(music.state.status==='playing'&&music.state.current?.url!==lastHeard){lastHeard=music.state.current?.url||'';remember(music.state.current);}});
 function portals(container,detailed=false){for(const w of WORLDS){const button=document.createElement('button');button.className='portal';button.dataset.destination=w.id;button.style.setProperty('--color',w.color);button.setAttribute('aria-label','Enter '+w.subtitle);const pre=document.createElement('pre');pre.dataset.icon=w.icon;pre.setAttribute('aria-hidden','true');pre.textContent=iconFrame(w.icon,0);const name=document.createElement('strong');name.className='portal-name';name.textContent=w.name;const sub=document.createElement('span');sub.className='portal-sub';sub.textContent=w.subtitle.toUpperCase();button.append(pre,name,sub);if(detailed){const p=document.createElement('p');p.className='portal-description';p.textContent=w.description;const tag=document.createElement('small');tag.className='portal-tag';tag.textContent=w.tag;button.append(p,tag);}on(button,'click',()=>navigate(w.id,{arm:true}));container.append(button);}}
 portals($('terminal-portals'));portals($('atlas-portals'),true);
 for(const b of document.querySelectorAll('.hub-cards [data-destination]'))on(b,'click',()=>navigate(b.dataset.destination,{arm:true}));
@@ -288,7 +288,9 @@ on(window,'message',e=>{
    mergeLibrary([track]);selectTrack(track);if(message.autoplay===false)pauseMusic();break;
   }
   case 'k-world:volume':if(Number.isFinite(message.volume)){music.volume(message.volume);preferences.volume=music.state.volume;savePrefs();}break;
-  case 'k-world:seek':if(Number.isFinite(message.ms))music.seek(message.ms);break;
+  case 'k-world:seek':
+   if(Number.isFinite(message.ms)&&(message.trackGeneration===undefined||message.trackGeneration===music.generation))music.seek(message.ms);
+   break;
   case 'k-world:provider':{
    const dialog=$('terminal-dialog'), details=$('provider-details');
    if(message.open===true&&!hostWorldVisible){

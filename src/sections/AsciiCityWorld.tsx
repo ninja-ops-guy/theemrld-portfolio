@@ -8,7 +8,8 @@ import './KMusicSession.css';
 export type MusicTrack = { id: string; title: string; url: string; provider?: string; slot?: number; createdAt?: string | null };
 export type ReaderPosition = { edition: string; page: number; revision: string };
 export type MusicState = {
-  current: MusicTrack | null; status: string; position: number; positionSampledAt?: number | null; duration: number;
+  current: MusicTrack | null; status: string; position: number; positionSampledAt?: number | null; positionEpoch?: number;
+  positionPending?: boolean; trackGeneration?: number; duration: number;
   volume: number; mode: string; rate: number; zone: string | null; pendingZone: string | null;
   pausedByUser: boolean; error: string | null;
 };
@@ -20,7 +21,7 @@ type MusicContextValue = {
   background: boolean; guided: boolean; guidedNotice: string; scoreSource: 'published' | 'draft';
   sendCommand: (raw: string) => void;
   playTrack: (track: { url: string; title: string }, autoplay?: boolean) => void;
-  setVolume: (volume: number) => void; seek: (ms: number) => void;
+  setVolume: (volume: number) => void; seek: (ms: number, trackGeneration?: number) => void;
   openComments: () => void; openScore: () => void; openSoundCloud: () => void;
   setReader: (position: ReaderPosition | null) => void; usePublishedScore: () => void;
 };
@@ -80,7 +81,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
   const sendCommand = useCallback((raw: string) => send({ type: 'k-world:command', raw }), [send]);
   const playTrack = useCallback((track: { url: string; title: string }, autoplay = true) => send({ type: 'k-world:select', track, autoplay }), [send]);
   const setVolume = useCallback((volume: number) => send({ type: 'k-world:volume', volume }), [send]);
-  const seek = useCallback((ms: number) => send({ type: 'k-world:seek', ms }), [send]);
+  const seek = useCallback((ms: number, trackGeneration?: number) => send({ type: 'k-world:seek', ms, trackGeneration }), [send]);
   const openComments = useCallback(() => setCommentsOpen(true), []);
   const openSoundCloud = useCallback(() => setProviderOpen(true), []);
   const openScore = useCallback(() => setScoreOpen(true), []);
