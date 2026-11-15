@@ -1,1 +1,7 @@
-{"release_id":"xiv-kali-331e7564cde3","action":"publish","request_id":"xiv-kali-331e7564cde3-publish-qualified","expected_head":"6de7fe7499d496ac5297ee1472fd48b4471f1f90","manifest_sha256":"5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb"}
+{
+  "release_id": "g-page63-cable-883b5aa4c2d9",
+  "action": "prepare",
+  "request_id": "g-page63-cable-883b5aa4c2d9-prepare",
+  "expected_head": "d7c1ec5b87d89bafb3eb520c09c477d0e571bdc5",
+  "manifest_sha256": "a8e840d2ba466535c6c18f3e1b5c36ac948e1d0905865c8cad2346e473c1ac71"
+}
