@@ -28,7 +28,7 @@
       "first_run": "43686827205"
     }
   },
-  "phase": "MERGED_DEPLOYMENT_REQUESTED",
+  "phase": "PUBLISHED_HASH_VERIFIED",
   "last_request": "xiv-kali-331e7564cde3-publish-qualified",
   "last_run": "43686827205",
   "source": {
@@ -63,5 +63,13 @@
   "dispatch_intent": {
     "run_id": "43686827205",
     "merge_sha": "6de7fe7499d496ac5297ee1472fd48b4471f1f90"
+  },
+  "deployment_run": 43687340295,
+  "live_receipt": {
+    "status": "PUBLISHED_HASH_VERIFIED",
+    "release_id": "xiv-kali-331e7564cde3",
+    "commit": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
+    "url": "https://kterminal.site/",
+    "physical_mobile_test": false
   }
 }
