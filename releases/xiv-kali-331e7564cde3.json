@@ -28,7 +28,7 @@
       "first_run": "43686827205"
     }
   },
-  "phase": "MAIN_UPDATE_REQUESTED",
+  "phase": "MAIN_UPDATED_AWAITING_PR",
   "last_request": "xiv-kali-331e7564cde3-publish-qualified",
   "last_run": "43686827205",
   "source": {
@@ -58,5 +58,6 @@
     "reviewed_head": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
     "run_id": "43686827205",
     "manifest_sha256": "5be0a7ce3f80e0d1ef07b58d02472d0465e803844119a76f07bcd1ea2c529edb"
-  }
+  },
+  "merge_sha": "6de7fe7499d496ac5297ee1472fd48b4471f1f90"
 }
