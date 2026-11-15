@@ -834,9 +834,9 @@
       "title": "The System Is Healthy",
       "pageCount": 133,
       "revision": "corrected-97f16edf9df0",
-      "pdfFilename": "TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf",
-      "pdfSha256": "97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae",
-      "pdfBytes": 181907121,
+      "pdfFilename": "TechOps-Hero-XIV-Approved-Localized-Revision.pdf",
+      "pdfSha256": "331e7564cde361f1119e585b93674ce42aab7a6aad09c4a77bec1b7a2c99a479",
+      "pdfBytes": 231432304,
       "imagePath": "techops-comic/volume-xiv/",
       "width": 2160,
       "height": 3330,
@@ -922,8 +922,12 @@
         }
       ],
       "links": {},
-      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/aa8c132035a46e73fb47ee14e05e371909799d64/techops-comic/volume-xiv/",
-      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-corrected-20261110-c18407af-97f16edf/TechOps-Hero-Volume-XIV-The-System-Is-Healthy.pdf"
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/7e75b409f84c0e817be3f74d45b5c18c3dbd14f9/techops-comic/volume-xiv/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-xiv-kali-331e7564cde3/TechOps-Hero-XIV-Approved-Localized-Revision.pdf",
+      "mediaCommit": "7e75b409f84c0e817be3f74d45b5c18c3dbd14f9",
+      "releaseTag": "techops-xiv-kali-331e7564cde3",
+      "publisherRelease": "xiv-kali-331e7564cde3",
+      "contentRevision": "xiv-kali-331e7564cde3"
     }
   }
 }
