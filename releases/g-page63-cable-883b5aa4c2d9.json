@@ -12,7 +12,7 @@
       "first_run": "43727344960"
     }
   },
-  "phase": "REGISTERED",
+  "phase": "UPLOAD_SLOT_READY",
   "last_request": "g-page63-cable-883b5aa4c2d9-prepare",
   "last_run": "43727344960",
   "source": {
@@ -20,5 +20,17 @@
     "reason": "The registered source release does not exist.",
     "source_url": null,
     "hash_verified": false
+  },
+  "last_outcome": {
+    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43727344960",
+    "jobs": {
+      "resolve": "success",
+      "prepare": "success",
+      "stage": "skipped",
+      "staged": "skipped",
+      "qualify": "skipped",
+      "checkpoint": "skipped",
+      "publish": "skipped"
+    }
   }
 }
