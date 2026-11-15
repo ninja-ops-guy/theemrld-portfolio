@@ -28,7 +28,7 @@
       "first_run": "43681763509"
     }
   },
-  "phase": "STAGED_QUALIFICATION_BLOCKED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "g-localized-bdbde28151a5-public-metadata-approved",
   "last_run": "43681763509",
   "source": {
@@ -49,6 +49,6 @@
       "publish": "skipped"
     }
   },
-  "staged_head": "b76e194ab6cdbe37d7d80ecae0e4df0c993e8661",
+  "staged_head": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519",
   "media_commit": "c6612934ab30bde2a11d54ab63b41c3d25ffbc08"
 }
