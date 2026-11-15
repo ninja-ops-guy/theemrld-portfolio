@@ -44,7 +44,7 @@
       "first_run": "43683747122"
     }
   },
-  "phase": "MERGED_DEPLOYMENT_REQUESTED",
+  "phase": "PUBLISHED_HASH_VERIFIED",
   "last_request": "g-localized-bdbde28151a5-resume-merged",
   "last_run": "43683747122",
   "source": {
@@ -77,5 +77,13 @@
   "dispatch_intent": {
     "run_id": "43683747122",
     "merge_sha": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519"
+  },
+  "deployment_run": 43683826591,
+  "live_receipt": {
+    "status": "PUBLISHED_HASH_VERIFIED",
+    "release_id": "g-localized-bdbde28151a5",
+    "commit": "bd239ac2915a5d3238c0aed6ebdc69e4777d4519",
+    "url": "https://kterminal.site/",
+    "physical_mobile_test": false
   }
 }
