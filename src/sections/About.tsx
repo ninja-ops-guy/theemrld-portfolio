@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -71,7 +72,7 @@ export default function About() {
           </div>
           <div className="flex flex-wrap gap-3" style={{ marginTop: '34px' }}>
             <a href="https://github.com/ninja-ops-guy" target="_blank" rel="noreferrer" className="font-label px-5 py-3" style={{border:'1px solid #4A6DFF',color:'#4A6DFF'}}>GITHUB PROFILE →</a>
-            <a href="#contact" className="font-label px-5 py-3" style={{background:'#4A6DFF',color:'#050A14'}}>CONTACT →</a>
+            <Link to="/#contact" className="font-label px-5 py-3" style={{background:'#4A6DFF',color:'#050A14'}}>CONTACT →</Link>
           </div>
         </div>
       </div>

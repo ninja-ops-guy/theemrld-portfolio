@@ -128,6 +128,7 @@ export default function LatestComicReader() {
     <header className="comic-mast">
       <Link to={fromWorld?'/k/terminal':'/terminal'}><ArrowLeft size={16}/> K Terminal</Link>
       <span className="comic-imprint">THE EMRLD <i>/</i> COMICS</span>
+      <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
       <nav className="comic-downloads" aria-label="PDF downloads"><a className="comic-download" href={book.pdfUrl} target="_blank" rel="noopener noreferrer"><BookOpen size={16}/> {book.label} · Complete {book.pageCount}-page PDF</a></nav>
     </header>
     <ComicMusicBar edition={id} page={failure===key?0:page} revision={book.revision}/>

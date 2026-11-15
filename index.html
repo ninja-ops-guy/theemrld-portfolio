@@ -10,7 +10,7 @@
         var hash = window.location.hash;
         if ((host === 'kterminal.site' || host === 'www.kterminal.site') &&
             (window.location.pathname === '/' || window.location.pathname === '/index.html') &&
-            (hash === '' || hash === '#' || hash === '#/')) {
+            (hash === '' || hash === '#')) {
           window.location.replace(window.location.pathname + window.location.search + '#/terminal');
         }
       })();
@@ -25,11 +25,12 @@
     <meta property="og:title" content="K Terminal | TechOps Hero" />
     <meta property="og:description" content="Defied Stars’ interactive home for TechOps Hero. Read the comic, play the game, listen to original music, and explore K World." />
     <meta property="og:url" content="https://kterminal.site/" />
+    <link rel="canonical" href="https://kterminal.site/" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="K Terminal | TechOps Hero" />
     <meta name="twitter:description" content="Defied Stars’ interactive home for TechOps Hero. Read the comic, play the game, listen to original music, and explore K World." />
     <script type="application/ld+json">
-      {"@context":"https://schema.org","@type":"Person","name":"Mike Olivares","url":"https://ninja-ops-guy.github.io/theemrld-portfolio/","sameAs":["https://github.com/ninja-ops-guy"],"jobTitle":"Systems & Security Engineer","knowsAbout":["Cybersecurity","Systems Engineering","Infrastructure","Autonomous Systems","Formal Verification","Adversarial Machine Learning","Platform Engineering"]}
+      {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://kterminal.site/#website","url":"https://kterminal.site/","name":"K Terminal","description":"Original music, TechOps Hero and the THEEMRLD portfolio by Mike Olivares.","author":{"@id":"https://kterminal.site/#mike-olivares"}},{"@type":"Person","@id":"https://kterminal.site/#mike-olivares","name":"Mike Olivares","url":"https://kterminal.site/#/","sameAs":["https://github.com/ninja-ops-guy"],"jobTitle":"Systems & Security Engineer","knowsAbout":["Cybersecurity","Systems Engineering","Infrastructure","Autonomous Systems","Formal Verification","Adversarial Machine Learning","Platform Engineering"]}]}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

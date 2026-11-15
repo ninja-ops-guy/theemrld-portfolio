@@ -197,19 +197,8 @@ export default function Networking() {
             </div>
           </div>
 
-          {/* Right column - Skills grid + image */}
+          {/* Right column - Skills grid */}
           <div ref={rightRef} className="network-col-right opacity-0">
-            {/* Network image */}
-            <div className="overflow-hidden" style={{ marginBottom: '40px' }}>
-              <img
-                src="https://tjsizcvhdprxa.kimi.page/images/exp-networking.jpg"
-                alt="Cisco network infrastructure"
-                className="w-full"
-                style={{ aspectRatio: '16/9', objectFit: 'cover' }}
-                loading="lazy"
-              />
-            </div>
-
             {/* Skills grid */}
             <p className="font-label" style={{ marginBottom: '16px' }}>
               NETWORK ENGINEERING SKILLS
