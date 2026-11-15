@@ -13,9 +13,9 @@
       "title": "The corrected collection",
       "pageCount": 316,
       "revision": "corrected-c18407af88e9",
-      "pdfFilename": "TechOps-Hero-Revision-G-Approved-Nine-Pages.pdf",
-      "pdfSha256": "4ce5a51c5ddc7dc0b8ed4ee90c443101843cb45cc6b179917109bcd94af33231",
-      "pdfBytes": 525173826,
+      "pdfFilename": "TechOps-Hero-G-Approved-Localized-Revision.pdf",
+      "pdfSha256": "bdbde28151a56f7ca70b591f16a57db65d61b3efaeef9cb3bf8c552c7e361ac8",
+      "pdfBytes": 540793694,
       "imagePath": "techops-comic/revision-g/",
       "width": 2160,
       "height": 3240,
@@ -700,12 +700,12 @@
           }
         ]
       },
-      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/b4aeb089340583b26d29c476e16deb4bf0fb4929/techops-comic/revision-g/",
-      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-g-approved-nine-4ce5a51c5ddc/TechOps-Hero-Revision-G-Approved-Nine-Pages.pdf",
-      "mediaCommit": "b4aeb089340583b26d29c476e16deb4bf0fb4929",
-      "releaseTag": "techops-g-approved-nine-4ce5a51c5ddc",
-      "publisherRelease": "g-approved-nine-4ce5a51c5ddc",
-      "contentRevision": "approved-nine-4ce5a51c5ddc"
+      "imageBase": "https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/c6612934ab30bde2a11d54ab63b41c3d25ffbc08/techops-comic/revision-g/",
+      "pdfUrl": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/download/techops-g-localized-bdbde28151a5/TechOps-Hero-G-Approved-Localized-Revision.pdf",
+      "mediaCommit": "c6612934ab30bde2a11d54ab63b41c3d25ffbc08",
+      "releaseTag": "techops-g-localized-bdbde28151a5",
+      "publisherRelease": "g-localized-bdbde28151a5",
+      "contentRevision": "g-localized-bdbde28151a5"
     },
     "xiii-r": {
       "id": "xiii-r",
