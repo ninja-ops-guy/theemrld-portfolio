@@ -20,7 +20,7 @@
       "first_run": "43680770683"
     }
   },
-  "phase": "STAGED_NOT_PUBLISHED",
+  "phase": "STAGED_QUALIFICATION_BLOCKED",
   "last_request": "g-localized-bdbde28151a5-stage-approved-r2",
   "last_run": "43680770683",
   "source": {
@@ -30,13 +30,13 @@
     "hash_verified": false
   },
   "last_outcome": {
-    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43673132032",
+    "run": "https://github.com/ninja-ops-guy/theemrld-portfolio/actions/runs/43680770683",
     "jobs": {
       "resolve": "success",
       "prepare": "skipped",
-      "stage": "failure",
-      "staged": "skipped",
-      "qualify": "skipped",
+      "stage": "success",
+      "staged": "success",
+      "qualify": "failure",
       "checkpoint": "skipped",
       "publish": "skipped"
     }
