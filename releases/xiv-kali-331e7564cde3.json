@@ -20,7 +20,7 @@
       "first_run": "43685936149"
     }
   },
-  "phase": "REGISTERED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "xiv-kali-331e7564cde3-metadata-qualified",
   "last_run": "43685936149",
   "source": {
@@ -40,5 +40,7 @@
       "checkpoint": "skipped",
       "publish": "skipped"
     }
-  }
+  },
+  "staged_head": "6de7fe7499d496ac5297ee1472fd48b4471f1f90",
+  "media_commit": "7e75b409f84c0e817be3f74d45b5c18c3dbd14f9"
 }
