@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "release_id": "g-localized-bdbde28151a5",
+  "manifest_sha256": "eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7",
+  "requests": {
+    "g-localized-bdbde28151a5-stage-20261115": {
+      "binding": {
+        "action": "stage",
+        "expected_head": "db432d5cbaa5f219fb00d7a49d3f28d21ea9ede9",
+        "manifest_sha256": "eb21501908840995bdf461482acee44deadc7e6ef3328cd00c684bdc257344a7"
+      },
+      "first_run": "43673132032"
+    }
+  },
+  "phase": "REGISTERED",
+  "last_request": "g-localized-bdbde28151a5-stage-20261115",
+  "last_run": "43673132032",
+  "source": {
+    "phase": "SOURCE_AVAILABLE_NOT_YET_VERIFIED",
+    "reason": "ZIP metadata matches; source bytes have not yet been verified.",
+    "source_url": "https://github.com/ninja-ops-guy/theemrld-portfolio/releases/tag/techops-g-localized-bdbde28151a5",
+    "hash_verified": false
+  }
+}
