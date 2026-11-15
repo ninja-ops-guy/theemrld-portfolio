@@ -20,7 +20,7 @@
       "first_run": "43680770683"
     }
   },
-  "phase": "REGISTERED",
+  "phase": "STAGED_NOT_PUBLISHED",
   "last_request": "g-localized-bdbde28151a5-stage-approved-r2",
   "last_run": "43680770683",
   "source": {
@@ -40,5 +40,7 @@
       "checkpoint": "skipped",
       "publish": "skipped"
     }
-  }
+  },
+  "staged_head": "b76e194ab6cdbe37d7d80ecae0e4df0c993e8661",
+  "media_commit": "c6612934ab30bde2a11d54ab63b41c3d25ffbc08"
 }
