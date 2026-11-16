@@ -47,16 +47,24 @@ export default function LatestComicReader() {
   const [readingImageFailure, setReadingImageFailure] = useState('');
   const [originalFailure, setOriginalFailure] = useState('');
   const [retry, setRetry] = useState(0);
+  const [immersive, setImmersive] = useState(false);
+  const [readerScale, setReaderScale] = useState(1);
   const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const shell = useRef<HTMLElement>(null);
+  const reader = useRef<HTMLDivElement>(null);
+  const enterButton = useRef<HTMLButtonElement>(null);
+  const exitButton = useRef<HTMLButtonElement>(null);
+  const immersiveRef = useRef(false);
+  const nativeRef = useRef(false);
   const swipe = useRef<{x:number;y:number}|null>(null);
   const key = `${id}-${page}`;
   const zoom = zoomedPage === key;
   const original = imageUrl(book, page);
   const readingImage = readingImageUrl(book, page, section);
   const hasReadingImage = readingImage !== original && readingImageFailure !== key;
-  const showReadingImage = hasReadingImage && (!zoom || originalFailure === key);
+  const showReadingImage = hasReadingImage && (!(immersive ? readerScale > 1 : zoom) || originalFailure === key);
   const volumes = id === 'g' ? book.sections.filter(s => s.kind === 'volume') : [];
   const describe = (n:number) => { const s=book.sections.find(s=>n>=s.start && n<=s.end); return `${s?.label ?? book.label} · ${s?.title ?? book.title}`; };
   const go = useCallback((target:number, edition=id) => {
@@ -71,6 +79,55 @@ export default function LatestComicReader() {
     if (target) q.set('page',String(target));
     setParams(q,{replace:page>0 && target>0 && edition===id});
   },[fromWorld,id,page,setParams]);
+  const exitImmersive = useCallback(() => {
+    immersiveRef.current = false;
+    setImmersive(false);
+    setReaderScale(1);
+    if (document.fullscreenElement === reader.current) void document.exitFullscreen().catch(() => {});
+  }, []);
+  const enterImmersive = () => {
+    const element = reader.current;
+    if (!element) return;
+    immersiveRef.current = true;
+    setImmersive(true);
+    // The request must start directly in the click gesture. Rejection leaves the
+    // viewport-filling reader active (including on iPhone Safari).
+    if (element.requestFullscreen) {
+      try {
+        void element.requestFullscreen().then(() => {
+          if (!immersiveRef.current && document.fullscreenElement === element) void document.exitFullscreen().catch(() => {});
+        }).catch(() => {});
+      } catch { /* Fullscreen denied: retain the viewport fallback. */ }
+    }
+  };
+  useEffect(() => {
+    const onChange = () => {
+      if (document.fullscreenElement === reader.current) nativeRef.current = true;
+      else if (nativeRef.current) { nativeRef.current = false; exitImmersive(); }
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange);
+      immersiveRef.current = false;
+      if (document.fullscreenElement === reader.current) void document.exitFullscreen().catch(() => {});
+    };
+  }, [exitImmersive]);
+  useEffect(() => {
+    if (!immersive) return;
+    const siblings = Array.from(shell.current?.children ?? []).filter(el => el !== reader.current) as HTMLElement[];
+    const oldInert = siblings.map(el => el.inert);
+    siblings.forEach(el => { el.inert = true; });
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusTimer = window.setTimeout(() => exitButton.current?.focus(), 0);
+    return () => {
+      clearTimeout(focusTimer);
+      siblings.forEach((el, i) => { el.inert = oldInert[i]; });
+      document.body.style.overflow = oldOverflow;
+      enterButton.current?.focus();
+    };
+  }, [immersive]);
+  useEffect(() => { if (!page && immersive) exitImmersive(); }, [page, immersive, exitImmersive]);
   useEffect(() => {
     if (!intro || page || !dialog.current) return;
     dialog.current.showModal();
@@ -88,20 +145,24 @@ export default function LatestComicReader() {
   },[book.label,page]);
   useEffect(() => {
     setZoomedPage('');
+    setReaderScale(1);
     stage.current?.scrollTo(0,0);
+  }, [id,page]);
+  useEffect(() => {
     if (!page) return;
     const onKey=(e:KeyboardEvent)=>{
+      if (immersive && readerScale > 1 && e.target === stage.current) return;
       if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||(e.target instanceof HTMLElement && e.target.closest('input,select,textarea,button,[contenteditable=true]')))return;
       if(e.key==='ArrowLeft' && page>1){e.preventDefault();go(page-1);}
       if(e.key==='ArrowRight' && page<book.pageCount){e.preventDefault();go(page+1);}
     };
     window.addEventListener('keydown',onKey);return ()=>window.removeEventListener('keydown',onKey);
-  },[book,page,go]);
+  },[book,page,go,immersive,readerScale]);
   const onPageLoad = () => {
     try {
       localStorage.setItem(`techops-hero:${book.id}:${book.revision}:page`, String(page));
     } catch { /* Optional in private browsing. */ }
-    if (zoom || page >= book.pageCount || (id === 'g' && (!showReadingImage || page >= section.end))) return;
+    if ((immersive ? readerScale > 1 : zoom) || page >= book.pageCount || (id === 'g' && (!showReadingImage || page >= section.end))) return;
     const prefetch = new Image();
     prefetch.fetchPriority = 'low';
     prefetch.src = readingImageUrl(book, page + 1, section);
@@ -118,7 +179,7 @@ export default function LatestComicReader() {
     setRetry(attempt => attempt + 1);
   };
   const next=editionOrder[editionOrder.indexOf(id)+1];
-  return <main className={'comic-shell comic-current '+(page?'comic-reading':'')}>
+  return <main ref={shell} className={'comic-shell comic-current '+(page?'comic-reading':'')}>
     {intro && !page && <dialog ref={dialog} className="comic-reel" aria-label="Tech Ops Hero introduction" onCancel={()=>setIntro(false)}>
       <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet':`url("${base}intro-panels-hq.webp")`} as CSSProperties} onAnimationEnd={e=>{if(e.animationName==='comic-reel-out')setIntro(false);}}>
         <div className="comic-reel-gate"><img className="comic-panel-sheet" src={`${base}intro-panels-hq.webp`} alt="" fetchPriority="high" onLoad={e=>e.currentTarget.dataset.ready='true'} onError={()=>setIntro(false)}/></div>
@@ -164,12 +225,31 @@ export default function LatestComicReader() {
         <div className="comic-current-toc">{book.scenes.map((scene,i)=><button key={`${scene.page}-${i}`} onClick={()=>go(scene.page)}><span>{scene.title}</span><small>p. {scene.page}</small></button>)}</div>
       </section>
     </> : <>
-      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Library</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={() => setZoomedPage(zoom ? '' : key)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button></div>
-      <div className={'comic-stage'+(zoom?' is-enlarged':'')} ref={stage}
-        onTouchStart={e=>{swipe.current=!zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
+      <div ref={reader} className={'comic-reading-surface'+(immersive?' is-immersive':'')}
+        role={immersive?'dialog':undefined} aria-modal={immersive?true:undefined} aria-label={immersive?'Full-screen comic reader':undefined}
+        onKeyDown={e=>{
+          if (!immersive) return;
+          if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); exitImmersive(); return; }
+          if (e.key !== 'Tab') return;
+          const focusable = Array.from(reader.current?.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]') ?? []).filter(el => el.getClientRects().length > 0);
+          if (!focusable.length) return;
+          const first = focusable[0], last = focusable[focusable.length-1];
+          if (e.shiftKey && (document.activeElement === first || !reader.current?.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && (document.activeElement === last || !reader.current?.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+        }}>
+      <div className="comic-reader-head"><button onClick={()=>go(0)}><BookOpen size={17}/> Library</button><h1>Tech Ops Hero <span>/</span> <small>{section.label} · {section.title}</small></h1><button aria-pressed={zoom} onClick={() => setZoomedPage(zoom ? '' : key)}>{zoom?<Minimize2 size={16}/>:<Maximize2 size={16}/>} {zoom?'Fit page':'Enlarge'}</button><button ref={enterButton} onClick={enterImmersive}><Maximize2 size={16}/> Full screen</button></div>
+      {immersive && <div className="comic-fullscreen-bar" aria-label="Full-screen controls">
+        <button onClick={()=>setReaderScale(s=>Math.max(1, s-.5))} disabled={readerScale<=1} aria-label="Zoom out">−</button>
+        <button onClick={()=>setReaderScale(1)} aria-label="Fit whole page">{Math.round(readerScale*100)}%</button>
+        <button onClick={()=>setReaderScale(s=>Math.min(4, s+.5))} disabled={readerScale>=4} aria-label="Zoom in">+</button>
+        <span className="comic-fullscreen-title">{section.label} · Page {page} / {book.pageCount}</span>
+        <button ref={exitButton} onClick={exitImmersive} aria-label="Exit full screen">Exit <Minimize2 size={16}/></button>
+      </div>}
+      <div className={'comic-stage'+(!immersive && zoom?' is-enlarged':'')+(immersive && readerScale>1?' is-fullscreen-zoomed':'')} ref={stage} tabIndex={immersive && readerScale>1?0:undefined} aria-label={immersive && readerScale>1?'Zoomed page; scroll to pan':undefined} style={immersive ? {'--reader-scale':readerScale,'--comic-aspect':book.width/book.height} as CSSProperties : undefined}
+        onTouchStart={e=>{swipe.current=!immersive && !zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
         onTouchCancel={()=>{swipe.current=null;}}
         onTouchEnd={e=>{const start=swipe.current;swipe.current=null;if(!start||e.touches.length||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x;const dy=e.changedTouches[0].clientY-start.y;if(Math.abs(dx)<55||Math.abs(dx)<1.6*Math.abs(dy))return;go(Math.min(book.pageCount,Math.max(1,page+(dx<0?1:-1))));}}>
-        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet">
+        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet" style={immersive ? {aspectRatio:`${book.width} / ${book.height}`} : undefined}>
           <img key={`${key}-${retry}`} className="comic-page-image"
             src={(showReadingImage ? readingImage : original) + (retry ? `?retry=${retry}` : '')}
             alt={`Page ${page} of ${book.pageCount}. ${describe(page)}`} width={book.width} height={book.height}
@@ -189,6 +269,7 @@ export default function LatestComicReader() {
         <label className="comic-current-edition">Book <select aria-label="Choose book" value={id} onChange={e=>go(1,e.target.value)}>{editionOrder.map(eid=><option key={eid} value={eid}>{books[eid].label}</option>)}</select></label>
         <span className="sr-only" aria-live="polite">Page {page} of {book.pageCount}. {describe(page)}</span>
       </nav>
+      </div>
       {page===book.pageCount && next && <div className="comic-current-continue"><button className="comic-primary" onClick={()=>go(1,next)}>Continue with {books[next].label}<ArrowRight size={18}/></button></div>}
     </>}
   </main>;
