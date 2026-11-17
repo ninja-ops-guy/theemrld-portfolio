@@ -46,10 +46,23 @@ export function validateBookPins(manifest, id) {
     if (book.imageBase !== `https://raw.githubusercontent.com/ninja-ops-guy/theemrld-portfolio/${mediaCommit}/${book.imagePath}`) throw new Error(`Unpinned image source: ${id}`);
     return { mediaCommit, releaseTag };
 }
+export function validateCatalogue(catalogue, manifest, labels) {
+  if (catalogue.schemaVersion !== 1 || catalogue.publicationPolicy !== 'current-only' || !Array.isArray(catalogue.books) || !catalogue.books.length) throw new Error('Invalid publication catalogue');
+  const ids = catalogue.books.map(b => b.id);
+  if (new Set(ids).size !== ids.length || ids.some(id => !/^[a-z0-9][a-z0-9-]{0,79}$/.test(id))) throw new Error('Invalid catalogue IDs');
+  for (const id of ['f', 'xiii', 'legacy']) if (ids.includes(id)) throw new Error('Retired edition cannot be registered');
+  if (JSON.stringify([...ids].sort()) !== JSON.stringify(Object.keys(manifest.books).sort()) || JSON.stringify([...ids].sort()) !== JSON.stringify(Object.keys(labels).sort())) throw new Error('Catalogue, reader and labels differ');
+  for (const {id, pageCount} of catalogue.books) {
+    if (!Number.isInteger(pageCount) || pageCount < 1 || pageCount > 5000 || manifest.books[id].pageCount !== pageCount || !labels[id]?.label) throw new Error(`Invalid catalogue book: ${id}`);
+  }
+  if (manifest.imageCount !== catalogue.books.reduce((n,b) => n + b.pageCount, 0)) throw new Error('Catalogue image count differs');
+  return Object.fromEntries(catalogue.books.map(b => [b.id, b.pageCount]));
+}
 export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   const manifest = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-current-editions.json'), 'utf8'));
   const labels = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-display-labels.json'), 'utf8'));
-  const expected = { g: 316, 'xiii-r': 49, xiv: 133 };
+  const catalogue = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-publication-catalogue.json'), 'utf8'));
+  const expected = validateCatalogue(catalogue, manifest, labels);
   for (const [id, count] of Object.entries(expected)) {
     const book = manifest.books[id];
     if (book?.pageCount !== count || !/^[a-f0-9]{64}$/.test(book.pdfSha256)) throw new Error(`Invalid current book: ${id}`);
@@ -74,4 +87,3 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   return publication;
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await finalizePublication();
-

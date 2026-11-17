@@ -3,7 +3,7 @@ name: techops-publisher
 description: Stage, publish, resume or check an approved TechOps comic revision using its durable GitHub manifest and receipt.
 ---
 
-Read current main `docs/COMIC_PUBLISHER.md`, target manifest, live PR head and publisher checkpoint before acting. A skill is not evidence that the workflow is installed. PR #75 is the existing implementation; reuse it rather than create another publisher.
+Read current main `docs/COMIC_PUBLISHER.md`, target manifest, live PR head and publisher checkpoint before acting. PR #75 installed the workflow at 6cdc22813389b18f30cdf214f98ab0e92df9283a; installation is not end-to-end validation. Reuse the implementation. Read the reviewed publication catalogue and require exact-head Full Collection Acceptance as well as publisher smoke receipts. The checked-in request is an inert placeholder; explicitly select a registered ID for status.
 
 The original `xiv-corrected-20261110` registration and PR #72 are retired. Never use them for newer artwork. Reconcile correction dispositions and exact source hashes across all relevant revisions before registering a new ID. A verified older ZIP does not prove inclusion of later mole, reunion or arm corrections.
 
