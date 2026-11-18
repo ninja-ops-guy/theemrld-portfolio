@@ -1,6 +1,13 @@
 {
-  "verifiedAt": "2026-11-18T14:26:35Z",
+  "verifiedAt": "2026-11-18T22:25:26Z",
   "tracks": [
+    {
+      "id": "no-stal-juh",
+      "title": "Memory Palace",
+      "url": "https://soundcloud.com/raikouno/no-stal-juh",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-18T21:33:46Z"
+    },
     {
       "id": "feeling-like-nostalgia",
       "title": "Feeling like Nostalgia",
@@ -101,7 +108,7 @@
     },
     {
       "id": "orpheus-guides-the-swarm-wav",
-      "title": "Orpheus Guides the Swarm",
+      "title": "Orpheus Guides the Swarm(bonus track)",
       "url": "https://soundcloud.com/raikouno/orpheus-guides-the-swarm-wav",
       "provider": "soundcloud",
       "createdAt": "2026-11-07T15:26:51Z"
