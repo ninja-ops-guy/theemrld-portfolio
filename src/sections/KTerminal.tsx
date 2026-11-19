@@ -91,16 +91,20 @@ function audioZoneLabel(zone: string | null | undefined) {
   return zone && zone in K_ZONE_LABELS ? K_ZONE_LABELS[zone as KAudioZone] : zone ? zone.toUpperCase() : 'STANDALONE';
 }
 
+const artistHandle = 'defied_stars';
+const artistProfileUrl = `https://soundcloud.com/${artistHandle}`;
+const artistProfileLink = `<a class="tc-cyan" href="${artistProfileUrl}" target="_blank" rel="noopener noreferrer">@${artistHandle}</a>`;
+
 const bootMessages = [
   'BIOS DATE 04/08/26 14:22:55 VER 1.0.2',
   'CPU: NEURAL-NET PROCESSOR TYPE A-1',
   '640K RAM SYSTEM... OK',
   'SOUNDCLOUD API MODULE... DETECTED',
   'INITIALIZING AUDIO SUBSYSTEM...',
-  'Loading @raikouno profile...',
+  `Loading @${artistHandle} profile...`,
   'MOUNTING VIRTUAL FILESYSTEM...',
   'ESTABLISHING SECURE CONNECTION...',
-  'TARGET: soundcloud.com/raikouno',
+  `TARGET: ${artistProfileUrl}`,
   'SYSTEM READY.',
 ];
 
@@ -730,7 +734,7 @@ export default function KTerminal({
     addLine('  K TERMINAL v2.0.77', 'cyan');
     addLine('========================================', 'cyan');
     addLine('');
-    addLine('Artist Profile: <span class="tc-cyan">https://soundcloud.com/raikouno</span>');
+    addLine(`Artist Profile: ${artistProfileLink}`);
     addLine('');
     addLine('<span class="tc-success">[SYNC]</span> Latest releases update automatically. Type sync to check now.');
     addLine('Type <span class="tc-command">latest</span> to play the newest verified track, then <span class="tc-command">background on</span> to keep listening in the comic.');
@@ -858,7 +862,7 @@ export default function KTerminal({
   <span class="tc-command">add [url] [title]</span> - Add new track to playlist
   <span class="tc-command">remove [id]</span>       - Remove track from playlist
   <span class="tc-command">clearplaylist</span>     - Remove all tracks
-  <span class="tc-command">artist</span>            - Open @raikouno profile
+  <span class="tc-command">artist</span>            - Open @${artistHandle} profile
   <span class="tc-command">techopshero</span>       - Launch TechOps Hero inside K Terminal
   <span class="tc-command">comic</span>             - Read the TechOps Hero comic
   <span class="tc-command">city</span>              - Exit terminal back to current city position
@@ -977,8 +981,8 @@ export default function KTerminal({
       }
 
       case 'artist': {
-        window.open('https://soundcloud.com/raikouno', '_blank');
-        addLine('Opening RAIKOUNO profile: <span class="tc-cyan">https://soundcloud.com/raikouno</span>');
+        window.open(artistProfileUrl, '_blank', 'noopener,noreferrer');
+        addLine(`Opening artist profile: ${artistProfileLink}`);
         break;
       }
 
@@ -1437,7 +1441,7 @@ Sequential Playback: ON (no overlap)`);
         {/* Click-to-play track list */}
         <div className="kt-click-play">
             <div className="kt-click-header">
-              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @raikouno · latest releases + your saved library
+              <span className="kt-cyan">{isMobile ? 'TAP TO PLAY' : 'CLICK TO PLAY'}</span> -- @{artistHandle} · latest releases + your saved library
               <div style={{ color: '#aadfba', marginTop: 6 }}>{catalogueStatus || 'Checking the latest releases…'} · background {music.background ? 'on' : 'off'} · guided {music.guided ? 'on' : 'off'}</div>
             </div>
             {isMobile && (
