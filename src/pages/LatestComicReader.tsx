@@ -119,9 +119,7 @@ export default function LatestComicReader() {
     siblings.forEach(el => { el.inert = true; });
     const oldOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const focusTimer = window.setTimeout(() => exitButton.current?.focus(), 0);
     return () => {
-      clearTimeout(focusTimer);
       siblings.forEach((el, i) => { el.inert = oldInert[i]; });
       document.body.style.overflow = oldOverflow;
       enterButton.current?.focus();
@@ -251,7 +249,7 @@ export default function LatestComicReader() {
         <button onClick={()=>setReaderScale(1)} aria-label="Fit whole page">{Math.round(readerScale*100)}%</button>
         <button onClick={()=>setReaderScale(s=>Math.min(4, s+.5))} disabled={readerScale>=4} aria-label="Zoom in">+</button>
         <span className="comic-fullscreen-title">{section.label} · Page {page} / {book.pageCount}</span>
-        <button ref={exitButton} onClick={exitImmersive} aria-label="Exit full screen">Exit <Minimize2 size={16}/></button>
+        <button ref={exitButton} autoFocus onClick={exitImmersive} aria-label="Exit full screen">Exit <Minimize2 size={16}/></button>
       </div>}
       <div className={'comic-stage'+(!immersive && zoom?' is-enlarged':'')+(immersive && readerScale>1?' is-fullscreen-zoomed':'')} ref={stage} tabIndex={immersive && readerScale>1?0:undefined} aria-label={immersive && readerScale>1?'Zoomed page; scroll to pan':undefined} style={immersive ? {'--reader-scale':readerScale,'--comic-aspect':book.width/book.height} as CSSProperties : undefined}
         onTouchStart={e => {
