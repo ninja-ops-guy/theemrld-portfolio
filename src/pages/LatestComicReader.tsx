@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import source from '../data/comic-current-editions.json';
@@ -127,6 +127,14 @@ export default function LatestComicReader() {
       enterButton.current?.focus();
     };
   }, [immersive]);
+  useLayoutEffect(() => {
+    if (!immersive || !reader.current) return;
+    const active = document.activeElement;
+    if (!reader.current.contains(active) || active?.matches(':disabled')) {
+      exitButton.current?.focus({ preventScroll: true });
+    }
+  }, [immersive, page, readerScale, failure, retry]);
+
   useEffect(() => { if (!page && immersive) exitImmersive(); }, [page, immersive, exitImmersive]);
   useEffect(() => {
     if (!intro || page || !dialog.current) return;
@@ -246,7 +254,11 @@ export default function LatestComicReader() {
         <button ref={exitButton} onClick={exitImmersive} aria-label="Exit full screen">Exit <Minimize2 size={16}/></button>
       </div>}
       <div className={'comic-stage'+(!immersive && zoom?' is-enlarged':'')+(immersive && readerScale>1?' is-fullscreen-zoomed':'')} ref={stage} tabIndex={immersive && readerScale>1?0:undefined} aria-label={immersive && readerScale>1?'Zoomed page; scroll to pan':undefined} style={immersive ? {'--reader-scale':readerScale,'--comic-aspect':book.width/book.height} as CSSProperties : undefined}
-        onTouchStart={e=>{swipe.current=!immersive && !zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
+        onTouchStart={e => {
+          const atFit = immersive ? readerScale === 1 : !zoom;
+          const canTurn = atFit && (window.visualViewport?.scale ?? 1) <= 1 && e.touches.length === 1;
+          swipe.current = canTurn ? {x:e.touches[0].clientX, y:e.touches[0].clientY} : null;
+        }}
         onTouchCancel={()=>{swipe.current=null;}}
         onTouchEnd={e=>{const start=swipe.current;swipe.current=null;if(!start||e.touches.length||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x;const dy=e.changedTouches[0].clientY-start.y;if(Math.abs(dx)<55||Math.abs(dx)<1.6*Math.abs(dy))return;go(Math.min(book.pageCount,Math.max(1,page+(dx<0?1:-1))));}}>
         {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet" style={immersive ? {aspectRatio:`${book.width} / ${book.height}`} : undefined}>
