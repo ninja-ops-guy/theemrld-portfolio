@@ -22,8 +22,13 @@ export type BandClock = BandClockSample & { correctionMs: number };
 
 export function readBandClock(clock: BandClock, now: number): number {
   const elapsed = Math.max(0, now - clock.sampledAt);
-  const correction = clock.playing ? clock.correctionMs * Math.max(0, 1 - elapsed / CLOCK_CORRECTION_MS) : 0;
-  return Math.max(0, bandPosition(clock.positionMs, elapsed, clock.playing, clock.rate) + correction);
+  const position = bandPosition(clock.positionMs, elapsed, clock.playing, clock.rate);
+  if (!clock.playing || clock.correctionMs === 0) return Math.max(0, position);
+  // Clear small delivery errors over a few frames. The longer window for large
+  // corrections keeps forward playback at or above half its normal speed.
+  const settleMs = Math.min(CLOCK_CORRECTION_MS, Math.max(32, 2 * Math.abs(clock.correctionMs) / clock.rate));
+  const correction = clock.correctionMs * Math.max(0, 1 - elapsed / settleMs);
+  return Math.max(0, position + correction);
 }
 
 export function updateBandClock(previous: BandClock | null, sample: BandClockSample): BandClock {
@@ -61,10 +66,10 @@ export function markBandDownbeat(positionMs: number, bpm: number): BandTiming {
   return { bpm, offsetMs, downbeatMs };
 }
 
-export function bandPhraseOffset({ bpm, offsetMs, downbeatMs }: BandTiming): number {
+export function bandPhraseOffset({ bpm, offsetMs, downbeatMs }: BandTiming, cycleBeats = BAND_PHRASE_BEATS): number {
   if (downbeatMs === undefined) return offsetMs;
   const beatMs = 60000 / bpm;
-  const phraseMs = BAND_PHRASE_BEATS * beatMs;
+  const phraseMs = cycleBeats * beatMs;
   const beat = offsetMs + Math.round((downbeatMs - offsetMs) / beatMs) * beatMs;
   // Honor the exact mark within the integer offset's rounding error.
   const start = Math.abs(beat - downbeatMs) <= 0.5 + 1e-8 ? downbeatMs : beat;

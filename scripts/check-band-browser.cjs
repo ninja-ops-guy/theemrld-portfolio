@@ -140,7 +140,19 @@ fs.mkdirSync(output, { recursive: true });
     await page.getByRole('button', { name: 'Seek 2250', exact: true }).click();
     await page.locator('[data-performance="felicia-dance"][data-dance="kick-and-hold"]').waitFor();
     await page.locator('[data-performance="waldo-dance"][data-dance="one-arm-freeze"]').waitFor();
-    checks.push('Felicia and Waldo each change solo routines at the four-beat boundary');
+    for (const [ms, felicia, waldo] of [[5500, 'double-kick', 'floor-glide'], [6500, 'kick-slide', 'kick-through']]) {
+      await page.getByRole('button', { name: `Seek ${ms}`, exact: true }).click();
+      await page.locator(`[data-dance="${felicia}"]`).waitFor();
+      await page.locator(`[data-dance="${waldo}"]`).waitFor();
+    }
+    for (const [ms, move] of [[12250, 'skate-slide'], [15250, 'jump-stop']]) {
+      await page.getByRole('button', { name: `Seek ${ms}`, exact: true }).click();
+      const stage = page.locator(`[data-band-move="${move}"]`);
+      await stage.waitFor();
+      assert.equal(await stage.locator('[data-performance]').count(), 6);
+      assert.ok(await stage.locator('.kt-band-member > div').first().evaluate(node => getComputedStyle(node).transform !== 'none'));
+    }
+    checks.push('All four new solos and both alternate group routines render at their song positions');
     await page.getByRole('button', { name: 'Switch song' }).click();
     await page.locator('[data-performance="mike-bass"]').waitFor();
     await page.reload();

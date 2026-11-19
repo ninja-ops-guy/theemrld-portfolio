@@ -5,7 +5,7 @@ import {
   readBandClock, readBandTiming, TEMPO_TAPS, updateBandClock, type BandClock, type BandTap, type BandTiming,
 } from '../lib/bandTiming';
 import {
-  guitarRiffPose, GROUP_SHUFFLE, groupDanceAt, groupDancePose, isPerformanceActive, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
+  BAND_DANCE_CYCLE_BEATS, guitarRiffPose, GROUP_SHUFFLE, groupDanceAt, groupDancePose, isPerformanceActive, isPlayableClip, katrinDanceAt, performanceCell, PERFORMERS,
   playablePerformance, readArrangement, resolvePerformance, soloDancePose, type Arrangement, type Performer,
 } from '../lib/bandPerformance';
 import { BAND_CLIPS, ESTIMATED_TRACK_TIMING, TRACK_PERFORMANCES } from '../data/bandPerformances';
@@ -25,7 +25,7 @@ const HAS_INSTRUMENT_CLIPS = ['waldo-mixing', 'felicia-violin', 'felicia-piano',
 
 function getStagePose(members: readonly Performer[], positionMs: number, timing: BandTiming, reducedMotion: boolean, trackLoaded: boolean, shuffleReady: boolean) {
   const { bpm } = timing;
-  const offsetMs = bandPhraseOffset(timing);
+  const offsetMs = bandPhraseOffset(timing, BAND_DANCE_CYCLE_BEATS);
   const group = shuffleReady && !reducedMotion ? groupDanceAt(positionMs, bpm, offsetMs) : null;
   const riff = group ? null : guitarRiffPose(positionMs, bpm, offsetMs, reducedMotion);
   const dance = katrinDanceAt(positionMs, bpm, offsetMs, reducedMotion);
@@ -47,7 +47,7 @@ function getStagePose(members: readonly Performer[], positionMs: number, timing:
         ? clip.firstCell + riff.frame
         : solo ? clip.firstCell + solo.frame
         : performanceCell(positionMs, bpm, offsetMs, clip, reducedMotion);
-    return [{ key: member.actor, performer, clip, cell, move: solo?.name, x: groupPose?.x ?? solo?.x ?? 0, y: groupPose?.y ?? 0 }];
+    return [{ key: member.actor, performer, clip, cell, move: solo?.name, x: groupPose?.x ?? solo?.x ?? 0, y: groupPose?.y ?? solo?.y ?? 0 }];
   });
   return { slots, riff, group: group?.name };
 }

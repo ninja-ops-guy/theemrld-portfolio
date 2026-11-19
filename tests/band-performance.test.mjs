@@ -181,3 +181,32 @@ test('ensemble routines use the same beat grid and alternate the response across
   assert.equal(groupDancePose(response, 'IONA').cell, GROUP_SHUFFLE.columns + 8);
   assert.equal(groupDancePose(groupDanceAt(7500, 120, 0), 'IONA').cell, GROUP_SHUFFLE.columns);
 });
+
+test('new solos follow the third and fourth bars, even when seeking backwards', () => {
+  const bpm = 146;
+  const offset = 301;
+  const atBeat = beat => offset + beat * 60000 / bpm;
+  for (const [id, third, fourth] of [
+    ['felicia-dance', 'double-kick', 'kick-slide'], ['waldo-dance', 'floor-glide', 'kick-through'],
+  ]) {
+    assert.equal(soloDancePose(id, atBeat(12), bpm, offset).name, fourth);
+    const start = soloDancePose(id, atBeat(8), bpm, offset);
+    assert.equal(start.name, third);
+    assert.deepEqual(soloDancePose(id, atBeat(24), bpm, offset), start);
+    assert.notDeepEqual(soloDancePose(id, atBeat(8.5), bpm, offset), start);
+  }
+});
+
+test('alternating phrases keep instrument windows and land the jump on the second beat', () => {
+  for (const bpm of [90, 125.68, 165.05]) {
+    const atBeat = beat => groupDanceAt(74 + beat * 60000 / bpm, bpm, 74);
+    assert.equal(atBeat(24).name, 'skate-slide');
+    assert.equal(atBeat(26), null);
+    const jump = groupDancePose(atBeat(30.5), 'MIKE');
+    const landing = groupDancePose(atBeat(31), 'MIKE');
+    assert.ok(jump.y < landing.y);
+    assert.deepEqual(groupDancePose(atBeat(31.5), 'MIKE'), landing);
+    assert.equal(atBeat(32), null);
+    assert.deepEqual(atBeat(40), atBeat(8));
+  }
+});

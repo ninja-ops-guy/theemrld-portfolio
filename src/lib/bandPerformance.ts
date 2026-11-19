@@ -163,39 +163,76 @@ export function groupShuffleFrame(positionMs: number, bpm: number, offsetMs: num
   return frame >= firstFrame && frame < firstFrame + GROUP_SHUFFLE.columns ? frame - firstFrame : null;
 }
 
+// Every pose lasts a sixteenth note. Translations are percentages of the sprite size.
+type SoloStep = readonly [frame: number, x: number, y: number];
 const SOLO_DANCES = {
   'felicia-dance': [
-    { name: 'scissor-kick', frames: [0, 1, 2, 2, 3, 3, 4, 0], x: [0, -2, -5, -3, 4, 5, 2, 0] },
-    { name: 'kick-and-hold', frames: [0, 1, 3, 3, 3, 4, 2, 0], x: [0, 2, 5, 5, 5, 2, -3, 0] },
+    {
+      name: 'scissor-kick',
+      steps: [[0, 0, 0], [1, -2, 0], [2, -5, 0], [2, -3, 0], [3, 4, 0], [3, 5, 0], [4, 2, 0], [0, 0, 0]],
+    },
+    {
+      name: 'kick-and-hold',
+      steps: [[0, 0, 0], [1, 2, 0], [3, 5, 0], [3, 5, 0], [3, 5, 0], [4, 2, 0], [2, -3, 0], [0, 0, 0]],
+    },
+    {
+      name: 'double-kick',
+      steps: [[2, -3, -1], [4, -2, 0], [3, 3, -3], [3, 3, -3], [0, 0, 0], [1, -1, 0], [2, -4, -1], [4, -2, 0]],
+    },
+    {
+      name: 'kick-slide',
+      steps: [[0, 0, 0], [1, -2, 0], [2, -4, 0], [3, -6, -1], [3, -3, -1], [3, 1, -1], [4, 4, 0], [0, 2, 0]],
+    },
   ],
   'waldo-dance': [
-    { name: 'low-sweep', frames: [0, 1, 2, 3, 4, 3, 4, 0], x: [0, -2, -3, 3, 2, 3, 2, 0] },
-    { name: 'one-arm-freeze', frames: [0, 0, 1, 2, 3, 3, 3, 4], x: [0, 0, -2, -3, 3, 3, 3, 0] },
+    {
+      name: 'low-sweep',
+      steps: [[0, 0, 0], [1, -2, 0], [2, -3, 0], [3, 3, 0], [4, 2, 0], [3, 3, 0], [4, 2, 0], [0, 0, 0]],
+    },
+    {
+      name: 'one-arm-freeze',
+      steps: [[0, 0, 0], [0, 0, 0], [1, -2, 0], [2, -3, 0], [3, 3, 0], [3, 3, 0], [3, 3, 0], [4, 0, 0]],
+    },
+    {
+      name: 'floor-glide',
+      steps: [[2, -5, 0], [3, -5, -1], [3, -2, -1], [3, 2, -1], [3, 5, -1], [4, 4, 0], [1, 2, 0], [0, 0, 0]],
+    },
+    {
+      name: 'kick-through',
+      steps: [[3, 3, -2], [3, 3, -2], [2, 0, 0], [0, -2, 0], [2, -4, 0], [1, -2, 0], [4, 0, 0], [0, 1, 0]],
+    },
   ],
-} as const;
+} satisfies Record<'felicia-dance' | 'waldo-dance', { name: string; steps: SoloStep[] }[]>;
 
 export function soloDancePose(id: PerformanceId, positionMs: number, bpm: number, offsetMs: number) {
   if (positionMs < offsetMs || (id !== 'felicia-dance' && id !== 'waldo-dance')) return null;
-  const phrase = bandFrame(positionMs, bpm, offsetMs, 8, 2);
-  const dance = SOLO_DANCES[id][phrase];
-  const frame = bandFrame(positionMs, bpm, offsetMs, 2, dance.frames.length);
-  return { name: dance.name, frame: dance.frames[frame], x: dance.x[frame] };
+  const bar = bandFrame(positionMs, bpm, offsetMs, BAND_PHRASE_BEATS, 4);
+  const dance = SOLO_DANCES[id][bar];
+  const step = bandFrame(positionMs, bpm, offsetMs, 2, dance.steps.length);
+  const [frame, x, y] = dance.steps[step];
+  return { name: dance.name, frame, x, y };
 }
 
 const GROUP_DANCES = {
   'two-step': { frames: [0, 3, 5, 3, 10, 13, 15, 13], x: [0, -3, -6, -3, 0, 3, 6, 3], y: [0, -2, 0, 0, 0, -2, 0, 0] },
+  'skate-slide': { frames: [1, 4, 8, 8, 12, 15, 18, 18], x: [-6, -4, 0, 5, 6, 4, 0, -5], y: [0, -1, -2, -1, 0, -1, -2, -1] },
+  'jump-stop': { frames: [0, 3, 7, 9, 13, 13, 13, 2], x: [0, 0, 1, 2, 3, 3, 3, 1], y: [0, -3, -8, -5, 0, 0, 0, 0] },
   'call-and-response': { frames: [0, 2, 5, 8, 8, 5, 2, 0], x: [0, 0, -2, -4, -4, -2, 0, 0], y: [0, -2, -4, 0, 0, -4, -2, 0] },
 } as const;
 
+export const BAND_DANCE_CYCLE_BEATS = 2 * BAND_PHRASE_BEATS;
 export type GroupDance = { name: 'skeleton-shuffle' | keyof typeof GROUP_DANCES; frame: number };
 
 export function groupDanceAt(positionMs: number, bpm: number, offsetMs: number): GroupDance | null {
   if (positionMs < offsetMs) return null;
   const shuffle = groupShuffleFrame(positionMs, bpm, offsetMs);
   if (shuffle !== null) return { name: 'skeleton-shuffle', frame: shuffle };
-  const frame = bandFrame(positionMs, bpm, offsetMs, BAND_PHRASE_BEATS, BAND_PHRASE_BEATS * 4);
-  if (frame >= 32 && frame < 40) return { name: 'two-step', frame: frame - 32 };
-  if (frame >= 56) return { name: 'call-and-response', frame: frame - 56 };
+  const cycleStep = bandFrame(positionMs, bpm, offsetMs, BAND_DANCE_CYCLE_BEATS, BAND_DANCE_CYCLE_BEATS * 4);
+  const stepsPerPhrase = BAND_PHRASE_BEATS * 4;
+  const frame = cycleStep % stepsPerPhrase;
+  const secondPhrase = cycleStep >= stepsPerPhrase;
+  if (frame >= 32 && frame < 40) return { name: secondPhrase ? 'skate-slide' : 'two-step', frame: frame - 32 };
+  if (frame >= 56) return { name: secondPhrase ? 'jump-stop' : 'call-and-response', frame: frame - 56 };
   return null;
 }
 
