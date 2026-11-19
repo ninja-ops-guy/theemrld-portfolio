@@ -129,3 +129,25 @@ test('an exact bar boundary lands on the next frame at fractional tempos', () =>
     }
   }
 });
+
+test('small clock errors settle within 32 ms and larger ones advance monotonically', () => {
+  for (const rate of [0.5, 1, 2]) {
+    const sample = { positionMs: 1000, sampledAt: 100, playing: true, rate };
+    const first = updateBandClock(null, sample);
+    for (const error of [-6, 6]) {
+      const positionMs = 1000 + 100 * rate + error;
+      const next = updateBandClock(first, { ...sample, positionMs, sampledAt: 200 });
+      assert.equal(readBandClock(next, 200), readBandClock(first, 200));
+      assert.equal(readBandClock(next, 232), positionMs + 32 * rate);
+    }
+    const next = updateBandClock(first, { ...sample, positionMs: 1000 + 100 * rate - 40, sampledAt: 200 });
+    for (let now = 201; now <= 401; now++) assert.ok(readBandClock(next, now) > readBandClock(next, now - 1));
+  }
+});
+
+test('the marked phrase starts the first routine in each eight-bar cycle', () => {
+  const timing = markBandDownbeat(12500, 120);
+  const origin = bandPhraseOffset(timing, 32);
+  assert.equal(bandFrame(12500, 120, origin, 32, 2), 0);
+  assert.equal(bandFrame(4500, 120, origin, 32, 2), 1);
+});

@@ -21,7 +21,7 @@ function Preview() {
     <h1 style={{ color: '#91efb8', fontSize: 20 }}>K TERMINAL // INSTRUMENT REHEARSAL</h1>
     <KBandStage trackId={track} trackTitle={track.endsWith('black') ? 'BLACK' : 'Unmapped song'} isPlaying={playing} positionMs={sample.position} positionSampledAt={sample.sampledAt} positionEpoch={positionEpoch} />
     <button onClick={() => { setPlaying(p => !p); setSample(s => ({ ...s, sampledAt: sampleTime() })); }}>{playing ? 'Pause' : 'Play'}</button>
-    {[750, 1250, 1950, 2250, 4250, 7250].map(ms =>
+    {[750, 1250, 1950, 2250, 4250, 5500, 6500, 7250, 12250, 15250].map(ms =>
       <button key={ms} onClick={() => seek(ms)}>Seek {ms}</button>)}
     <button onClick={() => { setTrack(t => t.endsWith('black') ? 'unmapped-song' : 'https://soundcloud.com/raikouno/black'); seek(0); }}>Switch song</button>
     <button onClick={() => {

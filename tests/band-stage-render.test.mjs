@@ -133,3 +133,18 @@ test('single-cell sprite sheets produce finite coordinates', async () => {
   assert.match(cropped, /background-position:0% 0%/);
   assert.doesNotMatch(cropped, /NaN|Infinity/);
 });
+
+test('Memory Palace opens on its waveform grid and respects a saved downbeat', async () => {
+  const { default: Stage } = await import(await loadModule('../src/sections/KBandStage.tsx'));
+  const render = () => renderToStaticMarkup(React.createElement(Stage, {
+    isPlaying: false, positionMs: 309, trackId: 'https://soundcloud.com/raikouno/no-stal-juh',
+  }));
+  try {
+    assert.match(render(), /Music sync · 105\.25 BPM/);
+    localStorage.getItem = key => key.startsWith('kt-band-timing-v1:')
+      ? '{"bpm":105,"offsetMs":300,"downbeatMs":300}' : null;
+    const html = render();
+    assert.match(html, /Music sync · 105 BPM/);
+    assert.match(html, /Phrase start at 0\.300 s/);
+  } finally { localStorage.getItem = () => null; }
+});
