@@ -92,7 +92,8 @@ function audioZoneLabel(zone: string | null | undefined) {
 }
 
 const artistHandle = 'defied_stars';
-const artistProfileUrl = `https://soundcloud.com/${artistHandle}`;
+// SoundCloud's profile permalink is separate from the artist's display name.
+const artistProfileUrl = 'https://soundcloud.com/raikouno';
 const artistProfileLink = `<a class="tc-cyan" href="${artistProfileUrl}" target="_blank" rel="noopener noreferrer">@${artistHandle}</a>`;
 
 const bootMessages = [
@@ -104,7 +105,7 @@ const bootMessages = [
   `Loading @${artistHandle} profile...`,
   'MOUNTING VIRTUAL FILESYSTEM...',
   'ESTABLISHING SECURE CONNECTION...',
-  `TARGET: ${artistProfileUrl}`,
+  `TARGET: @${artistHandle}`,
   'SYSTEM READY.',
 ];
 
