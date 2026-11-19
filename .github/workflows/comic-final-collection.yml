@@ -86,6 +86,7 @@ jobs:
         run: |
           python tests/comic-final-browser.py
           python tests/comic-final-polish.py
+          python tests/comic-fullscreen-browser.py
           python tests/comic-music-browser.py --base-url "$COMIC_BASE_URL"
       - name: Await exact production publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
