@@ -18,6 +18,7 @@ interface Track {
 
 interface TerminalLine {
   text: string;
+  artistProfile?: boolean;
   className?: string;
 }
 
@@ -94,7 +95,6 @@ function audioZoneLabel(zone: string | null | undefined) {
 const artistHandle = 'defied_stars';
 // SoundCloud's profile permalink is separate from the artist's display name.
 const artistProfileUrl = 'https://soundcloud.com/raikouno';
-const artistProfileLink = `<a class="tc-cyan" href="${artistProfileUrl}" target="_blank" rel="noopener noreferrer">@${artistHandle}</a>`;
 
 const bootMessages = [
   'BIOS DATE 04/08/26 14:22:55 VER 1.0.2',
@@ -735,7 +735,7 @@ export default function KTerminal({
     addLine('  K TERMINAL v2.0.77', 'cyan');
     addLine('========================================', 'cyan');
     addLine('');
-    addLine(`Artist Profile: ${artistProfileLink}`);
+    setLines((prev) => [...prev, { text: 'Artist Profile: ', artistProfile: true }]);
     addLine('');
     addLine('<span class="tc-success">[SYNC]</span> Latest releases update automatically. Type sync to check now.');
     addLine('Type <span class="tc-command">latest</span> to play the newest verified track, then <span class="tc-command">background on</span> to keep listening in the comic.');
@@ -983,7 +983,7 @@ export default function KTerminal({
 
       case 'artist': {
         window.open(artistProfileUrl, '_blank', 'noopener,noreferrer');
-        addLine(`Opening artist profile: ${artistProfileLink}`);
+        addLine(`Opening artist profile: <span class="tc-cyan">@${artistHandle}</span>`);
         break;
       }
 
@@ -1377,9 +1377,14 @@ Sequential Playback: ON (no overlap)`);
             <div
               key={i}
               className="kt-line"
-              dangerouslySetInnerHTML={{ __html: line.text }}
               style={{ marginBottom: 5, opacity: 1 }}
-            />
+            >
+              {line.artistProfile ? (
+                <>{line.text}<a className="tc-cyan" href={artistProfileUrl} target="_blank" rel="noopener noreferrer">@{artistHandle}</a></>
+              ) : (
+                <span dangerouslySetInnerHTML={{ __html: line.text }} />
+              )}
+            </div>
           ))}
         </div>
 
