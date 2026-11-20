@@ -44,4 +44,4 @@ These instructions supplement Story Bible v1.7. Scope matters: do not replace or
 
 ## 2026-11-09 — Iona’s Ghost Bends role
 
-Iona is Ghost Bends’ primary drummer. Bass is a secondary skill she may use in individual scenes. Preserve her established drum performances, drumsticks, and count-ins. Only one drummer performs at a time. A change to her standing band role requires an authored story beat.
+Iona is Ghost Bends’ primary drummer; bass is a secondary skill she may use in individual scenes. Preserve her established drum performances and count-ins. Only one drummer performs at a time.
