@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-11-18T22:25:26Z",
+  "verifiedAt": "2026-11-21T14:25:27Z",
   "tracks": [
     {
       "id": "no-stal-juh",
@@ -105,13 +105,6 @@
       "url": "https://soundcloud.com/raikouno/the-mercy-i-buried",
       "provider": "soundcloud",
       "createdAt": "2026-11-07T15:58:11Z"
-    },
-    {
-      "id": "orpheus-guides-the-swarm-wav",
-      "title": "Orpheus Guides the Swarm(bonus track)",
-      "url": "https://soundcloud.com/raikouno/orpheus-guides-the-swarm-wav",
-      "provider": "soundcloud",
-      "createdAt": "2026-11-07T15:26:51Z"
     },
     {
       "id": "idle",
