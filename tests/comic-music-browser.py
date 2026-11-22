@@ -285,7 +285,7 @@ def check_quiet_before_provider_ready(context, base_url, touch):
 
 
 def check_immersive_continuity(context, base_url):
-    page, music = open_reader(context, base_url, 55)
+    page, music = open_reader(context, base_url, 54)
     try:
         # Deliberately isolate fallback audio continuity from native API coverage.
         page.evaluate("Element.prototype.requestFullscreen = undefined")
@@ -299,7 +299,7 @@ def check_immersive_continuity(context, base_url):
         controls = page.get_by_role("group", name="Fullscreen soundtrack")
         expect(controls.get_by_role("button", name="Pause soundtrack")).to_be_visible()
         expect_music(page, "Time Crumbles", position=750)
-        next_page(page, 56, False)
+        next_page(page, 55, False)
         expect_music(page, "Time Crumbles", position=750)
         after = frame.evaluate("f => ({loads:f.contentWindow.__soundCloudLoads.length, plays:f.contentWindow.__soundCloudPlayCalls.length})")
         assert before == after, (before, after)
