@@ -5,12 +5,93 @@ Emulation is not a substitute for real iPhone Safari and native fullscreen testi
 """
 import os
 import re
+import json
+from pathlib import Path
 from urllib.parse import parse_qs
 from playwright.sync_api import sync_playwright, expect
 
 BASE = os.environ.get('COMIC_BASE_URL', 'http://127.0.0.1:4173/').rstrip('/') + '/'
 # Deterministic image delivery keeps these interaction tests independent of media hosts.
 IMAGE = b'<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="3240"><rect width="2160" height="3240" fill="#556"/></svg>'
+BOOK = json.loads((Path(__file__).parents[1] / 'src/data/comic-current-editions.json').read_text())['books']['g']
+COLLECTION = json.loads((Path(__file__).parents[1] / 'src/data/comic-collection-serving.json').read_text())
+
+
+def check_zoomed_hotspots(page):
+    """Verify targets against the rendered image, then activate a panned target."""
+    page.goto(BASE + '#/comic?edition=g&page=1')
+    page.get_by_role('button', name='Full screen', exact=True).click()
+    page.get_by_role('button', name='Zoom in', exact=True).click()
+    page.get_by_role('button', name='Zoom in', exact=True).click()
+    expect(page.get_by_role('button', name='Fit whole page')).to_have_text('200%')
+    page.wait_for_function("document.querySelector('.comic-page-image')?.naturalWidth > 0")
+    bounds = page.locator('.comic-page-image').bounding_box()
+    assert bounds
+    for link in BOOK['links']['1']:
+        target = page.get_by_role('button', name=f"Read page {link['page']}:", exact=False)
+        box = target.bounding_box()
+        assert box
+        left, top, right, bottom = link['rect']
+        expected = {
+            'x': bounds['x'] + bounds['width'] * left / 100,
+            'y': bounds['y'] + bounds['height'] * top / 100,
+            'width': bounds['width'] * (right - left) / 100,
+            'height': bounds['height'] * (bottom - top) / 100,
+        }
+        assert all(abs(box[key] - value) <= 1 for key, value in expected.items()), (box, expected)
+    last = BOOK['links']['1'][-1]
+    target = page.get_by_role('button', name=f"Read page {last['page']}:", exact=False)
+    target.scroll_into_view_if_needed()
+    # An actual pointer click, not dispatch_event, catches misaligned/covered targets.
+    target.click()
+    expect(page.get_by_label('Jump to page')).to_have_value(str(last['page']))
+    expect(page.get_by_role('button', name='Fit whole page')).to_have_text('100%')
+    expect(page.get_by_role('dialog', name='Full-screen comic reader')).to_be_visible()
+    page.get_by_role('button', name='Exit full screen').click()
+
+
+def check_immersive_image_recovery(page):
+    """Exercise zoom fallback and total failure without leaving the modal."""
+    # At fit, the reading copy loads; zoom then asks for an unavailable original.
+    original_pattern = BOOK['imageBase'] + '003.webp*'
+    page.route(original_pattern, lambda route: route.fulfill(status=503, body='Unavailable'))
+    page.goto(BASE + '#/comic?edition=g&page=3')
+    image = page.locator('.comic-page-image')
+    page.wait_for_function("document.querySelector('.comic-page-image')?.naturalWidth > 0")
+    page.get_by_role('button', name='Full screen', exact=True).click()
+    with page.expect_request(re.compile(re.escape(BOOK['imageBase'] + '003.webp'))):
+        page.get_by_role('button', name='Zoom in').click()
+    expect(image).to_have_attribute('src', re.compile(re.escape('/' + COLLECTION['directory'] + '/')))
+    page.wait_for_function("document.querySelector('.comic-page-image')?.naturalWidth > 0")
+    expect(page.locator('.comic-current-error')).to_have_count(0)
+    page.unroute(original_pattern)
+
+    # A later page fails for both the reading copy and original; retry must work
+    # inside the same modal and must not save the unreadable page as the bookmark.
+    restored = [False]
+    # Choose a non-prefetched page so a previously decoded image cannot bypass
+    # the deliberately failed responses.
+    failed_pattern = '**/008.webp*'
+    def failing_page(route):
+        if restored[0]:
+            route.fulfill(status=200, content_type='image/svg+xml', body=IMAGE)
+        else:
+            route.fulfill(status=503, body='Unavailable')
+    page.route(failed_pattern, failing_page)
+    page.get_by_label('Jump to page').select_option('8')
+    expect(page.locator('.comic-current-error')).to_be_visible()
+    expect(page.get_by_role('dialog', name='Full-screen comic reader')).to_be_visible()
+    bookmark_key = f"techops-hero:g:{BOOK['revision']}:page"
+    assert page.evaluate('(key) => localStorage.getItem(key)', bookmark_key) == '3'
+    restored[0] = True
+    page.get_by_role('button', name='Retry page', exact=True).click()
+    page.wait_for_function("document.querySelector('.comic-page-image')?.naturalWidth > 0")
+    expect(page.locator('.comic-current-error')).to_have_count(0)
+    page.wait_for_function("(key) => localStorage.getItem(key) === '8'", arg=bookmark_key)
+    expect(page.get_by_role('dialog', name='Full-screen comic reader')).to_be_visible()
+    page.get_by_role('button', name='Exit full screen').click()
+    expect(page.get_by_role('button', name='Full screen', exact=True)).to_be_focused()
+    page.unroute(failed_pattern)
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
@@ -78,6 +159,10 @@ with sync_playwright() as p:
         assert parse_qs(page.url.split('?', 1)[1])['page'] == ['3']
         page.wait_for_function("Object.entries(localStorage).some(([k,v]) => k.startsWith('techops-hero:g:') && k.endsWith(':page') && v === '3')")
         print(f"PASS fallback interactions and fit: {viewport['width']}x{viewport['height']}")
+        check_zoomed_hotspots(page)
+        print(f"PASS zoomed hotspot geometry and panned pointer activation: {viewport['width']}x{viewport['height']}")
+        check_immersive_image_recovery(page)
+        print(f"PASS immersive original fallback, failure and retry: {viewport['width']}x{viewport['height']}")
         context.close()
 
     # Keep native coverage separate: these assertions require the real API.
