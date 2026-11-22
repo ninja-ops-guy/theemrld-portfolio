@@ -57,3 +57,9 @@
   .comic-current .comic-reading-surface:not(.is-immersive) .comic-reader-head h1{flex:1 0 100%;order:-1}
   .comic-current .comic-reading-surface:not(.is-immersive) .comic-reader-head button{min-height:44px}
 }
+
+.comic-immersive-music{display:flex;flex:none;align-items:center;gap:8px;min-height:44px;padding:0 6px;background:#121317;font-size:12px}
+.comic-immersive-music button{flex:none;min-height:44px;min-width:44px;padding:0 8px;color:inherit;border:1px solid #60584a}
+.comic-immersive-music>span:not(.sr-only){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.comic-immersive-music input{flex:none;width:72px;min-height:44px}

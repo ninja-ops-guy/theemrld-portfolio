@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight, Maximize2, 
 import source from '../data/comic-current-editions.json';
 import displayLabels from '../data/comic-display-labels.json';
 import collection from '../data/comic-collection-serving.json';
-import ComicMusicBar from '../components/ComicMusicBar';
+import ComicMusicBar, { ComicImmersiveMusicControls } from '../components/ComicMusicBar';
 import './TechOpsComic.css';
 import './LatestComicReader.css';
 
@@ -237,7 +237,7 @@ export default function LatestComicReader() {
           if (!immersive) return;
           if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); exitImmersive(); return; }
           if (e.key !== 'Tab') return;
-          const focusable = Array.from(reader.current?.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]') ?? []).filter(el => el.getClientRects().length > 0);
+          const focusable = Array.from(reader.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]') ?? []).filter(el => el.getClientRects().length > 0);
           if (!focusable.length) return;
           const first = focusable[0], last = focusable[focusable.length-1];
           if (e.shiftKey && (document.activeElement === first || !reader.current?.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
@@ -251,6 +251,7 @@ export default function LatestComicReader() {
         <span className="comic-fullscreen-title">{section.label} · Page {page} / {book.pageCount}</span>
         <button ref={exitButton} autoFocus onClick={exitImmersive} aria-label="Exit full screen">Exit <Minimize2 size={16}/></button>
       </div>}
+      {immersive && <ComicImmersiveMusicControls onOpenPlayer={exitImmersive}/>}
       <div className={'comic-stage'+(!immersive && zoom?' is-enlarged':'')+(immersive && readerScale>1?' is-fullscreen-zoomed':'')} ref={stage} tabIndex={immersive && readerScale>1?0:undefined} aria-label={immersive && readerScale>1?'Zoomed page; scroll to pan':undefined} style={immersive ? {'--reader-scale':readerScale,'--comic-aspect':book.width/book.height} as CSSProperties : undefined}
         onTouchStart={e => {
           const atFit = immersive ? readerScale === 1 : !zoom;

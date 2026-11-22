@@ -244,9 +244,11 @@ def check_blocked_autoplay(context, base_url):
         music.get_by_role("button", name="Play Hot sauce", exact=True).click()
         expect_music(page, "Hot sauce", guided=False, status="paused")
         assert not page.evaluate("window.__readerMusic.audio.pausedByUser")
-        recovery = music.get_by_role("button", name="Play in SoundCloud", exact=True)
+        page.get_by_role("button", name="Full screen", exact=True).click()
+        recovery = page.get_by_role("group", name="Fullscreen soundtrack").get_by_role("button", name="Play in SoundCloud", exact=True)
         recovery.wait_for(state="visible", timeout=5000)
         recovery.click()
+        expect(page.get_by_role("dialog", name="Full-screen comic reader")).to_have_count(0)
         player = page.frame_locator(PLAYER_FRAME)
         expect(player.get_by_role("button", name="Close SoundCloud player")).to_be_visible()
         expect(player.locator(SOUNDCLOUD_FRAME)).to_have_count(1)
@@ -282,6 +284,35 @@ def check_quiet_before_provider_ready(context, base_url, touch):
         page.close()
 
 
+def check_immersive_continuity(context, base_url):
+    page, music = open_reader(context, base_url, 55)
+    try:
+        # Deliberately isolate fallback audio continuity from native API coverage.
+        page.evaluate("Element.prototype.requestFullscreen = undefined")
+        music.get_by_role("button", name="Guided off", exact=True).click()
+        expect_music(page, "Time Crumbles")
+        widget_progress(page, 750)
+        expect_music(page, "Time Crumbles", position=750)
+        frame = page.locator(PLAYER_FRAME)
+        before = frame.evaluate("f => ({loads:f.contentWindow.__soundCloudLoads.length, plays:f.contentWindow.__soundCloudPlayCalls.length})")
+        page.get_by_role("button", name="Full screen", exact=True).click()
+        controls = page.get_by_role("group", name="Fullscreen soundtrack")
+        expect(controls.get_by_role("button", name="Pause soundtrack")).to_be_visible()
+        expect_music(page, "Time Crumbles", position=750)
+        next_page(page, 56, False)
+        expect_music(page, "Time Crumbles", position=750)
+        after = frame.evaluate("f => ({loads:f.contentWindow.__soundCloudLoads.length, plays:f.contentWindow.__soundCloudPlayCalls.length})")
+        assert before == after, (before, after)
+        controls.get_by_role("button", name="Pause soundtrack").click()
+        expect_music(page, "Time Crumbles", status="paused", position=750)
+        controls.get_by_role("button", name="Resume soundtrack").click()
+        expect_music(page, "Time Crumbles", position=750)
+        page.get_by_role("button", name="Exit full screen").click()
+        expect_music(page, "Time Crumbles", position=750)
+    finally:
+        page.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", default="http://localhost:3000/")
@@ -299,6 +330,7 @@ def main():
                 check_manual_and_guided(context, args.base_url, touch)
                 check_quiet_before_provider_ready(context, args.base_url, touch)
                 check_blocked_autoplay(context, args.base_url)
+                check_immersive_continuity(context, args.base_url)
                 print(f"PASS: {name} reader and controlled SoundCloud widget")
             finally:
                 context.close()
