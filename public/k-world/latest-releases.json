@@ -1,6 +1,13 @@
 {
-  "verifiedAt": "2026-11-22T00:45:43Z",
+  "verifiedAt": "2026-11-22T20:24:51Z",
   "tracks": [
+    {
+      "id": "proof",
+      "title": "Proof",
+      "url": "https://soundcloud.com/raikouno/proof",
+      "provider": "soundcloud",
+      "createdAt": "2026-11-22T19:45:37Z"
+    },
     {
       "id": "no-stal-juh",
       "title": "Memory Palace",
