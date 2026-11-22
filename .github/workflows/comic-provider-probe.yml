@@ -29,7 +29,7 @@ jobs:
       - name: Build exact candidate
         run: |
           git rev-parse HEAD HEAD^{tree}
-          npm ci --no-audit --no-fund
+          npm install --no-audit --no-fund
           npm run build
       - name: Install browser runner
         run: |
