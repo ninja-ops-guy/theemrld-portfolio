@@ -81,3 +81,26 @@ export default function ComicMusicBar({ edition, page, revision }: { edition: st
     </details>
   </section>;
 }
+
+// Shares the existing session; never mounts another player or resets reader cues.
+export function ComicImmersiveMusicControls({ onOpenPlayer }: { onOpenPlayer: () => void }) {
+  const { audio, guided, guidedNotice, sendCommand, openSoundCloud, setVolume } = useKMusic();
+  const playing = audio.status === 'playing';
+  const needsTap = audio.current?.provider === 'soundcloud' && audio.status === 'paused' && !audio.pausedByUser;
+  const toggle = () => {
+    if (playing) sendCommand('pause');
+    else if (needsTap) { onOpenPlayer(); openSoundCloud(); }
+    else {
+      sendCommand('background on');
+      sendCommand(guided || audio.current ? 'resume' : 'latest');
+    }
+  };
+  return <div className="comic-immersive-music" role="group" aria-label="Fullscreen soundtrack">
+    <button onClick={toggle} aria-label={playing ? 'Pause soundtrack' : needsTap ? 'Play in SoundCloud' : audio.current ? 'Resume soundtrack' : 'Play soundtrack'}>
+      {playing ? 'Ⅱ Pause' : needsTap ? 'Open player' : '▶ Play'}
+    </button>
+    <input type="range" min="0" max="100" value={audio.volume} onChange={event => setVolume(Number(event.target.value))} aria-label="Soundtrack volume"/>
+    <span title={audio.current?.title}>{audio.current?.title || 'Soundtrack'}</span>
+    <span className="sr-only" role="status">{audio.error || (needsTap ? 'Playback needs a tap in the SoundCloud player.' : guidedNotice)}</span>
+  </div>;
+}
