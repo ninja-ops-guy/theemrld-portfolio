@@ -132,6 +132,7 @@ export default function LatestComicReader() {
     {showIntro && <dialog ref={dialog} className="comic-reel" aria-label={volumeIntro ? 'Volume XIII opening animation' : 'Tech Ops Hero introduction'} onCancel={()=>setIntro(false)}>
       {volumeIntro ? <video
         aria-label="Volume XIII opening animation"
+        data-k-playback-handoff
         src={`${base}volume-xiii-opening.mp4`}
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         autoPlay muted playsInline controls
