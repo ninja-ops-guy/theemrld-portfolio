@@ -1444,6 +1444,24 @@ Sequential Playback: ON (no overlap)`);
           <span id="time-display">{timeDisplay}</span>
         </div>
 
+        <aside className="kt-album-ad" aria-label="Featured album">
+          <video
+            controls
+            muted
+            playsInline
+            preload="none"
+            width="512"
+            height="896"
+            poster={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.webp`}
+            src={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.mp4`}
+            aria-label="Despair Nights Dried album trailer"
+          />
+          <a href="https://soundcloud.com/raikouno/sets/despair-nights-dried" target="_blank" rel="noopener noreferrer">
+            <strong>Despair Nights Dried</strong>
+            <span>Listen on SoundCloud ↗</span>
+          </a>
+        </aside>
+
         {/* Click-to-play track list */}
         <div className="kt-click-play">
             <div className="kt-click-header">
@@ -1500,6 +1518,22 @@ Sequential Playback: ON (no overlap)`);
           overflow: hidden;
           position: relative;
         }
+
+        .kt-album-ad {
+          display: flex;
+          align-items: center;
+          gap: clamp(12px, 3vw, 32px);
+          flex: none;
+          margin: 12px 0;
+          padding: 12px;
+          border: 1px solid #216943;
+          background: #07110e;
+        }
+        .kt-album-ad video { width: clamp(108px, 18vw, 148px); height: auto; flex: none; }
+        .kt-album-ad a { flex: 1; min-width: 0; padding-block: 12px; color: #bcffe2; }
+        .kt-album-ad strong { display: block; font-size: clamp(18px, 3vw, 30px); line-height: 1.1; }
+        .kt-album-ad a span { display: inline-block; margin-top: 10px; color: #65f9bd; text-decoration: underline; }
+        .kt-album-ad a:focus-visible { outline: 2px solid #65f9bd; outline-offset: 3px; }
 
         /* CRT scanlines */
         .kt-body::before {
