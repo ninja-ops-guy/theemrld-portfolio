@@ -1451,6 +1451,7 @@ Sequential Playback: ON (no overlap)`);
           <div className="kt-album-media">
             <video
               ref={trailerRef}
+        data-k-playback-handoff
               hidden={trailerEnded}
               onEnded={() => setTrailerEnded(true)}
               onPlay={() => setTrailerEnded(false)}
