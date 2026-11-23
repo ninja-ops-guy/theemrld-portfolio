@@ -4,7 +4,7 @@ The publisher runs in GitHub Actions. Chat submits a small request and reads a d
 
 ## Installation and safe scope
 
-This implementation is being repaired in PR #75. Until that PR is merged and the first installed status run succeeds, do not describe the generic runner as installed. Main's ordinary Pages workflow and current published art remain independent. Installing tooling is not authorization to publish a new artwork revision.
+PR #75 installed the implementation at commit `6cdc22813389b18f30cdf214f98ab0e92df9283a`. Installation does not establish a successful hosted status or end-to-end publishing run. Main's ordinary Pages workflow and current published art remain independent. Installing tooling is not authorization to publish a new artwork revision.
 
 The old `xiv-corrected-20261110` registration is retired and its target PR #72 is closed. No active replacement is guessed. Before registering a release, reconcile ALL requested corrections against exact master and image hashes, including corrections made in separate chats. An older verified kit is not proof that it contains later corrections.
 
@@ -59,3 +59,11 @@ Use `status` to inspect. Use `resume` to recover the same approved release after
 - Live verification failed: report that exact state. Investigate before a separately approved rollback.
 
 New volumes outside the three current books need a reviewed reader/data change as well as a manifest. Do not disguise new content as an existing revision merely to pass the gates.
+
+## Reviewed catalogue and installation
+
+`src/data/comic-publication-catalogue.json` is the reviewed public reading order and page-count contract. It must agree with current-editions data and display labels; total image count must agree too. Adding a volume requires a reviewed reader, navigation, soundtrack and catalogue change before its manifest can run. Never register retired edition IDs. Existing book counts stay unchanged unless an explicit pagination migration is reviewed. Pages compares the live publication with its exact built artifact instead of assuming three fixed books. Current-only cleanup and retired URL checks remain mandatory.
+
+The checked-in request is an inert installation placeholder, not a release request. Do not push it as an operation. After installation, initialize publisher-requests from current main and explicitly submit status with a real registered release ID (the retired historical registration may be inspected read-only). Verify the resulting hosted run before claiming bootstrap success. Never bootstrap by submitting publish.
+
+For each candidate, also run Comic Full Collection Acceptance against its exact head. The publisher first/last-page Chromium/WebKit smoke is narrower than collection navigation, layout, soundtrack and recovery acceptance. Require both receipts before publication; physical-device testing remains a separate claim. Hosted merge/dispatch interruption recovery and Pages concurrency with an intervening main update remain unproven until exercised in an approved bounded validation.
