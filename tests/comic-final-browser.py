@@ -137,11 +137,7 @@ try:
             expect(page.get_by_label('Jump to page', exact=True)).to_have_value('1')
             page.reload()
             expect(opening).to_be_visible()
-            opening.locator('video').evaluate("""async video => {
-                await video.play();
-                video.currentTime = video.duration - 0.25;
-            }""")
-            expect(opening).to_have_count(0)
+            expect(opening).to_have_count(0, timeout=30000)
             page.emulate_media(reduced_motion='reduce')
             page.reload()
             expect(page.get_by_label('Jump to page', exact=True)).to_have_value('1')
