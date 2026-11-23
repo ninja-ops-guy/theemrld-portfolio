@@ -47,7 +47,10 @@ export default function LatestComicReader() {
   const [readingImageFailure, setReadingImageFailure] = useState('');
   const [originalFailure, setOriginalFailure] = useState('');
   const [retry, setRetry] = useState(0);
-  const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const volumeIntro = id === 'xiii-r';
+  const [intro, setIntro] = useState(() => (!page || (volumeIntro && page === 1)) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const playedOnLanding = useRef(false);
+  const showIntro = intro && (!page || (volumeIntro && page === 1));
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x:number;y:number}|null>(null);
@@ -60,7 +63,9 @@ export default function LatestComicReader() {
   const volumes = id === 'g' ? book.sections.filter(s => s.kind === 'volume') : [];
   const describe = (n:number) => { const s=book.sections.find(s=>n>=s.start && n<=s.end); return `${s?.label ?? book.label} · ${s?.title ?? book.title}`; };
   const go = useCallback((target:number, edition=id) => {
-    setIntro(false);
+    const openingFromLibrary = !page && target === 1 && edition === 'xiii-r' && !playedOnLanding.current;
+    setIntro(openingFromLibrary && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    playedOnLanding.current = false;
     setFailure('');
     setReadingImageFailure('');
     setOriginalFailure('');
@@ -72,11 +77,16 @@ export default function LatestComicReader() {
     setParams(q,{replace:page>0 && target>0 && edition===id});
   },[fromWorld,id,page,setParams]);
   useEffect(() => {
-    if (!intro || page || !dialog.current) return;
-    dialog.current.showModal();
-    const handle=setTimeout(()=>setIntro(false),8000);
-    return ()=>{ clearTimeout(handle); dialog.current?.close(); };
-  },[intro,page]);
+    const modal = dialog.current;
+    if (!showIntro || !modal) return;
+    if (volumeIntro && !page) playedOnLanding.current = true;
+    modal.showModal();
+    const timer = volumeIntro ? undefined : window.setTimeout(() => setIntro(false), 8000);
+    return () => {
+      window.clearTimeout(timer);
+      modal.close();
+    };
+  }, [showIntro, volumeIntro, page]);
   useEffect(() => {
     const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
     const stop=()=>{if(motion.matches)setIntro(false);}; motion.addEventListener('change',stop);
@@ -89,14 +99,14 @@ export default function LatestComicReader() {
   useEffect(() => {
     setZoomedPage('');
     stage.current?.scrollTo(0,0);
-    if (!page) return;
+    if (!page || showIntro) return;
     const onKey=(e:KeyboardEvent)=>{
       if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||(e.target instanceof HTMLElement && e.target.closest('input,select,textarea,button,[contenteditable=true]')))return;
       if(e.key==='ArrowLeft' && page>1){e.preventDefault();go(page-1);}
       if(e.key==='ArrowRight' && page<book.pageCount){e.preventDefault();go(page+1);}
     };
     window.addEventListener('keydown',onKey);return ()=>window.removeEventListener('keydown',onKey);
-  },[book,page,go]);
+  },[book,page,go,showIntro]);
   const onPageLoad = () => {
     try {
       localStorage.setItem(`techops-hero:${book.id}:${book.revision}:page`, String(page));
@@ -119,11 +129,18 @@ export default function LatestComicReader() {
   };
   const next=editionOrder[editionOrder.indexOf(id)+1];
   return <main className={'comic-shell comic-current '+(page?'comic-reading':'')}>
-    {intro && !page && <dialog ref={dialog} className="comic-reel" aria-label="Tech Ops Hero introduction" onCancel={()=>setIntro(false)}>
-      <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet':`url("${base}intro-panels-hq.webp")`} as CSSProperties} onAnimationEnd={e=>{if(e.animationName==='comic-reel-out')setIntro(false);}}>
+    {showIntro && <dialog ref={dialog} className="comic-reel" aria-label={volumeIntro ? 'Volume XIII opening animation' : 'Tech Ops Hero introduction'} onCancel={()=>setIntro(false)}>
+      {volumeIntro ? <video
+        aria-label="Volume XIII opening animation"
+        src={`${base}volume-xiii-opening.mp4`}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        autoPlay muted playsInline controls
+        onEnded={() => setIntro(false)}
+        onError={() => setIntro(false)}
+      /> : <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet':`url("${base}intro-panels-hq.webp")`} as CSSProperties} onAnimationEnd={e=>{if(e.animationName==='comic-reel-out')setIntro(false);}}>
         <div className="comic-reel-gate"><img className="comic-panel-sheet" src={`${base}intro-panels-hq.webp`} alt="" fetchPriority="high" onLoad={e=>e.currentTarget.dataset.ready='true'} onError={()=>setIntro(false)}/></div>
         <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
-      </div><button className="comic-reel-toggle" onClick={()=>setIntro(false)}>Skip intro</button>
+      </div>}<button className="comic-reel-toggle" onClick={()=>setIntro(false)}>Skip intro</button>
     </dialog>}
     <header className="comic-mast">
       <Link to={fromWorld?'/k/terminal':'/terminal'}><ArrowLeft size={16}/> K Terminal</Link>
@@ -131,7 +148,7 @@ export default function LatestComicReader() {
       <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
       <nav className="comic-downloads" aria-label="PDF downloads"><a className="comic-download" href={book.pdfUrl} target="_blank" rel="noopener noreferrer"><BookOpen size={16}/> {book.label} · Complete {book.pageCount}-page PDF</a></nav>
     </header>
-    <ComicMusicBar edition={id} page={failure===key?0:page} revision={book.revision}/>
+    <ComicMusicBar edition={id} page={failure===key || (volumeIntro && showIntro)?0:page} revision={book.revision}/>
     {!page ? <>
       <section className="comic-hero" style={{'--dock':`url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true"/>

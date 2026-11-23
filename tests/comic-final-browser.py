@@ -124,6 +124,26 @@ try:
             page.screenshot(path=str(OUT / f'{name}-library.png'), full_page=False)
             checked(f'{name}: exactly three current books, final labels and loaded covers')
 
+            page.emulate_media(reduced_motion='no-preference')
+            page.locator('.comic-current-card').nth(1).get_by_role('button').click()
+            opening = page.get_by_role('dialog', name='Volume XIII opening animation')
+            expect(opening).to_be_visible()
+            page.wait_for_function("""() => {
+                const video = document.querySelector('dialog video');
+                return video && video.currentTime > 0 && video.videoWidth === 512 && video.muted;
+            }""")
+            opening.get_by_role('button', name='Skip intro').click()
+            expect(opening).to_have_count(0)
+            expect(page.get_by_label('Jump to page', exact=True)).to_have_value('1')
+            page.reload()
+            expect(opening).to_be_visible()
+            expect(opening).to_have_count(0, timeout=30000)
+            page.emulate_media(reduced_motion='reduce')
+            page.reload()
+            expect(page.get_by_label('Jump to page', exact=True)).to_have_value('1')
+            expect(opening).to_have_count(0)
+            checked(f'{name}: Volume XIII opening plays, skips, ends, and respects reduced motion')
+
             for retired, expected_id in [('f','g'), ('legacy','g'), ('xiii','xiii-r'), ('unknown','g')]:
                 page.goto(reader_url(retired,34,'&from=world'), wait_until='domcontentloaded')
                 expect(page.locator('.comic-current-card')).to_have_count(3)
