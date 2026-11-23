@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "status": "REVIEW_ONLY_NOT_SCHEDULED",
+  "edition": "Full collection",
+  "technical_edition": "Revision G",
+  "pages": 316,
+  "media_commit": "aa8c132035a46e73fb47ee14e05e371909799d64",
+  "reader_revision": "corrected-c18407af88e9",
+  "source_pdf_sha256": "c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b",
+  "baseline_commit": "7d93ac8ee19e74fcf973c0e5f766cd3449e587d8",
+  "baseline_pdf_sha256": "46943e144014e61b6b556b13722b8d9548b59a17d066c3ade066f9c735282733",
+  "web_render": {
+    "pages": {
+      "6": {
+        "path": "sources/g/006.webp",
+        "sha256": "0ba74380ef2bb88e26f27be970056e5c135578a721ba2f79976a1e6592c47360",
+        "bytes": 1425920,
+        "git_blob": "1e486e4c2037ec8d3ea0184dff7fcf6b39176495",
+        "baseline_source_sha256": "16940b606b5b5c9fc6830c1241a0d13a416c1361f5f343cd9d24c6606499d9fa",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Audio credit is relettered; first-person memory caption becomes third-person \u201cMike remembered the time\u2026\u201d; panel art/order retained."
+      },
+      "7": {
+        "path": "sources/g/007.webp",
+        "sha256": "8c34865fcf60e7e978114146e308352c2361c0b3e20b7a250d12a1449191fd03",
+        "bytes": 1328024,
+        "git_blob": "ff49e4abbb26962113867575300074f83ed4c03c",
+        "baseline_source_sha256": "0567757e31971c70752df928fb34d43ecc26d03636213ee0682ebb5e8a107412",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "First standup panel retouched, including Mike, Dee and adjacent colleague; dialogue/order retained on visual comparison."
+      },
+      "8": {
+        "path": "sources/g/008.webp",
+        "sha256": "aef94c75503b3b5a54e0e91af7b07bbbd80f1c342b3fccce521237c0d1c925eb",
+        "bytes": 1586936,
+        "git_blob": "72f4d27ab15a9cb65fba24216a859f2e60b9bfa5",
+        "baseline_source_sha256": "aef94c75503b3b5a54e0e91af7b07bbbd80f1c342b3fccce521237c0d1c925eb",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "9": {
+        "path": "sources/g/009.webp",
+        "sha256": "c6aabaa1fd15d5a0f6ce5a5a497a03b62e8326f9b90d68341239ef2c28932ff3",
+        "bytes": 1321628,
+        "git_blob": "a043b20c5cb7dace71806927aa8b0402c2ed86d1",
+        "baseline_source_sha256": "e367e2cd1eb6537dfcfde839d390361eb1cb2fa94e4f75aa89f8fbb2c378b4b4",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Day Three heading added; panel 5 question becomes \u201cAre you Morningstar?\u201d; faces/lettering reworked."
+      },
+      "10": {
+        "path": "sources/g/010.webp",
+        "sha256": "ce6419be72a933ff4ed9f149b86286cd8baf1d2da8a95a6a48d8caaf64a08ce4",
+        "bytes": 1151840,
+        "git_blob": "fba273d7950830820b6e11080487690e0aaf8b53",
+        "baseline_source_sha256": "6b0fa26d724deb926cdfe56b2f92a8dac43edf6d7cd8510a04edb52fee245c1d",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Dee\u2019s foreground profile and highlighted hairstyle corrected; dialogue/order retained."
+      },
+      "11": {
+        "path": "sources/g/011.webp",
+        "sha256": "78fb2d510b75c155aa24a3b44ed3199a698c3d02720f8089c2809deb1c77c455",
+        "bytes": 1139132,
+        "git_blob": "87851cc888f94fa20dfe93d8b40646e9ed31d6a3",
+        "baseline_source_sha256": "22e7a8e32ffa573e0bc400295d9da061dbb1bca4a37eccfdd0debd6ac9f23f7c",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Felicia facial artwork retouched; scene and dialogue order retained."
+      },
+      "12": {
+        "path": "sources/g/012.webp",
+        "sha256": "698be4c5ac171e1829bc5db6bdc5b752f458497c0762fbc9e1ad16be7f446d12",
+        "bytes": 1395700,
+        "git_blob": "9e5d7be65a42499aee80fa947d73f9bca2a0d832",
+        "baseline_source_sha256": "73c8a5841b9133faf40bf2aaa494a2eedb09856ea575d78a65f9bdf6f804df66",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Felicia explicitly says \u201cI\u2019m Morningstar. I practice between tests.\u201d; lettering and composition revised."
+      },
+      "13": {
+        "path": "sources/g/013.webp",
+        "sha256": "cdbb40a0650e60b116d1329824043b866779b1c10ded58ba1f53d397158dff15",
+        "bytes": 1385212,
+        "git_blob": "1e8f7bc0dcac087095f300c927893517b07638f1",
+        "baseline_source_sha256": "98c4a18f35ba4fe3531534fce259b8636164038cfe1864887af838a4635d2a44",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Dialogue/artwork relettered and repositioned within the same Invitation sequence."
+      },
+      "14": {
+        "path": "sources/g/014.webp",
+        "sha256": "ab15ea9ec0d082b0fada2ceceac6f56558d8c79f6af9e0616c28635375723317",
+        "bytes": 1203634,
+        "git_blob": "a116cd11f6c6c9ddea1b6270a150ff5c564b447e",
+        "baseline_source_sha256": "45e19ba6be0f0d863c248b1ecbd4ba1f54b1db2211b05125dff9b725503e006b",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Hangar sequence artwork/lettering resized and repositioned; event order retained."
+      },
+      "15": {
+        "path": "sources/g/015.webp",
+        "sha256": "c9e2fec9ebb48774e9fba78bcab1b0778946853d8d9e0d5a9d895e027be707d1",
+        "bytes": 1536930,
+        "git_blob": "21c38c5ad66523b8b5debe50183b15b595730175",
+        "baseline_source_sha256": "7d5022a0ac073517bcf08a1ad741257dd71e600fb8f1f397533517153c870356",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "ORPHEUS explanation lettering, bubbles and panel layout revised."
+      },
+      "16": {
+        "path": "sources/g/016.webp",
+        "sha256": "c14e483316554d06bd9c7c84eea9ef5625c3a0ffe28ef2f25f2a514f8fd6cb5a",
+        "bytes": 1294008,
+        "git_blob": "7907459d34e4acbae0814058467ce03e8ed52f4b",
+        "baseline_source_sha256": "a5a60bb59891b11ea3248ae25664449078738c2469103eecbde34c9e7f1fbb76",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Isolation-handle hand changed from gloved to bare."
+      },
+      "17": {
+        "path": "sources/g/017.webp",
+        "sha256": "22acda08c8af7432e2cd14c1c139b24ea2f632681ad563e65df0a5f16e2b985c",
+        "bytes": 1064882,
+        "git_blob": "04730ead9bc778a935283e9ae73736576808cacd",
+        "baseline_source_sha256": "d19773940b25c87f1469ac7d8fa086a6245f5def0847c6fe91d546655163c5c7",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Mike\u2019s lower-left close-up retouched."
+      },
+      "18": {
+        "path": "sources/g/018.webp",
+        "sha256": "4c132efde6fd71f5ea819ac233f02315244e94d7ed233652c6fa80c71b7b6287",
+        "bytes": 1411676,
+        "git_blob": "aaa8409ecfda30b0f3bd8b1657c9531ebd4d20ff",
+        "baseline_source_sha256": "4c132efde6fd71f5ea819ac233f02315244e94d7ed233652c6fa80c71b7b6287",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "19": {
+        "path": "sources/g/019.webp",
+        "sha256": "dae59561dd137e81152e983101f6cd499232b84334f0d09976b421476770816b",
+        "bytes": 1311222,
+        "git_blob": "97ce4b8293be6050907a340e50e3f6578f951ed7",
+        "baseline_source_sha256": "777d79f5ba808ca54979cf431900928e05673bd9500b707cfeaf0958d98649e5",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Caption changes from \u201cI still wonder\u2026\u201d to \u201cHe wondered\u2026\u201d; other lettering reflowed."
+      },
+      "20": {
+        "path": "sources/g/020.webp",
+        "sha256": "d9c81aa9b5377798b8ef0bc6af1bc15dae03f5e356ef0fccdd4be722567d5023",
+        "bytes": 1340604,
+        "git_blob": "983c37d3199b01a6027627a7a878fe9847d000d8",
+        "baseline_source_sha256": "cdf78cf3cb24607264d2d51c6b7d06f06878a06f3e5042adfd8eeb4ce9e1ab3f",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Waldo backstory captions rewritten in third person and reflowed; panel sizes changed."
+      },
+      "21": {
+        "path": "sources/g/021.webp",
+        "sha256": "2dd578150956f33b1b8594a712963fac7ef9abc2201697f921679f366c8a3789",
+        "bytes": 1609444,
+        "git_blob": "93cdbf0397a05c685bade40fa35deb3ec166716b",
+        "baseline_source_sha256": "4fa6ea63d592d72abab8021defd301f02f1ee0dc52efe13ec4b2587247c6d64d",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Opening dogs caption relettered and repositioned."
+      },
+      "22": {
+        "path": "sources/g/022.webp",
+        "sha256": "22471f313b478ab301677d9282f6493c70e63b361cec9706fe73258c221cc540",
+        "bytes": 1938778,
+        "git_blob": "67bede0e9db7594f037a21587eaa97627bb7fb94",
+        "baseline_source_sha256": "22471f313b478ab301677d9282f6493c70e63b361cec9706fe73258c221cc540",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "23": {
+        "path": "sources/g/023.webp",
+        "sha256": "78a0d9104a3be63295e0e6503e940cc82156f4acb97f431f551fdfc45fc0d7c1",
+        "bytes": 1262680,
+        "git_blob": "b84921023c8f776fd5787e1dd1a169db5451172d",
+        "baseline_source_sha256": "ee79a81f47d8e9313d898fa0a3458918790151bb861c91409c7e77a1529526e5",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "\u201cGLASS FROM THE BREACHED HATCH.\u201d caption added."
+      },
+      "24": {
+        "path": "sources/g/024.webp",
+        "sha256": "c7331032e8526a1aa9c15c674e84465543f31dd4745306b65e6f544effddc657",
+        "bytes": 1165650,
+        "git_blob": "2d9fbdaa6bf6912de7061f40bde93007d1dfe3cd",
+        "baseline_source_sha256": "1192b868134bfb566bb14242a2732e8859a208ade70734b1ada522bffd9d1071",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Vent conversation artwork and panel proportions reworked; same introductions/order."
+      },
+      "25": {
+        "path": "sources/g/025.webp",
+        "sha256": "d64ae3af1900853e474a6e868265690e695a61ebb1132c8fe9d3bb8d0f14192f",
+        "bytes": 923364,
+        "git_blob": "8a3f76a7f688cd726d250c319d589179cfb79bc4",
+        "baseline_source_sha256": "12b222f18cf76ca87d706fc25ba193828c41b67cd362788f9f717c9947cab378",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Speaking-dog attribution corrected from KATRIN to MANCHEZ; opening \u201cMorph!\u201d balloon removed."
+      },
+      "26": {
+        "path": "sources/g/026.webp",
+        "sha256": "a9102e3248c8ea2a2c743de444d8055f2ab32b230ae747a5dd0416687258a3d0",
+        "bytes": 911154,
+        "git_blob": "831a551aa0e80028f44e08c7b607a7ec81ae8321",
+        "baseline_source_sha256": "cdf562516c6e7772660b0d63a340798148b5ec6818c7336a85debe5a9695e86d",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Manual-release and reunion panels resized/reflowed; the conversation order remains."
+      },
+      "27": {
+        "path": "sources/g/027.webp",
+        "sha256": "44d3e8033c29609793f8dff1e0807d93b04093f6a7966d2a5d356e680383e5d1",
+        "bytes": 1139822,
+        "git_blob": "a05ce728e0710479c2e0012239e1cb34a552761c",
+        "baseline_source_sha256": "44d3e8033c29609793f8dff1e0807d93b04093f6a7966d2a5d356e680383e5d1",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "28": {
+        "path": "sources/g/028.webp",
+        "sha256": "464d214524bd657f69fb4f7b1a9d51e802485572db4b4e4abce76304f31368ec",
+        "bytes": 1243126,
+        "git_blob": "868c69b82db59316bf9a5838f0d21b869ef72a92",
+        "baseline_source_sha256": "6cb375ae356fdd07f5d74b09070152a3cf3e4cf9712c38721967665cb4d9004b",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Exposed cheek under Oz\u2019s mask cleaned up."
+      },
+      "29": {
+        "path": "sources/g/029.webp",
+        "sha256": "fa9eb2c561569ed6170cd08c491d062abc7f4b30c8ae87f947bc77a045a4be1d",
+        "bytes": 1295674,
+        "git_blob": "8b48ac3e57ba3a1344b58f7d1da05abee70008a6",
+        "baseline_source_sha256": "b8b5c0073c88575676b3e0be816a142acb27e43122c7cbfcca79dc0f0c38b52b",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "\u201cNOT PROBLEMS\u201d wall text and emblem removed."
+      },
+      "30": {
+        "path": "sources/g/030.webp",
+        "sha256": "6496f4cf42f69d32bde77fee49182f5641419c0dffd40454f578fc409311b93d",
+        "bytes": 1202074,
+        "git_blob": "f97520a4373f657f47b461a89c018eb73de31047",
+        "baseline_source_sha256": "8b3ba9466d9cdfbe2787fd511fda1c667e2c69b7ff0393216a35c4657e04028a",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Dialogue panels reflowed into a shorter block, leaving extra dark space below; preserve this current-source layout."
+      },
+      "31": {
+        "path": "sources/g/031.webp",
+        "sha256": "b9171186f0a8bb78877c6d407a80b96785f3c43ce07a8ab9707b7957ec7706fe",
+        "bytes": 1163978,
+        "git_blob": "dc048701a8a23a66d796ad43788ca3e8a758f330",
+        "baseline_source_sha256": "f61bb9e18c4a9542d135bd52a3c69e0538823915b770da34ffda992600eb8c48",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "K\u2019s chin-resting hand changed from gloved to bare."
+      },
+      "32": {
+        "path": "sources/g/032.webp",
+        "sha256": "c51c47f3c0c42715d4703e23feb8eb3d6c43323a265089017fdecc1458f575e5",
+        "bytes": 1171760,
+        "git_blob": "abcc802c82ab7fb6b41e763d51a702fbba8e84c1",
+        "baseline_source_sha256": "18ca3cce9d7432c86a021072886ab451329275c207b055ce21a3ceb7cc040666",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Dogs\u2019 fur corrected to cream; K\u2019s raised hand changed to bare."
+      },
+      "33": {
+        "path": "sources/g/033.webp",
+        "sha256": "2b35fb9de0d32d14728cc137afb645d9cc979947fa3bd72610b58efa583e8c3b",
+        "bytes": 1056372,
+        "git_blob": "7bab7371cf22cacce291a3d768f66d9e7082eb3a",
+        "baseline_source_sha256": "2b35fb9de0d32d14728cc137afb645d9cc979947fa3bd72610b58efa583e8c3b",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "34": {
+        "path": "sources/g/034.webp",
+        "sha256": "17e7f4325ec4bba4ceafdc14e7509d4b09b1280dbbe6bbfd6f388dea8e0829a0",
+        "bytes": 1089616,
+        "git_blob": "4695b80b7ecb33be15fb10a33492bd5a2828e33c",
+        "baseline_source_sha256": "17e7f4325ec4bba4ceafdc14e7509d4b09b1280dbbe6bbfd6f388dea8e0829a0",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "35": {
+        "path": "sources/g/035.webp",
+        "sha256": "e808affb8d796357a99d7481895128b1189dae8cd71b198c46c07c641b7560d9",
+        "bytes": 1322822,
+        "git_blob": "e732d0e4a6cc78f3bbc013ce33e20159c6e025cb",
+        "baseline_source_sha256": "e808affb8d796357a99d7481895128b1189dae8cd71b198c46c07c641b7560d9",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "36": {
+        "path": "sources/g/036.webp",
+        "sha256": "1b92891ac0e55a4ac35cafd6a1ad08150ca6ff7614476f7237c4ff8eb58fc255",
+        "bytes": 1309666,
+        "git_blob": "6e84a15a747944e84f575827b81b7ecf924c8ba0",
+        "baseline_source_sha256": "8a0433b43ca11d1c5f80d3623a06ec57e5b4c76cc5183b8242546a8726284ed9",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "\u201cVIOLIN / RECEIVER RIG\u201d case label added."
+      },
+      "37": {
+        "path": "sources/g/037.webp",
+        "sha256": "909931a55ad6f6a57fd298fe201db1fdd63b422a9df6862a77023001eb04ad2a",
+        "bytes": 1268046,
+        "git_blob": "0130787670914164f40129fcfe803361b39f672d",
+        "baseline_source_sha256": "b43c9c91444c78e777ac56f7fa43b491dab475ecc7a5e8dc625a0427a29028e8",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Off-panel music text relettered/repositioned; dialogue preserved in the same sequence."
+      },
+      "38": {
+        "path": "sources/g/038.webp",
+        "sha256": "b49ea7bdf22cab6b7dd5e3b377848f0bba56a03317caadbce1a85f8ff7ca9b9c",
+        "bytes": 1226480,
+        "git_blob": "e3442c1a89e5d04c52e68a7b198792ca290a2d14",
+        "baseline_source_sha256": "b49ea7bdf22cab6b7dd5e3b377848f0bba56a03317caadbce1a85f8ff7ca9b9c",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "39": {
+        "path": "sources/g/039.webp",
+        "sha256": "f73c942f3ba7ed80ef9328bd8b43ba4947c5053161ec037a65e73de39a252e03",
+        "bytes": 1064648,
+        "git_blob": "5c1b5e9a714cb6063c5aebe37ccae27172bac575",
+        "baseline_source_sha256": "f73c942f3ba7ed80ef9328bd8b43ba4947c5053161ec037a65e73de39a252e03",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "40": {
+        "path": "sources/g/040.webp",
+        "sha256": "ce12f7472c817cdea7ad67d9501b93ec2f6c914b75f47106391eb06c84ba7824",
+        "bytes": 1009300,
+        "git_blob": "9dab9f0ac21c99bc771793076531b0a1715cbf77",
+        "baseline_source_sha256": "230790e2071da5937e5a78525dd18b6edd38c94a939a55fb296db476fd1f69bd",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Thin horizontal panel/gutter repair near the K / NOW transition."
+      },
+      "41": {
+        "path": "sources/g/041.webp",
+        "sha256": "3677f8b5fa115c07c8d83f1f3fc606fc9b57a75053144c9624c85011a8b00ac9",
+        "bytes": 973094,
+        "git_blob": "696d69aaeec8e8251057bc1ee22a0d496f920dcd",
+        "baseline_source_sha256": "591e67372b7208a287f24e3a55bb37544ca8f8b47ba07c9b857ef3115005126d",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Second-arrival caption relettered in heavier type."
+      },
+      "42": {
+        "path": "sources/g/042.webp",
+        "sha256": "3ff293628862e3d7285a98c7b9fac9565c2a3f3ea3d3d11c26321f0cfd369a0a",
+        "bytes": 1152054,
+        "git_blob": "467fb35b117f208a7c96a689bdacae6ba01c3b7f",
+        "baseline_source_sha256": "3ff293628862e3d7285a98c7b9fac9565c2a3f3ea3d3d11c26321f0cfd369a0a",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "43": {
+        "path": "sources/g/043.webp",
+        "sha256": "69da7b522517ddff5cc8ef3b8d2948ddb0c580f0f882d0dabbf0e289b32c4969",
+        "bytes": 1161774,
+        "git_blob": "936d5c3c3517f93afdbd1e765c2c6f1652c7b58d",
+        "baseline_source_sha256": "8a5c4e68782780d57c50a5b26ed0497c66b529ad12798d12324552eeba70e55e",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "K patch becomes rounded and the pointing-hand/torso panel is redrawn."
+      },
+      "44": {
+        "path": "sources/g/044.webp",
+        "sha256": "5fe13ff7fbd5d5822c54b7cab7d8f0ec0f60cbf2dba73d7472b6b4d62bf52ca2",
+        "bytes": 1349530,
+        "git_blob": "fbd766a9dced6fdd5125b8d19a78739f0215756d",
+        "baseline_source_sha256": "65bbba8fa39d78b9b7d79f896fcf388c4084765cb99e363168c57c9dfa02ce56",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Unexplained background man on the porch removed."
+      },
+      "45": {
+        "path": "sources/g/045.webp",
+        "sha256": "48df6020075a4dd9fe322fa81dc02326694e44196d156aacf9208d308b45ce63",
+        "bytes": 1461268,
+        "git_blob": "fb73922e4002bef676971dcf89207698c0a58338",
+        "baseline_source_sha256": "48df6020075a4dd9fe322fa81dc02326694e44196d156aacf9208d308b45ce63",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "46": {
+        "path": "sources/g/046.webp",
+        "sha256": "65dbe43d5fb47fd38c26929d9970063369826705252461ab47a695d044d99610",
+        "bytes": 982272,
+        "git_blob": "270bc60f50576170aac56433d5fc48e2e67d9673",
+        "baseline_source_sha256": "e0e42a5b1fefee296734ee1e4b20a4c08b80a50b223ded27c3ecc338b49a7bd9",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Dee\u2019s final panel face/hair redrawn with highlighted wavy bob."
+      },
+      "47": {
+        "path": "sources/g/047.webp",
+        "sha256": "6874e76c4f2f3152de912c4b8686cc4f28d57dbcdaf1f6d6ea49c6eba5e9a89a",
+        "bytes": 1206204,
+        "git_blob": "682da66e2019917e5b38d67057984ff7d81e1ce4",
+        "baseline_source_sha256": "6874e76c4f2f3152de912c4b8686cc4f28d57dbcdaf1f6d6ea49c6eba5e9a89a",
+        "source_disposition": "REUSE_UNCHANGED",
+        "comparison_finding": "Byte-identical artwork and lettering."
+      },
+      "48": {
+        "path": "sources/g/048.webp",
+        "sha256": "86b75917ab24325b23f38c1b6a12abe0ea74c58cf996cb10931113991dc99360",
+        "bytes": 1206506,
+        "git_blob": "88eebcacfef0eedccdca431e003b5b45fbef1f40",
+        "baseline_source_sha256": "5152d9a40f01972a9dc8e60e355f29918dfd41f15ae3f2566143ff2d5d79e201",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "\u201cLATER / AEROTECH TEST BAY\u201d moved to start of test-bay panel."
+      },
+      "49": {
+        "path": "sources/g/049.webp",
+        "sha256": "0dd38107c7843b174ce99be97cec073acf6729430de1eef400880a92de5f5c58",
+        "bytes": 1278622,
+        "git_blob": "f6ab1879111a7794d445908b4df8668ce9a8352e",
+        "baseline_source_sha256": "2267d8c9513c83dc9803cc6889d8e83d4cb8f19b45cd4fbbba574dd164729006",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Heading adds HANDOFF; later caption adds \u201cSHIFT B / HANDOFF\u201d; panel art/lettering reflowed."
+      },
+      "50": {
+        "path": "sources/g/050.webp",
+        "sha256": "ffacc215954f06c571c0359fcc46fa80ff065c99723baf721a11c8f10f70fe27",
+        "bytes": 1177546,
+        "git_blob": "ca087ee96b4859a7130525910dfceb403699d747",
+        "baseline_source_sha256": "7149466695cfcd680a176aae45120f19e47f3dd3923091de7b45793e802bfa90",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "\u201cLATER / WALDO\u2019S GARAGE\u201d becomes a separate scene heading rather than merged into the narration."
+      },
+      "51": {
+        "path": "sources/g/051.webp",
+        "sha256": "733c68c426a2c9787a94ffa112bc241c90bc4cb3630f767ac403d4bef02fc777",
+        "bytes": 981328,
+        "git_blob": "e43259e157c2cedd8e07ca9cef01a7ece20d4468",
+        "baseline_source_sha256": "539ac77f00f5ae889114bec1909d6a54bfe07a3627404615835f3207c966c9ef",
+        "source_disposition": "REPLACE_FROM_CURRENT_MASTER",
+        "comparison_finding": "Printer label reworked: shipping/header/test-label details and label placement changed."
+      }
+    }
+  }
+}
