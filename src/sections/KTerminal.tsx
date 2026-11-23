@@ -94,6 +94,7 @@ function audioZoneLabel(zone: string | null | undefined) {
 
 const artistHandle = 'defied_stars';
 // SoundCloud's profile permalink is separate from the artist's display name.
+const despairAlbumUrl = 'https://soundcloud.com/raikouno/sets/despair-nights-dried';
 const artistProfileUrl = 'https://soundcloud.com/raikouno';
 
 const bootMessages = [
@@ -605,6 +606,8 @@ export default function KTerminal({
   const lastAudioErrorRef = useRef<string | null>(null);
 
   const [lines, setLines] = useState<TerminalLine[]>([]);
+  const trailerRef = useRef<HTMLVideoElement>(null);
+  const [trailerEnded, setTrailerEnded] = useState(false);
   const [bootPhase, setBootPhase] = useState<'booting' | 'done'>('booting');
   const [bootText, setBootText] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -1445,18 +1448,39 @@ Sequential Playback: ON (no overlap)`);
         </div>
 
         <aside className="kt-album-ad" aria-label="Featured album">
-          <video
-            controls
-            muted
-            playsInline
-            preload="none"
-            width="512"
-            height="896"
-            poster={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.webp`}
-            src={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.mp4`}
-            aria-label="Despair Nights Dried album trailer"
-          />
-          <a href="https://soundcloud.com/raikouno/sets/despair-nights-dried" target="_blank" rel="noopener noreferrer">
+          <div className="kt-album-media">
+            <video
+              ref={trailerRef}
+              hidden={trailerEnded}
+              onEnded={() => setTrailerEnded(true)}
+              onPlay={() => setTrailerEnded(false)}
+              controls
+              muted
+              playsInline
+              preload="none"
+              width="512"
+              height="896"
+              poster={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.webp`}
+              src={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried.mp4`}
+              aria-label="Despair Nights Dried album trailer"
+            />
+            {trailerEnded && (
+              <div className="kt-album-end">
+                <a href={despairAlbumUrl} target="_blank" rel="noopener noreferrer">
+                  <img src={`${import.meta.env.BASE_URL}terminal-media/despair-nights-dried-cover.webp`} alt="Despair Nights Dried — listen on SoundCloud" width="640" height="640" />
+                </a>
+                <button type="button" onClick={() => {
+                  setTrailerEnded(false);
+                  const video = trailerRef.current;
+                  if (video) {
+                    video.currentTime = 0;
+                    void video.play().catch(() => {});
+                  }
+                }}>Replay trailer</button>
+              </div>
+            )}
+          </div>
+          <a href={despairAlbumUrl} target="_blank" rel="noopener noreferrer">
             <strong>Despair Nights Dried</strong>
             <span>Listen on SoundCloud ↗</span>
           </a>
@@ -1529,8 +1553,13 @@ Sequential Playback: ON (no overlap)`);
           border: 1px solid #216943;
           background: #07110e;
         }
-        .kt-album-ad video { width: clamp(108px, 18vw, 148px); height: auto; flex: none; }
-        .kt-album-ad a { flex: 1; min-width: 0; padding-block: 12px; color: #bcffe2; }
+        .kt-album-media { width: clamp(108px, 18vw, 148px); aspect-ratio: 4 / 7; flex: none; background: #030806; }
+        .kt-album-media video { width: 100%; height: 100%; }
+        .kt-album-media video[hidden] { display: none; }
+        .kt-album-end { height: 100%; display: grid; align-content: center; gap: 8px; }
+        .kt-album-end img { display: block; width: 100%; height: auto; }
+        .kt-album-end button { color: #bcffe2; min-height: 44px; text-decoration: underline; }
+        .kt-album-ad > a { flex: 1; min-width: 0; padding-block: 12px; color: #bcffe2; }
         .kt-album-ad strong { display: block; font-size: clamp(18px, 3vw, 30px); line-height: 1.1; }
         .kt-album-ad a span { display: inline-block; margin-top: 10px; color: #65f9bd; text-decoration: underline; }
         .kt-album-ad a:focus-visible { outline: 2px solid #65f9bd; outline-offset: 3px; }
