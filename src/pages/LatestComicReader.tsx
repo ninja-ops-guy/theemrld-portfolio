@@ -47,7 +47,11 @@ export default function LatestComicReader() {
   const [readingImageFailure, setReadingImageFailure] = useState('');
   const [originalFailure, setOriginalFailure] = useState('');
   const [retry, setRetry] = useState(0);
-  const [intro, setIntro] = useState(() => !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [introPhase, setIntroPhase] = useState<'panels' | 'motion' | null>(() =>
+    !page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'panels' : null
+  );
+  const intro = introPhase !== null;
+  const motionClip = useRef<HTMLVideoElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const swipe = useRef<{x:number;y:number}|null>(null);
@@ -60,7 +64,7 @@ export default function LatestComicReader() {
   const volumes = id === 'g' ? book.sections.filter(s => s.kind === 'volume') : [];
   const describe = (n:number) => { const s=book.sections.find(s=>n>=s.start && n<=s.end); return `${s?.label ?? book.label} · ${s?.title ?? book.title}`; };
   const go = useCallback((target:number, edition=id) => {
-    setIntro(false);
+    setIntroPhase(null);
     setFailure('');
     setReadingImageFailure('');
     setOriginalFailure('');
@@ -73,13 +77,25 @@ export default function LatestComicReader() {
   },[fromWorld,id,page,setParams]);
   useEffect(() => {
     if (!intro || page || !dialog.current) return;
-    dialog.current.showModal();
-    const handle=setTimeout(()=>setIntro(false),8000);
-    return ()=>{ clearTimeout(handle); dialog.current?.close(); };
+    const modal = dialog.current;
+    modal.showModal();
+    return () => modal.close();
   },[intro,page]);
   useEffect(() => {
+    if (page || !introPhase) return;
+    if (introPhase === 'panels') {
+      const timer = window.setTimeout(() => setIntroPhase('motion'), 8000);
+      return () => window.clearTimeout(timer);
+    }
+    let active = true;
+    const finish = () => { if (active) setIntroPhase(null); };
+    motionClip.current?.play().catch(finish);
+    const timer = window.setTimeout(finish, 24000);
+    return () => { active = false; window.clearTimeout(timer); };
+  },[introPhase,page]);
+  useEffect(() => {
     const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
-    const stop=()=>{if(motion.matches)setIntro(false);}; motion.addEventListener('change',stop);
+    const stop=()=>{if(motion.matches)setIntroPhase(null);}; motion.addEventListener('change',stop);
     return ()=>motion.removeEventListener('change',stop);
   },[]);
   useEffect(() => {
@@ -119,11 +135,14 @@ export default function LatestComicReader() {
   };
   const next=editionOrder[editionOrder.indexOf(id)+1];
   return <main className={'comic-shell comic-current '+(page?'comic-reading':'')}>
-    {intro && !page && <dialog ref={dialog} className="comic-reel" aria-label="Tech Ops Hero introduction" onCancel={()=>setIntro(false)}>
-      <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet':`url("${base}intro-panels-hq.webp")`} as CSSProperties} onAnimationEnd={e=>{if(e.animationName==='comic-reel-out')setIntro(false);}}>
-        <div className="comic-reel-gate"><img className="comic-panel-sheet" src={`${base}intro-panels-hq.webp`} alt="" fetchPriority="high" onLoad={e=>e.currentTarget.dataset.ready='true'} onError={()=>setIntro(false)}/></div>
+    {intro && !page && <dialog ref={dialog} className="comic-reel" aria-label="Tech Ops Hero introduction" onCancel={()=>setIntroPhase(null)}>
+      {introPhase === 'panels' ? <div className="comic-reel-film" aria-hidden="true" style={{'--panel-sheet':`url("${base}intro-panels-hq.webp")`} as CSSProperties} onAnimationEnd={e=>{if(e.animationName==='comic-reel-out')setIntroPhase('motion');}}>
+        <div className="comic-reel-gate"><img className="comic-panel-sheet" src={`${base}intro-panels-hq.webp`} alt="" fetchPriority="high" onLoad={e=>e.currentTarget.dataset.ready='true'} onError={()=>setIntroPhase('motion')}/></div>
         <div className="comic-reel-mask"><span>TECH OPS</span><span>HERO</span></div>
-      </div><button className="comic-reel-toggle" onClick={()=>setIntro(false)}>Skip intro</button>
+      </div> : <video ref={motionClip} src={import.meta.env.BASE_URL + 'assets/comic/opening-motion.mp4'}
+        muted playsInline aria-hidden="true" style={{width:'100%', height:'100%', objectFit:'contain'}}
+        onEnded={()=>setIntroPhase(null)} onError={()=>setIntroPhase(null)}/>}
+      <button className="comic-reel-toggle" onClick={()=>setIntroPhase(null)}>Skip intro</button>
     </dialog>}
     <header className="comic-mast">
       <Link to={fromWorld?'/k/terminal':'/terminal'}><ArrowLeft size={16}/> K Terminal</Link>
@@ -135,7 +154,7 @@ export default function LatestComicReader() {
     {!page ? <>
       <section className="comic-hero" style={{'--dock':`url("${base}dock.webp")`} as CSSProperties}>
         <div className="comic-hero-art" aria-hidden="true"/>
-        <button className="comic-reel-toggle" onClick={()=>setIntro(true)}>Replay intro</button>
+        <button className="comic-reel-toggle" onClick={()=>setIntroPhase('panels')}>Replay intro</button>
         <div className="comic-hero-copy"><p className="comic-overline"><span/> THE FULL COLLECTION</p>
           <h1 aria-label="TECH OPS HERO">{['TECH OPS','HERO'].map((line,row)=><span className="comic-title-line" aria-hidden="true" key={line}>{[...line].map((c,i)=><b key={i} style={{'--i':row*7+i} as CSSProperties}>{c===' '?'\u00a0':c}</b>)}</span>)}</h1>
           <p className="comic-byline">By Mike Olivares</p><div className="comic-actions"><button className="comic-primary" onClick={()=>go(saved>1?saved:1)}>{saved>1?`Resume · p. ${saved}`:`Read ${book.label}`} <ArrowRight size={18}/></button><span>{book.pageCount} pages <i>/</i> {book.title}</span></div>
