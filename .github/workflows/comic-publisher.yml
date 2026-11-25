@@ -72,8 +72,8 @@ jobs:
             if(baseline!=='8b93175cbe6d11809062c6f105d69702e202a1a1') throw new Error('The reviewed reader merge base changed');
             const paths=git('diff','--name-only','--no-renames','-z',baseline,EXPECTED_HEAD).split('\0').filter(Boolean);
             assertPrivatePreflightTarget({eventName:context.eventName,ref:context.ref,repo:context.repo,actor:context.actor,triggeringActor:TRIGGERING_ACTOR,sha:context.sha},
-              {main:sha,pr,candidate:git('rev-parse','HEAD'),paths,manifest_sha256:MANIFEST_SHA},
-              {main:context.sha,reviewed_head:EXPECTED_HEAD,manifest_sha256:MANIFEST_SHA});
+              {main:sha,pr,candidate:git('rev-parse','HEAD'),paths,merge_base:baseline,manifest_sha256:MANIFEST_SHA},
+              {main:context.sha,reviewed_head:EXPECTED_HEAD,reviewed_base:baseline,manifest_sha256:MANIFEST_SHA});
             const reg=(await github.rest.repos.getRelease({...context.repo,release_id:457904359})).data;
             if(reg.id!==457904359 || reg.tag_name!=='techops-ixiv-9b2f94974027-reader-input' || reg.draft!==true || reg.prerelease!==true) throw new Error('Private reader input identity or visibility changed');
             const assets=(await github.rest.repos.listReleaseAssets({...context.repo,release_id:457904359,per_page:2})).data;

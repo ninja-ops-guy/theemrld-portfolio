@@ -51,3 +51,16 @@ test('registered mode requires all exact registration paths, not just approval U
   i.observed.paths[7]='techops-comic/volumes-i-xiv/001.webp';
   assert.throws(check,/PRIVATE_SOURCE_HOLD/);
 });
+
+test('trusted current main and reviewed PR base are separate exact identities',()=>{
+  const i=setup(), previous='9'.repeat(40);
+  i.observed.pr.base.sha=previous;
+  i.expected.reviewed_base=previous;
+  i.observed.merge_base=previous;
+  assert.equal(check(i).publication_approved,false);
+  i.observed.merge_base='8'.repeat(40);
+  assert.throws(()=>check(i),/reviewed base mismatch/);
+  i.observed.merge_base=previous;
+  i.observed.main=previous;
+  assert.throws(()=>check(i),/trusted main changed/);
+});

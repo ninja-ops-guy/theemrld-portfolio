@@ -77,10 +77,11 @@ export function assertPrivatePreflightTarget(context, observed, expected, {regis
   const pr=observed?.pr;
   need(pr?.number === 138 && pr.state === 'open' && pr.merged === false && pr.draft === true
        && pr.head?.repo?.full_name === repoName && pr.base?.repo?.full_name === repoName
-       && pr.base.ref === 'main' && pr.base.sha === expected.main
+       && pr.base.ref === 'main' && pr.base.sha === (expected.reviewed_base || expected.main)
        && pr.head.ref === 'release/techops-ixiv-9b2f94974027'
        && commit(expected.reviewed_head) && pr.head.sha === expected.reviewed_head
        && observed.candidate === expected.reviewed_head, 'candidate identity changed');
+  if (expected.reviewed_base !== undefined) need(commit(expected.reviewed_base) && observed.merge_base === expected.reviewed_base, 'reviewed base mismatch');
   need(hash(expected.manifest_sha256) && expected.manifest_sha256 === observed.manifest_sha256,
        'approved manifest bytes changed');
   need(Array.isArray(observed.paths) && observed.paths.length === allowed.size
