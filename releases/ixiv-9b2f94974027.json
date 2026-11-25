@@ -12,7 +12,7 @@
       "first_run": "45704947990"
     }
   },
-  "phase": "MERGED_DEPLOYMENT_REQUESTED",
+  "phase": "PUBLISHED_HASH_VERIFIED",
   "last_request": "ixiv-finished-20261125-publish-1",
   "last_run": "45704947990",
   "qualification": {
@@ -31,5 +31,13 @@
   "dispatch_intent": {
     "run_id": "45705195841",
     "merge_sha": "3a8b1bf19a5d66c634c3dbd9296b53a125f32e17"
+  },
+  "deployment_run": 45705308281,
+  "live_receipt": {
+    "status": "PUBLISHED_HASH_VERIFIED",
+    "release_id": "ixiv-9b2f94974027",
+    "commit": "3a8b1bf19a5d66c634c3dbd9296b53a125f32e17",
+    "url": "https://kterminal.site/",
+    "physical_mobile_test": false
   }
 }
