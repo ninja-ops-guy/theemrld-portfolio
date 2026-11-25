@@ -201,8 +201,93 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  finished_publish:
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/automation/ixiv-finished-promotion' && (inputs.action == 'publish' || inputs.action == 'resume') && github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      actions: write
+      checks: read
+      statuses: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8843d3e73afa9d10e20753733a4947e4561949af
+          persist-credentials: true
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const cp = require('node:child_process');
+            const base = '8843d3e73afa9d10e20753733a4947e4561949af';
+            const head = '3a8b1bf19a5d66c634c3dbd9296b53a125f32e17';
+            const tree = 'ee216009582c43f964a6f62e336953313aff61da';
+            const media = 'a1571c1ef05ce7936ef048a647892e4f9825788e';
+            const pdf = '9b2f94974027766a13cb4a0e00e82c83d6c0e474b5ea17107e7b952835bd19c3';
+            const id = 'ixiv-9b2f94974027';
+            const digest = '40dad3136e6068da9e94188bc089c43bc4571e641e95339417b8d0127e542bc1';
+            const repo = context.repo;
+            const full = repo.owner+'/'+repo.repo;
+            const candidateBranch = 'release/techops-'+id;
+            const git = args=>cp.execFileSync('git',args,{encoding:'utf8',timeout:120000,maxBuffer:1048576,
+              env:{...process.env,GIT_NO_REPLACE_OBJECTS:'1',GIT_NO_LAZY_FETCH:'1'}}).trim();
+            const check=(ok,message)=>{if(!ok)throw new Error(message);};
+            check(full==='ninja-ops-guy/theemrld-portfolio' && context.eventName==='workflow_dispatch' &&
+              context.ref==='refs/heads/automation/ixiv-finished-promotion' && context.actor===repo.owner &&
+              context.payload.sender.login===repo.owner && process.env.GITHUB_TRIGGERING_ACTOR===repo.owner &&
+              git(['rev-parse','HEAD'])===base, 'Untrusted release controller, actor or ref');
+            const requestInput = context.payload.inputs;
+            check(requestInput?.release_id===id && requestInput?.expected_head===head &&
+              requestInput?.manifest_sha256===digest && ['publish','resume'].includes(requestInput?.action), 'Unexpected finished publication request');
+            const c=await import(`${process.env.GITHUB_WORKSPACE}/scripts/publisher-control.mjs`);
+            const {data:pr}=await github.rest.pulls.get({...repo,pull_number:138});
+            check(pr.head.repo.full_name===full && pr.head.sha===head && pr.head.ref===candidateBranch &&
+              pr.base.ref==='main' && (pr.state==='open' || pr.merged), 'Changed reader PR');
+            const main=(await github.rest.repos.getBranch({...repo,branch:'main'})).data.commit.sha;
+            check(main===base || main===head, 'Unexpected main');
+            const {data:target}=await github.rest.git.getCommit({...repo,commit_sha:head});
+            const staged='f8d554473714026ab71060106ba33349129d2007';
+            check(target.tree.sha===tree&&target.parents.length===1&&target.parents[0].sha===staged,'Candidate tree/parents changed');
+            const {data:prior}=await github.rest.git.getCommit({...repo,commit_sha:staged});
+            check(prior.tree.sha==='50946ffaf73b7aa323154733fd03cbecf9c41fd0'&&prior.parents.length===2&&prior.parents[0].sha===base&&
+              prior.parents[1].sha==='30135f67bd5451d8739a6296b5d4fd3e5b6d55f7','Candidate base or earlier reviewed PR changed');
+            const {data:file}=await github.rest.repos.getContent({...repo,ref:head,path:'publishing/releases/'+id+'.json'});
+            check(file.type==='file'&&file.encoding==='base64'&&file.size<200000,'Unexpected finished manifest blob');
+            const raw=Buffer.from(file.content,'base64'),m=JSON.parse(raw);
+            check(raw.length===file.size&&c.hash(raw)===digest&&m.id===id&&m.repository===full&&m.target.pr===138&&
+             m.target.branch===candidateBranch&&m.finished_only===true&& !('source' in m)&&m.page_count===514&&
+             m.delivery.media_commit===media&&m.pdf.sha256===pdf,'Wrong source-free release bytes');
+            const request=c.validateRequest(requestInput,m,raw,context.actor,repo.owner);
+            await c.assertNoOtherRun(github,repo,context.runId);
+            let record=await c.readState(github,repo,id);
+            if(main===head) check(record.value?.qualification?.head===head&&record.value.qualification.tree===tree&&
+             record.value.qualification.manifest_sha256===digest&&record.value.qualification.delivery==='finished-only',
+             'Missing exact preexisting finished checkpoint');
+            if(main===base){
+             check(request.action==='publish'&&pr.state==='open'&&!pr.merged,'Publish requires exact open reader PR');
+             const {data:runs}=await github.rest.actions.listWorkflowRunsForRepo({...repo,head_sha:head,event:'pull_request',per_page:100});
+             const names=['Portfolio PR Build','Comic Full Collection Acceptance','Comic Publisher Tests','Comic release preflight','K World Release Acceptance','K World Asset Integrity'];
+             check(runs.total_count<=100,'Hosted evidence window exceeded');
+             for(const name of names) {
+               const rows=runs.workflow_runs.filter(x=>x.name===name&&x.head_sha===head&&x.head_branch===candidateBranch&&x.event==='pull_request');
+               check(rows.length===1&&rows[0].status==='completed'&&rows[0].conclusion==='success','Missing exact successful check: '+name);
+             }
+             const run=runs.workflow_runs.find(x=>x.name==='Comic Full Collection Acceptance'&&x.head_sha===head);
+             const {data:proof}=await github.rest.actions.listJobsForWorkflowRun({...repo,run_id:run.id,filter:'latest',per_page:100});
+             const jobs=proof.jobs.filter(x=>x.name==='acceptance'&&x.conclusion==='success');
+             const steps=jobs[0]?.steps?.filter(x=>x.name==='Qualify exact finished I-XIV assets and three browser profiles'&&x.conclusion==='success')||[];
+             check(jobs.length===1&&steps.length===1,'Exact finished full-byte and browser step did not run successfully');
+             record=c.claimRequest(record,request,m,context.runId);
+             record.value.qualification={head,base,tree,reviewed_head:head,manifest_sha256:digest,run_id:String(run.id),
+              delivery:'finished-only',media_commit:media,pdf_sha256:pdf,page_count:514};
+             record.value.phase='QUALIFIED_NOT_PUBLISHED';
+             await c.saveState(github,repo,record,base);
+            }
+            const result=await c.publishOrResume(github,repo,record,m,request,context.runId,(identity)=>c.atomicFastForwardWithGit(identity,git));
+            await core.summary.addHeading(result.phase).addRaw('Exact finished reader '+head+'; staged assets only until site deployment and live byte verification.').write();
   resolve:
-    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && (github.event_name != 'workflow_dispatch' || inputs.action != 'preflight')
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && github.ref != 'refs/heads/automation/ixiv-finished-promotion' && (github.event_name != 'workflow_dispatch' || inputs.action != 'preflight')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
