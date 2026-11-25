@@ -47,7 +47,7 @@ def bind_book(current, m, media_commit):
          or (book.get('publisherRelease') == m['id'] and book.get('mediaCommit') == media_commit), 'Current book media differs from approved base')
     need(book['pageCount'] == m['page_count'], 'Page count changes need a reviewed reader migration')
     need(book['revision'] == m['compatibility_revision'], 'Reader compatibility revision changed')
-    folder = str(Path(m['images'][0]['path']).parent) + '/'
+    folder = Path(m['images'][0]['path']).parent.as_posix() + '/'
     need(book['imagePath'] == folder, 'Reader image directory changed')
     table = book.get('pageDimensions') if m['edition'] == 'ixiv' else None
     if m['edition'] == 'ixiv':
@@ -59,7 +59,7 @@ def bind_book(current, m, media_commit):
     else:
         need(all((i['width'], i['height']) == (book['width'], book['height']) for i in m['images']),
              'Reader dimensions changed')
-    tag = m['source']['tag']
+    tag = verifier().delivery_tag(m)
     book.update(mediaCommit=media_commit, releaseTag=tag,
                 publisherRelease=m['id'], contentRevision=m['content_revision'], revision=m['compatibility_revision'],
                 imageBase=f'https://raw.githubusercontent.com/{REPO}/{media_commit}/{folder}',
@@ -155,7 +155,7 @@ def clean_checkout(commands, directory):
                     f'git@github.com:{REPO}.git'), 'Unexpected Git remote')
 
 
-def stage(manifest_path, archive, candidate, media, receipt_path, expected_head, commands=None, checks=None):
+def stage(manifest_path, archive, candidate, media, receipt_path, expected_head, commands=None, checks=None, private_pdf=None):
     need(isinstance(expected_head, str) and re.fullmatch('[a-f0-9]{40}', expected_head),
          'Exact reviewed PR head is required')
     commands = commands or Commands()
@@ -164,6 +164,10 @@ def stage(manifest_path, archive, candidate, media, receipt_path, expected_head,
     m = checks.load_manifest(manifest_path)
     need(m['schema_version'] == 2 and not m.get('disabled', False) and m.get('enabled') is not False
          and not m.get('retired') and m.get('lifecycle') != 'retired', 'Only enabled immutable-media manifests may stage')
+    split = 'delivery' in m
+    need(split == (private_pdf is not None), 'Split release requires private build-only staging and one separate PDF; legacy staging must not use it')
+    if split:
+        checks.verify_file(Path(private_pdf), m['pdf'])
     mh = digest(manifest_path)
     expected = binding(m, mh)
     candidate, media = Path(candidate).resolve(), Path(media).resolve()
@@ -221,11 +225,12 @@ def stage(manifest_path, archive, candidate, media, receipt_path, expected_head,
         # Inspect the target again before the first remote write.
         need(commands.api(f'pulls/{m["target"]["pr"]}')['head']['sha'] == original_head,
              'Target moved during staging; no candidate push attempted')
-        verify_pdf_asset(commands, m, source / m['pdf']['path'])
-        if not existing:
-            need(commands.optional_ref(branch) is None, 'Another media staging appeared; inspect before retrying')
-            cas_push(commands, media, branch, '')
-        need(commands.optional_ref(branch) == media_commit, 'Immutable media ref readback mismatch')
+        if not split:
+            verify_pdf_asset(commands, m, source / m['pdf']['path'])
+            if not existing:
+                need(commands.optional_ref(branch) is None, 'Another media staging appeared; inspect before retrying')
+                cas_push(commands, media, branch, '')
+            need(commands.optional_ref(branch) == media_commit, 'Immutable media ref readback mismatch')
         current_path.write_text(json.dumps(updated, indent=2, ensure_ascii=False) + '\n')
         commands.git(candidate, 'config', 'user.name', 'github-actions[bot]')
         commands.git(candidate, 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com')
@@ -235,9 +240,11 @@ def stage(manifest_path, archive, candidate, media, receipt_path, expected_head,
         need(commands.api(f'pulls/{m["target"]["pr"]}')['head']['sha'] == original_head,
              'Target moved before push; verified assets retained, inspect before retrying')
         head = commands.git(candidate, 'rev-parse', 'HEAD')
-        cas_push(commands, candidate, m['target']['branch'], original_head)
-        need(commands.api(f'pulls/{m["target"]["pr"]}')['head']['sha'] == head, 'Candidate push readback mismatch')
-    receipt = dict(expected, status='STAGED_NOT_PUBLISHED', head=head, media_commit=media_commit,
+        if not split:
+            cas_push(commands, candidate, m['target']['branch'], original_head)
+            need(commands.api(f'pulls/{m["target"]["pr"]}')['head']['sha'] == head, 'Candidate push readback mismatch')
+    receipt = dict(expected, status='PRIVATE_STAGE_BUILT' if split else 'STAGED_NOT_PUBLISHED',
+                   head=head, media_commit=media_commit,
                    source_tag=m['source']['tag'], pdf_sha256=m['pdf']['sha256'], pr=m['target']['pr'])
     Path(receipt_path).write_text(json.dumps(receipt, indent=2) + '\n')
     return receipt
@@ -248,8 +255,9 @@ def main():
     for key in ('manifest', 'archive', 'candidate', 'media', 'receipt'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--expected-head', required=True)
+    parser.add_argument('--private-pdf', type=Path, help='Build-only split preflight; may not write any remote state')
     args = parser.parse_args()
-    print(json.dumps(stage(args.manifest, args.archive, args.candidate, args.media, args.receipt, args.expected_head)))
+    print(json.dumps(stage(args.manifest, args.archive, args.candidate, args.media, args.receipt, args.expected_head, private_pdf=args.private_pdf)))
 
 if __name__ == '__main__':
     try:
