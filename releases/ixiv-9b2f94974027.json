@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "release_id": "ixiv-9b2f94974027",
+  "manifest_sha256": "40dad3136e6068da9e94188bc089c43bc4571e641e95339417b8d0127e542bc1",
+  "requests": {
+    "ixiv-finished-20261125-publish-1": {
+      "binding": {
+        "action": "publish",
+        "expected_head": "3a8b1bf19a5d66c634c3dbd9296b53a125f32e17",
+        "manifest_sha256": "40dad3136e6068da9e94188bc089c43bc4571e641e95339417b8d0127e542bc1"
+      },
+      "first_run": "45704947990"
+    }
+  },
+  "phase": "QUALIFIED_NOT_PUBLISHED",
+  "last_request": "ixiv-finished-20261125-publish-1",
+  "last_run": "45704947990",
+  "qualification": {
+    "head": "3a8b1bf19a5d66c634c3dbd9296b53a125f32e17",
+    "base": "8843d3e73afa9d10e20753733a4947e4561949af",
+    "tree": "ee216009582c43f964a6f62e336953313aff61da",
+    "reviewed_head": "3a8b1bf19a5d66c634c3dbd9296b53a125f32e17",
+    "manifest_sha256": "40dad3136e6068da9e94188bc089c43bc4571e641e95339417b8d0127e542bc1",
+    "run_id": "45703832056",
+    "delivery": "finished-only",
+    "media_commit": "a1571c1ef05ce7936ef048a647892e4f9825788e",
+    "pdf_sha256": "9b2f94974027766a13cb4a0e00e82c83d6c0e474b5ea17107e7b952835bd19c3",
+    "page_count": 514
+  }
+}
