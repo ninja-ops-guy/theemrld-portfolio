@@ -85,6 +85,11 @@ def load_manifest(path: Path) -> dict:
     need(m['site_url'] in ('https://kterminal.site/', 'https://ninja-ops-guy.github.io/theemrld-portfolio/'), 'Unapproved website origin')
     return m
 
+def delivery_tag(m: dict) -> str:
+    """Public master destination, separate from the optional private source."""
+    return m.get('delivery', {}).get('tag', m['source']['tag'])
+
+
 def validate_v2(m: dict) -> dict:
     need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,79}', m['id'])), 'Invalid release ID')
     need(m.get('publication_policy') == 'current-only', 'Current-only publication policy required')
@@ -98,6 +103,16 @@ def validate_v2(m: dict) -> dict:
     need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.zip', source['asset'])), 'Invalid ZIP name')
     sha(source['sha256'])
     need(type(source['bytes']) is int and 0 < source['bytes'] < 2_000_000_000, 'Invalid ZIP size')
+    if 'delivery' in m:
+        delivery = m['delivery']
+        need(m['edition'] == 'ixiv' and isinstance(delivery, dict)
+             and set(delivery) == {'tag', 'source_release_id', 'source_asset_id'},
+             'Invalid private-source delivery contract')
+        need(isinstance(delivery['tag'], str)
+             and bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', delivery['tag']))
+             and delivery['tag'] != source['tag'], 'Delivery tag must be separate')
+        need(all(type(delivery[k]) is int and delivery[k] > 0
+                 for k in ('source_release_id', 'source_asset_id')), 'Exact private source IDs required')
     need(pdf['path'] == 'master.pdf', 'Source master must be master.pdf')
     need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.pdf', pdf['filename'])), 'Invalid master filename')
     file_spec(pdf, 'master.pdf')
@@ -161,7 +176,7 @@ def verify_publication(m: dict, root: Path) -> dict:
     need(book.get('publisherRelease') == m['id'] and book.get('contentRevision') == m['content_revision'], 'Published release identity mismatch')
     prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
     expected_base = prefix + str(PurePosixPath(m['images'][0]['path']).parent) + '/'
-    expected_pdf = 'https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename']
+    expected_pdf = 'https://github.com/' + REPO + '/releases/download/' + delivery_tag(m) + '/' + m['pdf']['filename']
     need(book.get('imageBase') == expected_base and book['pdfUrl'] == expected_pdf, 'Published source URLs mismatch')
     return book
 
@@ -317,7 +332,7 @@ def verify_remote(m: dict, media: str) -> None:
     need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Immutable media identity required')
     prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
     assets = [(prefix + spec['path'], spec) for spec in m['images']]
-    assets += [('https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename'], m['pdf'])]
+    assets += [('https://github.com/' + REPO + '/releases/download/' + delivery_tag(m) + '/' + m['pdf']['filename'], m['pdf'])]
     for url, spec in assets:
         for attempt in range(3):
             try:
@@ -350,7 +365,7 @@ def verify_live(base: str, commit: str, m: dict | None) -> None:
             media = got.get('media_commit', '')
             need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Live media commit missing')
             image_base = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
-            pdf_url = 'https://github.com/' + REPO + '/releases/download/' + m['source']['tag'] + '/' + m['pdf']['filename']
+            pdf_url = 'https://github.com/' + REPO + '/releases/download/' + delivery_tag(m) + '/' + m['pdf']['filename']
             specs = [(image_base + spec['path'], spec) for spec in m['images']] + [(pdf_url, m['pdf'])]
             need(got.get('pdf_url') == pdf_url, 'Wrong live master URL')
         else:
@@ -396,4 +411,3 @@ if __name__ == '__main__':
     except (GateError, KeyError, OSError, zipfile.BadZipFile, json.JSONDecodeError) as exc:
         print(f'PUBLISHING_BLOCKED: {exc}', file=sys.stderr)
         sys.exit(2)
-

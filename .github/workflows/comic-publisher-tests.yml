@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '22'
       - run: python3 -m unittest discover -s tests -p 'test_comic*.py' -v
-      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs tests/comic-advisory-smoke.test.mjs
+      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs tests/comic-advisory-smoke.test.mjs tests/publisher-private-boundary.test.mjs tests/publisher-private-target.test.mjs
       - name: Validate registered manifests
         run: |
           for manifest in publishing/releases/*.json; do
@@ -44,4 +44,3 @@ jobs:
           node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs
           node scripts/finalize-comic-dist.mjs > comic-finalization-receipt.json
           python3 scripts/comic-publisher.py stamp --root dist --commit "$GITHUB_SHA"
-

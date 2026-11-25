@@ -8,10 +8,10 @@ on:
         required: true
         type: string
       action:
-        description: Status, prepare, stage, publish qualified art, or resume deployment
+        description: Status, prepare, stage, private preflight, publish qualified art, or resume deployment
         required: true
         type: choice
-        options: [status, prepare, stage, publish, resume]
+        options: [status, prepare, stage, preflight, publish, resume]
         default: status
       request_id:
         description: Unique request ID; reuse only with identical inputs
@@ -32,8 +32,145 @@ concurrency:
   group: comic-publisher
   cancel-in-progress: false
 jobs:
+  private_preflight:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'preflight' && github.repository == 'ninja-ops-guy/theemrld-portfolio' && github.ref == 'refs/heads/main' && github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.expected_head }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - id: pins
+        uses: actions/github-script@v7
+        env:
+          RELEASE: ${{ inputs.release_id }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          MANIFEST_SHA: ${{ inputs.manifest_sha256 }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        with:
+          script: |
+            const fs=require('node:fs'), cp=require('node:child_process');
+            const {createHash}=require('node:crypto');
+            const {assertPrivatePreflightTarget,inspectPrivateSplit}=await import(process.env.GITHUB_WORKSPACE+'/control/scripts/publisher-private-boundary.mjs');
+            const {RELEASE,EXPECTED_HEAD,MANIFEST_SHA,TRIGGERING_ACTOR}=process.env;
+            if(RELEASE!=='ixiv-9b2f94974027' || MANIFEST_SHA!=='2e7ff8f81da905077463c08aca9a50fdddc033ea3cecededf416a45553298407d4') throw new Error('Unsupported private preflight');
+            const sha=(await github.rest.repos.getCommit({...context.repo,ref:'main'})).data.sha;
+            const pr=(await github.rest.pulls.get({...context.repo,pull_number:138})).data;
+            const git=(...args)=>cp.execFileSync('git',['-C','candidate',...args],{encoding:'utf8'}).trim();
+            const raw=fs.readFileSync('candidate/publishing/releases/ixiv-9b2f94974027.json');
+            const m=JSON.parse(raw);
+            if(!/^[a-f0-9]{40}$/.test(EXPECTED_HEAD)) throw new Error('Exact reviewed commit required');
+            git('merge-base','--is-ancestor',context.sha,EXPECTED_HEAD);
+            const paths=git('diff','--name-only','--no-renames','-z',context.sha,EXPECTED_HEAD).split('\0').filter(Boolean);
+            assertPrivatePreflightTarget({eventName:context.eventName,ref:context.ref,repo:context.repo,actor:context.actor,triggeringActor:TRIGGERING_ACTOR,sha:context.sha},
+              {main:sha,pr,candidate:git('rev-parse','HEAD'),paths,manifest_sha256:createHash('sha256').update(raw).digest('hex')},
+              {main:context.sha,reviewed_head:EXPECTED_HEAD,manifest_sha256:MANIFEST_SHA},{registered:true});
+            const scope=cp.execFileSync('git',['-C','candidate','ls-tree','--full-tree','-z',EXPECTED_HEAD,'--',...paths.sort()]);
+            if(createHash('sha256').update(scope).digest('hex')!=='1d5b4b42a3e6521fd48816e1da3b29e93139184e2b6dc34d69b62c2ef4bdf504') throw new Error('Registered reader file contents or modes changed');
+            const pins=await inspectPrivateSplit(github.rest.repos,context.repo,m,{delivery_release_id:457833249,delivery_asset_id:790723467});
+            for(const k of ['source_asset_id','delivery_asset_id']) core.setOutput(k,String(pins[k]));
+            core.setOutput('base_media',m.base_media_commit);
+            await core.summary.addHeading('Private inputs pinned; no bytes read yet').write();
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pins.outputs.base_media }}
+          path: media
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.publisher-source.json
+            /techops-comic/volumes-i-xiv/
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies before private byte handling
+        run: |
+          set -euo pipefail
+          (cd candidate
+          if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-package-lock --no-audit --no-fund; fi
+          )
+          python -m pip install 'Pillow==12.3.0'
+          npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
+          node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
+      - name: Read and verify the private source and finished PDF
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_ASSET: ${{ steps.pins.outputs.source_asset_id }}
+          PDF_ASSET: ${{ steps.pins.outputs.delivery_asset_id }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/ixiv-source"
+          install -d -m 0700 "$private"
+          for id in "$SOURCE_ASSET" "$PDF_ASSET"; do [[ "$id" =~ ^[0-9]+$ ]]; done
+          # Never echo signed URLs or service failures containing private details.
+          gh api -H 'Accept: application/octet-stream' "repos/$GH_REPO/releases/assets/$SOURCE_ASSET" >"$private/source.zip" 2>"$private/source.err" ||
+            { echo 'PRIVATE_READ_HOLD: trusted runner could not read verified source draft'; exit 1; }
+          gh api -H 'Accept: application/octet-stream' "repos/$GH_REPO/releases/assets/$PDF_ASSET" >"$private/finished.pdf" 2>"$private/pdf.err" ||
+            { echo 'PRIVATE_READ_HOLD: trusted runner could not read verified finished PDF draft'; exit 1; }
+          manifest='candidate/publishing/releases/ixiv-9b2f94974027.json'
+          export GIT_AUTHOR_DATE="2026-11-25T08:05:00Z" GIT_COMMITTER_DATE="2026-11-25T08:05:00Z"
+          python3 control/scripts/stage-comic.py --manifest "$manifest" --archive "$private/source.zip" --private-pdf "$private/finished.pdf" \
+            --candidate candidate --media media --receipt "$private/staged.json" --expected-head "$EXPECTED_HEAD"
+          test "$(git -C media rev-parse HEAD)" = 0915e51b3a88661137383fec99a2cbd2542bc119
+          python3 control/scripts/comic-publisher.py extract --manifest "$manifest" --archive "$private/source.zip" --root "$private/verified"
+      - name: Qualify site build without GitHub credentials
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          test -z "${GH_TOKEN:-}" && test -z "${GITHUB_TOKEN:-}"
+          export GITHUB_SHA="$(git rev-parse HEAD)"
+          node --test tests/comic-corrected-release.test.mjs tests/comic-finalization.test.mjs tests/comic-optional-tracks.test.mjs
+          npm run build
+          python scripts/build-comic-volumes.py
+          node scripts/finalize-comic-dist.mjs > "$RUNNER_TEMP/ixiv-source/package-policy.json"
+      - name: Verify source-to-build binding and browser paths privately
+        env:
+          MANIFEST: candidate/publishing/releases/ixiv-9b2f94974027.json
+          MANIFEST_SHA: ${{ inputs.manifest_sha256 }}
+          REVIEWED_HEAD: ${{ inputs.expected_head }}
+        run: |
+          set -euo pipefail
+          test -z "${GH_TOKEN:-}" && test -z "${GITHUB_TOKEN:-}"
+          private="$RUNNER_TEMP/ixiv-source"
+          export PRIVATE_COMIC_PREFLIGHT_ROOT="$private/verified"
+          export PRIVATE_EXPECTED_HEAD="$(git -C candidate rev-parse HEAD)"
+          export PRIVATE_EXPECTED_MEDIA="$(git -C media rev-parse HEAD)"
+          python control/scripts/stamp-private-comic.py --manifest "$MANIFEST" --assets "$PRIVATE_COMIC_PREFLIGHT_ROOT" \
+            --dist candidate/dist --head "$PRIVATE_EXPECTED_HEAD" --media "$PRIVATE_EXPECTED_MEDIA" --expected-manifest "$MANIFEST_SHA"
+          python -m http.server 4173 --bind 127.0.0.1 --directory candidate/dist > "$private/http.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node control/scripts/comic-browser-smoke.mjs
+          node control/scripts/private-preflight-receipt.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: publisher-private-preflight-receipt
+          path: private-preflight-receipt.json
+          if-no-files-found: error
+          retention-days: 14
+
   resolve:
-    if: github.repository == 'ninja-ops-guy/theemrld-portfolio'
+    if: github.repository == 'ninja-ops-guy/theemrld-portfolio' && (github.event_name != 'workflow_dispatch' || inputs.action != 'preflight')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
