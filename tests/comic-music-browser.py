@@ -116,7 +116,13 @@ def open_reader(context, base_url, number, block_playback=False, delay_load=Fals
         ),
     )
     page.goto(urljoin(base_url, f"#/comic?edition=g&page={number}"), wait_until="domcontentloaded")
-    expect(page.get_by_role("combobox", name="Jump to page")).to_have_value(str(number))
+    advisory = page.get_by_role("dialog", name="Parental advisory", exact=True)
+    page_picker = page.get_by_role("combobox", name="Jump to page")
+    expect(advisory.or_(page_picker)).to_be_visible()
+    if advisory.is_visible():
+        expect(page.get_by_role("region", name="Comic soundtrack")).to_have_count(0)
+        advisory.get_by_role("button", name="Continue to comic", exact=True).click()
+    expect(page_picker).to_have_value(str(number))
     return page, page.get_by_role("region", name="Comic soundtrack")
 
 

@@ -18,6 +18,12 @@ OUT.mkdir(parents=True, exist_ok=True)
 MANIFEST = json.loads((ROOT / 'src/data/comic-current-editions.json').read_text(encoding='utf-8'))
 LABELS = json.loads((ROOT / 'src/data/comic-display-labels.json').read_text(encoding='utf-8'))
 SERVING = json.loads((ROOT / 'src/data/comic-collection-serving.json').read_text(encoding='utf-8'))
+LEGACY_COUNTS = {'g': 316, 'xiii-r': 49, 'xiv': 133}
+IXIV_RELEASE = 'ixiv-9b2f94974027'
+BOOK_COUNTS = dict(LEGACY_COUNTS)
+if MANIFEST['books'].get('ixiv', {}).get('publisherRelease') == IXIV_RELEASE:
+    BOOK_COUNTS['ixiv'] = 514
+ORDER = ['ixiv', *LEGACY_COUNTS] if 'ixiv' in BOOK_COUNTS else list(LEGACY_COUNTS)
 COLLECTION = MANIFEST['books']['g']
 COLLECTION_PATH = f"{SERVING['directory']}/{COLLECTION['mediaCommit']}/"
 CHECKS = []
@@ -65,11 +71,11 @@ try:
     with urlopen(BASE + 'techops-comic/publication.json?verify=' + str(time.time_ns()), timeout=30) as response:
         publication = json.load(response)
     assert publication['earlierEditionsPublic'] is False
-    assert [b['pageCount'] for b in publication['books']] == [316,49,133]
+    assert [(b['id'], b['pageCount']) for b in publication['books']] == list(BOOK_COUNTS.items())
     assert publication['books'][0]['label'] == 'Full collection'
     if os.environ.get('GITHUB_SHA'):
         assert publication['sourceCommit'] == os.environ['GITHUB_SHA'], publication
-    checked('exact-commit public manifest and 316/49/133 counts')
+    checked('exact-commit public manifest and registered book counts')
 
     with urlopen(BASE + COLLECTION_PATH + 'index.json', timeout=30) as response:
         serving = json.load(response)
@@ -114,18 +120,27 @@ try:
             errors = []
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(reader_url(), wait_until='domcontentloaded')
-            expect(page.locator('.comic-current-card')).to_have_count(3)
-            expect(page.locator('.comic-current-card').nth(0)).to_contain_text('Full collection')
-            expect(page.locator('.comic-current-card').nth(0)).to_contain_text('Volumes I–XII')
+            advisory = page.get_by_role('dialog', name='Parental advisory', exact=True)
+            expect(advisory).to_be_visible()
+            expect(advisory).to_contain_text('Contains violence, mature language, and mature themes.')
+            expect(page.locator('.comic-current-card, .comic-page-image')).to_have_count(0)
+            page.keyboard.press('Escape')
+            expect(advisory).to_be_visible()
+            advisory.get_by_role('button', name='Continue to comic', exact=True).click()
+            expect(advisory).to_have_count(0)
+            checked(f'{name}: advisory gates the collection and Escape cannot acknowledge it')
+            expect(page.locator('.comic-current-card')).to_have_count(len(ORDER))
+            expect(page.locator('.comic-current-card').nth(ORDER.index('g'))).to_contain_text('Full collection')
+            expect(page.locator('.comic-current-card').nth(ORDER.index('g'))).to_contain_text('Volumes I–XII')
             body = page.locator('main').inner_text()
             assert not re.search(r'Earlier Revision|legacy readers|LATEST CORRECTED|REVISED NOVEMBER|The corrected collection', body)
             expect(page).to_have_title('TechOps Hero · Full collection')
             page.wait_for_function("() => [...document.querySelectorAll('.comic-current-card img')].every(i=>i.complete&&i.naturalWidth>0)", timeout=60000)
             page.screenshot(path=str(OUT / f'{name}-library.png'), full_page=False)
-            checked(f'{name}: exactly three current books, final labels and loaded covers')
+            checked(f'{name}: exact registered current books, final labels and loaded covers')
 
             page.emulate_media(reduced_motion='no-preference')
-            page.locator('.comic-current-card').nth(1).get_by_role('button').click()
+            page.locator('.comic-current-card').nth(ORDER.index('xiii-r')).get_by_role('button').click()
             opening = page.get_by_role('dialog', name='Volume XIII opening animation')
             expect(opening).to_be_visible()
             page.wait_for_function("""() => {
@@ -146,7 +161,7 @@ try:
 
             for retired, expected_id in [('f','g'), ('legacy','g'), ('xiii','xiii-r'), ('unknown','g')]:
                 page.goto(reader_url(retired,34,'&from=world'), wait_until='domcontentloaded')
-                expect(page.locator('.comic-current-card')).to_have_count(3)
+                expect(page.locator('.comic-current-card')).to_have_count(len(ORDER))
                 expect(page).to_have_url(re.compile(r'edition=' + re.escape(expected_id) + r'(?:&|$)'))
                 query = parse_qs(urlsplit(page.url).fragment.split('?',1)[1])
                 assert query.get('page') is None
@@ -164,7 +179,7 @@ try:
                 expect(page.locator('.comic-download')).to_have_attribute('href', book['pdfUrl'])
                 expect(page.get_by_label('Choose book')).to_have_value(id)
                 options = page.get_by_label('Choose book').locator('option').all_text_contents()
-                assert options == ['Full collection','Volume XIII','Volume XIV'], options
+                assert options == [LABELS[edition]['label'] for edition in ORDER], options
                 page.get_by_role('button', name='Next page', exact=True).click()
                 expect(page.get_by_label('Jump to page', exact=True)).to_have_value('2')
                 page_image(page)
@@ -176,7 +191,7 @@ try:
                 page.get_by_label('Jump to page', exact=True).select_option(str(book['pageCount']))
                 page_image(page)
                 expect(page.get_by_role('button', name='Next page', exact=True)).to_be_disabled()
-                if id != 'xiv':
+                if id in ('g', 'xiii-r'):
                     expected_next = 'xiii-r' if id == 'g' else 'xiv'
                     page.locator('.comic-current-continue button').click()
                     expect(page.get_by_label('Choose book')).to_have_value(expected_next)

@@ -1,11 +1,12 @@
 import { Navigate, useSearchParams } from 'react-router-dom';
 import LatestComicReader from './LatestComicReader';
+import source from '../data/comic-current-editions.json';
 
 /** Only the current books are public. Historical page numbers are not interchangeable. */
 export default function TechOpsComic() {
   const [params] = useSearchParams();
   const edition = params.get('edition');
-  const current = edition === 'g' || edition === 'xiii-r' || edition === 'xiv';
+  const current = edition === 'g' || edition === 'xiii-r' || edition === 'xiv' || (edition === 'ixiv' && (source.books as Record<string, {publisherRelease?: string}>).ixiv?.publisherRelease === 'ixiv-9b2f94974027');
   if (current || (!edition && !params.has('page'))) return <LatestComicReader key={edition === 'xiii-r' ? 'xiii-r' : 'collection'} />;
 
   // Retired editions go to the correct current book, not to an unrelated old page number.

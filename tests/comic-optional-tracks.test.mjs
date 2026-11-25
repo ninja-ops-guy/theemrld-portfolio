@@ -9,10 +9,18 @@ test('every archive catalogue track has a current guided cue or one valid option
   const { cues, quietPages } = readJson('../public/k-world/guided-cues.json');
   const catalogue = readJson('../public/k-world/catalogue.json');
   const optional = readJson('../src/data/comic-optional-tracks.json');
-  const guided = new Set(cues.filter(cue => books[cue.edition]).map(cue => cue.url));
+  const guided = new Set(cues.filter(cue => books[cue.edition] && cue.edition !== 'ixiv').map(cue => cue.url));
+  const legacy = optional.filter(track => track.edition !== 'ixiv');
+  const collection = optional.filter(track => track.edition === 'ixiv');
+  if (books.ixiv) {
+    assert.deepEqual(collection.map(track => track.url).sort(), legacy.map(track => track.url).sort());
+    assert.equal(new Set(collection.map(track => track.url)).size, collection.length);
+  } else {
+    assert.deepEqual(collection, []);
+  }
 
   assert.deepEqual(
-    optional.map(track => track.url).sort(),
+    legacy.map(track => track.url).sort(),
     catalogue.filter(track => !guided.has(track.url)).map(track => track.url).sort()
   );
   for (const track of optional) {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { GUIDED_EDITIONS, emptyGuidedScore, resolveGuidedCue } from '../public/k-world/guided.js';
+import { GUIDED_EDITIONS, emptyGuidedScore, resolveGuidedCue, validateGuidedScore } from '../public/k-world/guided.js';
 const manifest=JSON.parse(readFileSync(new URL('../src/data/comic-current-editions.json',import.meta.url)));
 const hashes={g:'c18407af88e9ba6dbb5ed4707fc998bd19e12d31c59b2f92b87f58d8a0bfa50b','xiii-r':'d9a88cae0217cc0ece73955b96e187a93b0e33f0d0da092cea0588e14db2047d',xiv:'97f16edf9df072863bb7af69d7b52e0ffee77fef6ace7e64936facff5cdcbfae'};
 function assertExactReleasePdfUrl(book, tag, filename) {
@@ -63,3 +63,21 @@ test('contents links and bookmarks stay within each edition',()=>{for(const b of
 test('soundtrack registrations match corrected editions without remapping old cues',()=>{for(const [id,b]of Object.entries(manifest.books)){assert.equal(GUIDED_EDITIONS[id].revision,b.revision);assert.equal(GUIDED_EDITIONS[id].pageCount,b.pageCount);assert.equal(resolveGuidedCue(emptyGuidedScore(),{edition:id,page:1,revision:b.revision}),null);}assert.equal(GUIDED_EDITIONS.f.pageCount,316);assert.equal(GUIDED_EDITIONS.xiii.pageCount,40);});
 test('retired routes redirect rather than expose superseded readers',()=>{const text=readFileSync(new URL('../src/pages/TechOpsComic.tsx',import.meta.url),'utf8');assert.ok(!text.includes('LegacyTechOpsComic'));assert.ok(text.includes('<Navigate replace'));assert.ok(text.includes("edition === 'xiii' ? 'xiii-r' : 'g'"));assert.ok(text.includes("params.get('from') === 'world'"));assert.ok(!text.includes('comic-revision-f.json'));});
 
+
+test('combined I-XIV soundtrack and PDF pins stay within the approved release',()=> {
+  const b=manifest.books.ixiv;
+  if(!b){assert.equal(GUIDED_EDITIONS.ixiv,undefined);return;}
+  const m=JSON.parse(readFileSync(new URL('../publishing/releases/'+b.publisherRelease+'.json',import.meta.url)));
+  assert.equal(m.page_count,514);
+  assert.equal(b.pdfSha256,m.pdf.sha256);
+  assert.equal(b.pdfBytes,m.pdf.bytes);
+  assert.ok(m.delivery && m.delivery.tag !== m.source.tag);
+  assertExactReleasePdfUrl(b,m.delivery.tag,m.pdf.filename);
+  const score=validateGuidedScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json',import.meta.url))));
+  assert.equal(score.cues.filter(c=>c.edition==='ixiv').length,82);
+  assert.ok(score.cues.some(c=>c.edition==='ixiv'&&resolveGuidedCue(score,{edition:'ixiv',page:c.startPage,revision:b.revision})===c));
+  for(let p=510;p<=514;p++) {
+    assert.equal(resolveGuidedCue(score,{edition:'ixiv',page:p,revision:b.revision}),null);
+    assert.ok(score.quietPages.some(entry=>entry.edition==='ixiv'&&entry.number===p));
+  }
+});

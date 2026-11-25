@@ -10,13 +10,16 @@ import './LatestComicReader.css';
 
 type Hotspot = { page: number; rect: number[] };
 type Section = { start: number; end: number; label: string; title: string; kind: string };
-type Book = { id: string; label: string; title: string; pageCount: number; revision: string; pdfUrl: string; imageBase: string; mediaCommit?: string; width: number; height: number; sections: Section[]; scenes: {page:number; title:string}[]; links: Record<string, Hotspot[]> };
+type Book = { id: string; label: string; title: string; pageCount: number; revision: string; pdfUrl: string; imageBase: string; mediaCommit?: string; publisherRelease?: string; width: number; height: number; pageDimensions?: Record<string, [number, number]>; sections: Section[]; scenes: {page:number; title:string}[]; links: Record<string, Hotspot[]> };
 // Editorial revision IDs remain stable for bookmarks, hashes and soundtrack bindings.
 // Reader-facing names are independent of those internal production identifiers.
 const books = Object.fromEntries(Object.entries(source.books).map(([id, book]) => [id, {
   ...book, ...displayLabels[id as keyof typeof displayLabels],
 }])) as Record<string, Book>;
-const editionOrder = ['g', 'xiii-r', 'xiv'];
+const legacyEditions = ['g', 'xiii-r', 'xiv'];
+const ixivReady = books.ixiv?.publisherRelease === 'ixiv-9b2f94974027';
+const editionOrder = ixivReady ? ['ixiv', ...legacyEditions] : legacyEditions;
+const defaultEdition = ixivReady ? 'ixiv' : 'g';
 const base = import.meta.env.BASE_URL + 'techops-comic/';
 // Page 29 of revised XIII uses the corrected Felicia/grandfather tea-table panel.
 // Other pages remain pinned to their original immutable media releases.
@@ -33,12 +36,47 @@ function readingImageUrl(book: Book, page: number, section: Section) {
 function validPage(value: string | null, total: number) { const n=Number(value); return Number.isInteger(n) && n>=1 && n<=total ? n : 0; }
 function bookmark(book: Book) { try { return validPage(localStorage.getItem(`techops-hero:${book.id}:${book.revision}:page`),book.pageCount); } catch { return 0; } }
 
+let advisorySeen = false;
+
 export default function LatestComicReader() {
+  const [ready, setReady] = useState(() => {
+    try { return advisorySeen || sessionStorage.getItem('techops:comic-advisory:v1') === '1'; }
+    catch { return advisorySeen; }
+  });
+  const warning = useRef<HTMLDialogElement>(null);
+  const [fallback, setFallback] = useState(false);
+  useEffect(() => {
+    if (ready || !warning.current) return;
+    const node = warning.current;
+    if (typeof node.showModal !== 'function') { setFallback(true); return; }
+    try { node.showModal(); } catch { setFallback(true); }
+    return () => { if (node.open) node.close(); };
+  }, [ready]);
+  function continueReading() {
+    advisorySeen = true;
+    try { sessionStorage.setItem('techops:comic-advisory:v1', '1'); } catch { /* In-memory fallback. */ }
+    setReady(true);
+  }
+  if (!ready) {
+    const content = <><h1 id="content-advisory-title">Parental advisory</h1>
+      <p id="content-advisory-text">Contains violence, mature language, and mature themes.</p>
+      <button type="button" autoFocus onClick={continueReading}>Continue to comic</button></>;
+    return fallback
+      ? <main id="content-advisory" aria-labelledby="content-advisory-title">{content}</main>
+      : <dialog id="content-advisory" ref={warning} aria-labelledby="content-advisory-title"
+          aria-describedby="content-advisory-text" onCancel={e=>e.preventDefault()}>{content}</dialog>;
+  }
+  return <ComicReader />;
+}
+
+function ComicReader() {
   const [params, setParams] = useSearchParams();
-  const requested = params.get('edition') ?? 'g';
-  const id = editionOrder.includes(requested) ? requested : 'g';
+  const requested = params.get('edition') ?? defaultEdition;
+  const id = editionOrder.includes(requested) ? requested : defaultEdition;
   const book = books[id];
   const page = validPage(params.get('page'), book.pageCount);
+  const nativePage = book.pageDimensions?.[String(page)];
+  const [pageWidth, pageHeight] = nativePage ?? [book.width, book.height];
   const fromWorld = params.get('from') === 'world';
   const section = book.sections.find(s => page>=s.start && page<=s.end) ?? book.sections[0];
   const saved = bookmark(book);
@@ -60,7 +98,7 @@ export default function LatestComicReader() {
   const readingImage = readingImageUrl(book, page, section);
   const hasReadingImage = readingImage !== original && readingImageFailure !== key;
   const showReadingImage = hasReadingImage && (!zoom || originalFailure === key);
-  const volumes = id === 'g' ? book.sections.filter(s => s.kind === 'volume') : [];
+  const volumes = id === 'g' || id === 'ixiv' ? book.sections.filter(s => s.kind === 'volume') : [];
   const describe = (n:number) => { const s=book.sections.find(s=>n>=s.start && n<=s.end); return `${s?.label ?? book.label} · ${s?.title ?? book.title}`; };
   const go = useCallback((target:number, edition=id) => {
     const openingFromLibrary = !page && target === 1 && edition === 'xiii-r' && !playedOnLanding.current;
@@ -127,7 +165,7 @@ export default function LatestComicReader() {
     setOriginalFailure('');
     setRetry(attempt => attempt + 1);
   };
-  const next=editionOrder[editionOrder.indexOf(id)+1];
+  const next=id === 'ixiv' ? undefined : legacyEditions[legacyEditions.indexOf(id)+1];
   return <main className={'comic-shell comic-current '+(page?'comic-reading':'')}>
     {showIntro && <dialog ref={dialog} className="comic-reel" aria-label={volumeIntro ? 'Volume XIII opening animation' : 'Tech Ops Hero introduction'} onCancel={()=>setIntro(false)}>
       {volumeIntro ? <video
@@ -186,10 +224,10 @@ export default function LatestComicReader() {
         onTouchStart={e=>{swipe.current=!zoom && e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;}}
         onTouchCancel={()=>{swipe.current=null;}}
         onTouchEnd={e=>{const start=swipe.current;swipe.current=null;if(!start||e.touches.length||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-start.x;const dy=e.changedTouches[0].clientY-start.y;if(Math.abs(dx)<55||Math.abs(dx)<1.6*Math.abs(dy))return;go(Math.min(book.pageCount,Math.max(1,page+(dx<0?1:-1))));}}>
-        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet">
+        {failure===key?<div className="comic-current-error" role="alert"><p>This page could not load.</p><button onClick={retryPage}>Retry page</button> <a href={book.pdfUrl}>Open the complete PDF</a></div>:<div className="comic-sheet" data-native-page={nativePage ? 'true' : undefined} style={nativePage ? {'--native-page-ratio':pageWidth/pageHeight} as CSSProperties : undefined}>
           <img key={`${key}-${retry}`} className="comic-page-image"
             src={(showReadingImage ? readingImage : original) + (retry ? `?retry=${retry}` : '')}
-            alt={`Page ${page} of ${book.pageCount}. ${describe(page)}`} width={book.width} height={book.height}
+            alt={`Page ${page} of ${book.pageCount}. ${describe(page)}`} width={pageWidth} height={pageHeight}
             onLoad={onPageLoad} onError={onPageError} fetchPriority="high"/>
           {book.links[String(page)]?.map((link,i)=><button key={i} className="comic-hotspot" aria-label={`Read page ${link.page}: ${describe(link.page)}`} onClick={()=>go(link.page)} style={{left:`${link.rect[0]}%`,top:`${link.rect[1]}%`,width:`${link.rect[2]-link.rect[0]}%`,height:`${link.rect[3]-link.rect[1]}%`}}/>)}
         </div>}

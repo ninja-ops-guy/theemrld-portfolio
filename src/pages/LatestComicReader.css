@@ -34,3 +34,13 @@
   .comic-current .comic-library-heading{flex-direction:column;align-items:flex-start;gap:10px}
   .comic-current .comic-library-heading>span{white-space:nowrap}
 }
+
+#content-advisory{box-sizing:border-box;inline-size:min(30rem,calc(100% - 2rem));max-block-size:calc(100% - 2rem);overflow:auto;margin:auto;padding:clamp(.875rem,4vw,1.5rem);border:1px solid #f2c675;border-radius:.75rem;background:#151d25;color:#eef2f5;font:400 1rem/1.5 system-ui,sans-serif;text-align:start;overflow-wrap:anywhere}
+#content-advisory::backdrop{background:rgba(5,8,12,.92)}
+#content-advisory h1,#content-advisory h2{color:#f2c675;font:700 1.375rem/1.2 system-ui,sans-serif;margin:0 0 .6rem}
+#content-advisory p{margin:0 0 1rem}
+#content-advisory button{box-sizing:border-box;min-block-size:44px;padding:.55rem .9rem;border:2px solid #f2c675;border-radius:.4rem;background:#151d25;color:#eef2f5;font:600 1rem/1.3 system-ui,sans-serif;cursor:pointer}
+#content-advisory button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+.comic-current .comic-sheet[data-native-page]{aspect-ratio:var(--native-page-ratio)}
+.comic-current .comic-stage:not(.is-enlarged) .comic-sheet[data-native-page]{width:min(100cqw,calc(100cqh * var(--native-page-ratio)))}

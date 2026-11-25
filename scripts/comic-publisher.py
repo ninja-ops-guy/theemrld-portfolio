@@ -87,7 +87,7 @@ def load_manifest(path: Path) -> dict:
 
 def delivery_tag(m: dict) -> str:
     """Public master destination, separate from the optional private source."""
-    return m.get('delivery', {}).get('tag', m['source']['tag'])
+    return m['delivery']['tag'] if 'delivery' in m else m['source']['tag']
 
 
 def validate_v2(m: dict) -> dict:
@@ -95,24 +95,49 @@ def validate_v2(m: dict) -> dict:
     need(m.get('publication_policy') == 'current-only', 'Current-only publication policy required')
     need(m['edition'] in ('g', 'xiii-r', 'xiv', 'ixiv'), 'Unknown current edition')
     need(bool(re.fullmatch('[a-f0-9]{40}', m['base_media_commit'])), 'Immutable base media commit required')
-    target, source, pdf = m['target'], m['source'], m['pdf']
+    target, pdf = m['target'], m['pdf']
     need(bool(re.fullmatch(r'(?:release|publisher)/[A-Za-z0-9_./-]+', target['branch']))
          and '..' not in target['branch'] and not target['branch'].endswith('/'), 'Unsafe release branch')
     need(type(target['pr']) is int and target['pr'] > 0, 'Existing PR required')
-    need(bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', source['tag'])), 'Invalid source tag')
-    need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.zip', source['asset'])), 'Invalid ZIP name')
-    sha(source['sha256'])
-    need(type(source['bytes']) is int and 0 < source['bytes'] < 2_000_000_000, 'Invalid ZIP size')
-    if 'delivery' in m:
+    if 'finished_only' in m:
+        need(m['finished_only'] is True and m['edition'] == 'ixiv' and 'source' not in m,
+             'Invalid finished-only publication contract')
+        expected = {'schema_version','repository','id','title','edition','target','base_media_commit',
+                    'pdf','page_count','images','changed_pages','content_revision',
+                    'compatibility_revision','corrections','publication_policy','site_url',
+                    'reader_path','delivery','finished_only'}
+        need(set(m) == expected, 'Unexpected finished-only manifest fields')
+        need(set(target) == {'pr','branch'} and set(pdf) == {'path','filename','bytes','sha256'},
+             'Unexpected finished-only target or PDF fields')
         delivery = m['delivery']
-        need(m['edition'] == 'ixiv' and isinstance(delivery, dict)
-             and set(delivery) == {'tag', 'source_release_id', 'source_asset_id'},
-             'Invalid private-source delivery contract')
-        need(isinstance(delivery['tag'], str)
-             and bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', delivery['tag']))
-             and delivery['tag'] != source['tag'], 'Delivery tag must be separate')
-        need(all(type(delivery[k]) is int and delivery[k] > 0
-                 for k in ('source_release_id', 'source_asset_id')), 'Exact private source IDs required')
+        need(isinstance(delivery, dict) and set(delivery) == {'tag', 'media_commit'}
+             and isinstance(delivery['media_commit'], str)
+             and bool(re.fullmatch('[a-f0-9]{40}', delivery['media_commit']))
+             and delivery['media_commit'] != m['base_media_commit']
+             and isinstance(delivery['tag'], str)
+             and bool(re.fullmatch('techops-hero-i-xiv-[a-f0-9]{12}-pdf', delivery['tag'])),
+             'Invalid finished PDF delivery tag')
+        need(all(set(i) == {'path','bytes','sha256','width','height'} for i in m['images']),
+             'Unexpected finished image fields')
+        need(m['corrections'] == [{'id':'approved-delivery', 'status':'included',
+                                  'evidence':'Approved 514-page I-XIV edition.'}],
+             'Private correction provenance must not enter finished manifest')
+    else:
+        source = m['source']
+        need(bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', source['tag'])), 'Invalid source tag')
+        need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.zip', source['asset'])), 'Invalid ZIP name')
+        sha(source['sha256'])
+        need(type(source['bytes']) is int and 0 < source['bytes'] < 2_000_000_000, 'Invalid ZIP size')
+        if 'delivery' in m:
+            delivery = m['delivery']
+            need(m['edition'] == 'ixiv' and isinstance(delivery, dict)
+                 and set(delivery) == {'tag', 'source_release_id', 'source_asset_id'},
+                 'Invalid private-source delivery contract')
+            need(isinstance(delivery['tag'], str)
+                 and bool(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', delivery['tag']))
+                 and delivery['tag'] != source['tag'], 'Delivery tag must be separate')
+            need(all(type(delivery[k]) is int and delivery[k] > 0
+                     for k in ('source_release_id', 'source_asset_id')), 'Exact private source IDs required')
     need(pdf['path'] == 'master.pdf', 'Source master must be master.pdf')
     need(bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,159}\.pdf', pdf['filename'])), 'Invalid master filename')
     file_spec(pdf, 'master.pdf')
@@ -147,6 +172,7 @@ def validate_v2(m: dict) -> dict:
 
 
 def source_specs(m: dict) -> list[dict]:
+    need(not m.get('finished_only'), 'Finished-only manifest cannot authorize source processing')
     if m['schema_version'] == 2:
         return [m['pdf']] + [m['images'][n - 1] for n in m['changed_pages']]
     return m['pdf']['parts'] + m['images']
@@ -172,6 +198,8 @@ def verify_publication(m: dict, root: Path) -> dict:
     need(book is not None, 'Published edition missing')
     media = book.get('mediaCommit', '')
     need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Immutable edition media commit required')
+    if m.get('finished_only'):
+        need(media == m['delivery']['media_commit'], 'Finished edition media commit changed')
     need(book['pageCount'] == m['page_count'] and book['pdfSha256'] == m['pdf']['sha256'], 'Published master identity mismatch')
     need(book.get('publisherRelease') == m['id'] and book.get('contentRevision') == m['content_revision'], 'Published release identity mismatch')
     prefix = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
@@ -246,6 +274,7 @@ def verify_tree(m: dict, root: Path, built: bool = False) -> None:
         need(h.hexdigest() == m['pdf']['sha256'], 'Assembled PDF differs from approved master')
 
 def extract(m: dict, archive: Path, root: Path) -> None:
+    need(not m.get('finished_only'), 'Finished-only manifest cannot extract an archive')
     verify_file(archive, m['source'])
     specs = {s['path']: s for s in source_specs(m)}
     # Nothing is copied to the repository until every archived file is verified.
@@ -363,6 +392,8 @@ def verify_live(base: str, commit: str, m: dict | None) -> None:
     if m:
         if m['schema_version'] == 2:
             media = got.get('media_commit', '')
+            if m.get('finished_only'):
+                need(media == m['delivery']['media_commit'] and got.get('page_count') == 514, 'Live finished manifest pin changed')
             need(bool(re.fullmatch('[a-f0-9]{40}', media)), 'Live media commit missing')
             image_base = 'https://raw.githubusercontent.com/' + REPO + '/' + media + '/'
             pdf_url = 'https://github.com/' + REPO + '/releases/download/' + delivery_tag(m) + '/' + m['pdf']['filename']

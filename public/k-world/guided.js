@@ -1,5 +1,6 @@
 /** Edition-bound soundtrack definitions. This module never starts audio. */
 export const GUIDED_EDITIONS = Object.freeze({
+  ixiv: Object.freeze({ label: "Volumes I-XIV", revision: "ixiv-9b2f94974027", pageCount: 514 }),
   "g": Object.freeze({ label: "Revision G · Volumes I–XII", revision: "corrected-c18407af88e9", pageCount: 316 }),
   "xiii-r": Object.freeze({ label: "Volume XIII · Revised", revision: "corrected-85c2fbd8c80b", pageCount: 49 }),
   "xiv": Object.freeze({ label: "Volume XIV", revision: "corrected-97f16edf9df0", pageCount: 133 }),

@@ -51,6 +51,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -87,6 +88,18 @@ jobs:
           python tests/comic-final-browser.py
           python tests/comic-final-polish.py
           python tests/comic-music-browser.py --base-url "$COMIC_BASE_URL"
+      - name: Qualify exact finished I-XIV assets and three browser profiles
+        if: github.event_name == 'pull_request' && hashFiles('publishing/releases/ixiv-9b2f94974027.json') != ''
+        env:
+          MANIFEST: publishing/releases/ixiv-9b2f94974027.json
+        run: |
+          set -euo pipefail
+          test "$(sha256sum "$MANIFEST" | cut -d ' ' -f 1)" = "40dad3136e6068da9e94188bc089c43bc4571e641e95339417b8d0127e542bc1"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$(git rev-parse "${{ github.event.pull_request.head.sha }}^{tree}")"
+          python scripts/comic-publisher.py stamp --manifest "$MANIFEST" --root dist --commit "${{ github.event.pull_request.head.sha }}"
+          npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
+          node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
+          node scripts/comic-browser-smoke.mjs
       - name: Await exact production publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
