@@ -61,27 +61,25 @@ jobs:
         with:
           script: |
             const fs=require('node:fs'), cp=require('node:child_process');
-            const {createHash}=require('node:crypto');
-            const {assertPrivatePreflightTarget,inspectPrivateSplit}=await import(process.env.GITHUB_WORKSPACE+'/control/scripts/publisher-private-boundary.mjs');
+            const {assertPrivatePreflightTarget}=await import(process.env.GITHUB_WORKSPACE+'/control/scripts/publisher-private-boundary.mjs');
             const {RELEASE,EXPECTED_HEAD,MANIFEST_SHA,TRIGGERING_ACTOR}=process.env;
-            if(RELEASE!=='ixiv-9b2f94974027' || MANIFEST_SHA!=='2e7ff8f81da905077463c08aca9a50fdddc033ea3cecededf416a45553298407d4') throw new Error('Unsupported private preflight');
+            if(RELEASE!=='ixiv-9b2f94974027' || MANIFEST_SHA!=='2e7ff8f81da905077463c08aca9a50fdddc033ea3cededf416a45553298407d4') throw new Error('Unsupported private preflight');
             const sha=(await github.rest.repos.getCommit({...context.repo,ref:'main'})).data.sha;
             const pr=(await github.rest.pulls.get({...context.repo,pull_number:138})).data;
             const git=(...args)=>cp.execFileSync('git',['-C','candidate',...args],{encoding:'utf8'}).trim();
-            const raw=fs.readFileSync('candidate/publishing/releases/ixiv-9b2f94974027.json');
-            const m=JSON.parse(raw);
-            if(!/^[a-f0-9]{40}$/.test(EXPECTED_HEAD)) throw new Error('Exact reviewed commit required');
-            git('merge-base','--is-ancestor',context.sha,EXPECTED_HEAD);
-            const paths=git('diff','--name-only','--no-renames','-z',context.sha,EXPECTED_HEAD).split('\0').filter(Boolean);
+            if(EXPECTED_HEAD!=='30135f67bd5451d8739a6296b5d4fd3e5b6d55f7') throw new Error('The exact reviewed #138 head is required');
+            const baseline=git('merge-base',context.sha,EXPECTED_HEAD);
+            if(baseline!=='8b93175cbe6d11809062c6f105d69702e202a1a1') throw new Error('The reviewed reader merge base changed');
+            const paths=git('diff','--name-only','--no-renames','-z',baseline,EXPECTED_HEAD).split('\0').filter(Boolean);
             assertPrivatePreflightTarget({eventName:context.eventName,ref:context.ref,repo:context.repo,actor:context.actor,triggeringActor:TRIGGERING_ACTOR,sha:context.sha},
-              {main:sha,pr,candidate:git('rev-parse','HEAD'),paths,manifest_sha256:createHash('sha256').update(raw).digest('hex')},
-              {main:context.sha,reviewed_head:EXPECTED_HEAD,manifest_sha256:MANIFEST_SHA},{registered:true});
-            const scope=cp.execFileSync('git',['-C','candidate','ls-tree','--full-tree','-z',EXPECTED_HEAD,'--',...paths.sort()]);
-            if(createHash('sha256').update(scope).digest('hex')!=='1d5b4b42a3e6521fd48816e1da3b29e93139184e2b6dc34d69b62c2ef4bdf504') throw new Error('Registered reader file contents or modes changed');
-            const pins=await inspectPrivateSplit(github.rest.repos,context.repo,m,{delivery_release_id:457833249,delivery_asset_id:790723467});
-            for(const k of ['source_asset_id','delivery_asset_id']) core.setOutput(k,String(pins[k]));
-            core.setOutput('base_media',m.base_media_commit);
-            await core.summary.addHeading('Private inputs pinned; no bytes read yet').write();
+              {main:sha,pr,candidate:git('rev-parse','HEAD'),paths,manifest_sha256:MANIFEST_SHA},
+              {main:context.sha,reviewed_head:EXPECTED_HEAD,manifest_sha256:MANIFEST_SHA});
+            const reg=(await github.rest.repos.getRelease({...context.repo,release_id:457904359})).data;
+            if(reg.id!==457904359 || reg.tag_name!=='techops-ixiv-9b2f94974027-reader-input' || reg.draft!==true || reg.prerelease!==true) throw new Error('Private reader input identity or visibility changed');
+            const assets=(await github.rest.repos.listReleaseAssets({...context.repo,release_id:457904359,per_page:2})).data;
+            if(assets.length!==1 || assets[0].id!==790938861 || assets[0].name!=='reader-registration.patch'||assets[0].state!=='uploaded'||assets[0].size!==230173||assets[0].digest!=='sha256:ebbfe2852f2ef5ecd3040105bf9d28ad79771d642bfc59f0fa0aa8b7a00b404a') throw new Error('Private reader input asset changed');
+            core.setOutput('base_media','aa8c132035a46e73fb47ee14e05e371909799d64');
+            core.setOutput('registration_asset',String(assets[0].id));
       - uses: actions/checkout@v4
         with:
           ref: ${{ steps.pins.outputs.base_media }}
@@ -106,17 +104,51 @@ jobs:
           python -m pip install 'Pillow==12.3.0'
           npm install --prefix browser-tooling --no-audit --no-fund playwright@1.65.0
           node browser-tooling/node_modules/playwright/cli.js install --with-deps chromium webkit
-      - name: Read and verify the private source and finished PDF
+      - name: Apply exact reader registration privately
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          SOURCE_ASSET: ${{ steps.pins.outputs.source_asset_id }}
-          PDF_ASSET: ${{ steps.pins.outputs.delivery_asset_id }}
-          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          REGISTRATION_ASSET: ${{ steps.pins.outputs.registration_asset }}
+          REVIEWED_HEAD: ${{ inputs.expected_head }}
+          MANIFEST_SHA: ${{ inputs.manifest_sha256 }}
         run: |
           set -euo pipefail
           private="$RUNNER_TEMP/ixiv-source"
           install -d -m 0700 "$private"
+          [[ "$REGISTRATION_ASSET" =~ ^[0-9]+$ ]]
+          gh api -H 'Accept: application/octet-stream' "repos/$GH_REPO/releases/assets/$REGISTRATION_ASSET" >"$private/reader-registration.patch" 2>"$private/registration.err" ||
+            { echo 'PRIVATE_READ_HOLD: trusted runner could not read the private registration patch'; exit 1; }
+          test "$(wc -c < "$private/reader-registration.patch")" -eq 230173
+          printf '%s  %s\n' 'ebbfe2852f2ef5ecd3040105bf9d28ad79771d642bfc59f0fa0aa8b7a00b404a' "$private/reader-registration.patch" | sha256sum --check --status
+          test "$(git -C candidate rev-parse HEAD)" = "$REVIEWED_HEAD"
+          git -C candidate config user.name 'github-actions[bot]'
+          git -C candidate config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_AUTHOR_DATE="2026-11-25T08:05:00Z" GIT_COMMITTER_DATE="2026-11-25T08:05:00Z"
+          git -C candidate merge --no-ff --no-edit "$GITHUB_SHA"
+          git -C candidate apply --index --check --whitespace=error "$private/reader-registration.patch"
+          git -C candidate apply --index --whitespace=error "$private/reader-registration.patch"
+          git -C candidate commit -m 'Apply private I-XIV reader registration'
+          python3 control/scripts/verify-private-registration.py --candidate candidate --main "$GITHUB_SHA" --reviewed "$REVIEWED_HEAD" --manifest-sha "$MANIFEST_SHA"
+      - id: inputs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('node:fs');
+            const {inspectPrivateSplit}=await import(process.env.GITHUB_WORKSPACE+'/control/scripts/publisher-private-boundary.mjs');
+            const m=JSON.parse(fs.readFileSync('candidate/publishing/releases/ixiv-9b2f94974027.json','utf8'));
+            const pins=await inspectPrivateSplit(github.rest.repos,context.repo,m,{delivery_release_id:457833249,delivery_asset_id:790723467});
+            for(const k of ['source_asset_id','delivery_asset_id']) core.setOutput(k,String(pins[k]));
+      - name: Read and verify the private source and finished PDF
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_ASSET: ${{ steps.inputs.outputs.source_asset_id }}
+          PDF_ASSET: ${{ steps.inputs.outputs.delivery_asset_id }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/ixiv-source"
+          test -d "$private"
           for id in "$SOURCE_ASSET" "$PDF_ASSET"; do [[ "$id" =~ ^[0-9]+$ ]]; done
           # Never echo signed URLs or service failures containing private details.
           gh api -H 'Accept: application/octet-stream' "repos/$GH_REPO/releases/assets/$SOURCE_ASSET" >"$private/source.zip" 2>"$private/source.err" ||
