@@ -5,6 +5,11 @@ import traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
+ROOT=Path(__file__).resolve().parents[1]
+BOOKS=json.loads((ROOT/'src/data/comic-current-editions.json').read_text(encoding='utf-8'))['books']
+LABELS=json.loads((ROOT/'src/data/comic-display-labels.json').read_text(encoding='utf-8'))
+IDS=['g','xiii-r','xiv']
+if BOOKS.get('ixiv',{}).get('publisherRelease')=='ixiv-9b2f94974027': IDS.append('ixiv')
 BASE=os.environ.get('COMIC_BASE_URL','http://127.0.0.1:4173/').rstrip('/')+'/'
 OUT=Path(os.environ.get('COMIC_QA_DIR','qa/comic-final'))
 OUT.mkdir(parents=True,exist_ok=True)
@@ -16,7 +21,12 @@ try:
             context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce',is_mobile=width<500,has_touch=width<500)
             page=context.new_page()
             page.goto(BASE+'#/comic?edition=g',wait_until='domcontentloaded')
-            expect(page.locator('.comic-current-card')).to_have_count(3)
+            warning=page.get_by_role('dialog',name='Parental advisory',exact=True)
+            expect(warning).to_be_visible()
+            expect(page.locator('.comic-current-card')).to_have_count(0)
+            expect(warning.get_by_role('button',name='Continue to comic',exact=True)).to_be_in_viewport()
+            warning.get_by_role('button',name='Continue to comic',exact=True).click()
+            expect(page.locator('.comic-current-card')).to_have_count(len(IDS))
             page.wait_for_function("() => [...document.querySelectorAll('.comic-current-card img')].every(i=>i.complete&&i.naturalWidth>0)",timeout=60000)
             geometry=page.evaluate("""() => ({
               viewport:innerWidth, document:document.documentElement.scrollWidth,
@@ -34,13 +44,17 @@ try:
             select=page.get_by_label('Soundtrack book',exact=True)
             expect(select).to_be_visible(timeout=30000)
             expect(select).to_have_value('g')
-            assert select.locator('option').all_text_contents()==['Full collection · 316 pages','Volume XIII · 49 pages','Volume XIV · 133 pages']
+            expected=[f"{LABELS[i]['label']} · {BOOKS[i]['pageCount']} pages" for i in IDS]
+            assert sorted(select.locator('option').all_text_contents())==sorted(expected)
+            if 'ixiv' in IDS:
+                select.select_option('ixiv')
+                expect(page.get_by_label('FROM PAGE',exact=True)).to_have_attribute('max','514')
             select.select_option('xiii-r')
             expect(page.get_by_label('FROM PAGE',exact=True)).to_have_attribute('max','49')
             select.select_option('xiv')
             expect(page.get_by_label('FROM PAGE',exact=True)).to_have_attribute('max','133')
             page.get_by_role('button',name='Close soundtrack editor',exact=True).click()
-            receipt['checks'].append(f'{width}px: soundtrack offers only Full collection, XIII and XIV with correct page bounds')
+            receipt['checks'].append(f'{width}px: soundtrack offers exactly the registered books with correct page bounds')
             context.close()
         browser.close()
     receipt['result']='PASS'
