@@ -50,6 +50,14 @@ export async function finalizePublication(distRoot = path.join(ROOT, 'dist')) {
   const manifest = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-current-editions.json'), 'utf8'));
   const labels = JSON.parse(await readFile(path.join(ROOT, 'src/data/comic-display-labels.json'), 'utf8'));
   const expected = { g: 316, 'xiii-r': 49, xiv: 133 };
+  if (Object.hasOwn(manifest.books, 'ixiv')) {
+    expected.ixiv = 514;
+    if (manifest.books.ixiv.imagePath !== 'techops-comic/volumes-i-xiv/' ||
+        !labels.ixiv?.label || !labels.ixiv?.title ||
+        manifest.imageCount !== Object.values(expected).reduce((sum, n) => sum + n, 0)) {
+      throw new Error('I–XIV registration or total image count is invalid');
+    }
+  }
   for (const [id, count] of Object.entries(expected)) {
     const book = manifest.books[id];
     if (book?.pageCount !== count || !/^[a-f0-9]{64}$/.test(book.pdfSha256)) throw new Error(`Invalid current book: ${id}`);

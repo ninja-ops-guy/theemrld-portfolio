@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {createRequire} from 'node:module';
+import { acknowledgeReaderAdvisory } from './comic-advisory-smoke.mjs';
 const m=JSON.parse(await fs.readFile(process.env.MANIFEST,'utf8'));
 if(!/^\/#\/comic\?edition=[a-z0-9-]+&page=\{page\}$/.test(m.reader_path)) throw new Error('Unapproved reader route template');
 const require=createRequire(path.resolve('browser-tooling/package.json'));
@@ -21,29 +22,40 @@ try {
     try {
       const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});
       const page=await context.newPage();
-      for(const n of [...new Set([1,m.page_count])]) {
-        await page.goto(base+m.reader_path.replace('{page}',String(n)),{waitUntil:'domcontentloaded',timeout:60000});
-        const img=page.locator('.comic-page-image');
+      const advisoryRequired=m.edition==='ixiv';
+      const samplePages=advisoryRequired?[1,377,m.page_count]:[1,m.page_count];
+      const visits=[...new Set(samplePages)].map((n,i)=>({n, target:page, visit:i?'same-session':'first', expectation:advisoryRequired?(i?'already-acknowledged':'fresh'):'legacy'}));
+      const freshLast=advisoryRequired?await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile}):null;
+      if(freshLast) visits.push({n:m.page_count,target:await freshLast.newPage(),visit:'fresh-last',expectation:'fresh'});
+      for(const {n,target,visit,expectation} of visits) {
+        await target.goto(base+m.reader_path.replace('{page}',String(n)),{waitUntil:'domcontentloaded',timeout:60000});
+        const advisoryAcknowledged=await acknowledgeReaderAdvisory(target,expectation);
+        const img=target.locator('.comic-page-image');
         await img.waitFor({state:'visible',timeout:30000});
-        await page.waitForFunction(()=>{const i=document.querySelector('.comic-page-image');return i?.complete && i.naturalWidth>0;},{},{timeout:30000});
+        await target.waitForFunction(()=>{const i=document.querySelector('.comic-page-image');return i?.complete && i.naturalWidth>0;},{},{timeout:30000});
         const expected=m.images[n-1];
         const expectedURL = m.schema_version === 2 ? `https://raw.githubusercontent.com/${m.repository}/${marker.media_commit}/${expected.path}` : base + '/' + expected.path.slice(7);
         if (m.schema_version === 2 && m.edition === 'g') {
-          await page.getByRole('button', { name: 'Enlarge', exact: true }).click();
-          await page.waitForFunction(url => {
+          await target.getByRole('button', { name: 'Enlarge', exact: true }).click();
+          await target.waitForFunction(url => {
             const image = document.querySelector('.comic-page-image');
             return image?.currentSrc === url && image.complete && image.naturalWidth > 0;
           }, expectedURL, { timeout: 30000 });
         }
-        const actual=await img.evaluate(i=>({src:i.currentSrc,width:i.naturalWidth,height:i.naturalHeight}));
+        const actual=await img.evaluate(i=>{
+          const rect=i.getBoundingClientRect();
+          return {src:i.currentSrc,width:i.naturalWidth,height:i.naturalHeight,renderWidth:rect.width,renderHeight:rect.height};
+        });
         if(new URL(actual.src).href !== expectedURL || actual.width!==expected.width || actual.height!==expected.height) throw new Error(`${name} page ${n}: wrong artwork or dimensions`);
+        if (advisoryRequired && (actual.renderWidth<=0 || Math.abs(actual.renderHeight - actual.renderWidth*expected.height/expected.width)>1.5)) throw new Error(`${name} page ${n}: layout stretched native artwork`);
         const pdf=m.schema_version === 2 ? m.pdf.filename : m.pdf.path.split('/').pop();
-        const pdfLink = page.locator(`.comic-downloads a[href*="${pdf}"]`).first();
+        const pdfLink = target.locator(`.comic-downloads a[href*="${pdf}"]`).first();
         await pdfLink.waitFor({state:'visible',timeout:30000});
         if (m.schema_version === 2 && await pdfLink.getAttribute('href') !== `https://github.com/${m.repository}/releases/download/${m.source.tag}/${pdf}`) throw new Error('Wrong master link');
-        await page.screenshot({path:`browser-receipts/${name}-${n}.png`,fullPage:false});
-        results.push({profile:name,page:n,result:'PASS',...actual});
+        await target.screenshot({path:`browser-receipts/${name}-${n}-${visit}.png`,fullPage:false});
+        results.push({profile:name,page:n,visit,advisoryAcknowledged,result:'PASS',...actual});
       }
+      if(freshLast) await freshLast.close();
       await context.close();
     } finally {await browser.close();}
   }

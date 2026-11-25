@@ -6,9 +6,16 @@ import path from 'node:path';
 import { isRetiredComicAsset, retireEarlierComicAssets } from '../scripts/finalize-comic-dist.mjs';
 const read = name => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
 
-test('reader-facing labels contain only the three current books', async () => {
+test('reader-facing labels contain only registered books', async () => {
   const labels = JSON.parse(await read('src/data/comic-display-labels.json'));
-  assert.deepEqual(Object.keys(labels), ['g', 'xiii-r', 'xiv']);
+  const manifest = JSON.parse(await read('src/data/comic-current-editions.json'));
+  const expected = ['g', 'xiii-r', 'xiv'];
+  if (manifest.books.ixiv) {
+    assert.equal(manifest.books.ixiv.pageCount, 514);
+    assert.equal(labels.ixiv?.label, 'Volumes I–XIV');
+    expected.push('ixiv');
+  }
+  assert.deepEqual(Object.keys(labels), expected);
   assert.equal(labels.g.label, 'Full collection');
   assert.equal(labels.g.title, 'Volumes I–XII');
   assert.equal(labels['xiii-r'].label, 'Volume XIII');
