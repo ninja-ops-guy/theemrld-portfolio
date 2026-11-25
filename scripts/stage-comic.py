@@ -49,8 +49,16 @@ def bind_book(current, m, media_commit):
     need(book['revision'] == m['compatibility_revision'], 'Reader compatibility revision changed')
     folder = str(Path(m['images'][0]['path']).parent) + '/'
     need(book['imagePath'] == folder, 'Reader image directory changed')
-    need(all((i['width'], i['height']) == (book['width'], book['height']) for i in m['images']),
-         'Reader dimensions changed')
+    table = book.get('pageDimensions') if m['edition'] == 'ixiv' else None
+    if m['edition'] == 'ixiv':
+        # This combined edition uses two native aspect ratios. Verify each
+        # physical page rather than stretching art or moving its link targets.
+        need(isinstance(table, dict) and
+             table == {str(n): [img['width'], img['height']] for n, img in enumerate(m['images'], 1)},
+             'Reader page-dimension inventory differs from approved manifest')
+    else:
+        need(all((i['width'], i['height']) == (book['width'], book['height']) for i in m['images']),
+             'Reader dimensions changed')
     tag = m['source']['tag']
     book.update(mediaCommit=media_commit, releaseTag=tag,
                 publisherRelease=m['id'], contentRevision=m['content_revision'], revision=m['compatibility_revision'],

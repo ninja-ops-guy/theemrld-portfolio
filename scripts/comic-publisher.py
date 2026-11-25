@@ -88,7 +88,7 @@ def load_manifest(path: Path) -> dict:
 def validate_v2(m: dict) -> dict:
     need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,79}', m['id'])), 'Invalid release ID')
     need(m.get('publication_policy') == 'current-only', 'Current-only publication policy required')
-    need(m['edition'] in ('g', 'xiii-r', 'xiv'), 'Unknown current edition')
+    need(m['edition'] in ('g', 'xiii-r', 'xiv', 'ixiv'), 'Unknown current edition')
     need(bool(re.fullmatch('[a-f0-9]{40}', m['base_media_commit'])), 'Immutable base media commit required')
     target, source, pdf = m['target'], m['source'], m['pdf']
     need(bool(re.fullmatch(r'(?:release|publisher)/[A-Za-z0-9_./-]+', target['branch']))
@@ -112,6 +112,11 @@ def validate_v2(m: dict) -> dict:
     changed = m['changed_pages']
     need(isinstance(changed, list) and changed and all(type(n) is int and 1 <= n <= m['page_count'] for n in changed)
          and changed == sorted(set(changed)), 'Changed pages must be unique sorted page numbers')
+    if m['edition'] == 'ixiv':
+        need(m['page_count'] == 514, 'I–XIV release must stop at page 514')
+        need(all(i['path'] == f'techops-comic/volumes-i-xiv/{n:03d}.webp'
+                 for n, i in enumerate(m['images'], 1)), 'I–XIV image paths differ from registered folder')
+        need(changed == list(range(1, 515)), 'I–XIV first release needs the complete image inventory')
     for field in ('content_revision', 'compatibility_revision'):
         need(bool(re.fullmatch('[a-z0-9][a-z0-9-]{0,119}', m[field])), 'Invalid revision identity')
     corrections = m['corrections']

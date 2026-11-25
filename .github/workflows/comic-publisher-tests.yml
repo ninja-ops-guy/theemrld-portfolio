@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '22'
       - run: python3 -m unittest discover -s tests -p 'test_comic*.py' -v
-      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs
+      - run: node --test tests/publisher-control.test.mjs tests/comic-publisher-pins.test.mjs tests/comic-advisory-smoke.test.mjs
       - name: Validate registered manifests
         run: |
           for manifest in publishing/releases/*.json; do
