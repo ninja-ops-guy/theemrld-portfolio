@@ -27,7 +27,9 @@ test('The published score preserves Iona’s cues and matches the memory artwork
     assert.equal(resolveGuidedCue(score, at(endPage, edition)), cue);
   }
   assert.equal(score.minimumPlayMs, 30000);
-  assert.deepEqual(score.quietPages, [{ edition: 'g', number: 136 }]);
+  assert.deepEqual(score.quietPages.filter(q=>q.edition!=='ixiv'), [{ edition: 'g', number: 136 }]);
+  assert.deepEqual(score.quietPages.filter(q=>q.edition==='ixiv').map(q=>q.number),
+    GUIDED_EDITIONS.ixiv ? [138,319,320,321,344,346,376,377,510,511,512,513,514] : []);
   assert.equal(resolveGuidedCue(score, at(137, 'g')).id, 'iona-building-blast');
   for (const page of [136, 174, 205, 214, 219]) {
     assert.equal(resolveGuidedCue(score, at(page, 'g')), null);

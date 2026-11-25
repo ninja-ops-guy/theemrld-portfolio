@@ -71,7 +71,11 @@ test('combined I-XIV soundtrack and PDF pins stay within the approved release',(
   assert.equal(m.page_count,514);
   assert.equal(b.pdfSha256,m.pdf.sha256);
   assert.equal(b.pdfBytes,m.pdf.bytes);
-  assert.ok(m.delivery && m.delivery.tag !== m.source.tag);
+  assert.ok(m.delivery?.tag);
+  if(m.finished_only===true) {
+    assert.equal(Object.hasOwn(m,'source'),false);
+    assert.equal(b.mediaCommit,m.delivery.media_commit);
+  } else assert.notEqual(m.delivery.tag,m.source.tag);
   assertExactReleasePdfUrl(b,m.delivery.tag,m.pdf.filename);
   const score=validateGuidedScore(JSON.parse(readFileSync(new URL('../public/k-world/guided-cues.json',import.meta.url))));
   assert.equal(score.cues.filter(c=>c.edition==='ixiv').length,82);
