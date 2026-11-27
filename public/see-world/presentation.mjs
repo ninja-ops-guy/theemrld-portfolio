@@ -35,13 +35,18 @@ function decorate() {
     const hero = content.querySelector('.hero');
     if (hero && !hero.dataset.presented) {
       hero.dataset.presented = 'true';
-      hero.querySelector('.eyebrow').textContent = 'THE EMRLD / INTERACTIVE STORIES';
-      const title = hero.querySelector('h1'); title.replaceChildren(document.createTextNode('Every choice.'), document.createElement('br'), create('span', 'Another side.'));
+      hero.querySelector('.eyebrow').textContent = 'TECHOPS HERO / LINKED STORIES';
+      const title = hero.querySelector('h1'); title.replaceChildren(document.createTextNode('One world.'), document.createElement('br'), create('span', 'Every perspective.'));
       const copy = hero.querySelector('.hero-copy');
       copy.querySelector('p').textContent = 'Go beyond the main story. Discover different perspectives, make your choices, and carry their consequences back into Night Walker.';
       const emblem = create('div', '', 'world-emblem'); emblem.setAttribute('aria-hidden', 'true');
       emblem.append(create('span', 'SEE', 'emblem-first'), create('span', 'WORLD', 'emblem-second'), create('small', 'READ / CHOOSE / RETURN'));
       hero.append(emblem);
+      const scene = create('div', '', 'world-scene');
+      scene.setAttribute('aria-hidden', 'true');
+      const artwork = create('img'); artwork.src = '../techops-comic/volume-I.webp'; artwork.alt = ''; artwork.width = 630; artwork.height = 270;
+      scene.append(artwork); hero.prepend(scene);
+      const imprint = create('p', 'BUILD · OPERATE · PROTECT · BELONG', 'world-imprint'); hero.append(imprint);
       const guide = create('button', 'How the stories connect', 'text-button'); guide.type = 'button'; guide.onclick = () => help.showModal(); copy.append(guide);
       const ribbon = create('section', '', 'journey-strip'); ribbon.setAttribute('aria-label', 'How progression works');
       for (const [number, heading, detail] of [['01', 'Play TechOps Hero', 'Your game progress opens each perspective.'], ['02', 'Choose in See World', 'Read a chapter. Make a decision.'], ['03', 'Return to Night Walker', 'Play the new sections you have earned.']]) {
@@ -58,7 +63,7 @@ function decorate() {
       }
       const cards = content.querySelector('.cards');
       if (cards) {
-        const label = create('div', '', 'perspectives-heading'); label.append(create('h2', 'Choose a perspective'), create('span', 'Revealed by your playthrough')); cards.before(label);
+        const label = create('div', '', 'perspectives-heading'); label.append(create('h2', 'Choose a perspective'), create('span', 'PERSONAL RECORDS / Revealed by your playthrough')); cards.before(label);
         for (const card of cards.children) {
           const action = card.querySelector('button'); card.classList.toggle('perspective-locked', !!action?.disabled);
           const status = create('span', action?.disabled ? 'UNDISCOVERED' : action?.textContent.includes('completed') ? 'COMPLETED' : 'AVAILABLE', 'perspective-state');

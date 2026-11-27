@@ -57,6 +57,7 @@ export default function MediaLinks() {
               <Link to="/see-world" className="media-card media-card-emerald"><span className="media-diamond" aria-hidden="true">◈</span><h3>See World</h3><p>Discover character perspectives through your game progress. Your choices open new Night Walker sections.</p><span className="media-action">Explore the stories <ArrowRight size={17} aria-hidden="true" /></span></Link>
             </div>
             <p className="media-small-note">New to the universe? The comic needs no save. To connect the games, use the same browser and device.</p>
+            <p className="media-small-note"><a href="https://ninja-ops-guy.github.io/techops-hero/">Continue your original game save</a>. Saves from the original game site stay there; they do not transfer to K Terminal.</p>
           </section>
           <section aria-labelledby="explore-label">
             <div className="media-section-label"><h2 id="explore-label">FOLLOW YOUR CURIOSITY</h2><span>02 / ART & MUSIC</span></div>
