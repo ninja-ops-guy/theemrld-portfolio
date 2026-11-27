@@ -4,6 +4,7 @@ import ProjectCommentDialog from '../components/ProjectCommentDialog';
 import GuidedScoreDialog from '../components/GuidedScoreDialog';
 import type { GuidedScore } from '../../public/k-world/guided.js';
 import './KMusicSession.css';
+import { createMediaHandoff } from '../../public/k-world/media-handoff.js';
 
 export type MusicTrack = { id: string; title: string; url: string; provider?: string; slot?: number; createdAt?: string | null };
 export type ReaderPosition = { edition: string; page: number; revision: string };
@@ -78,8 +79,26 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     if (readyRef.current) post(message);
     else pending.current = [...pending.current.slice(-49), message];
   }, [post]);
-  const sendCommand = useCallback((raw: string) => send({ type: 'k-world:command', raw }), [send]);
-  const playTrack = useCallback((track: { url: string; title: string }, autoplay = true) => send({ type: 'k-world:select', track, autoplay }), [send]);
+  const handoff = useMemo(() => createMediaHandoff({
+    pauseMusic: () => send({ type: 'k-world:command', raw: 'pause' }),
+    media: () => document.querySelectorAll<HTMLMediaElement>('[data-k-playback-handoff]'),
+  }), [send]);
+  useEffect(() => {
+    const onPlay = (event: Event) => {
+      const clip = event.target;
+      if (clip instanceof HTMLMediaElement && clip.matches('[data-k-playback-handoff]')) handoff.playClip(clip);
+    };
+    document.addEventListener('play', onPlay, true);
+    return () => document.removeEventListener('play', onPlay, true);
+  }, [handoff]);
+  const sendCommand = useCallback((raw: string) => {
+    if (/^(?:play|resume|latest|next|prev|previous)(?:\s|$)/i.test(raw.trim())) handoff.playMusic();
+    send({ type: 'k-world:command', raw });
+  }, [send, handoff]);
+  const playTrack = useCallback((track: { url: string; title: string }, autoplay = true) => {
+    if (autoplay) handoff.playMusic();
+    send({ type: 'k-world:select', track, autoplay });
+  }, [send, handoff]);
   const setVolume = useCallback((volume: number) => send({ type: 'k-world:volume', volume }), [send]);
   const seek = useCallback((ms: number, trackGeneration?: number) => send({ type: 'k-world:seek', ms, trackGeneration }), [send]);
   const openComments = useCallback(() => setCommentsOpen(true), []);
@@ -147,7 +166,10 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
           for (const message of pending.current.splice(0)) post(message);
           break;
         case 'k-world:state':
-          if (data.audio && typeof data.audio.status === 'string') setAudio(data.audio);
+          if (data.audio && typeof data.audio.status === 'string') {
+            handoff.observeMusic(data.audio.status);
+            setAudio(data.audio);
+          }
           setBackground(data.background === true); setGuided(data.guided === true);
           if (typeof data.guidedNotice === 'string') setGuidedNotice(data.guidedNotice);
           break;
@@ -164,7 +186,7 @@ export default function AsciiCityWorld({ children }: { children: ReactNode }) {
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);
-  }, [navigate, post]);
+  }, [navigate, post, handoff]);
 
   useEffect(() => {
     if (worldVisible || terminalVisible) setStarted(true);
